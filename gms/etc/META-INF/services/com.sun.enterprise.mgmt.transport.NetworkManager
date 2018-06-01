@@ -1,0 +1,3 @@
+com.sun.enterprise.mgmt.transport.grizzly.grizzly2.GrizzlyNetworkManager2
+com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9.GrizzlyNetworkManager1_9
+com.sun.enterprise.mgmt.transport.jxta.JxtaNetworkManager

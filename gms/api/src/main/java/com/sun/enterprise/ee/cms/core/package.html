@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+
+    Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<html>
+  <head>
+    <title>Description of com.sun.enterprise.ee.cms.core package</title>
+  </head>
+  <body>
+      <h1>Shoal GMS's core client API</h1>
+      <hr>
+      <p>Shoal's client API is provided in this package. The entry point for 
+          clients using GMS is the <code>GMSFactory</code> class. This class 
+          provides the APIs for getting a <code>GroupManagementService</code>
+          instance for a given member name, group name, member type and 
+          configuration. The <code>GroupManagementService</code>
+          instance provides methods for registering interest in specific group 
+          events. 
+      </p>
+      <p>To process group events on the client side, Shoal makes it easy for 
+          clients by providing a single interface that needs to be implemented, 
+          namely, the <code>CallBack</code> interface. This interface provides a
+          method <code>processNotification()</code> that accepts a <code>Signal</code>
+          object. Signals are of various types - each type corresponding to a 
+          specific group event. Clients register interest in these events by 
+          using <code>addActionFactory()</code> methods provided in 
+          <code>GroupManagementService</code>. The clients pass in an instance 
+      of a specific <code>ActionFactory</code> type to the method.</p>
+      <p>The <code>ActionFactory</code> is a client side artifact with its 
+      sub-types corresponding  to a specific group event. One can think of the 
+      <code>ActionFactory</code>-<code>Action</code>-<code>Signal</code> triplet
+as a set of one-to-one correspondence objects for a specific type of group event. 
+Clients can choose to implement a specific <code>ActionFactory</code> and 
+<code>Action</code> type or use the reference implementations provided in the 
+    <code>com.sun.enterprise.ee.cms.impl.client</code> package.</p>
+    
+    <p>For instance, clients simply implement the CallBack interface and register 
+        for group events using the default implementation of the, say, 
+        <code>FailureNotificationActionFactory</code> to receive notifications for 
+    failure events in the group.</p>
+  </body>
+</html>

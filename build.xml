@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+
+    Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<project name="Shoal" default="all" basedir=".">  
+
+    <target name="all" depends="clean, build"/>
+    <target name="build" depends="maven-build, ant-build-tests, assembletestarchive"/>
+
+    <target name="ant-build-tests" description="Execute clean and build targets for all test directories">
+        <!-- since gms does not have a seperate test directory structure, we need to special case this -->
+        <subant target="clean">
+            <fileset dir="gms" includes="**/build.xml"/>
+            <fileset dir="." includes="**/tests/**/build.xml"/>
+        </subant>
+        <subant target="build">
+            <fileset dir="gms" includes="**/build.xml"/>
+            <fileset dir="." includes="**/tests/**/build.xml"/>
+        </subant>
+    </target>
+    <target name="ant-build-src" description="Execute clean and build targets for all directories">
+        <subant target="build">
+            <fileset dir="gms" includes="**/build.xml"/>
+            <fileset dir="." includes="**/build.xml" excludes="build.xml"/>
+        </subant>
+    </target>
+    <target name="maven-build" description="Execute Maven clean install">
+        <exec executable="mvn">
+            <arg value="clean"/>
+            <arg value="install"/>
+        </exec>
+    </target>
+    <target name="clean">
+        <subant target="clean">
+            <fileset dir="." includes="**/build.xml" excludes="build.xml"/>
+        </subant>
+        <exec executable="mvn">
+            <arg value="clean"/>
+        </exec>
+    </target>
+    <target name="assembletestarchive" description="create test archive of entire workspace">
+        <delete dir="dist"/>
+        <mkdir dir="dist"/>
+        <zip zipfile="dist/shoal-test.zip" >
+            <fileset dir="." includes="**/*.jar"/>
+            <fileset dir="." includes="**/*.sh"/>
+        </zip>
+        <zip zipfile="dist/shoal-test.zip" update="yes">
+            <fileset dir="." includes="**/configs/**" />
+        </zip>
+    </target>
+</project>

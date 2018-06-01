@@ -1,0 +1,30 @@
+
+In order to build the GMS sources, make sure you have a recent version of Ant in your path. 
+In the current directory. i.e shoal/gms, execute the following :
+
+ant or ant all 
+to delete existing built classes and jars and to build sources and assemble jars
+
+ant clean 
+to only clean the built classes and assembled jars
+
+ant compile 
+to only compile sources and place built classes in the build directory
+
+ant assemble
+to only build jar from already built sources. The built jar "shoal-gms.jar" is placed in dist directory.
+
+**********
+
+Developer level test
+
+Run following command:
+% runsimulatecluster.sh <transport>
+
+<transport> can be grizzly, jxtanew or jxta.   grizzly is the default for this script.
+
+After the run has completed, run following command. 
+% analyzelogs.sh
+
+The output shows all JOINED, JOINED_AND_READY and PLANNED_SHUTDOWN events recevied by Master server and then each member of 10 instance cluster.
+

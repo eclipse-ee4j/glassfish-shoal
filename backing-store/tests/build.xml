@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+
+    Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<project name="backing store tests" default="all" basedir=".">
+
+    <!-- ========== Initialize Properties =================================== -->
+    <property file="./build.properties"/>
+
+    <target name="getgrizzlyjars">
+        <property name="grizzlyframeworkjar" value="${grizzly-path}/grizzly-framework.jar" />
+        <property name="grizzlyutilsjar" value="${grizzly-path}/grizzly-utils.jar" />
+    </target>
+    <target name="getshoalgmsjars">
+        <property name="shoalgmsapijar" value="${shoal-gms-api-path}/shoal-gms-api.jar" />
+        <property name="shoalgmsimpljar" value="${shoal-gms-impl-path}/shoal-gms-impl.jar" />
+        <property name="shoalgmstestsjar" value="${shoal-gms-tests-path}/shoal-gms-tests.jar" />
+
+    </target>
+    <target name="getshoalcachejars">
+        <property name="shoalcachejar" value="${shoal-cache-path}/shoal-cache.jar" />
+    </target>
+    <target name="getbackingstorejars">
+        <property name="shoalbackingstorejar" value="${shoal-backing-store-path}/shoal-backing-store.jar" />
+    </target>
+    <target name="gethaapijars">
+        <xmlproperty prefix="haapijar" file="${basedir}/../../pom.xml"/>
+
+        <echo message="Updating ha-api.jar from maven repository" />
+
+        <!-- when I figure out how to parse multivalues in pom.xml then I can use the code below -->
+        <!--
+        <xmlproperty file="../pom.xml"/> 
+        <pathconvert property="hagroupid" description="Replace '.' with '/' and assign value to new property">
+            <path path="${project.dependencies.dependency.groupId}"/> 
+
+            Pathconvert will try to add the root directory to the "path", so replace with empty string 
+            <map from="${basedir}" to="" />
+            <filtermapper>
+                <replacestring from="." to="/"/>
+            </filtermapper>
+        </pathconvert>
+        -->
+        <property name="hagroupid" value="${haapigroupid}"/>
+        <property name="haapiversion" value="${haapijar.project.properties.ha.api.version}"/>
+        <property name="mavenhaapijar" value="${maven.repository}/${hagroupid}/ha-api/${haapiversion}/ha-api-${haapiversion}.jar"/>
+        <echo message="mavenhaapijar=${mavenhaapijar}"/>
+        <mkdir dir="${ha-api-path}"/>
+        <delete file="${ha-api-path}/ha-api.jar"/>
+        <copy file="${mavenhaapijar}" tofile="${ha-api-path}/ha-api.jar"/>
+        <property name="haapijar" value="${ha-api-path}/ha-api.jar" />
+    </target>
+
+    <!-- The JAR locations can be overridden by editing the build.properties file and
+         specifying in there the locations of the jars
+    -->
+    <target name="getalljars" depends="getgrizzlyjars,getshoalgmsjars,getshoalcachejars,getbackingstorejars,gethaapijars"
+            description="Get all the jars required to run this test.">
+        <fail message="A required jar was not found, please verify jar locations and try again">
+            <condition>
+                <not>
+                    <and>
+                        <available file="${grizzlyframeworkjar}"/>
+                        <available file="${grizzlyutilsjar}"/>
+                        <available file="${shoalgmsapijar}"/>
+                        <available file="${shoalgmsimpljar}"/>
+                        <available file="${shoalgmstestsjar}"/>
+                        <available file="${shoalcachejar}"/>
+                        <available file="${shoalbackingstorejar}"/>
+                        <available file="${haapijar}"/>
+                    </and>
+                </not>
+            </condition>
+            ${grizzlyframeworkjar}
+            ${grizzlyutilsjar}
+            ${shoalgmsapijar}
+            ${shoalgmsimpljar}
+            ${shoalgmstestsjar}
+            ${shoalcachejar}
+            ${shoalbackingstorejar}
+            ${haapijar}
+        </fail>
+
+        <path id="compile.classpath">
+            <pathelement location="${grizzlyframeworkjar}"/>
+            <pathelement location="${grizzlyutilsjar}"/>
+            <pathelement location="${shoalgmsapijar}"/>
+            <pathelement location="${shoalgmsimpljar}"/>
+            <pathelement location="${shoalgmstestsjar}"/>
+            <pathelement location="${shoalcachejar}"/>
+            <pathelement location="${shoalbackingstorejar}"/>
+            <pathelement location="${haapijar}"/>
+        </path>
+
+    </target>
+
+    <!-- all -->
+    <!-- DISABLED UNTIL I FIGURE OUT WHAT GOING ON WITH THIS MODULE, RECENT CHANGE
+         Revision 1119  by mk111283:
+         Removed backing-store-module
+     broke these tests
+    <target name="all" depends="clean, build"
+    -->
+    <target name="all" 
+            description="DISABLED UNTIL I FIGURE OUT WHAT GOING ON WITH THIS MODULE">
+    </target>
+    
+    <!-- build -->
+    <!-- DISABLED UNTIL I FIGURE OUT WHAT GOING ON WITH THIS MODULE, RECENT CHANGE
+         Revision 1119  by mk111283:
+         Removed backing-store-module
+     broke these tests
+    <target name="build" depends="compile, assembletestjar"
+    -->
+    <target name="build"
+            description="DISABLED UNTIL I FIGURE OUT WHAT GOING ON WITH THIS MODULE">
+    </target>
+    
+    <!-- init. Initialization involves creating publishing directories and
+         OS specific targets. -->
+    <target name="init" depends="getalljars" description="${component.name} initialization">
+        <tstamp>
+            <format property="start.time" pattern="MM/dd/yyyy hh:mm aa"/>
+        </tstamp>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+
+    <!-- compile: compile the sources -->
+    <target name="compile" depends="init"
+            description="Compile ${component.name} sources">
+
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               target="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               includes="**/*.java"
+               >
+            <compilerarg value="-Xlint:unchecked"/>
+            <classpath>
+                <path refid="compile.classpath"/>
+            </classpath>
+        </javac>
+
+    </target>
+
+    <target name="assembletestjar" description="create ${shoalbackingstoretestjar}" >
+        <!-- create test jar -->
+        <jar jarfile="${dist.dir}/${shoalbackingstoretestjar}" update="yes">
+            <fileset dir="${classes.dir}" includes="**/*.class"/>
+        </jar>
+        <jar jarfile="${dist.dir}/${shoalbackingstoretestjar}" update="yes">
+            <fileset dir="${src.dir}" includes="**/*.java"/>
+        </jar>
+
+        <jar jarfile="${dist.dir}/${shoalbackingstoretestjar}" update="yes">
+            <fileset dir=".." includes="**/*.jar" excludes="**/${shoalbackingstoretestjar}" />
+            <fileset dir=".." includes="**/*.sh"/>
+        </jar>
+    </target>
+
+
+
+    <!-- clean -->
+    <target name="clean">
+        <delete dir="${classes.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <delete dir="${ha-api-path}"/>
+    </target>
+
+</project>

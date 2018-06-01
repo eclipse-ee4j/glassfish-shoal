@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+
+    Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<html>
+  <head>
+    <title>Description of com.sun.enterprise.ee.cms.impl.client package</title>
+  </head>
+  <body>
+      <h1>Shoal GMS's reference implementations of the client-side 
+      <code>ActionFactory</code> and <code>Action</code> sub-types</h1>
+      <hr>
+      <p>This package contains reference implementations of the various 
+          <code>Action</code> and <code>ActionFactory</code> sub-type interfaces. 
+          These are provided for convenience purposes. Clients are free to have 
+          their own implementations of these interfaces should there be a need 
+          for a different implementation.</p>
+          <p>A specific <code>ActionFactory</code> sub type produces a 
+          corresponding <code>Action</code> sub type. For instance, a 
+      <code>FailureNotificationActionFactory</code> produces a 
+  <code>FailureNotificationAction</code> instance. An <code>Action</code>
+  sub type consumes a corresponding <code>Signal</code> sub type. A 
+  <code>Signal</code> sub type stands for a specific group event. For instance,
+  the <code>FailureNotificationAction</code> consumes a 
+  <code>FailureNotificationSignal</code>. GMS generates a specific 
+  <code>Signal</code> sub type's implementation in each member process for a given 
+    group event and passes it to the corresponding <code>Action</code> 
+    instance(s) in a separate thread.</p>
+      
+  </body>
+</html>

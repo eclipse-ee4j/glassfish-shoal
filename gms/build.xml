@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+
+    Copyright (c) 2004, 2018 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<project name="Shoal Group Management Service Module" default="all" basedir=".">  
+
+    <!-- ========== Initialize Properties =================================== -->
+
+    <property file="${basedir}/project.properties"/>
+    <property file="${basedir}/build.properties"/>
+    <import file="${basedir}/taskdefs.xml"/>
+
+    <!--
+        See if we have the GroupLayout class to build the test UI
+    -->
+    <available classname="javax.swing.GroupLayout" property="build.testui"/>
+    <condition property="build.excludes" value="" else="**/LWRMulticastTestUI.java">
+        <istrue value="${build.testui}"/>
+    </condition>
+
+    <!-- all -->
+    <target name="all" depends="clean, build"
+            description="Build entire ${component.name}">
+    </target>
+
+    <!-- build -->
+    <target name="build" depends="compile, assemble"
+            description="Build entire ${component.name}">
+    </target>
+
+    <!-- init. Initialization involves creating publishing directories and
+         OS specific targets. -->
+    <target name="init" description="${component.name} initialization">
+        <tstamp>
+            <format property="start.time" pattern="MM/dd/yyyy hh:mm aa"/>
+        </tstamp>
+        <mkdir dir="${component.classes.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <path id="compile.classpath">
+        <pathelement location="${jxta.jar}"/>
+        <pathelement location="${grizzly-framework.jar}"/>
+        <pathelement location="${grizzly-utils.jar}"/>
+        <pathelement location="${grizzly2-framework.jar}"/>
+    </path>
+
+    <!--  <target name="getlastgrizzlyjars" -->
+    <target name="updategrizzlyjars"
+            description="Getting lastest grizzly jars from maven repository">
+        <xmlproperty file="../pom.xml"/>
+        <pathconvert property="grizzlygroupid" description="Replace '.' with '/' and assign value to new property">
+            <path path="${project.properties.grizzly.group.id}"/>
+            <!--Pathconvert will try to add the root directory to the "path", so replace with empty string -->
+            <map from="${basedir}" to="" />
+            <filtermapper>
+                <replacestring from="." to="${file.separator}"/>
+            </filtermapper>
+        </pathconvert>
+        <echo message="Updating grizzly-utils.jar from maven repository" />
+        <property name="grizzlyutiljar" value="${maven.repository}${grizzlygroupid}${file.separator}grizzly-utils${file.separator}${project.properties.grizzly.version}${file.separator}grizzly-utils-${project.properties.grizzly.version}.jar"/>
+        <delete file="lib${file.separator}grizzly-utils.jar"/>
+        <copy file="${grizzlyutiljar}" tofile="lib${file.separator}grizzly-utils.jar"/>
+        <echo message="Updating grizzly-framework.jar from maven repository" />
+        <property name="grizzlyframeworkjar" value="${maven.repository}${grizzlygroupid}${file.separator}grizzly-framework${file.separator}${project.properties.grizzly.version}${file.separator}grizzly-framework-${project.properties.grizzly.version}.jar"/>
+        <delete file="lib${file.separator}grizzly-framework.jar"/>
+        <copy file="${grizzlyframeworkjar}" tofile="lib${file.separator}grizzly-framework.jar"/>
+    </target>
+
+
+    <!-- compile: compile the sources -->
+    <target name="compile" depends="init"
+            description="Compile ${component.name} sources">
+
+        <javac srcdir="${api.src.dir}"
+               destdir="${component.classes.dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               target="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               includes="**/*.java"
+               excludes="com/sun/enterprise/osgi/ShoalActivator.java,**/${junit_src_dir}/**"
+               includeAntRuntime="false"
+               >
+            <compilerarg value="-Xlint:unchecked"/>
+            <classpath>
+                <path refid="compile.classpath"/>
+            </classpath>
+        </javac>
+        <javac srcdir="${impl.src.dir}"
+               destdir="${component.classes.dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               target="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               includes="**/*.java"
+               excludes="com/sun/enterprise/osgi/ShoalActivator.java,**/${junit_src_dir}/**"
+               includeAntRuntime="false"
+               >
+            <compilerarg value="-Xlint:unchecked"/>
+            <classpath>
+                <path refid="compile.classpath"/>
+            </classpath>
+        </javac>
+
+        <mkdir  dir= "${component.classes.dir}/com/sun/enterprise/ee/cms/logging"/>
+        <copy todir="${component.classes.dir}/com/sun/enterprise/ee/cms/logging"
+              file="${resource.dir}/com/sun/enterprise/ee/cms/logging/LogStrings.properties"/>
+
+        <copy todir="${component.classes.dir}/com/sun/enterprise/ee/cms/core"
+              file="${api.resource.dir}/com/sun/enterprise/ee/cms/core/LogStrings.properties"/>
+
+        <javac srcdir="${tests.dir}"
+               destdir="${component.classes.dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               target="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               includes="**/*.java"
+               excludes="${build.excludes},**/${junit_src_dir}/**"
+               includeAntRuntime="false"
+               >
+            <compilerarg value="-Xlint:unchecked"/>
+            <classpath>
+                <path refid="compile.classpath"/>
+            </classpath>
+        </javac>
+
+    </target>
+
+    <!-- assemble: create jar files and jar files containing localized
+    content -->
+    <target name="assemble" depends="init"
+            description="Create jar files">
+        <antcall target="assemblejar" />
+        <antcall target="assembletestjar" />
+        <antcall target="assemblegmswszip" />
+    </target>
+
+    <target name="assemblejar" description="create ${shoal-gms.jar}" depends="update.shoal.gms.version.in.project.properties" >
+        <copy todir="${component.classes.dir}">
+            <fileset dir="${api.src.dir}"
+                     includes="**/*.properties"/>
+        </copy>
+        <copy todir="${component.classes.dir}">
+            <fileset dir="${impl.src.dir}"
+                     includes="**/*.properties"/>
+        </copy>
+        <!-- reload the shoal.gms.version property -->
+        <var name="shoal.gms.version" unset="true"/>
+        <property file="${basedir}/project.properties"/>
+        <property name="version.num" value="${shoal.gms.version}"/>
+
+	<manifest file="MANIFEST.MF">
+          <attribute name="Implementation-Version" value="${version.num}"/>
+          <attribute name="package" value="com.sun.enterprise.ee.cms"/>
+          <attribute name="url" value="https://shoal.java.net"/>
+        </manifest>
+
+        <!-- don't include the tests, they will be put in seperate jar file -->
+        <jar jarfile="${dist.dir}/${shoal-gms.jar}" update="yes" manifest="MANIFEST.MF">
+            <fileset dir="${component.classes.dir}" excludes="**/*test*/**, **/*Test*/**">
+                <include name="**/*.class"/>
+                <include name="**/*.properties"/>
+            </fileset>
+            <fileset dir="${api.src.dir}">
+                <include name="**/*.dtd"/>
+                <include name="**/*.xml"/>
+            </fileset>
+            <fileset dir="${impl.src.dir}">
+                <include name="**/*.dtd"/>
+                <include name="**/*.xml"/>
+            </fileset>
+            <fileset dir="etc">
+                <include name="**/services/*"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="assembleGrizzly" depends="clean, init, compile"
+            description="Create ${component.name} jar files">
+
+        <delete  dir="${dist.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <copy todir="${component.classes.dir}">
+            <fileset dir="${api.src.dir}"
+                     includes="**/*.properties"/>
+            <fileset dir="${tests.dir}"/>
+        </copy>
+        <copy todir="${component.classes.dir}">
+            <fileset dir="${impl.src.dir}"
+                     includes="**/*.properties"/>
+            <fileset dir="${tests.dir}"/>
+        </copy>
+
+        <!-- don't include the tests, they will be put in seperate jar file -->
+        <jar jarfile="${dist.dir}/${shoal-gms.jar}" update="yes">
+            <fileset dir="${component.classes.dir}" excludes="**/*test*/**, **/*Test*/**">
+                <include name="**/*.class"/>
+                <include name="**/*.properties"/>
+                <exclude name="**/jxta/*.class"/>
+                <exclude name="**/jxtamgmt/*.class"/>
+            </fileset>
+            <fileset dir="${api.src.dir}">
+                <include name="**/*.dtd"/>
+                <include name="**/*.xml"/>
+            </fileset>
+            <fileset dir="${impl.src.dir}">
+                <include name="**/*.dtd"/>
+                <include name="**/*.xml"/>
+            </fileset>
+            <fileset dir="etc">
+                <include name="**/services/*"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="assembletestjar" description="create ${shoal-gms-tests.jar}" >
+        <!-- create test jar -->
+        <jar jarfile="${dist.dir}/${shoal-gms-tests.jar}" update="yes">
+            <fileset dir="${component.classes.dir}" includes="**/*test*/**, **/*Test*/**"/>
+            <fileset dir="${tests.dir}" includes="**/*.java"/>
+        </jar>
+    </target>
+
+    <target name="assemblegmswszip" description="create ${shoal-gms-ws.zip}" depends="gms-javadocs" >
+        <zip zipfile="dist/${shoal-gms-ws.zip}" >
+            <zipfileset prefix="gms" dir="." includes="**/*.jar" excludes="**/api/**, **/impl/**, lib/jxta.jar"/>
+            <zipfileset prefix="gms" dir="." filemode="755" includes="**/*.sh, bin/mcastvalidator" />
+            <zipfileset prefix="gms" dir="." includes="**/*.xml" excludes="**/pom.xml" />
+            <zipfileset prefix="gms" dir="." includes="**/*.properties" />
+            <zipfileset prefix="gms" dir="." includes="**/configs/**" excludes="**/*.properties" />
+        </zip>
+	<zip zipfile="dist/shoal-gms-src.zip">
+	    <zipfileset prefix="gms" dir="." includes="**/*.java **/LogStrings.properties **/LocalStrings.properties"/>
+	</zip>
+	<zip zipfile="dist/shoal-gms-docs.zip">
+	    <zipfileset prefix="docs" dir="../www/docs" includes="**/*"/>
+	</zip>
+    </target>
+
+
+    <!-- clean -->
+    <target name="clean">
+        <delete dir="${component.classes.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- javadoc -->
+    <target name="gms-javadocs" depends="update.shoal.gms.version.in.project.properties">
+        <javadoc packagenames="com.sun.enterprise.*"
+                 sourcepath="${api.src.dir}:${impl.src.dir}:${tests.dir}"
+                 destdir="${javadocs.dir}"
+                 version="true"
+                 use="true"
+                 private="false"
+                 windowtitle="Shoal Group Management Service Framework"
+                 doctitle="Shoal Group Management Service Framework       Verson: ${shoal.gms.version}"
+                 bottom="Copyright 2011 Oracle, Inc. All rights reserved.
+                 Use is subject to license terms." >
+
+            <link href="http://download.oracle.com/javase/6/docs/api" offline="true" packageListLoc="lib/javase6_docs_api_package-list"/>
+
+            <group title="Core Client Interfaces and Implementations" 
+                   packages="com.sun.enterprise.ee.cms.core:com.sun.enterprise.ee.cms.core.*,
+                   com.sun.enterprise.ee.cms.impl.client:com.sun.enterprise.ee.cms.impl.client.*"/>
+
+            <group title="Service Provider Interface"
+                   packages="com.sun.enterprise.ee.cms.spi:com.sun.enterprise.ee.cms.spi.*"/>
+
+            <group title="Grizzly Transport Implementation"
+                   packages="com.sun.enterprise.mgmt.transport:com.sun.enterprise.mgmt.transport.*,com.sun.enterprise.mgmt.transport.grizzly:com.sun.enterprie.mgmt.transport.grizzly.*"/>
+
+            <group title="Demonstration Example"
+                   packages="com.sun.enterprise.ee.cms.tests:com.sun.enterprise.ee.cms.tests.*"/>
+
+            <classpath>
+                <path refid="compile.classpath"/>
+            </classpath>
+        </javadoc>
+    </target>
+
+    <target name="bundle-src">
+        <antcall target="gms-javadocs"/>
+        <echo message="Bundling up the sources under ${dist.dir}/shoal-gms-src.jar"/>
+        <mkdir dir="${bundle.gms.javadocs}"/>
+        <mkdir dir="${bundle.gms.sources}"/>
+        <mkdir dir="${bundle.gms.lib}"/>
+
+        <copy todir="${bundle.gms.javadocs}">
+            <fileset dir="${javadocs.dir}"/>
+        </copy>
+        <copy todir="${bundle.gms.sources}">
+            <fileset dir="${api.src.dir}"/>
+        </copy>
+        <copy todir="${bundle.gms.sources}">
+            <fileset dir="${impl.src.dir}"/>
+        </copy>
+        <copy todir="${bundle.gms.lib}">
+            <fileset file="${jxta.jar}"/>
+            <fileset file="${grizzly-framework.jar}"/>
+            <fileset file="${grizzly-utils.jar}"/>
+            <fileset file="${grizzly2-framework.jar}"/>
+        </copy>
+        <copy todir="${bundle.gms}">
+            <fileset file="${license.dir}"/>
+            <fileset file="./project.properties"/>
+            <fileset file="./build.properties"/>
+            <fileset file="./build.xml"/>
+            <fileset file="./README"/>
+            <fileset file="./maven.xml"/>
+            <fileset file="./project.xml"/>
+        </copy>
+        <jar jarfile="${dist.dir}/shoal-gms-src.jar" basedir="${bundle.gms}"/>
+    </target>
+
+    <target name="test-sender" depends="build" description="Run LWRMulticastSenderTest">
+        <java classname="com.sun.enterprise.jxtamgmt.LWRMulticastSenderTest" fork="true">
+            <classpath>
+                <path refid="compile.classpath"/>
+                <pathelement location="${dist.dir}/${shoal-gms.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="test-rec" depends="build" description="Run LWRMulticastRecTest">
+        <java classname="com.sun.enterprise.jxtamgmt.LWRMulticastRecTest" fork="true">
+            <classpath>
+                <path refid="compile.classpath"/>
+                <pathelement location="${dist.dir}/${shoal-gms.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="test-ui" depends="build" description="Run LWRMulticastTestUI">
+        <fail message="LWRMulticastTestUI needs Java 6 or above to run">
+            <condition>
+                <isfalse value="${build.testui}"/>
+            </condition>
+        </fail>
+        <java classname="com.sun.enterprise.jxtamgmt.LWRMulticastTestUI" fork="true">
+            <classpath>
+                <path refid="compile.classpath"/>
+                <pathelement location="${dist.dir}/${shoal-gms.jar}"/>
+            </classpath>
+        </java>
+    </target>
+    <target name="test-mcastsender" depends="build" description="Run MulticastSender">
+        <java classname="net.MulticastSender" fork="true">
+            <classpath>
+                <path refid="compile.classpath"/>
+                <pathelement location="${dist.dir}/${shoal-gms.jar}"/>
+            </classpath>
+            <arg value="229.9.1.1"/>
+            <arg value="2299"/>
+        </java>
+    </target>
+
+    <target name="test-mcastsniffer" depends="build" description="Run MulticastSniffer">
+        <java classname="net.MulticastSniffer" fork="true">
+            <classpath>
+                <path refid="compile.classpath"/>
+                <pathelement location="${dist.dir}/${shoal-gms.jar}"/>
+            </classpath>
+            <arg value="229.9.1.1"/>
+            <arg value="2299"/>
+        </java>
+    </target>
+
+    <target name="simplejointest" depends="build" description="Simple JoinTest">
+        <java classname="com.sun.enterprise.shoal.jointest.SimpleJoinTest" fork="true">
+            <classpath>
+                <path refid="compile.classpath"/>
+                <pathelement location="${dist.dir}/${shoal-gms.jar}"/>
+            </classpath>
+            <arg value="-Dcom.sun.management.jmxremote"/>
+            <arg value="-DLOG_LEVEL=FINE"/>
+        </java>
+    </target>
+
+    <target name="check-for-junit-jar">
+        <available file="${junit_download_dir}/${junit_jar}" property="junit_jar.present"/>
+    </target>
+    <target name="download-junit-jar" depends="check-for-junit-jar" unless="junit_jar.present" >
+        <mkdir dir="${junit_download_dir}"/>
+        <get src="${junit_download}" dest="${junit_download_dir}/${junit_jar}" verbose="true"/>
+    </target>
+    <target name="run-junit-tests" depends="download-junit-jar" description="builds and runs the juit tests">
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${junit_results}" includes="**/*"/>
+        </delete>
+        <mkdir dir="${junit_results}"/>
+        <mkdir dir="${junit_classes_dir}"/>
+        <mkdir dir="${junit_results_junit}"/>
+
+        <javac srcdir="${junit_src_dir}"
+               destdir="${junit_classes_dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               target="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               includes="**/*.java"
+               >
+            <compilerarg value="-Xlint:unchecked"/>
+            <classpath>
+                <pathelement location="dist/${shoal-gms.jar}"/>
+                <pathelement location="${junit_download_dir}/${junit_jar}"/>
+            </classpath>
+        </javac>
+        <junit printsummary="yes" showoutput="true" haltonfailure="no">
+            <classpath>
+                <pathelement location="dist/${shoal-gms.jar}"/>
+                <pathelement location="${junit_download_dir}/${junit_jar}"/>
+                <pathelement path="${junit_classes_dir}"/>
+                <pathelement location="${grizzly-framework.jar}"/>
+                <pathelement location="${grizzly-utils.jar}"/>
+                <pathelement location="${grizzly2-framework.jar}"/>
+            </classpath>
+
+            <batchtest fork="yes" todir="${junit_reports}">
+                <formatter type="xml"/>
+
+                <fileset dir="${junit_classes_dir}">
+                    <include name="**/*Test.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <antcall target="generate-junit-html-report"/>
+        <delete  dir="${junit_results_junit}"/>
+    </target>
+
+    <target name="generate-junit-html-report"  description="generate html results">
+        <mkdir dir="${junit_results_html}"/>
+        <junitreport todir="${junit_reports}">
+            <fileset dir="${junit_reports}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit_results_html}"/>
+        </junitreport>
+    </target>
+
+    <target name="get-shoal-version"  description="get the org.shoal version value from pom file minus '-SNAPSHOT'">
+        <get-ant_contrib-taskdef/>
+
+        <xmlproperty prefix="shoalgms" file="${basedir}/pom.xml"/>
+        <!--<echo message="shoalgms.project.parent.version=${shoalgms.project.parent.version}"/>-->
+        <propertyregex property="shoalgms.project.parent.version_modified"
+              input="${shoalgms.project.parent.version}"
+              regexp="(^.*)-SNAPSHOT"
+              select="\1"
+              defaultValue="${shoalgms.project.parent.version}"/>
+        <echo message="New Shoal GMS version=${shoalgms.project.parent.version_modified}"/>
+
+    </target>
+    <target name="update.shoal.gms.version.in.project.properties"  depends="get-shoal-version">
+         <!-- read file -->
+        <loadfile property="file.text" srcFile="${basedir}/project.properties" />
+
+        <!--<echo>${file.text}</echo> -->
+        <propertyregex property="shoal.gms.version.old"
+              input="${file.text}"
+              regexp="(.*)(shoal\.gms\.version=)(.*)"
+              select="\3"
+              defaultValue="Unable to determine value"/>
+        <echo message="Old Shoal GMS version=${shoal.gms.version.old}"/>
+
+        <!-- alter the shoal.gms.version value  -->
+        <propertyregex property="file.text.new"
+              input="${file.text}"
+              regexp="(.*)(shoal\.gms\.version=)(.*)"
+              replace="\1\2${shoalgms.project.parent.version_modified}"
+              defaultvalue="${file.text}"/>
+
+         <!-- write back the file contents with the changes -->
+        <echo file="${basedir}/project.properties">${file.text.new}</echo>
+        <!-- <echo>${file.text.new}</echo> -->
+    </target>
+
+</project>

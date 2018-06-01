@@ -1,0 +1,120 @@
+2009-06-08
+Description: 
+    initial version is committed
+Modified:
+    com.sun.enterprise.ee.cms.core.GMSConstans.java
+    com.sun.enterprise.ee.cms.impl.common.GMSContext.java
+    com.sun.enterprise.ee.cms.impl.common.GMSContextFactory.java
+    com.sun.enterprise.ee.cms.impl.common.ViewWindow.java
+    build.properties
+    build.xml
+Added:
+    com.sun.enterprise.ee.cms.impl.base.*
+    com.sun.enterprise.mgmt.transport.*
+    history_transport_abstraction.txt
+    readme_transport_abstraction.txt
+
+2009-06-09
+Description:
+    Fixed the bug which allowed different group's multicast packet.
+Modified:
+    com.sun.enterprise.mgmt.transport.AbstractNetworkManager.java
+
+2009-06-11
+Description:
+    When Grizzly transport layer used, the network manager sets an available tcp port between TCPSTARTPORT and TCPENDPORT.
+    This case is useful for member's joining the different group in same JVM.
+Modified:
+    com.sun.enterprise.mgmt.transport.NetworkUtility.java
+    com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager.java
+    com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.java
+
+2009-06-23
+Description:
+    Remove dependent codes which are related to Shoal issue #61
+Modified:
+    com.sun.enterprise.ee.cms.impl.base.ViewWindowImpl.java
+    com.sun.enterprise.mgmt.ClusterViewManager.java
+    com.sun.enterprise.mgmt.HealthMonitor.java
+    com.sun.enterprise.mgmt.MasterNode.java
+
+Description:
+    When Grizzly transport layer is used, use ReusableTCP|UDPSelectorHandler which has been supported from grizzly-framework-1.9.17-SNAPSHOT.jar
+    For more information, please see https://grizzly.dev.java.net/issues/show_bug.cgi?id=676
+    Update grizzly libraries from 1.9.16 to 1.9.17-SNAPSHOT(2009/06/23)    
+Modified:
+    com.sun.enterprise.mgmt.transport.grizzly.MulticastSelectorHandler.java
+    com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager.java
+Added:
+    lib/grizzly-framework.jar
+    lib/grizzly-utils.jar
+Removed:
+    lib/grizzly-framework-1.9.16.jar
+    lib/grizzly-utils-1.9.16.jar
+
+2009-06-28
+Description:
+    Fix the compilation errors on JDK5 or some JDK6s
+Modified:
+    com.sun.enterprise.mgmt.transport.BlockingIOMulticastSender.java
+    com.sun.enterprise.mgmt.transport.MessageIOException.java
+    com.sun.enterprise.mgmt.transport.NetworkUtility.java
+    com.sun.enterprise.mgmt.transport.grizzly.MulticastSelectorHandler.java
+    com.sun.enterprise.mgmt.transport.jxta.JxtaNetworkManager.java
+
+2009-07-03
+Description:
+    Support IPv6
+    Fix the following error on IPv6
+---
+[#|2009-07-02T13:47:02.520-0700|FINE|Shoal|ShoalLogger|_ThreadID=16;_ThreadName=FailureVerifier Thread for Group:g1;ClassName=SystemAdvertisementImpl;MethodName=getURIs;|Exception occurred :
+java.net.URISyntaxException: Malformed escape pair at index 35: tcp://fe80:0:0:0:223:12ff:fe23:d00e%6:4000
+    at java.net.URI$Parser.fail(URI.java:2809)
+    at java.net.URI$Parser.scanEscape(URI.java:2939)
+    at java.net.URI$Parser.scan(URI.java:2962)
+    at java.net.URI$Parser.parseAuthority(URI.java:3103)
+    at java.net.URI$Parser.parseHierarchical(URI.java:3058)
+    at java.net.URI$Parser.parse(URI.java:3014)
+    at java.net.URI.<init>(URI.java:578)
+    at com.sun.enterprise.ee.cms.impl.base.SystemAdvertisementImpl.getURIs(SystemAdvertisementImpl.java:282)
+    at com.sun.enterprise.mgmt.HealthMonitor.isConnected(HealthMonitor.java:1423)
+    at com.sun.enterprise.mgmt.HealthMonitor$FailureVerifier.verify(HealthMonitor.java:1302)
+    at com.sun.enterprise.mgmt.HealthMonitor$FailureVerifier.run(HealthMonitor.java:1284)
+    at java.lang.Thread.run(Thread.java:637)
+---
+Modified:
+    com.sun.enterprise.ee.cms.impl.base.SystemAdvertisementImpl.java
+    com.sun.enterprise.mgmt.ClusterManager.java
+    com.sun.enterprise.mgmt.transport.BlockingIOMulticastSender.java
+    com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager.java
+    com.sun.enterprise.mgmt.transport.grizzly.GrizzlyUDPConnectorWrapper.java
+    com.sun.enterprise.mgmt.transport.NetworkUtility.java
+
+2009-07-21
+Description:
+    On Linux, a MulticastSocket bound to the specified socket address doesn't work in some circumstance.(I don't know why it doesn't work correctly)
+    So I applied the workaround.
+Modified:
+    com.sun.enterprise.mgmt.transport.BlockingIOMulticastSender.java
+
+2009-07-22
+Description:
+    Supports the circumstance that cluster members are located beyond one subnet or multicast traffic is disabled in Grizzly transport layer.
+    By system properties or local properties, you can set VIRTUAL_MULTICAST_URI_LIST to be like this.
+    i.g. -DVIRTUAL_MULTICAST_URI_LIST="tcp://192.168.0.3:9090,tcp://61.77.153.2:9090"
+Modified:
+    com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.java
+    com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager.java
+Added:
+    com.sun.enterprise.mgmt.transport.VirtualMulticastSender.java
+
+2009-07-27
+Description:
+    Improves the logic of finding the default first interface and inet address.
+    If the found interface doesn't have any appropriate inet address, skips it and tries to find another again.  
+Modified:
+    com.sun.enterprise.mgmt.transport.NetworkUtility.java
+
+2009-09-10
+Description:
+    Current CVS code base is merged
