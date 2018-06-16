@@ -1,0 +1,13 @@
+language: java
+sudo: false
+
+jdk:
+- oraclejdk8
+- openjdk8
+- openjdk7
+
+install: /bin/true
+
+script:
+- mvn --batch-mode install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true --show-version
+- mvn --batch-mode verify -Dgpg.skip=true
