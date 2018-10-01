@@ -16,10 +16,11 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import com.sun.enterprise.ee.cms.core.*;
-
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.MessageSignal;
+import com.sun.enterprise.ee.cms.core.Signal;
 
 /**
  * @author Mahesh Kannan

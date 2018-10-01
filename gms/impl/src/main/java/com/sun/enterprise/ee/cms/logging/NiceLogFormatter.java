@@ -16,18 +16,18 @@
 
 package com.sun.enterprise.ee.cms.logging;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.ResourceBundle;
+import java.util.logging.ErrorManager;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
-import java.util.logging.ErrorManager;
-import java.util.logging.Level;
-import java.util.ResourceBundle;
-import java.util.HashMap;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.text.MessageFormat;
-import java.io.StringWriter;
-import java.io.PrintWriter;
 
 /**
  * NiceLogFormatter conforms to the logging format defined by the Log Working Group in Java Webservices Org. The

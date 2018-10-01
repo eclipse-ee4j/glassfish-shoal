@@ -16,12 +16,12 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.core.GMSMember;
-
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * @author Shreedhar Ganapathy Date: Jan 31, 2006
@@ -53,10 +53,11 @@ public abstract class GMSContextBase implements GMSContext {
 	}
 
 	protected static String getMemberType(final GroupManagementService.MemberType memberType) {
-		if (memberType == null)
+		if (memberType == null) {
 			return GroupManagementService.MemberType.CORE.toString();
-		else
+		} else {
 			return memberType.toString();
+		}
 	}
 
 	public GroupManagementService.MemberType getMemberType() {
@@ -92,7 +93,7 @@ public abstract class GMSContextBase implements GMSContext {
 
 	/**
 	 * Return <code>true</code> if shutting down
-	 * 
+	 *
 	 * @return <code>true</code> if shutting down
 	 */
 	public boolean isShuttingDown() {

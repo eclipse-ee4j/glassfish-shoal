@@ -16,17 +16,17 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.MessageSignal;
-import com.sun.enterprise.ee.cms.core.SignalAcquireException;
-import com.sun.enterprise.ee.cms.core.SignalReleaseException;
-
 import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Map;
 
+import com.sun.enterprise.ee.cms.core.MessageSignal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+
 /**
  * Implements MessageSignal and provides methods to access message sent by a remote member.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 20, 2004
  * @version $Revision$
  */
@@ -47,7 +47,7 @@ public class MessageSignalImpl implements MessageSignal {
 
 	/**
 	 * Returns the target component in this member to which this message is addressed.
-	 * 
+	 *
 	 * @return String targetComponent
 	 */
 	public String getTargetComponent() {
@@ -56,7 +56,7 @@ public class MessageSignalImpl implements MessageSignal {
 
 	/**
 	 * Returns the message(payload) as a byte array.
-	 * 
+	 *
 	 * @return byte[]
 	 */
 	public byte[] getMessage() {
@@ -66,7 +66,7 @@ public class MessageSignalImpl implements MessageSignal {
 	/**
 	 * Signal is acquired prior to processing of the signal to protect group resources being acquired from being affected by
 	 * a race condition
-	 * 
+	 *
 	 * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException Exception when unable to aquire the signal
 	 */
 	public void acquire() throws SignalAcquireException {
@@ -74,7 +74,7 @@ public class MessageSignalImpl implements MessageSignal {
 
 	/**
 	 * Signal is released after processing of the signal to bring the group resources to a state of availability
-	 * 
+	 *
 	 * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException Exception when unable to release the signal
 	 */
 	public void release() throws SignalReleaseException {
@@ -96,7 +96,7 @@ public class MessageSignalImpl implements MessageSignal {
 
 	/**
 	 * returns the group to which the member involved in the Signal belonged to
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getGroupName() {

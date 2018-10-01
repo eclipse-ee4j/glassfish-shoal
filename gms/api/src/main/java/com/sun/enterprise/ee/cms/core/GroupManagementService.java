@@ -350,29 +350,29 @@ public interface GroupManagementService {
 	 * @throws GMSException if called by a member that is not a WATCHDOG member or if serverToken is not currently running
 	 * in group.
 	 */
-	public void announceWatchdogObservedFailure(String serverToken) throws GMSException;
+	void announceWatchdogObservedFailure(String serverToken) throws GMSException;
 
 	/**
 	 * Returns the group name for this context
 	 *
 	 * @return the group name for this context
 	 */
-	public String getGroupName();
+	String getGroupName();
 
 	/**
 	 * Returns the MemberType for this context
 	 *
 	 * @return the MemberType for this context
 	 */
-	public GroupManagementService.MemberType getMemberType();
+	GroupManagementService.MemberType getMemberType();
 
 	/**
 	 * Returns the Instance name for this context
 	 *
 	 * @return the Instance name for this context
 	 */
-	public String getInstanceName();
+	String getInstanceName();
 
-	public void initialize(final String serverToken, final String groupName, final GroupManagementService.MemberType membertype, final Properties properties);
+	void initialize(final String serverToken, final String groupName, final GroupManagementService.MemberType membertype, final Properties properties);
 
 }

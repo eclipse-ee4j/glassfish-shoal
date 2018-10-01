@@ -16,8 +16,8 @@
 
 package com.sun.enterprise.ee.cms.impl.client;
 
-import com.sun.enterprise.ee.cms.core.CallBack;
 import com.sun.enterprise.ee.cms.core.Action;
+import com.sun.enterprise.ee.cms.core.CallBack;
 import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationActionFactory;
 
 /**

@@ -36,7 +36,7 @@ public interface MessageListener extends EventListener {
 	 * @param event a received message event
 	 * @throws MessageIOException if I/O error occurs
 	 */
-	public void receiveMessageEvent(final MessageEvent event) throws MessageIOException;
+	void receiveMessageEvent(final MessageEvent event) throws MessageIOException;
 
 	/**
 	 * Returns the message type which {@link Message} is supporting i.g. {@link Message#TYPE_CLUSTER_MANAGER_MESSAGE} or
@@ -44,5 +44,5 @@ public interface MessageListener extends EventListener {
 	 *
 	 * @return the message type about which this listener is concerned
 	 */
-	public int getType();
+	int getType();
 }

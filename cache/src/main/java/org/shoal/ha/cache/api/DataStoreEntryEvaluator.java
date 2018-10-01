@@ -25,8 +25,8 @@ public interface DataStoreEntryEvaluator<K, V> {
 
 	public enum Opcode {
 		KEEP, SELECT, DELETE, UPDATED
-	};
+	}
 
-	public Opcode eval(DataStoreEntry<K, V> entry);
+	Opcode eval(DataStoreEntry<K, V> entry);
 
 }

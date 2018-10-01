@@ -16,9 +16,6 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-import com.sun.enterprise.mgmt.transport.*;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
@@ -26,6 +23,16 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+import com.sun.enterprise.mgmt.transport.MessageListener;
+import com.sun.enterprise.mgmt.transport.MessageSender;
+import com.sun.enterprise.mgmt.transport.MulticastMessageSender;
+import com.sun.enterprise.mgmt.transport.ShoalMessageSender;
 
 /**
  * The LWRMulticast class is useful for sending and receiving JXTA multicast messages. A LWRMulticast is a (UDP)
@@ -343,14 +350,16 @@ public class LWRMulticast implements MessageListener {
 		LOG.log(Level.FINEST, "Sending a message");
 		if (pid != null) {
 			MessageSender sender = manager.getNetworkManager().getMessageSender(ShoalMessageSender.UDP_TRANSPORT);
-			if (sender == null)
+			if (sender == null) {
 				throw new IOException("message sender is null");
+			}
 			return sender.send(pid, msg);
 		} else {
 			// multicast
 			MulticastMessageSender sender = manager.getNetworkManager().getMulticastMessageSender();
-			if (sender == null)
+			if (sender == null) {
 				throw new IOException("multicast sender is null");
+			}
 			return sender.broadcast(msg);
 			// wait for ack's
 		}
@@ -377,11 +386,13 @@ public class LWRMulticast implements MessageListener {
 		if (!ids.isEmpty()) {
 			// Unicast datagram
 			MessageSender sender = manager.getNetworkManager().getMessageSender(ShoalMessageSender.UDP_TRANSPORT);
-			if (sender == null)
+			if (sender == null) {
 				throw new IOException("message sender is null");
+			}
 			for (PeerID peerID : ids) {
-				if (!sender.send(peerID, msg))
+				if (!sender.send(peerID, msg)) {
 					sent = false;
+				}
 			}
 			if (!sent) {
 				return sent;

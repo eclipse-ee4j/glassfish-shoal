@@ -16,10 +16,10 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.GMSCacheable;
-
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.sun.enterprise.ee.cms.core.GMSCacheable;
 
 /**
  * This is a wrapper Serializable dedicated to support the DistributedStateCache such that the message ncapsulates the
@@ -45,7 +45,7 @@ public class DSCMessage implements Serializable {
 	 * This constructor expects a GMSCacheable object representing the composite key comprising component, member id, and
 	 * the state specific key, followed by the value. The value object should strictly be only a byte[] or a Serializable
 	 * Object.
-	 * 
+	 *
 	 * @param key the key
 	 * @param value the object value
 	 * @param operation the type of operation

@@ -16,27 +16,27 @@
 
 package com.sun.enterprise.mgmt.transport;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSConstants;
 import com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.io.IOException;
-
 /**
  * This class implements a common {@link NetworkManager} logic simply in order to help the specific transport layer to
  * be implemented easily
  *
  * Mainly, this manages {@link MessageListener} and dispatches an inbound {@link Message} into the appropriate listener
- * 
+ *
  * @author Bongjae Chang
  */
 public abstract class AbstractNetworkManager implements NetworkManager {
@@ -74,8 +74,9 @@ public abstract class AbstractNetworkManager implements NetworkManager {
 	 */
 	@Override
 	public void addMessageListener(final MessageListener messageListener) {
-		if (messageListener != null)
+		if (messageListener != null) {
 			messageListeners.add(messageListener);
+		}
 	}
 
 	/**
@@ -83,8 +84,9 @@ public abstract class AbstractNetworkManager implements NetworkManager {
 	 */
 	@Override
 	public void removeMessageListener(final MessageListener messageListener) {
-		if (messageListener != null)
+		if (messageListener != null) {
 			messageListeners.remove(messageListener);
+		}
 	}
 
 	/**
@@ -96,14 +98,17 @@ public abstract class AbstractNetworkManager implements NetworkManager {
 		PeerID targetPeerID = null;
 		if (message != null) {
 			Object element = message.getMessageElement(Message.SOURCE_PEER_ID_TAG);
-			if (element instanceof PeerID)
+			if (element instanceof PeerID) {
 				sourcePeerID = (PeerID) element;
+			}
 			element = message.getMessageElement(Message.TARGET_PEER_ID_TAG);
-			if (element instanceof PeerID)
+			if (element instanceof PeerID) {
 				targetPeerID = (PeerID) element;
+			}
 		}
-		if (sourcePeerID != null && !localPeerID.getGroupName().equals(sourcePeerID.getGroupName()))
+		if (sourcePeerID != null && !localPeerID.getGroupName().equals(sourcePeerID.getGroupName())) {
 			return; // drop the different group's packet
+		}
 		// this is redundant check
 		// if( targetPeerID != null && !localPeerID.getGroupName().equals( targetPeerID.getGroupName() ) )
 		// return; // drop the different group's packet

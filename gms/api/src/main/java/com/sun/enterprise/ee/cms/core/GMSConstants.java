@@ -19,7 +19,7 @@ package com.sun.enterprise.ee.cms.core;
 /**
  * Herein we specify client facing constants that may be applicable to specific GMS notifications, api calls or key
  * descriptions.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Aug 15, 2005
  * @version $Revision$
  */

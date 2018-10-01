@@ -16,16 +16,20 @@
 
 package org.glassfish.ha.api.test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.glassfish.ha.store.api.*;
-import org.glassfish.ha.store.spi.BackingStoreFactoryRegistry;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
+
+import org.glassfish.ha.store.api.BackingStore;
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.api.BackingStoreException;
+import org.glassfish.ha.store.api.BackingStoreFactory;
+import org.glassfish.ha.store.api.Storeable;
+import org.glassfish.ha.store.spi.BackingStoreFactoryRegistry;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Unit test for simple App.
@@ -179,6 +183,11 @@ public class BackingStoreFactoryRegistryTest extends TestCase {
 	}
 
 	private static final class NoopData implements Storeable {
+
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = -1175597158953493010L;
 
 		@Override
 		public long _storeable_getVersion() {

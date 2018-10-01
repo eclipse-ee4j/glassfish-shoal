@@ -16,15 +16,15 @@
 
 package com.sun.enterprise.ee.cms.core;
 
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-
 import java.util.List;
+
+import com.sun.enterprise.ee.cms.spi.MemberStates;
 
 /**
  * Signal corresponding to JoinNotificationAction. This Signal enables the consumer to get specifics about a Join
  * notification. This Signal type will only be passed to a JoinNotificationAction. This Signal is delivered to
  * registered GMS Clients on all members of the group.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Feb 3, 2005
  * @version $Revision$
  */
@@ -39,7 +39,7 @@ public interface JoinNotificationSignal extends Signal, GroupStartupNotification
 
 	/**
 	 * provides a list of all live members i.e. CORE and SPECTATOR members.
-	 * 
+	 *
 	 * @return List containing the list of member token ids of all members.
 	 */
 	List<String> getAllCurrentMembers();
@@ -47,7 +47,7 @@ public interface JoinNotificationSignal extends Signal, GroupStartupNotification
 	/**
 	 * Provides the current liveness state of the member whose joining the group is being signaled by this JoinNotification
 	 * Signal. The state corresponds to one of the states enumerated by the MemberStates enum
-	 * 
+	 *
 	 * @return MemberStates
 	 */
 	MemberStates getMemberState();

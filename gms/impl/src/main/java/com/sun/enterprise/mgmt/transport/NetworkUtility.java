@@ -16,8 +16,6 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -41,6 +39,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Utility class that can be used by any calling code to do common routines about Network I/O
@@ -84,8 +84,9 @@ public class NetworkUtility {
 		try {
 			GET_ADDRESS = InetAddress.getByName(IPV4ANYADDRESS);
 		} catch (Exception ignored) {
-			if (LOG.isLoggable(Level.FINE))
+			if (LOG.isLoggable(Level.FINE)) {
 				LOG.log(Level.FINE, "failed to intialize ANYADDRESSV4. Not fatal", ignored);
+			}
 		}
 		ANYADDRESSV4 = GET_ADDRESS;
 
@@ -93,8 +94,9 @@ public class NetworkUtility {
 		try {
 			GET_ADDRESS = InetAddress.getByName(IPV6ANYADDRESS);
 		} catch (Exception ignored) {
-			if (LOG.isLoggable(Level.FINE))
+			if (LOG.isLoggable(Level.FINE)) {
 				LOG.log(Level.FINE, "failed to intialize IPV6ANYADDRESS. Not fatal", ignored);
+			}
 		}
 		ANYADDRESSV6 = GET_ADDRESS;
 
@@ -104,8 +106,9 @@ public class NetworkUtility {
 		try {
 			GET_ADDRESS = InetAddress.getByName(IPV4LOOPBACK);
 		} catch (Exception ignored) {
-			if (LOG.isLoggable(Level.FINE))
+			if (LOG.isLoggable(Level.FINE)) {
 				LOG.log(Level.FINE, "failed to intialize IPV4LOOPBACK. Not fatal", ignored);
+			}
 		}
 		LOOPBACKV4 = GET_ADDRESS;
 
@@ -113,8 +116,9 @@ public class NetworkUtility {
 		try {
 			GET_ADDRESS = InetAddress.getByName(IPV6LOOPBACK);
 		} catch (Exception ignored) {
-			if (LOG.isLoggable(Level.FINE))
+			if (LOG.isLoggable(Level.FINE)) {
 				LOG.log(Level.FINE, "failed to intialize ANYADDRESSV4. Not fatal", ignored);
+			}
 		}
 		LOOPBACKV6 = GET_ADDRESS;
 
@@ -157,19 +161,22 @@ public class NetworkUtility {
 	 * @return List which contains available addresses locally
 	 */
 	public static List<InetAddress> getAllLocalAddresses() {
-		if (allLocalAddresses != null)
+		if (allLocalAddresses != null) {
 			return allLocalAddresses;
+		}
 		List<InetAddress> allAddr = new ArrayList<InetAddress>();
 		Enumeration<NetworkInterface> allInterfaces = null;
 		try {
 			allInterfaces = NetworkInterface.getNetworkInterfaces();
 		} catch (SocketException t) {
-			if (LOG.isLoggable(Level.INFO))
+			if (LOG.isLoggable(Level.INFO)) {
 				LOG.log(Level.INFO, "Could not get local interfaces' list", t);
+			}
 		}
 
-		if (allInterfaces == null)
+		if (allInterfaces == null) {
 			allInterfaces = Collections.enumeration(Collections.<NetworkInterface>emptyList());
+		}
 
 		while (allInterfaces.hasMoreElements()) {
 			NetworkInterface anInterface = allInterfaces.nextElement();
@@ -180,23 +187,27 @@ public class NetworkUtility {
 				Enumeration<InetAddress> allIntfAddr = anInterface.getInetAddresses();
 				while (allIntfAddr.hasMoreElements()) {
 					InetAddress anAddr = allIntfAddr.nextElement();
-					if (anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress())
+					if (anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress()) {
 						continue;
+					}
 					if (!allAddr.contains(anAddr)) {
 						allAddr.add(anAddr);
 					}
 				}
 			} catch (Throwable t) {
-				if (LOG.isLoggable(Level.INFO))
+				if (LOG.isLoggable(Level.INFO)) {
 					LOG.log(Level.INFO, "Could not get addresses for " + anInterface, t);
+				}
 			}
 		}
 
 		if (allAddr.isEmpty()) {
-			if (LOOPBACKV4 != null)
+			if (LOOPBACKV4 != null) {
 				allAddr.add(LOOPBACKV4);
-			if (LOOPBACKV6 != null)
+			}
+			if (LOOPBACKV6 != null) {
 				allAddr.add(LOOPBACKV6);
+			}
 		}
 		allLocalAddresses = allAddr;
 		return allLocalAddresses;
@@ -223,7 +234,7 @@ public class NetworkUtility {
 	 * lookback interface is returned.
 	 *
 	 * @param preferIPv6 flag to indicate if IPV6 is preferred
-	 * 
+	 *
 	 * @return a first network interface
 	 * @throws IOException if an I/O error occurs or a network interface was not found
 	 */
@@ -288,8 +299,9 @@ public class NetworkUtility {
 				}
 			}
 		}
-		if (firstInterface == null)
+		if (firstInterface == null) {
 			firstInterface = loopback;
+		}
 		if (firstInterface == null) {
 			throw new IOException("failed to find a network interface");
 		} else {
@@ -426,8 +438,9 @@ public class NetworkUtility {
 			} else if (firstInetAddressV4 == null && anAddr instanceof Inet4Address) {
 				firstInetAddressV4 = anAddr;
 			}
-			if (firstInetAddressV6 != null && firstInetAddressV4 != null)
+			if (firstInetAddressV6 != null && firstInetAddressV4 != null) {
 				break;
+			}
 		}
 		if (preferIPv6 && firstInetAddressV6 != null) {
 //            LOG.info("exit getNetworkInetAddress ipv6 result=" + firstInetAddressV6);
@@ -439,8 +452,9 @@ public class NetworkUtility {
 	}
 
 	public static boolean isLoopbackNetworkInterface(NetworkInterface anInterface) {
-		if (anInterface == null)
+		if (anInterface == null) {
 			return false;
+		}
 		if (isLoopbackMethod != null) {
 			try {
 				return (Boolean) isLoopbackMethod.invoke(anInterface);
@@ -460,8 +474,9 @@ public class NetworkUtility {
 	}
 
 	public static boolean supportsMulticast(NetworkInterface anInterface) {
-		if (anInterface == null)
+		if (anInterface == null) {
 			return false;
+		}
 		boolean result = true;
 		if (isUpMethod != null) {
 			try {
@@ -491,8 +506,9 @@ public class NetworkUtility {
 	}
 
 	public static boolean isUp(NetworkInterface anInterface) {
-		if (anInterface == null)
+		if (anInterface == null) {
 			return false;
+		}
 		if (isUpMethod != null) {
 			try {
 				return (Boolean) isUpMethod.invoke(anInterface);
@@ -504,10 +520,12 @@ public class NetworkUtility {
 	}
 
 	public static void writeIntToByteArray(final byte[] bytes, final int offset, final int value) throws IllegalArgumentException {
-		if (bytes == null)
+		if (bytes == null) {
 			return;
-		if (bytes.length < offset + 4)
+		}
+		if (bytes.length < offset + 4) {
 			throw new IllegalArgumentException("bytes' length is too small");
+		}
 		bytes[offset + 0] = (byte) ((value >> 24) & 0xFF);
 		bytes[offset + 1] = (byte) ((value >> 16) & 0xFF);
 		bytes[offset + 2] = (byte) ((value >> 8) & 0xFF);
@@ -515,15 +533,17 @@ public class NetworkUtility {
 	}
 
 	public static int getIntFromByteArray(final byte[] bytes, final int offset) throws IllegalArgumentException {
-		if (bytes == null)
+		if (bytes == null) {
 			return 0;
-		if (bytes.length < offset + 4)
+		}
+		if (bytes.length < offset + 4) {
 			throw new IllegalArgumentException("bytes' length is too small");
+		}
 		int ch1 = bytes[offset] & 0xff;
 		int ch2 = bytes[offset + 1] & 0xff;
 		int ch3 = bytes[offset + 2] & 0xff;
 		int ch4 = bytes[offset + 3] & 0xff;
-		return (int) ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + ch4);
+		return (ch1 << 24) + (ch2 << 16) + (ch3 << 8) + ch4;
 	}
 
 	public static int serialize(final OutputStream baos, final Map<String, Serializable> messages) throws MessageIOException {
@@ -532,8 +552,9 @@ public class NetworkUtility {
 
 	public static int serialize(final OutputStream baos, final Map<String, Serializable> messages, final boolean debug) throws MessageIOException {
 		int count = 0;
-		if (baos == null || messages == null)
+		if (baos == null || messages == null) {
 			return count;
+		}
 		String name = null;
 		ObjectOutputStream oos = null;
 		try {
@@ -565,8 +586,9 @@ public class NetworkUtility {
 	}
 
 	public static void deserialize(final InputStream is, final int count, final Map<String, Serializable> messages) throws MessageIOException {
-		if (is == null || count <= 0 || messages == null)
+		if (is == null || count <= 0 || messages == null) {
 			return;
+		}
 		String name = null;
 		ObjectInputStream ois = null;
 		try {
@@ -637,8 +659,9 @@ public class NetworkUtility {
 
 		protected Object replaceObject(Object o) {
 			int currentDepth = currentDepth();
-			if (o instanceof IOException && currentDepth == 0)
+			if (o instanceof IOException && currentDepth == 0) {
 				broken = true;
+			}
 			if (!broken) {
 				truncate(currentDepth);
 				stack.add(o);

@@ -16,8 +16,6 @@
 
 package org.glassfish.ha.store.spi;
 
-import java.util.Set;
-
 /**
  * A Storeable is an interface that must be implemented by objects that are to be presisted in the store.
  *
@@ -29,32 +27,32 @@ public interface MutableStoreEntry extends Storable {
 	 * Mark the entire store entry as dirty
 	 *
 	 */
-	public void _markStoreEntryAsDirty();
+	void _markStoreEntryAsDirty();
 
 	/**
 	 * The store name for which this Storable was created
 	 *
 	 * @return The store name
 	 */
-	public void _markAsDirty(int attrIndex);
+	void _markAsDirty(int attrIndex);
 
 	/**
 	 * The String that can be used by the store implementation to hash the StoreEntry
 	 *
 	 * @return A (possibly null) key to be used for hashing purpose
 	 */
-	public void _markAsClean(int attrIndex);
+	void _markAsClean(int attrIndex);
 
 	/**
 	 * Get the version of this entry. A null value means that this entry
 	 *
 	 * @return The version or null if this entry has no version
 	 */
-	public void _markStoreEntryAsClean();
+	void _markStoreEntryAsClean();
 
 	/**
 	 * Set the replicating ownerid
 	 */
-	public void _setOwnerId(String ownerName);
+	void _setOwnerId(String ownerName);
 
 }

@@ -16,9 +16,9 @@
 
 package com.sun.enterprise.ee.cms.core;
 
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-
 import java.util.List;
+
+import com.sun.enterprise.ee.cms.spi.MemberStates;
 
 /**
  * Provides a handle to the interact with the membership group. Using this interface, applications can send messages to
@@ -247,7 +247,7 @@ public interface GroupHandle {
 	 * Return a snapshot of members in current view.
 	 * <p>
 	 * Note: returns an empty list if no current view.
-	 * 
+	 *
 	 * @return current members
 	 */
 	List<GMSMember> getCurrentView();
@@ -256,7 +256,7 @@ public interface GroupHandle {
 	 * Return snapshot of members in previous view.
 	 * <p>
 	 * Note: returns an empty list if no previous view.
-	 * 
+	 *
 	 * @return members from previous view
 	 */
 	List<GMSMember> getPreviousView();

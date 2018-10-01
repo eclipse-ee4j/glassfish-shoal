@@ -16,11 +16,13 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.glassfish.ha.store.api.Storeable;
-import org.shoal.ha.cache.api.*;
-import org.shoal.ha.mapper.DefaultKeyMapper;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,12 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.glassfish.ha.store.api.Storeable;
+import org.shoal.ha.cache.api.DataStore;
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreFactory;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 
 /**
  * @author Mahesh Kannan
@@ -95,7 +103,7 @@ public class SimpleDataStoreShell {
 				/*
 				 * for (int i=1; i<8; i++) { String key1 = params[0] + ":" + i; MyStoreable st1 = cache.get(key1); if (st1 == null) {
 				 * st1 = new MyStoreable(); cache.put(key1, st1); }
-				 * 
+				 *
 				 * if (params.length > 1) { st.setStr1(params[1] + ":" + i); } if (params.length > 2) { st.setStr2(params[2] + ":" + i);
 				 * } st.touch(); System.out.println("PUT " + st); ds.save(key1, st1, true); }
 				 */
@@ -114,6 +122,11 @@ public class SimpleDataStoreShell {
 	}
 
 	public static class MyStoreable implements Storeable {
+
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = 3735728171574889879L;
 
 		long version;
 

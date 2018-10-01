@@ -16,13 +16,19 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GroupHandle;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
 
 /**
  * Provides contextual information about all useful GMS artifacts. These are GMS objects that are tied to a particular
@@ -35,28 +41,28 @@ import java.util.Set;
 public interface GMSContext {
 	/**
 	 * returns the serverIdentityToken pertaining to the process that owns this GMS instance
-	 * 
+	 *
 	 * @return java.lang.String
 	 */
-	public String getServerIdentityToken();
+	String getServerIdentityToken();
 
 	/**
 	 * returns the name of the group this context represents.
-	 * 
+	 *
 	 * @return the name of the group.
 	 */
-	public String getGroupName();
+	String getGroupName();
 
 	/**
 	 * returns Group handle
-	 * 
+	 *
 	 * @return Group handle
 	 */
 	GroupHandle getGroupHandle();
 
 	/**
 	 * returns the router
-	 * 
+	 *
 	 * @return router
 	 */
 	Router getRouter();
@@ -75,7 +81,7 @@ public interface GMSContext {
 
 	long getStartTime();
 
-	public void announceGroupStartup(final String groupName, final GMSConstants.groupStartupState startupState, final List<String> memberTokens);
+	void announceGroupStartup(final String groupName, final GMSConstants.groupStartupState startupState, final List<String> memberTokens);
 
 	void announceGroupShutdown(final String groupName, final GMSConstants.shutdownState shutdownState);
 
@@ -106,21 +112,21 @@ public interface GMSContext {
 
 	void setGroupStartup(boolean value);
 
-	public GroupManagementService.MemberType getMemberType();
+	GroupManagementService.MemberType getMemberType();
 
-	public boolean isWatchdog();
+	boolean isWatchdog();
 
-	public AliveAndReadyView getPreviousAliveAndReadyView();
+	AliveAndReadyView getPreviousAliveAndReadyView();
 
-	public AliveAndReadyView getCurrentAliveAndReadyView();
+	AliveAndReadyView getCurrentAliveAndReadyView();
 
-	public Map<String, RejoinSubevent> getInstanceRejoins();
+	Map<String, RejoinSubevent> getInstanceRejoins();
 
-	public AliveAndReadyViewWindow getAliveAndReadyViewWindow();
+	AliveAndReadyViewWindow getAliveAndReadyViewWindow();
 
-	public void setGroupStartupJoinMembers(Set<String> members);
+	void setGroupStartupJoinMembers(Set<String> members);
 
-	public boolean isGroupStartupComplete();
+	boolean isGroupStartupComplete();
 
-	public boolean setGroupStartupState(String member, MemberStates state);
+	boolean setGroupStartupState(String member, MemberStates state);
 }

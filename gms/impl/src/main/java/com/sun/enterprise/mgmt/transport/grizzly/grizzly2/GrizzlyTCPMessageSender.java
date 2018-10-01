@@ -16,29 +16,26 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager;
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.glassfish.grizzly.Connection;
+import org.glassfish.grizzly.WriteResult;
+import org.glassfish.grizzly.impl.FutureImpl;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+import org.glassfish.grizzly.utils.Futures;
+
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
 import com.sun.enterprise.mgmt.transport.AbstractMessageSender;
 import com.sun.enterprise.mgmt.transport.Message;
 import com.sun.enterprise.mgmt.transport.MessageIOException;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.SocketAddress;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import org.glassfish.grizzly.CompletionHandler;
-import org.glassfish.grizzly.Connection;
-import org.glassfish.grizzly.WriteResult;
-import org.glassfish.grizzly.impl.FutureImpl;
-import org.glassfish.grizzly.impl.SafeFutureImpl;
-import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
-import org.glassfish.grizzly.utils.Futures;
+import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager;
+import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
 
 /**
  * @author Bongjae Chang

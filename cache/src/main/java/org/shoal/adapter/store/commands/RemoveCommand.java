@@ -16,18 +16,20 @@
 
 package org.shoal.adapter.store.commands;
 
+import java.util.logging.Logger;
+
 import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.logging.Logger;
 
 /**
  * @author Mahesh Kannan
  */
 public class RemoveCommand<K, V> extends AcknowledgedCommand<K, V> {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -8067458552974086794L;
 
 	protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
 

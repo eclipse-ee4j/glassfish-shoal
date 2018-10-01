@@ -16,6 +16,18 @@
 
 package org.shoal.ha.cache.impl.interceptor;
 
+import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.shoal.adapter.store.commands.NoOpCommand;
 import org.shoal.ha.cache.api.DataStoreAlreadyClosedException;
 import org.shoal.ha.cache.api.DataStoreContext;
@@ -24,14 +36,6 @@ import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 import org.shoal.ha.cache.impl.command.Command;
 import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
 import org.shoal.ha.cache.impl.util.ASyncReplicationManager;
-
-import java.io.IOException;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Mahesh Kannan
@@ -166,7 +170,7 @@ public class ReplicationCommandTransmitterWithList<K, V> implements Runnable, Co
 			if (batch.isTimeToFlush(timeStamp) || (!openStatus.get())) {
 				NoOpCommand noop = new NoOpCommand();
 				while (batch.addCommand(noop)) {
-					;
+
 				}
 			}
 			timeStamp = batch.getBatchCreationTime();

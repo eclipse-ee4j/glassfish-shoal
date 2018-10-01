@@ -16,10 +16,9 @@
 
 package org.shoal.ha.group;
 
-import org.shoal.ha.cache.impl.util.MessageReceiver;
-import org.shoal.ha.group.GroupMemberEventListener;
-
 import java.util.List;
+
+import org.shoal.ha.cache.impl.util.MessageReceiver;
 
 /**
  * The minimal methods that a GS must implement to be used by the replication service.
@@ -28,20 +27,20 @@ import java.util.List;
  */
 public interface GroupService {
 
-	public String getGroupName();
+	String getGroupName();
 
-	public String getMemberName();
+	String getMemberName();
 
-	public List<String> getCurrentCoreMembers();
+	List<String> getCurrentCoreMembers();
 
-	public void registerGroupMemberEventListener(GroupMemberEventListener listener);
+	void registerGroupMemberEventListener(GroupMemberEventListener listener);
 
-	public void removeGroupMemberEventListener(GroupMemberEventListener listener);
+	void removeGroupMemberEventListener(GroupMemberEventListener listener);
 
-	public void close();
+	void close();
 
-	public void registerGroupMessageReceiver(String messageToken, MessageReceiver receiver);
+	void registerGroupMessageReceiver(String messageToken, MessageReceiver receiver);
 
-	public boolean sendMessage(String targetMemberName, String messageToken, byte[] data);
+	boolean sendMessage(String targetMemberName, String messageToken, byte[] data);
 
 }

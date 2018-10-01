@@ -19,7 +19,7 @@ package com.sun.enterprise.ee.cms.core;
 /**
  * Marker interface to provide a specific type of ActionFactory. The GroupManagementService module internals would
  * expect such sub-types when a factory is added.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 16, 2004
  * @version $Revision$
  */

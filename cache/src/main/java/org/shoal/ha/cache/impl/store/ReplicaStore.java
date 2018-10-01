@@ -16,9 +16,6 @@
 
 package org.shoal.ha.cache.impl.store;
 
-import org.shoal.ha.cache.api.*;
-
-import java.io.ByteArrayInputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +23,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.IdleEntryDetector;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 
 /**
  * @author Mahesh Kannan

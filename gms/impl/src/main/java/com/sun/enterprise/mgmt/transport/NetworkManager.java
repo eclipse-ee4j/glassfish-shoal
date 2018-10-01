@@ -16,10 +16,10 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
-import java.util.Map;
 import java.io.IOException;
+import java.util.Map;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
 
 /**
  * This interface has common APIs for network managements
@@ -41,7 +41,7 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
 	 * @param properties specific properties
 	 * @throws IOException if an unexpected error occurs
 	 */
-	public void initialize(final String groupName, final String instanceName, final Map properties) throws IOException;
+	void initialize(final String groupName, final String instanceName, final Map properties) throws IOException;
 
 	/**
 	 * Starts this network manager
@@ -51,7 +51,7 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
 	 *
 	 * @throws IOException if an I/O error occurs
 	 */
-	public void start() throws IOException;
+	void start() throws IOException;
 
 	/**
 	 * Stops this network manager
@@ -60,21 +60,21 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
 	 *
 	 * @throws IOException if an I/O error occurs
 	 */
-	public void stop() throws IOException;
+	void stop() throws IOException;
 
 	/**
 	 * Adds the {@link com.sun.enterprise.mgmt.transport.MessageListener}
 	 *
 	 * @param messageListener a message listener which should be registered on this network manager
 	 */
-	public void addMessageListener(final MessageListener messageListener);
+	void addMessageListener(final MessageListener messageListener);
 
 	/**
 	 * Removes the {@link com.sun.enterprise.mgmt.transport.MessageListener}
 	 *
 	 * @param messageListener a message listener which should be removed
 	 */
-	public void removeMessageListener(final MessageListener messageListener);
+	void removeMessageListener(final MessageListener messageListener);
 
 	/**
 	 * Processes a received {@link Message}
@@ -85,14 +85,14 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
 	 * @param message inbound message
 	 * @param piggyback piggyback
 	 */
-	public void receiveMessage(Message message, Map piggyback);
+	void receiveMessage(Message message, Map piggyback);
 
 	/**
 	 * Returns local {@link PeerID}
-	 * 
+	 *
 	 * @return peer id
 	 */
-	public PeerID getLocalPeerID();
+	PeerID getLocalPeerID();
 
 	/**
 	 * Returns the proper {@link PeerID} corresponding with a given instance name
@@ -100,21 +100,21 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
 	 * @param instanceName instance name
 	 * @return peer id
 	 */
-	public PeerID getPeerID(final String instanceName);
+	PeerID getPeerID(final String instanceName);
 
 	/**
 	 * Add the <code>peerID</code> to this network manager
-	 * 
+	 *
 	 * @param peerID the peer Id
 	 */
-	public void addRemotePeer(final PeerID peerID);
+	void addRemotePeer(final PeerID peerID);
 
 	/**
 	 * Removes the <code>peerID</code> from this network manager
-	 * 
+	 *
 	 * @param peerID the peer Id
 	 */
-	public void removePeerID(final PeerID peerID);
+	void removePeerID(final PeerID peerID);
 
 	/**
 	 * Check whether the suspicious peer is alive or not
@@ -124,7 +124,7 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
 	 * @param peerID peer id
 	 * @return true if the peer is still alive, otherwise false
 	 */
-	public boolean isConnected(final PeerID peerID);
+	boolean isConnected(final PeerID peerID);
 
 	/**
 	 * Returns a {@link MessageSender} corresponding with transport type
@@ -133,12 +133,12 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
 	 * {@link ShoalMessageSender#UDP_TRANSPORT}'s integer value
 	 * @return a {@link MessageSender}'s instance which this network manager contains
 	 */
-	public MessageSender getMessageSender(int transport);
+	MessageSender getMessageSender(int transport);
 
 	/**
 	 * Returns a {@link MulticastMessageSender}
-	 * 
+	 *
 	 * @return a {@link MulticastMessageSender}'s instance which this network manager contains
 	 */
-	public MulticastMessageSender getMulticastMessageSender();
+	MulticastMessageSender getMulticastMessageSender();
 }

@@ -23,6 +23,11 @@ package org.glassfish.ha.store.spi;
 public class DuplicateFactoryRegistrationException extends RuntimeException {
 
 	/**
+	 *
+	 */
+	private static final long serialVersionUID = -4474100352534398829L;
+
+	/**
 	 * Creates a DuplicateFactoryRegistrationException with null as its detail message. The cause is not initialized, and
 	 * may subsequently be initialized by a call to <code>Throwable.initCause(java.lang.Throwable)</code>.
 	 */

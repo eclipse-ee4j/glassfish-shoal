@@ -18,7 +18,7 @@ package com.sun.enterprise.ee.cms.core;
 
 /**
  * Marker interface to provide a specific type of Action standing for creation of FailureSuspicionAction instances.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Sep 14, 2005
  * @version $Revision$
  */

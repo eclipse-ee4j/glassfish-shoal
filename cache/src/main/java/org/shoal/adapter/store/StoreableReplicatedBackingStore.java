@@ -16,15 +16,6 @@
 
 package org.shoal.adapter.store;
 
-import org.glassfish.ha.store.api.BackingStore;
-import org.glassfish.ha.store.api.BackingStoreConfiguration;
-import org.glassfish.ha.store.api.BackingStoreException;
-import org.glassfish.ha.store.api.BackingStoreFactory;
-import org.shoal.ha.cache.api.DataStore;
-import org.shoal.ha.cache.api.DataStoreContext;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.DataStoreFactory;
-
 import java.io.Serializable;
 
 /**

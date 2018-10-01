@@ -16,22 +16,24 @@
 
 package com.sun.enterprise.mgmt.transport;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSConstants;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
-import java.net.InetSocketAddress;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.MulticastSocket;
-import java.net.DatagramPacket;
-import java.net.Inet6Address;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.util.concurrent.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.List;
 
 /**
  * This class is a default {@link MulticastMessageSender}'s implementation and extends
@@ -77,8 +79,9 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 	        PeerID localPeerID, Executor executor, int multicastTimeToLive, NetworkManager networkManager) throws IOException {
 		this.localSocketAddress = host == null ? null : new InetSocketAddress(host, multicastPort);
 		this.multicastPort = multicastPort;
-		if (multicastAddress == null)
+		if (multicastAddress == null) {
 			multicastAddress = DEFAULT_MULTICAST_ADDRESS;
+		}
 		this.multicastAddress = InetAddress.getByName(multicastAddress);
 		this.multicastSocketAddress = new InetSocketAddress(multicastAddress, multicastPort);
 		if (networkInterfaceName != null) {
@@ -87,10 +90,11 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 				this.anInterface = anInterface;
 			}
 		}
-		if (multicastPacketSize < DEFAULT_MULTICAST_PACKET_SIZE)
+		if (multicastPacketSize < DEFAULT_MULTICAST_PACKET_SIZE) {
 			this.multicastPacketSize = DEFAULT_MULTICAST_PACKET_SIZE;
-		else
+		} else {
 			this.multicastPacketSize = multicastPacketSize;
+		}
 		this.localPeerID = localPeerID;
 		this.executor = executor;
 		this.threadPoolExecutor = executor instanceof ThreadPoolExecutor ? (ThreadPoolExecutor) executor : null;
@@ -111,8 +115,9 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 	 */
 	@Override
 	public synchronized void start() throws IOException {
-		if (running)
+		if (running) {
 			return;
+		}
 		super.start();
 		multicastSocket = new MulticastSocket(multicastPort);
 
@@ -173,8 +178,9 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 	 */
 	@Override
 	public synchronized void stop() throws IOException {
-		if (!running)
+		if (!running) {
 			return;
+		}
 		running = false;
 		super.stop();
 		if (multicastSocket != null) {
@@ -220,8 +226,9 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				try {
 					multicastSocket.receive(packet);
-					if (!running)
+					if (!running) {
 						return;
+					}
 					Runnable processor = new MessageProcessTask(packet);
 					if (executor != null) {
 						executor.execute(processor);
@@ -267,10 +274,12 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 	 * {@inheritDoc}
 	 */
 	protected boolean doBroadcast(final Message message) throws IOException {
-		if (!running || multicastSocket == null)
+		if (!running || multicastSocket == null) {
 			throw new IOException("multicast server is not running");
-		if (message == null)
+		}
+		if (message == null) {
 			throw new IOException("message is null");
+		}
 		byte[] messageBytes = message.getPlainBytes();
 		int numBytesInPacket = messageBytes.length;
 		if ((numBytesInPacket > multicastPacketSize)) {
@@ -278,12 +287,14 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 		}
 		DatagramPacket packet;
 		if (localSocketAddress != null) {
-			if (multicastSocketAddress == null)
+			if (multicastSocketAddress == null) {
 				throw new IOException("multicast address can not be null");
+			}
 			packet = new DatagramPacket(messageBytes, numBytesInPacket, multicastSocketAddress);
 		} else {
-			if (multicastAddress == null)
+			if (multicastAddress == null) {
 				throw new IOException("multicast address can not be null");
+			}
 			packet = new DatagramPacket(messageBytes, numBytesInPacket, multicastAddress, multicastPort);
 		}
 
@@ -305,8 +316,9 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 
 		public void run() {
 			Message message = null;
-			if (packet == null)
+			if (packet == null) {
 				return;
+			}
 			try {
 				message = new MessageImpl();
 				byte[] byteMessage = packet.getData();
@@ -314,12 +326,14 @@ public class BlockingIOMulticastSender extends AbstractMulticastMessageSender im
 					int messageLen = message.parseHeader(byteMessage, 0);
 					message.parseMessage(byteMessage, MessageImpl.HEADER_LENGTH, messageLen);
 				} catch (IllegalArgumentException iae) {
-					if (LOG.isLoggable(Level.WARNING))
+					if (LOG.isLoggable(Level.WARNING)) {
 						LOG.log(Level.WARNING, "blockingiomcast.damaged", iae);
+					}
 					return;
 				} catch (MessageIOException mie) {
-					if (LOG.isLoggable(Level.WARNING))
+					if (LOG.isLoggable(Level.WARNING)) {
 						LOG.log(Level.WARNING, "blockingiomcast.damaged", mie);
+					}
 					return;
 				}
 				if (networkManager != null) {

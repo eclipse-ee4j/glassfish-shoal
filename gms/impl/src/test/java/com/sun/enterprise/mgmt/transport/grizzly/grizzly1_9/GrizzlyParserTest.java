@@ -16,19 +16,6 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.Context;
-import com.sun.grizzly.Controller;
-import com.sun.grizzly.DefaultProtocolChain;
-import com.sun.grizzly.DefaultProtocolChainInstanceHandler;
-import com.sun.grizzly.ProtocolChain;
-import com.sun.grizzly.ProtocolFilter;
-import com.sun.grizzly.ProtocolParser;
-import com.sun.grizzly.TCPSelectorHandler;
-import com.sun.grizzly.filter.ParserProtocolFilter;
-import com.sun.grizzly.util.OutputWriter;
-import com.sun.grizzly.util.WorkerThreadImpl;
-import junit.framework.TestCase;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -40,6 +27,20 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
 import java.util.Arrays;
 import java.util.logging.Level;
+
+import com.sun.grizzly.Context;
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.DefaultProtocolChain;
+import com.sun.grizzly.DefaultProtocolChainInstanceHandler;
+import com.sun.grizzly.ProtocolChain;
+import com.sun.grizzly.ProtocolFilter;
+import com.sun.grizzly.ProtocolParser;
+import com.sun.grizzly.TCPSelectorHandler;
+import com.sun.grizzly.filter.ParserProtocolFilter;
+import com.sun.grizzly.util.OutputWriter;
+import com.sun.grizzly.util.WorkerThreadImpl;
+
+import junit.framework.TestCase;
 
 /**
  * Set of Grizzly tests

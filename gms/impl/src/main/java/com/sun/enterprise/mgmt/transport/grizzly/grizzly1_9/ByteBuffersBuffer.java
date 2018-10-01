@@ -16,14 +16,15 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.enterprise.mgmt.transport.ArrayUtils;
-import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+
+import com.sun.enterprise.mgmt.transport.ArrayUtils;
+import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 
 /**
  *
@@ -150,8 +151,9 @@ public final class ByteBuffersBuffer implements Buffer {
 
 	@Override
 	public ByteBuffersBuffer position(int newPosition) {
-		if (newPosition > limit)
+		if (newPosition > limit) {
 			throw new IllegalArgumentException("Position exceeds a limit: " + newPosition + ">" + limit);
+		}
 
 		position = newPosition;
 		return this;
@@ -323,11 +325,13 @@ public final class ByteBuffersBuffer implements Buffer {
 
 	@Override
 	public ByteBuffersBuffer get(final byte[] dst, int offset, int length) {
-		if (length == 0)
+		if (length == 0) {
 			return this;
+		}
 
-		if (remaining() < length)
+		if (remaining() < length) {
 			throw new BufferUnderflowException();
+		}
 
 		checkIndex(position);
 
@@ -346,8 +350,9 @@ public final class ByteBuffersBuffer implements Buffer {
 			offset += bytesToCopy;
 			position += bytesToCopy;
 
-			if (length == 0)
+			if (length == 0) {
 				break;
+			}
 
 			bufferIdx++;
 			buffer = buffers[bufferIdx];
@@ -364,8 +369,9 @@ public final class ByteBuffersBuffer implements Buffer {
 
 	@Override
 	public ByteBuffersBuffer put(final byte[] src, int offset, int length) {
-		if (remaining() < length)
+		if (remaining() < length) {
 			throw new BufferOverflowException();
+		}
 
 		checkIndex(position);
 
@@ -385,8 +391,9 @@ public final class ByteBuffersBuffer implements Buffer {
 			offset += bytesToCopy;
 			position += bytesToCopy;
 
-			if (length == 0)
+			if (length == 0) {
 				break;
+			}
 
 			bufferIdx++;
 			buffer = buffers[bufferIdx];
@@ -681,10 +688,12 @@ public final class ByteBuffersBuffer implements Buffer {
 		for (int i = this.position(), j = that.position(); i < n; i++, j++) {
 			byte v1 = this.get(i);
 			byte v2 = that.get(j);
-			if (v1 == v2)
+			if (v1 == v2) {
 				continue;
-			if (v1 < v2)
+			}
+			if (v1 < v2) {
 				return -1;
+			}
 			return +1;
 		}
 		return this.remaining() - that.remaining();
@@ -803,8 +812,9 @@ public final class ByteBuffersBuffer implements Buffer {
 	public int hashCode() {
 		int h = 1;
 		int p = position();
-		for (int i = limit() - 1; i >= p; i--)
-			h = 31 * h + (int) get(i);
+		for (int i = limit() - 1; i >= p; i--) {
+			h = 31 * h + get(i);
+		}
 		return h;
 	}
 }

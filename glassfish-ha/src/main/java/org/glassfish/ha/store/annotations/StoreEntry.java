@@ -16,10 +16,10 @@
 
 package org.glassfish.ha.store.annotations;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 
 /**
  * An annotation to describe a class as a SToreEntry. For each class a.b.X that is annotated with @StoreEntry, an APT
@@ -32,7 +32,7 @@ import java.lang.annotation.ElementType;
  * Storable interface. The Storable interface allows a Store implementation to detect dirty attributes. An attribute A
  * is dirty, if its setter method (or the method that was annotated with @Attribute("A") was invoked). An instance of
  * a.b.X_Storable can be obtained by calling BackingStore.getStorable()
- * 
+ *
  * An annotation that can be used to declare a String Attribute as a Version. Version attribute is a special attribute
  * of a StoreEntry.
  *

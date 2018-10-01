@@ -16,13 +16,13 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
-import com.sun.enterprise.ee.cms.core.Signal;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.Signal;
 
 public class AliveAndReadyViewImpl implements AliveAndReadyView {
 	private Signal signal;
@@ -44,7 +44,7 @@ public class AliveAndReadyViewImpl implements AliveAndReadyView {
 	// This method exists for implementation to use only and thus only occurs here to enforce that desire.
 	/**
 	 * Terminates this view as being the current view.
-	 * 
+	 *
 	 * @param signal the signal
 	 * @throws NullPointerException if closeViewSignal is null.
 	 */

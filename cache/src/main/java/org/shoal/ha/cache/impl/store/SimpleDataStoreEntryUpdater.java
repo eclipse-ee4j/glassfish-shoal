@@ -16,15 +16,15 @@
 
 package org.shoal.ha.cache.impl.store;
 
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.logging.Level;
+
 import org.shoal.adapter.store.commands.AbstractSaveCommand;
 import org.shoal.adapter.store.commands.LoadResponseCommand;
 import org.shoal.adapter.store.commands.SaveCommand;
 import org.shoal.adapter.store.commands.TouchCommand;
-import org.shoal.ha.cache.api.*;
-
-import java.util.Iterator;
-import java.util.TreeSet;
-import java.util.logging.Level;
+import org.shoal.ha.cache.api.DataStoreException;
 
 /**
  * An entry updater used for plain Serializable POJOs

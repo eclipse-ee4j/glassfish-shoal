@@ -16,6 +16,34 @@
 
 package com.sun.enterprise.mgmt;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSMember;
 import com.sun.enterprise.ee.cms.impl.base.GMSThreadFactory;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
@@ -24,27 +52,9 @@ import com.sun.enterprise.ee.cms.impl.base.Utility;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.mgmt.transport.Message;
 import com.sun.enterprise.mgmt.transport.MessageEvent;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
 import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
 import com.sun.enterprise.mgmt.transport.MessageListener;
-
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.Serializable;
-import java.net.InetSocketAddress;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * HealthMonitor utilizes MasterNode to determine self designation. All nodes cache other node's states, and can act as
@@ -163,7 +173,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 
 	/**
 	 * A member is considered INDOUBT when a heartbeat has not been received in this amout of time. (in milliseconds.)
-	 * 
+	 *
 	 * @return the duration
 	 */
 	public long getIndoubtDuration() {
@@ -325,7 +335,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 				if (LOG.isLoggable(Level.FINE)) {
 					LOG.fine(" sending via LWR response to " + sender.toString() + " with state " + state + " for " + localPeerID);
 				}
-				final boolean sent = mcast.send((PeerID) sender, response); // send the response back to the query sender
+				final boolean sent = mcast.send(sender, response); // send the response back to the query sender
 				if (!sent) {
 					LOG.log(Level.WARNING, "mgmt.healthmonitor.processmemberstatequery", adv.getName());
 				}
@@ -340,8 +350,9 @@ public class HealthMonitor implements MessageListener, Runnable {
 	private void processMemberStateResponse(Message msg) {
 		String memberState = null;
 		Object value = msg.getMessageElement(MEMBER_STATE_RESPONSE);
-		if (value != null)
+		if (value != null) {
 			memberState = value.toString();
+		}
 		SystemAdvertisement adv = getNodeAdvertisement(msg);
 		if (adv == null) {
 			LOG.log(Level.WARNING, "mgmt.healthmonitor.nosenderadv");
@@ -452,7 +463,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 
 	/**
 	 * creates a WATCHDOG notification for <code>failedServerToken</code>
-	 * 
+	 *
 	 * @param failedServerToken failed server token
 	 *
 	 * @return msg Message
@@ -994,8 +1005,9 @@ public class HealthMonitor implements MessageListener, Runnable {
 			String state = getMemberStateFromHeartBeat(peerID, threshold);
 			if (state.equals(states[UNKNOWN])) {
 				return getMemberStateViaLWR(peerID, timeout);
-			} else
+			} else {
 				return state;
+			}
 		}
 	}
 
@@ -1005,7 +1017,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 		}
 		HealthMessage.Entry entry;
 		synchronized (cacheLock) {
-			entry = cache.get((PeerID) peerID);
+			entry = cache.get(peerID);
 		}
 		if (entry != null) {
 			// calculate if the timestamp of the entry and the current time gives a delta that is <= threshold
@@ -1064,7 +1076,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 
 				// send it via LWRMulticast
 				try {
-					sent = mcast.send((PeerID) peerID, msg);
+					sent = mcast.send(peerID, msg);
 				} catch (IOException e) {
 					ioe = true;
 					LOG.log(Level.FINE,
@@ -1104,11 +1116,11 @@ public class HealthMonitor implements MessageListener, Runnable {
 	String getStateFromCache(final PeerID peerID) {
 		HealthMessage.Entry entry;
 		final String state;
-		entry = cache.get((PeerID) peerID);
+		entry = cache.get(peerID);
 		if (entry != null) {
 			state = entry.state;
 		} else {
-			if (((PeerID) peerID).equals(localPeerID)) {
+			if (peerID.equals(localPeerID)) {
 				if (!started) {
 					state = states[STARTING];
 				} else if (readyStateComplete) {
@@ -1117,7 +1129,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 					state = states[ALIVE];
 				}
 			} else {
-				entry = cache.get((PeerID) peerID);
+				entry = cache.get(peerID);
 				if (entry != null) {
 					state = entry.state;
 				} else {
@@ -1499,7 +1511,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 	 */
 	/*
 	 * private void designateInIsolationState(final HealthMessage.Entry entry) {
-	 * 
+	 *
 	 * entry.state = states[ALIVE_IN_ISOLATION]; cache.put(entry.id, entry); LOG.log(Level.FINE,
 	 * "Sending ALIVE_IN_ISOLATION state message about node ID: " + entry.id + " to the cluster...");
 	 * reportMyState(ALIVE_IN_ISOLATION, entry.id); LOG.log(Level.FINE,

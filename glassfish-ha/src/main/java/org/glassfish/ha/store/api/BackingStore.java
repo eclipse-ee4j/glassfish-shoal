@@ -16,12 +16,20 @@
 
 package org.glassfish.ha.store.api;
 
-import org.glassfish.ha.store.criteria.Criteria;
-import org.glassfish.ha.store.spi.*;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+
+import org.glassfish.ha.store.criteria.Criteria;
+import org.glassfish.ha.store.spi.ObjectInputOutputStreamFactory;
+import org.glassfish.ha.store.spi.ObjectInputOutputStreamFactoryRegistry;
+import org.glassfish.ha.store.spi.ObjectInputStreamWithLoader;
+import org.glassfish.ha.store.spi.StoreEntryEvaluator;
 
 /**
  * An object that stores a given value against an id. This class defines the set of operations that a container could
@@ -93,7 +101,7 @@ public abstract class BackingStore<K extends Serializable, V extends Serializabl
 
 	/**
 	 * Recomended way is to just do a save(k, v)
-	 * 
+	 *
 	 * @param key
 	 * @param version
 	 * @param accessTime
@@ -150,7 +158,7 @@ public abstract class BackingStore<K extends Serializable, V extends Serializabl
 	 * further narrow the result.
 	 */
 	public Collection findByCriteria(Criteria<V> criteria, StoreEntryEvaluator<K, V> eval) {
-		return (Collection) Collections.EMPTY_LIST;
+		return Collections.EMPTY_LIST;
 	}
 
 	public void close() throws BackingStoreException {

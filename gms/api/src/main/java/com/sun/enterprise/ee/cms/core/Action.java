@@ -31,7 +31,7 @@ public interface Action {
 	/**
 	 * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
 	 * Signal.
-	 * 
+	 *
 	 * @param signal A Signal specifying a particular event in the group
 	 * @throws ActionException thrown when a exception condition occurs wihle the Signal is consumed.
 	 */

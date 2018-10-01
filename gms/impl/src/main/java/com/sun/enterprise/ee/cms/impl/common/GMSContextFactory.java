@@ -16,21 +16,17 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.impl.base.Utility;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Produces and retains the GMSContext for the lifetime of the GMS instance
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 16, 2004
  * @version $Revision$
  */

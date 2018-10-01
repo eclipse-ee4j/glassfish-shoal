@@ -18,11 +18,16 @@ package com.sun.enterprise.ee.cms.core;
 
 /**
  * An exception class that captures exception conditions occuring while startup or shutdown of the GMS layer.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Mar 1, 2004
  * @version $Revision$
  */
 public class GMSException extends Exception {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 3979325025517304424L;
+
 	public GMSException() {
 		super();
 	}

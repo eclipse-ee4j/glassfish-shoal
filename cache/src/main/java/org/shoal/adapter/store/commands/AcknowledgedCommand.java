@@ -16,20 +16,25 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.util.CommandResponse;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-
 import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.util.CommandResponse;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+
 /**
  * @author Mahesh Kannan
  */
 public abstract class AcknowledgedCommand<K, V> extends Command<K, V> {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -4027862351560585449L;
 
 	private transient CommandResponse resp;
 

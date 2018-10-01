@@ -16,14 +16,15 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
+import org.glassfish.grizzly.memory.MemoryManager;
+
 import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 import com.sun.enterprise.mgmt.transport.buffers.ExpandableBufferWriter;
 import com.sun.enterprise.mgmt.transport.buffers.ExpandableBufferWriterFactory;
-import org.glassfish.grizzly.memory.MemoryManager;
 
 /**
  * Grizzly 2.0 based expandable Buffer writer.
- * 
+ *
  * @author Alexey Stashok
  */
 public final class Grizzly2ExpandableBufferWriter extends ExpandableBufferWriter {
@@ -76,8 +77,9 @@ public final class Grizzly2ExpandableBufferWriter extends ExpandableBufferWriter
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void ensureCapacity(final int delta) {
-		if (delta <= 0 || grizzlyBuffer.remaining() >= delta)
+		if (delta <= 0 || grizzlyBuffer.remaining() >= delta) {
 			return;
+		}
 
 		grizzlyBuffer = memoryManager.reallocate(grizzlyBuffer, Math.max(grizzlyBuffer.capacity() * 2, grizzlyBuffer.capacity() + delta));
 		wrapper.wrap(grizzlyBuffer);

@@ -16,11 +16,10 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import com.sun.enterprise.mgmt.transport.Message;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.Grizzly;
 import org.glassfish.grizzly.attributes.Attribute;
@@ -28,9 +27,11 @@ import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 
+import com.sun.enterprise.mgmt.transport.Message;
+
 /**
  * Message dispatcher Filter.
- * 
+ *
  * @author Alexey Stashok
  */
 public class MessageDispatcherFilter extends BaseFilter {

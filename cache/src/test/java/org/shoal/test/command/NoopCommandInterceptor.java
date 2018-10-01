@@ -16,56 +16,53 @@
 
 package org.shoal.test.command;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.shoal.ha.cache.api.AbstractCommandInterceptor;
 import org.shoal.ha.cache.api.DataStoreException;
 import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.api.AbstractCommandInterceptor;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Mahesh Kannan
  */
-public class NoopCommandInterceptor<K, V>
-    extends AbstractCommandInterceptor<K, V> {
+public class NoopCommandInterceptor<K, V> extends AbstractCommandInterceptor<K, V> {
 
-    private AtomicInteger totalTransCount = new AtomicInteger();
+	private AtomicInteger totalTransCount = new AtomicInteger();
 
-    private AtomicInteger noopTranscount = new AtomicInteger();
+	private AtomicInteger noopTranscount = new AtomicInteger();
 
-    private AtomicInteger noopRecvCount = new AtomicInteger();
+	private AtomicInteger noopRecvCount = new AtomicInteger();
 
-    @Override
-    public void onTransmit(Command cmd, String initiator)
-        throws DataStoreException {
-        totalTransCount.incrementAndGet();
-        System.out.println("**** NoopCommandInterceptor.onTransmit() got: " + cmd.getClass().getName());
-        if (cmd instanceof NoopCommand) {
-            noopTranscount.incrementAndGet();
-            getDataStoreContext().getCommandManager().execute(new BatchedNoopCommand());
-        } else {
-            super.onTransmit(cmd, initiator);
+	@Override
+	public void onTransmit(Command cmd, String initiator) throws DataStoreException {
+		totalTransCount.incrementAndGet();
+		System.out.println("**** NoopCommandInterceptor.onTransmit() got: " + cmd.getClass().getName());
+		if (cmd instanceof NoopCommand) {
+			noopTranscount.incrementAndGet();
+			getDataStoreContext().getCommandManager().execute(new BatchedNoopCommand());
+		} else {
+			super.onTransmit(cmd, initiator);
 
-        }
-    }
+		}
+	}
 
-    @Override
-    public void onReceive(Command cmd, String initiator)
-        throws DataStoreException {
-        if (cmd instanceof NoopCommand) {
-            noopRecvCount.incrementAndGet();
-            super.onReceive(cmd, initiator);
-        }
-    }
+	@Override
+	public void onReceive(Command cmd, String initiator) throws DataStoreException {
+		if (cmd instanceof NoopCommand) {
+			noopRecvCount.incrementAndGet();
+			super.onReceive(cmd, initiator);
+		}
+	}
 
-    public int getTotalTransCount() {
-        return totalTransCount.get();
-    }
+	public int getTotalTransCount() {
+		return totalTransCount.get();
+	}
 
-    public int getNoopTransCount() {
-        return noopTranscount.get();
-    }
+	public int getNoopTransCount() {
+		return noopTranscount.get();
+	}
 
-    public int getReceiveCount() {
-        return noopRecvCount.get();
-    }
+	public int getReceiveCount() {
+		return noopRecvCount.get();
+	}
 }

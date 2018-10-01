@@ -62,14 +62,18 @@ public class PeerID<T extends Serializable> implements Serializable, Comparable<
 			boolean equal = true;
 			PeerID otherPeerID = (PeerID) other;
 			if (uniqueID != null && uniqueID.equals(otherPeerID.getUniqueID())) {
-				if (groupName != null)
+				if (groupName != null) {
 					equal = groupName.equals(otherPeerID.getGroupName());
-				if (!equal)
+				}
+				if (!equal) {
 					return false;
-				if (instanceName != null)
+				}
+				if (instanceName != null) {
 					equal = instanceName.equals(otherPeerID.getInstanceName());
-				if (!equal)
+				}
+				if (!equal) {
 					return false;
+				}
 			} else {
 				return false;
 			}
@@ -81,12 +85,15 @@ public class PeerID<T extends Serializable> implements Serializable, Comparable<
 
 	public int hashCode() {
 		int result = 17;
-		if (uniqueID != null)
+		if (uniqueID != null) {
 			result = 37 * result + uniqueID.hashCode();
-		if (groupName != null)
+		}
+		if (groupName != null) {
 			result = 37 * result + groupName.hashCode();
-		if (instanceName != null)
+		}
+		if (instanceName != null) {
 			result = 37 * result + instanceName.hashCode();
+		}
 		return result;
 	}
 
@@ -98,10 +105,12 @@ public class PeerID<T extends Serializable> implements Serializable, Comparable<
 	@Override
 	@SuppressWarnings("unchecked")
 	public int compareTo(PeerID other) {
-		if (this == other)
+		if (this == other) {
 			return 0;
-		if (other == null)
+		}
+		if (other == null) {
 			return 1;
+		}
 		if (this == NULL_PEER_ID) {
 			return -1;
 		}

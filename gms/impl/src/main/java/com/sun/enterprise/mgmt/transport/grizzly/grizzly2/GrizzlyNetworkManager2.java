@@ -16,55 +16,59 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import org.glassfish.grizzly.PortRange;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.CORE_POOLSIZE;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.DISCOVERY_URI_LIST;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.KEEP_ALIVE_TIME;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.MAX_POOLSIZE;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.POOL_QUEUE_SIZE;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.glassfish.grizzly.Connection;
+import org.glassfish.grizzly.Grizzly;
+import org.glassfish.grizzly.PortRange;
+import org.glassfish.grizzly.config.SSLConfigurator;
+import org.glassfish.grizzly.filterchain.BaseFilter;
+import org.glassfish.grizzly.filterchain.FilterChainBuilder;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 import org.glassfish.grizzly.filterchain.TransportFilter;
-import org.glassfish.grizzly.filterchain.FilterChainBuilder;
-import com.sun.enterprise.mgmt.transport.grizzly.PongMessageListener;
-import com.sun.enterprise.mgmt.transport.grizzly.PingMessageListener;
-import com.sun.enterprise.mgmt.transport.MessageEvent;
-import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
+import org.glassfish.grizzly.nio.transport.TCPNIOConnectorHandler;
+import org.glassfish.grizzly.nio.transport.TCPNIOServerConnection;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
-import com.sun.enterprise.mgmt.transport.NetworkUtility;
-import java.util.concurrent.ThreadPoolExecutor;
-import com.sun.enterprise.mgmt.transport.BlockingIOMulticastSender;
-import com.sun.enterprise.mgmt.transport.VirtualMulticastSender;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.net.InetAddress;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.List;
-
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
 import org.glassfish.grizzly.ssl.SSLBaseFilter;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
-import org.glassfish.grizzly.config.SSLConfigurator;
 import org.glassfish.grizzly.ssl.SSLFilter;
 import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
-import org.glassfish.grizzly.Grizzly;
+
 import com.sun.enterprise.ee.cms.impl.base.GMSThreadFactory;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 import com.sun.enterprise.ee.cms.impl.common.GMSContext;
 import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
 import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.glassfish.grizzly.filterchain.BaseFilter;
-import org.glassfish.grizzly.nio.transport.TCPNIOConnectorHandler;
-import org.glassfish.grizzly.nio.transport.TCPNIOServerConnection;
-
-import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.*;
+import com.sun.enterprise.mgmt.transport.BlockingIOMulticastSender;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.NetworkUtility;
+import com.sun.enterprise.mgmt.transport.VirtualMulticastSender;
+import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
+import com.sun.enterprise.mgmt.transport.grizzly.PingMessageListener;
+import com.sun.enterprise.mgmt.transport.grizzly.PongMessageListener;
 
 /**
  * @author Bongjae Chang

@@ -16,13 +16,11 @@
 
 package org.glassfish.ha.store.impl;
 
+import java.io.Serializable;
+
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStoreException;
-import org.glassfish.ha.store.api.Storeable;
-
-import java.io.Serializable;
-import java.util.Properties;
 
 /**
  * @author Mahesh Kannan

@@ -16,30 +16,32 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.GMSMessage;
-import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-import com.sun.enterprise.mgmt.*;
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.MessageIOException;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.GMSMessage;
+import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+import com.sun.enterprise.mgmt.ClusterManager;
+import com.sun.enterprise.mgmt.ClusterMessageListener;
+import com.sun.enterprise.mgmt.ClusterView;
+import com.sun.enterprise.mgmt.ClusterViewEvent;
+import com.sun.enterprise.mgmt.ClusterViewEventListener;
+import com.sun.enterprise.mgmt.HealthMonitor;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
 
 /**
  * Implements the GroupCommunicationProvider interface to plug in JxtaClusterManagement layer as a Group Communication
@@ -470,11 +472,11 @@ public class GroupCommunicationProviderImpl implements GroupCommunicationProvide
 	 */
 	/*
 	 * private class CallableMessageSend implements Callable<Object> { private PeerID member; private Serializable msg;
-	 * 
+	 *
 	 * private CallableMessageSend(final PeerID member) { this.member = member; }
-	 * 
+	 *
 	 * public void setMessage(Serializable msg) { this.msg = null; this.msg = msg; }
-	 * 
+	 *
 	 * public Object call() throws Exception { boolean sent = clusterManager.send(member, msg); if (!sent) { if
 	 * (logger.isLoggable(Level.FINE)) { logger.fine("CallableMessageSend failed to send msg " + msg + " to member " +
 	 * member); } } return null; } }

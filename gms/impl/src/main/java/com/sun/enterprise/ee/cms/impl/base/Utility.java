@@ -16,13 +16,16 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
+import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSMember;
 import com.sun.enterprise.ee.cms.core.GroupManagementService;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.ee.cms.logging.NiceLogFormatter;
-
-import java.util.logging.*;
-import java.util.Map;
 
 /**
  * Utility class that can be used by any calling code to do common routines
@@ -68,15 +71,18 @@ public class Utility {
 			String value = null;
 			if (props != null) {
 				Object obj = props.get(propertyName);
-				if (obj instanceof String)
+				if (obj instanceof String) {
 					value = (String) obj;
+				}
 			}
-			if (value == null)
+			if (value == null) {
 				value = System.getProperty(propertyName);
-			if (value == null)
+			}
+			if (value == null) {
 				return defaultValue;
-			else
+			} else {
 				return value;
+			}
 		} catch (Exception e) {
 			return defaultValue;
 		}
@@ -87,17 +93,20 @@ public class Utility {
 			String value = null;
 			if (props != null) {
 				Object obj = props.get(propertyName);
-				if (obj instanceof String)
+				if (obj instanceof String) {
 					value = (String) obj;
-				else if (obj instanceof Integer)
+				} else if (obj instanceof Integer) {
 					return (Integer) obj;
+				}
 			}
-			if (value == null)
+			if (value == null) {
 				value = System.getProperty(propertyName);
-			if (value == null)
+			}
+			if (value == null) {
 				return defaultValue;
-			else
+			} else {
 				return Integer.parseInt(value);
+			}
 		} catch (Exception e) {
 			return defaultValue;
 		}
@@ -116,12 +125,14 @@ public class Utility {
 					return ((Integer) obj).longValue();
 				}
 			}
-			if (value == null)
+			if (value == null) {
 				value = System.getProperty(propertyName);
-			if (value == null)
+			}
+			if (value == null) {
 				return defaultValue;
-			else
+			} else {
 				return Long.parseLong(value);
+			}
 		} catch (Exception ex) {
 			return defaultValue;
 		}
@@ -132,17 +143,20 @@ public class Utility {
 			String value = null;
 			if (props != null) {
 				Object obj = props.get(propertyName);
-				if (obj instanceof String)
+				if (obj instanceof String) {
 					value = (String) obj;
-				else if (obj instanceof Boolean)
+				} else if (obj instanceof Boolean) {
 					return (Boolean) obj;
+				}
 			}
-			if (value == null)
+			if (value == null) {
 				value = System.getProperty(propertyName);
-			if (value == null)
+			}
+			if (value == null) {
 				return defaultValue;
-			else
+			} else {
 				return Boolean.parseBoolean(value);
+			}
 		} catch (Exception e) {
 			return defaultValue;
 		}

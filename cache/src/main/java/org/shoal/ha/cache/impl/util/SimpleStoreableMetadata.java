@@ -16,18 +16,23 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.glassfish.ha.store.api.Storeable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+import org.glassfish.ha.store.api.Storeable;
+
 /**
  * @author Mahesh Kannan
- * 
+ *
  */
 public class SimpleStoreableMetadata implements Storeable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 2852227115353486022L;
 
 	private long version;
 

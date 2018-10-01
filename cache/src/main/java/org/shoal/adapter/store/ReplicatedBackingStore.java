@@ -16,17 +16,20 @@
 
 package org.shoal.adapter.store;
 
-import org.glassfish.ha.store.api.*;
-import org.shoal.adapter.store.commands.*;
-import org.shoal.ha.cache.api.*;
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-import org.shoal.ha.cache.impl.store.ReplicatedDataStore;
-import org.shoal.ha.mapper.KeyMapper;
-
 import java.io.Serializable;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.glassfish.ha.store.api.BackingStore;
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.api.BackingStoreException;
+import org.glassfish.ha.store.api.BackingStoreFactory;
+import org.shoal.ha.cache.api.DataStore;
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.DataStoreFactory;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.store.ReplicatedDataStore;
 
 /**
  * @author Mahesh Kannan

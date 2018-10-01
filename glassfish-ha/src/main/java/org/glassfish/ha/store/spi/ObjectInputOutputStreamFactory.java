@@ -16,15 +16,19 @@
 
 package org.glassfish.ha.store.spi;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 /**
  * @author Mahesh Kannan
  */
 public interface ObjectInputOutputStreamFactory {
 
-	public ObjectOutputStream createObjectOutputStream(OutputStream os) throws IOException;
+	ObjectOutputStream createObjectOutputStream(OutputStream os) throws IOException;
 
-	public ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader) throws IOException;
+	ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader) throws IOException;
 
 }

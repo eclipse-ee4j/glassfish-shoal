@@ -16,7 +16,11 @@
 
 package org.glassfish.ha.store.criteria;
 
-import org.glassfish.ha.store.criteria.spi.*;
+import org.glassfish.ha.store.criteria.spi.AttributeAccessNode;
+import org.glassfish.ha.store.criteria.spi.ExpressionNode;
+import org.glassfish.ha.store.criteria.spi.LiteralNode;
+import org.glassfish.ha.store.criteria.spi.LogicalExpressionNode;
+import org.glassfish.ha.store.criteria.spi.Opcode;
 import org.glassfish.ha.store.spi.AttributeMetadata;
 
 /**

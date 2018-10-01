@@ -16,16 +16,15 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
-import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-import com.sun.enterprise.ee.cms.impl.base.Utility;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
+import com.sun.enterprise.ee.cms.impl.base.Utility;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * This class contains health states of members
@@ -135,7 +134,7 @@ public class HealthMessage implements Serializable {
 		public Entry(final SystemAdvertisement adv, final String state, long seqID) {
 			this.state = state;
 			this.adv = adv;
-			this.id = (PeerID) adv.getID();
+			this.id = adv.getID();
 			this.timestamp = System.currentTimeMillis();
 			this.seqID = seqID;
 		}
@@ -168,7 +167,7 @@ public class HealthMessage implements Serializable {
 
 		/**
 		 * Detect when one hm is from a failed member and the new hm is from the restart of that member.
-		 * 
+		 *
 		 * @param other the entry of other peer
 		 * @return true if same instantiation of member sent this health message.
 		 */
@@ -202,7 +201,7 @@ public class HealthMessage implements Serializable {
 		}
 
 		public Object clone() throws CloneNotSupportedException {
-			return (HealthMessage.Entry) super.clone();
+			return super.clone();
 		}
 	}
 }

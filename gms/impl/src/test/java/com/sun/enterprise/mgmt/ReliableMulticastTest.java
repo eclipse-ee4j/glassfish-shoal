@@ -18,11 +18,11 @@ package com.sun.enterprise.mgmt;
 
 import java.text.SimpleDateFormat;
 import java.util.logging.Level;
-import java.util.Date;
 
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.mgmt.transport.Message;
 import com.sun.enterprise.mgmt.transport.MessageImpl;
+
 import junit.framework.TestCase;
 
 public class ReliableMulticastTest extends TestCase {

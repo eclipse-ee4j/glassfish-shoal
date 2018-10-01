@@ -16,17 +16,26 @@
 
 package org.shoal.ha.cache.impl.util;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStoreException;
 import org.glassfish.ha.store.api.Storeable;
 import org.shoal.adapter.store.ReplicatedBackingStoreFactory;
-import org.shoal.ha.mapper.DefaultKeyMapper;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Mahesh Kannan
@@ -97,7 +106,7 @@ public class StoreableBackingStoreShell {
 			/*
 			 * MyStoreable st = cache.get(key); if (st == null) { st = new MyStoreable(); cache.put(key, st); } if (params.length >
 			 * 1) { st.setStr1(params[1]); } if (params.length > 2) { st.setStr2(params[2]); } st.touch();
-			 * 
+			 *
 			 * System.out.println("PUT " + st); ds.save(key, st, true);
 			 */
 			for (int i = 0; i < 8; i++) {
@@ -146,6 +155,11 @@ public class StoreableBackingStoreShell {
 	}
 
 	public static class MyStoreable implements Storeable {
+
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = 6878799840494060076L;
 
 		long version;
 

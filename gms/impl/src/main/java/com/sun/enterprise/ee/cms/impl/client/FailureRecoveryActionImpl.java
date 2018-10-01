@@ -16,15 +16,21 @@
 
 package com.sun.enterprise.ee.cms.impl.client;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.ActionException;
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.FailureRecoveryAction;
+import com.sun.enterprise.ee.cms.core.FailureRecoverySignal;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
  * Reference implementation of FailureRecoveryAction interface
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 8, 2004
  * @version $Revision$
  */
@@ -39,7 +45,7 @@ public class FailureRecoveryActionImpl implements FailureRecoveryAction {
 	/**
 	 * processes the recovery signal. typically involves getting information from the signal, acquiring the signal and after
 	 * processing, releasing the signal
-	 * 
+	 *
 	 * @param signal the signal
 	 */
 	public void consumeSignal(final Signal signal) throws ActionException {

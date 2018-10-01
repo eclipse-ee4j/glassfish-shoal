@@ -16,8 +16,6 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;

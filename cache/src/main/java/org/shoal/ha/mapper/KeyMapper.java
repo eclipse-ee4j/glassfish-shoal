@@ -18,16 +18,16 @@ package org.shoal.ha.mapper;
 
 /**
  * @author Mahesh Kannan
- * 
+ *
  */
 public interface KeyMapper {
 
-	public String getMappedInstance(String groupName, Object key);
+	String getMappedInstance(String groupName, Object key);
 
-	public String[] findReplicaInstance(String groupName, Object key, String keyMappingInfo);
+	String[] findReplicaInstance(String groupName, Object key, String keyMappingInfo);
 
-	public String getReplicaChoices(String groupName, Object key);
+	String getReplicaChoices(String groupName, Object key);
 
-	public String[] getCurrentMembers();
+	String[] getCurrentMembers();
 
 }

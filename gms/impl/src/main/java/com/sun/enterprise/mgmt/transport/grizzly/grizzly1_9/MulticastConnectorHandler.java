@@ -16,12 +16,12 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.UDPConnectorHandler;
-import com.sun.grizzly.Controller;
-
-import java.nio.channels.SelectionKey;
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.util.logging.Level;
+
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.UDPConnectorHandler;
 
 /**
  * @author Bongjae Chang

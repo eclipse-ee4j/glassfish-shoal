@@ -16,12 +16,15 @@
 
 package org.shoal.ha.cache.api;
 
-import java.io.IOException;
-
 /**
  * @author Mahesh Kannan
  */
 public class TooManyRetriesException extends DataStoreException {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -6309507580534901353L;
 
 	public TooManyRetriesException() {
 		super();

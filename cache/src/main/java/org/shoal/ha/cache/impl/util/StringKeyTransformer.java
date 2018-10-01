@@ -16,9 +16,9 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.glassfish.ha.store.util.KeyTransformer;
-
 import java.nio.charset.Charset;
+
+import org.glassfish.ha.store.util.KeyTransformer;
 
 /**
  * @author Mahesh Kannan

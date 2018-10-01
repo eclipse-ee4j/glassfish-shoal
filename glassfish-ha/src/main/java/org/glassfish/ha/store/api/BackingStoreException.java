@@ -27,6 +27,11 @@ package org.glassfish.ha.store.api;
 public class BackingStoreException extends Exception {
 
 	/**
+	 *
+	 */
+	private static final long serialVersionUID = -1622774190637486715L;
+
+	/**
 	 * Creates a BackingStoreException with null as its detail message. The cause is not initialized, and may subsequently
 	 * be initialized by a call to <code>Throwable.initCause(java.lang.Throwable)</code>.
 	 */
@@ -35,7 +40,7 @@ public class BackingStoreException extends Exception {
 
 	/**
 	 * constructs a BackingStoreException with the specified detail message
-	 * 
+	 *
 	 * @param message the detail message. The detail message is saved for later retrieval by the
 	 * <code>Throwable.getMessage()</code> method.
 	 */
@@ -46,7 +51,7 @@ public class BackingStoreException extends Exception {
 	/**
 	 * Constructs a new BackingStoreException exception with the specified cause and a detail message of (cause==null ? null
 	 * : cause.toString())
-	 * 
+	 *
 	 * @param message the detail message. The detail message is saved for
 	 * @param th the cause
 	 */

@@ -16,6 +16,17 @@
 
 package org.shoal.ha.cache.impl.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStoreException;
@@ -24,15 +35,6 @@ import org.glassfish.ha.store.util.SimpleMetadata;
 import org.shoal.adapter.store.ReplicatedBackingStore;
 import org.shoal.adapter.store.ReplicatedBackingStoreFactory;
 import org.shoal.ha.cache.impl.command.CommandManager;
-import org.shoal.ha.mapper.DefaultKeyMapper;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Mahesh Kannan
@@ -58,7 +60,7 @@ public class SimpleStoreableBackingStoreShell {
 		// map.put("local.caching", true);
 		map.put("class.loader", ClassLoader.getSystemClassLoader());
 		map.put("async.replication", true);
-		BackingStore<MyKey, SimpleMetadata> ds = (BackingStore<MyKey, SimpleMetadata>) (new ReplicatedBackingStoreFactory()).createBackingStore(conf);
+		BackingStore<MyKey, SimpleMetadata> ds = (new ReplicatedBackingStoreFactory()).createBackingStore(conf);
 
 		SimpleStoreableBackingStoreShell main = new SimpleStoreableBackingStoreShell();
 		main.runShell(ds);
@@ -154,6 +156,10 @@ public class SimpleStoreableBackingStoreShell {
 	}
 
 	private static class MyKey implements Serializable, HashableKey {
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = -6208120668944939221L;
 		String myKey;
 		String rootKey;
 

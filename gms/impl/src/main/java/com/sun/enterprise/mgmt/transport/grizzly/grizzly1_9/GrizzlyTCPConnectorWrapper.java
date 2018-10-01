@@ -16,26 +16,29 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.enterprise.mgmt.transport.*;
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager;
-import com.sun.grizzly.ConnectorHandler;
-import com.sun.grizzly.Controller;
-import com.sun.grizzly.IOEvent;
-import com.sun.grizzly.util.OutputWriter;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.channels.SelectionKey;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.mgmt.transport.AbstractMessageSender;
+import com.sun.enterprise.mgmt.transport.AbstractNetworkManager;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager;
 import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
 import com.sun.grizzly.AbstractConnectorHandler;
 import com.sun.grizzly.CallbackHandler;
+import com.sun.grizzly.ConnectorHandler;
 import com.sun.grizzly.Context;
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.IOEvent;
 import com.sun.grizzly.connectioncache.client.CacheableConnectorHandler;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.SocketAddress;
-import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import com.sun.grizzly.util.OutputWriter;
 
 /**
  * @author Bongjae Chang
@@ -50,16 +53,18 @@ public class GrizzlyTCPConnectorWrapper extends AbstractMessageSender {
 	public GrizzlyTCPConnectorWrapper(Controller controller, long writeTimeout, String host, int port, PeerID<GrizzlyPeerID> localPeerID) {
 		this.controller = controller;
 		this.writeTimeout = writeTimeout;
-		if (host != null)
+		if (host != null) {
 			this.localSocketAddress = new InetSocketAddress(host, port);
-		else
+		} else {
 			this.localSocketAddress = null;
+		}
 		this.localPeerID = localPeerID;
 	}
 
 	protected boolean doSend(final PeerID peerID, final Message message) throws IOException {
-		if (peerID == null)
+		if (peerID == null) {
 			throw new IOException("peer ID can not be null");
+		}
 		Serializable uniqueID = peerID.getUniqueID();
 		SocketAddress remoteSocketAddress;
 		if (uniqueID instanceof GrizzlyPeerID) {
@@ -75,12 +80,15 @@ public class GrizzlyTCPConnectorWrapper extends AbstractMessageSender {
 	@SuppressWarnings("unchecked")
 	private boolean send(SocketAddress remoteAddress, SocketAddress localAddress, Message message, PeerID target) throws IOException {
 		final int MAX_RESEND_ATTEMPTS = 4;
-		if (controller == null)
+		if (controller == null) {
 			throw new IOException("grizzly controller must be initialized");
-		if (remoteAddress == null)
+		}
+		if (remoteAddress == null) {
 			throw new IOException("remote address can not be null");
-		if (message == null)
+		}
+		if (message == null) {
 			throw new IOException("message can not be null");
+		}
 		ConnectorHandler connectorHandler = null;
 		try {
 			long startGetConnectorHandler = System.currentTimeMillis();

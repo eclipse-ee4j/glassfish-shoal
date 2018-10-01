@@ -22,7 +22,7 @@ import com.sun.enterprise.ee.cms.core.FailureRecoveryActionFactory;
 
 /**
  * Reference implementation of FailureRecoveryActionFactory interface
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 21, 2004
  * @version $Revision$
  */
@@ -35,7 +35,7 @@ public class FailureRecoveryActionFactoryImpl implements FailureRecoveryActionFa
 
 	/**
 	 * Produces an Action instance.
-	 * 
+	 *
 	 * @return com.sun.enterprise.ee.cms.Action
 	 */
 	public Action produceAction() {

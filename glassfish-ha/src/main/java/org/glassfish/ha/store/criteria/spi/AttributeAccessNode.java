@@ -16,9 +16,9 @@
 
 package org.glassfish.ha.store.criteria.spi;
 
-import org.glassfish.ha.store.spi.AttributeMetadata;
-
 import java.util.Collection;
+
+import org.glassfish.ha.store.spi.AttributeMetadata;
 
 /**
  * An ExpressionNode that denotes an Attribute access. The type of the expression is same as the Attribute's type

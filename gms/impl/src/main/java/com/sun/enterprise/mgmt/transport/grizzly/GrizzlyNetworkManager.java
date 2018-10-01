@@ -16,21 +16,22 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly;
 
-import static com.sun.enterprise.mgmt.ConfigConstants.*;
-import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.*;
+import static com.sun.enterprise.mgmt.ConfigConstants.BIND_INTERFACE_ADDRESS;
+import static com.sun.enterprise.mgmt.ConfigConstants.FAILURE_DETECTION_TCP_RETRANSMIT_TIMEOUT;
+import static com.sun.enterprise.mgmt.ConfigConstants.MULTICASTADDRESS;
+import static com.sun.enterprise.mgmt.ConfigConstants.MULTICASTPORT;
+import static com.sun.enterprise.mgmt.ConfigConstants.MULTICAST_PACKET_SIZE;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.DISCOVERY_URI_LIST;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.HIGH_WATER_MARK;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.MAX_PARALLEL;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.MAX_WRITE_SELECTOR_POOL_SIZE;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.MULTICAST_TIME_TO_LIVE;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.NUMBER_TO_RECLAIM;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.START_TIMEOUT;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.TCPENDPORT;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.TCPSTARTPORT;
+import static com.sun.enterprise.mgmt.transport.grizzly.GrizzlyConfigConstants.WRITE_TIMEOUT;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.mgmt.HealthMessage;
-import com.sun.enterprise.mgmt.HealthMonitor;
-import com.sun.enterprise.mgmt.transport.*;
-
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-import com.sun.enterprise.ee.cms.impl.base.Utility;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -38,9 +39,31 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.Utility;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.mgmt.HealthMessage;
+import com.sun.enterprise.mgmt.HealthMonitor;
+import com.sun.enterprise.mgmt.transport.AbstractNetworkManager;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+import com.sun.enterprise.mgmt.transport.MessageSender;
+import com.sun.enterprise.mgmt.transport.MulticastMessageSender;
+import com.sun.enterprise.mgmt.transport.NetworkUtility;
+import com.sun.enterprise.mgmt.transport.VirtualMulticastSender;
 
 /**
  * @author Bongjae Chang
@@ -205,10 +228,12 @@ public abstract class GrizzlyNetworkManager extends AbstractNetworkManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void addRemotePeer(PeerID peerID) {
-		if (peerID == null)
+		if (peerID == null) {
 			return;
-		if (peerID.equals(localPeerID))
+		}
+		if (peerID.equals(localPeerID)) {
 			return; // lookback
+		}
 		String instanceName = peerID.getInstanceName();
 		if (instanceName != null && peerID.getUniqueID() instanceof GrizzlyPeerID) {
 //            PeerID<GrizzlyPeerID> previous = peerIDMap.get(instanceName);
@@ -233,29 +258,34 @@ public abstract class GrizzlyNetworkManager extends AbstractNetworkManager {
 
 	@Override
 	public boolean send(final PeerID peerID, final Message message) throws IOException {
-		if (!running)
+		if (!running) {
 			throw new IOException("network manager is not running");
+		}
 		MessageSender sender = tcpSender;
-		if (sender == null)
+		if (sender == null) {
 			throw new IOException("message sender is not initialized");
+		}
 		return sender.send(peerID, message);
 	}
 
 	@Override
 	public boolean broadcast(final Message message) throws IOException {
-		if (!running)
+		if (!running) {
 			throw new IOException("network manager is not running");
+		}
 		MulticastMessageSender sender = multicastSender;
-		if (sender == null)
+		if (sender == null) {
 			throw new IOException("multicast message sender is not initialized");
+		}
 		return sender.broadcast(message);
 	}
 
 	@Override
 	public PeerID getPeerID(final String instanceName) {
 		PeerID peerID = null;
-		if (instanceName != null)
+		if (instanceName != null) {
 			peerID = peerIDMap.get(instanceName);
+		}
 		if (peerID == null) {
 			peerID = PeerID.NULL_PEER_ID;
 			if (this.instanceName.equals(instanceName)) {
@@ -271,11 +301,13 @@ public abstract class GrizzlyNetworkManager extends AbstractNetworkManager {
 
 	@Override
 	public void removePeerID(final PeerID peerID) {
-		if (peerID == null)
+		if (peerID == null) {
 			return;
+		}
 		String instanceName = peerID.getInstanceName();
-		if (instanceName == null)
+		if (instanceName == null) {
 			return;
+		}
 		Level debugLevel = Level.FINE;
 		if (LOG.isLoggable(debugLevel)) {
 			LOG.log(debugLevel, "removePeerID peerid=" + peerID, new Exception("stack trace"));
@@ -293,15 +325,17 @@ public abstract class GrizzlyNetworkManager extends AbstractNetworkManager {
 				send(peerID, new MessageImpl(Message.TYPE_PING_MESSAGE));
 				CountDownLatch latch = new CountDownLatch(1);
 				CountDownLatch oldLatch = pingMessageLockMap.putIfAbsent(peerID, latch);
-				if (oldLatch != null)
+				if (oldLatch != null) {
 					latch = oldLatch;
+				}
 				try {
 					isConnected = latch.await(failTcpTimeout, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e) {
 				}
 			} catch (Throwable ie) {
-				if (LOG.isLoggable(Level.FINE))
+				if (LOG.isLoggable(Level.FINE)) {
 					LOG.log(Level.FINE, "isConnected( " + peerID + " ) = " + isConnected, ie);
+				}
 				return isConnected;
 			} finally {
 				pingMessageLockMap.remove(peerID);
@@ -313,10 +347,11 @@ public abstract class GrizzlyNetworkManager extends AbstractNetworkManager {
 	}
 
 	public CountDownLatch getPingMessageLock(PeerID peerID) {
-		if (peerID != null)
+		if (peerID != null) {
 			return pingMessageLockMap.get(peerID);
-		else
+		} else {
 			return null;
+		}
 	}
 
 	@Override
@@ -342,10 +377,11 @@ public abstract class GrizzlyNetworkManager extends AbstractNetworkManager {
 
 	@Override
 	public MulticastMessageSender getMulticastMessageSender() {
-		if (running)
+		if (running) {
 			return multicastSender;
-		else
+		} else {
 			return null;
+		}
 	}
 
 	protected abstract Logger getGrizzlyLogger();

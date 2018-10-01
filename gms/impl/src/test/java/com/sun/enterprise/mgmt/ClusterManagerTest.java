@@ -16,17 +16,20 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
 import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
 import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.mgmt.transport.Message;
+
 import junit.framework.TestCase;
 
 /**
@@ -111,7 +114,7 @@ public class ClusterManagerTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 
 	public void testStartRunStopClusterManager() throws GMSException {

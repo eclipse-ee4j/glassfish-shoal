@@ -16,22 +16,21 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+import org.shoal.ha.cache.impl.store.DataStoreEntry;
 
 /**
  * @author Mahesh Kannan
  */
 public class TouchCommand<K, V> extends AbstractSaveCommand<K, V> {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -7824388716058350739L;
 
 	public TouchCommand() {
 		super(ReplicationCommandOpcode.TOUCH);

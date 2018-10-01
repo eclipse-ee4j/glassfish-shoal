@@ -19,21 +19,21 @@ package com.sun.enterprise.ee.cms.core;
 /**
  * A <code>Signal</code> type that enables consumers to acquire the MessageSignal, get the message( i.e payload),
  * perform appropriate operations and then release the signal to the signal pool.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 12, 2004
  * @version $Revision$
  */
 public interface MessageSignal extends Signal {
 	/**
 	 * Returns the message(payload) as a byte array.
-	 * 
+	 *
 	 * @return byte[]
 	 */
 	byte[] getMessage();
 
 	/**
 	 * Returns the target component in this member to which this message is addressed.
-	 * 
+	 *
 	 * @return String targetComponent
 	 */
 	String getTargetComponent();

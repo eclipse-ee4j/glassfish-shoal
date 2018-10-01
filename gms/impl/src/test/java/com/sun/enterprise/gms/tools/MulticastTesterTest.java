@@ -18,14 +18,6 @@ package com.sun.enterprise.gms.tools;
 
 import junit.framework.TestCase;
 
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
-
 public class MulticastTesterTest extends TestCase {
 	private MulticastTester tester;
 

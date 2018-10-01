@@ -16,8 +16,9 @@
 
 package com.sun.enterprise.ee.cms.impl.client;
 
-import com.sun.enterprise.ee.cms.core.RejoinSubevent;
 import java.util.Date;
+
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
 
 /**
  * Implementation of rejoin subevent that captures the time that a previously failed instance had joined the cluster.

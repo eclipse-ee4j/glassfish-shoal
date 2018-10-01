@@ -21,7 +21,7 @@ package com.sun.enterprise.ee.cms.core;
  * not yet confirmed, a <code>FailureSuspectedSignal</code> is generated to be consumed by
  * <code>FailureSuspectedAction</code> instances that are produced by registered instances of
  * FailureSuspectedActionFactory.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Sep 14, 2005
  * @version $Revision$
  */

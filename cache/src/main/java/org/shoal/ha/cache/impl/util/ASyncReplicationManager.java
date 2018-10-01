@@ -16,7 +16,9 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author Mahesh Kannan

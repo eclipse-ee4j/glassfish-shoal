@@ -16,10 +16,9 @@
 
 package org.shoal.ha.group;
 
-import org.shoal.ha.group.GroupService;
-import org.shoal.ha.group.gms.GroupServiceProvider;
-
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.shoal.ha.group.gms.GroupServiceProvider;
 
 /**
  * @author Mahesh Kannan

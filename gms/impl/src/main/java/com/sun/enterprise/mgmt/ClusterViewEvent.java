@@ -16,9 +16,9 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
-
 import java.io.Serializable;
+
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 
 /**
  * Denotes a Cluster View Change Event. Provides the event and the system advertisement in question.

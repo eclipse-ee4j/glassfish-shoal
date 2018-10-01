@@ -16,7 +16,11 @@
 
 package org.shoal.ha.cache.api;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
+import java.io.StreamCorruptedException;
 import java.lang.reflect.Array;
 
 /**
@@ -82,8 +86,9 @@ public class ObjectInputStreamWithLoader extends ObjectInputStream {
 				// An array
 				Class component; // component class
 				int dcount; // dimension
-				for (dcount = 1; cname.charAt(dcount) == '['; dcount++)
+				for (dcount = 1; cname.charAt(dcount) == '['; dcount++) {
 					;
+				}
 				if (cname.charAt(dcount) == 'L') {
 					component = loader.loadClass(cname.substring(dcount + 1, cname.length() - 1));
 				} else {

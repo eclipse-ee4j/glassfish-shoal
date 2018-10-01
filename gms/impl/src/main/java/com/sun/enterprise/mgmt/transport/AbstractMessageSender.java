@@ -16,9 +16,9 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
 import java.io.IOException;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
 
 /**
  * This class implements a common {@link MessageSender} logic simply in order to help the specific transport layer to be
@@ -40,14 +40,18 @@ public abstract class AbstractMessageSender implements MessageSender {
 	 * {@inheritDoc}
 	 */
 	public boolean send(final PeerID peerID, final Message message) throws IOException {
-		if (peerID == null)
+		if (peerID == null) {
 			throw new IOException("peer ID can not be null");
-		if (message == null)
+		}
+		if (message == null) {
 			throw new IOException("message is null");
-		if (localPeerID != null)
+		}
+		if (localPeerID != null) {
 			message.addMessageElement(Message.SOURCE_PEER_ID_TAG, localPeerID);
-		if (peerID != null)
+		}
+		if (peerID != null) {
 			message.addMessageElement(Message.TARGET_PEER_ID_TAG, peerID);
+		}
 		return doSend(peerID, message);
 	}
 

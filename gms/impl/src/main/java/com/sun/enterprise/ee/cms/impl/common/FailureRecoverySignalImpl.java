@@ -16,9 +16,10 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-
-import java.util.logging.Level;
+import com.sun.enterprise.ee.cms.core.FailureRecoverySignal;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
 
 /**
  * Implements the FailureRecoverySignal Interface and provides operations corresponding to a recovery oriented Signal's
@@ -48,7 +49,7 @@ public class FailureRecoverySignalImpl extends FailureNotificationSignalImpl imp
 
 	/**
 	 * Must be called by client before beginning any recovery operation in order to get support of failure fencing.
-	 * 
+	 *
 	 * @throws SignalAcquireException Exception when signal is not acquired
 	 */
 	@Override

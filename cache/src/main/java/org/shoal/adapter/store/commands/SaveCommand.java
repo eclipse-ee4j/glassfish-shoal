@@ -16,19 +16,22 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+import org.shoal.ha.cache.impl.store.DataStoreEntry;
 
 /**
  * @author Mahesh Kannan
  */
 public class SaveCommand<K, V> extends AbstractSaveCommand<K, V> {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -1681470355087702983L;
 
 	private transient V v;
 

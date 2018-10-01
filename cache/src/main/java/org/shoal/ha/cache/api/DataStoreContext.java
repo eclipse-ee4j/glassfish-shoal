@@ -16,20 +16,18 @@
 
 package org.shoal.ha.cache.api;
 
-import org.glassfish.ha.store.api.BackingStoreConfiguration;
-import org.glassfish.ha.store.api.Storeable;
-import org.glassfish.ha.store.util.KeyTransformer;
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-import org.shoal.ha.cache.impl.store.ReplicaStore;
-import org.shoal.ha.group.GroupService;
-import org.shoal.ha.cache.impl.command.CommandManager;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-import org.shoal.ha.mapper.KeyMapper;
-
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.util.KeyTransformer;
+import org.shoal.ha.cache.impl.command.CommandManager;
+import org.shoal.ha.cache.impl.store.ReplicaStore;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+import org.shoal.ha.group.GroupService;
+import org.shoal.ha.mapper.KeyMapper;
 
 /**
  * @author Mahesh Kannan

@@ -16,27 +16,25 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
 import static com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys.DISCOVERY_URI_LIST;
 import static com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys.VIRTUAL_MULTICAST_URI_LIST;
-import com.sun.enterprise.ee.cms.core.GMSMember;
-import com.sun.enterprise.ee.cms.core.RejoinSubevent;
-import com.sun.enterprise.ee.cms.impl.base.*;
-import com.sun.enterprise.ee.cms.impl.common.GMSContext;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.MessageEvent;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
-import com.sun.enterprise.mgmt.transport.MessageIOException;
-import com.sun.enterprise.mgmt.transport.MessageListener;
+import static com.sun.enterprise.mgmt.ClusterViewEvents.ADD_EVENT;
+import static com.sun.enterprise.mgmt.ClusterViewEvents.JOINED_AND_READY_EVENT;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,7 +42,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.sun.enterprise.mgmt.ClusterViewEvents.*;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
+import com.sun.enterprise.ee.cms.impl.base.GMSThreadFactory;
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
+import com.sun.enterprise.ee.cms.impl.base.Utility;
+import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+import com.sun.enterprise.mgmt.transport.MessageListener;
 
 /**
  * Master Node defines a protocol by which a set of nodes connected to a JXTA infrastructure group may dynamically
@@ -201,7 +215,7 @@ class MasterNode implements MessageListener, Runnable {
 
 	/**
 	 * Returns true if current master is truely senior to new possible master represented by newAdv.
-	 * 
+	 *
 	 * @param currentAdv
 	 * @param newAdv
 	 * @return
@@ -527,8 +541,9 @@ class MasterNode implements MessageListener, Runnable {
 	@SuppressWarnings("unchecked")
 	boolean processMasterNodeResponse(final Message msg, final SystemAdvertisement source) throws IOException {
 		Object msgElement = msg.getMessageElement(MASTERNODERESPONSE);
-		if (msgElement == null)
+		if (msgElement == null) {
 			return false;
+		}
 		long seqID = getLongFromMessage(msg, NAMESPACE, MASTERVIEWSEQ);
 		if (LOG.isLoggable(Level.FINE)) {
 			LOG.log(Level.FINE,
@@ -596,8 +611,9 @@ class MasterNode implements MessageListener, Runnable {
 	 */
 	boolean processGroupStartupComplete(final Message msg, final SystemAdvertisement source) throws IOException {
 		Object msgElement = msg.getMessageElement(GROUPSTARTUPCOMPLETE);
-		if (msgElement == null)
+		if (msgElement == null) {
 			return false;
+		}
 
 		LOG.fine("received GROUPSTARTUPCOMPLETE from Master");
 		// provide wiggle room to enable JoinedAndReady Notifications to be considered part of group startup.
@@ -1444,7 +1460,7 @@ class MasterNode implements MessageListener, Runnable {
 			memberStates[i] = value;
 			i++;
 		}
-		msg.addMessageElement(AMASTERVIEWSTATES, (Serializable) memberStates);
+		msg.addMessageElement(AMASTERVIEWSTATES, memberStates);
 
 		addLongToMessage(msg, NAMESPACE, MASTERVIEWSEQ, cv.masterViewId);
 	}
@@ -1710,7 +1726,7 @@ class MasterNode implements MessageListener, Runnable {
 
 	private GMSContext getGMSContext() {
 		if (ctx == null) {
-			ctx = (GMSContext) GMSContextFactory.getGMSContext(manager.getGroupName());
+			ctx = GMSContextFactory.getGMSContext(manager.getGroupName());
 		}
 		return ctx;
 	}
@@ -1791,13 +1807,13 @@ class MasterNode implements MessageListener, Runnable {
 						result.append("masterquery").append(" from ").append(fromInstance);
 					} else if (key.equals(NODEQUERY)) {
 						result.append("nodequery").append(" from ").append(fromInstance);
-						;
+
 					} else if (key.equals(MASTERNODERESPONSE)) {
 						result.append("masternoderesponse").append(" from ").append(fromInstance);
-						;
+
 					} else if (key.equals(NODERESPONSE)) {
 						result.append("noderesponse").append(" from ").append(fromInstance);
-						;
+
 					}
 				}
 				msgElement = msg.getMessageElement(AMASTERVIEW);
@@ -2072,17 +2088,21 @@ class MasterNode implements MessageListener, Runnable {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o)
+			if (this == o) {
 				return true;
-			if (o == null || getClass() != o.getClass())
+			}
+			if (o == null || getClass() != o.getClass()) {
 				return false;
+			}
 
 			ProcessedMasterViewId that = (ProcessedMasterViewId) o;
 
-			if (masterViewIdSeq != that.masterViewIdSeq)
+			if (masterViewIdSeq != that.masterViewIdSeq) {
 				return false;
-			if (master != null ? !master.equals(that.master) : that.master != null)
+			}
+			if (master != null ? !master.equals(that.master) : that.master != null) {
 				return false;
+			}
 
 			return true;
 		}

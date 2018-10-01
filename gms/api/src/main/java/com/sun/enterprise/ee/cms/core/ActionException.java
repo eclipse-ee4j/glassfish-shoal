@@ -19,11 +19,16 @@ package com.sun.enterprise.ee.cms.core;
 /**
  * This exception is a general exception thrown by the <code>consumeSignal</code> method of concrete <code>Action</code>
  * implementations.
- * 
+ *
  * @author Shreedhar Ganapathy Date: January 12, 2004
  * @version $Revision$
  */
 public class ActionException extends Exception {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1991775566532192729L;
+
 	public ActionException() {
 		super();
 	}

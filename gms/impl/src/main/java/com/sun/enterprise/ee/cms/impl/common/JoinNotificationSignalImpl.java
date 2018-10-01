@@ -16,11 +16,6 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -28,9 +23,19 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.JoinNotificationSignal;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+
 /**
  * Implementation of JoinNotificationSignal
- * 
+ *
  * @author Shreedhar Ganapathy Date: Feb 22, 2005
  * @version $Revision$
  */
@@ -125,7 +130,7 @@ public class JoinNotificationSignalImpl implements JoinNotificationSignal {
 	/**
 	 * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
 	 * constituting data pertaining to the member's details
-	 * 
+	 *
 	 * @return Map &lt;Serializable, Serializable&gt;
 	 */
 	@Override
@@ -145,7 +150,7 @@ public class JoinNotificationSignalImpl implements JoinNotificationSignal {
 
 	/**
 	 * returns the group to which the member involved in the Signal belonged to
-	 * 
+	 *
 	 * @return String
 	 */
 	@Override

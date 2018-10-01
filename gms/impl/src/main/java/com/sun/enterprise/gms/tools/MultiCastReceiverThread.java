@@ -16,6 +16,8 @@
 
 package com.sun.enterprise.gms.tools;
 
+import static com.sun.enterprise.gms.tools.MulticastTester.SEP;
+
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -25,8 +27,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.sun.enterprise.gms.tools.MulticastTester.SEP;
 
 /**
  * Used to listen for multicast messages.

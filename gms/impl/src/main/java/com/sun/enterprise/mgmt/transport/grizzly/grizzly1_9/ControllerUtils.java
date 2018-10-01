@@ -16,14 +16,15 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.Controller;
-import com.sun.grizzly.ControllerStateListenerAdapter;
-import com.sun.grizzly.util.WorkerThreadImpl;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
+
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.ControllerStateListenerAdapter;
+import com.sun.grizzly.util.WorkerThreadImpl;
 
 /**
  * @author Alexey Stashok
@@ -32,7 +33,7 @@ public class ControllerUtils {
 
 	/**
 	 * Start controller in seperate thread
-	 * 
+	 *
 	 * @param controller the controller
 	 */
 	public static void startController(final Controller controller) {
@@ -68,7 +69,7 @@ public class ControllerUtils {
 
 	/**
 	 * Stop controller in seperate thread
-	 * 
+	 *
 	 * @param controller the controller
 	 */
 	public static void stopController(Controller controller) {

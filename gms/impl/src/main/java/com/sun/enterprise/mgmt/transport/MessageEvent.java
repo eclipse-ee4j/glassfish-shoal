@@ -16,9 +16,9 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
 import java.util.EventObject;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
 
 /**
  * This class represents a received message event

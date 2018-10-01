@@ -22,7 +22,7 @@ import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationActionFactory;
 
 /**
  * Reference Implementation of JoinedAndReadyNotificationActionFactory
- * 
+ *
  * @author Sheetal Vartak
  */
 public class JoinedAndReadyNotificationActionFactoryImpl implements JoinedAndReadyNotificationActionFactory {

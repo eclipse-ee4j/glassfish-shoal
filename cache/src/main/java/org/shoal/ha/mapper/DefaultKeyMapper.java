@@ -16,18 +16,19 @@
 
 package org.shoal.ha.mapper;
 
-import org.glassfish.ha.store.api.HashableKey;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.group.GroupMemberEventListener;
-
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Collection;
+import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.glassfish.ha.store.api.HashableKey;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.group.GroupMemberEventListener;
 
 /**
  * @author Mahesh Kannan
@@ -115,9 +116,9 @@ public class DefaultKeyMapper implements KeyMapper, GroupMemberEventListener {
 	 * @Override public String[] getKeyMappingInfo(String groupName, Object key1) { int hc = key1.hashCode(); if (key1
 	 * instanceof HashableKey) { HashableKey k = (HashableKey) key1; hc = k.getHashKey() == null ? hc :
 	 * k.getHashKey().hashCode(); } hc = Math.abs(hc);
-	 * 
+	 *
 	 * try { rLock.lock(); return getKeyMappingInfo(members, hc); } finally { rLock.unlock(); } }
-	 * 
+	 *
 	 * protected String[] getKeyMappingInfo(String[] instances, int hc) { if (members.length == 0) { return _EMPTY_TARGETS;
 	 * } else if (members.length == 1) { return new String[] {members[0], null}; } else { int index = hc % members.length;
 	 * return new String[] {members[index], members[(index + 1) % members.length]}; } }

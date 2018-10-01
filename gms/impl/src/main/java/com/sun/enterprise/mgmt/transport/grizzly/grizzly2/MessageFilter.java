@@ -16,9 +16,8 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
 import java.io.IOException;
+
 import org.glassfish.grizzly.Buffer;
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.Grizzly;
@@ -29,9 +28,12 @@ import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 import org.glassfish.grizzly.memory.MemoryManager;
 
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+
 /**
  * Filter, responsible for {@link Buffer} to {@link Message} transformation.
- * 
+ *
  * Message protocol format is:
  *
  * Message Header is MessageImpl.HEADER_LENGTH and composed of following fields. magicNumber integer

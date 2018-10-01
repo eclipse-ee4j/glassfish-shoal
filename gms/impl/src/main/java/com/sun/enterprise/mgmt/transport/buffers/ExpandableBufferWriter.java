@@ -23,7 +23,7 @@ import java.nio.ReadOnlyBufferException;
 
 /**
  * Expandable Buffer writer, which adopts its size during while getting more data.
- * 
+ *
  * @author Alexey Stashok
  */
 public abstract class ExpandableBufferWriter {
@@ -98,7 +98,7 @@ public abstract class ExpandableBufferWriter {
 	 * <pre>
 	 * dst.put(a, 0, a.length)
 	 * </pre>
-	 * 
+	 *
 	 * @param src the source byte array
 	 *
 	 * @return This buffer writer

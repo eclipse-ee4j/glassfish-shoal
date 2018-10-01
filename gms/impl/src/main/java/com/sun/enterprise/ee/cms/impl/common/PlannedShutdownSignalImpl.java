@@ -16,16 +16,20 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
  * Implementation of PlannedShutdownSignal.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Feb 22, 2005
  * @version $Revision$
  */
@@ -87,7 +91,7 @@ public class PlannedShutdownSignalImpl implements PlannedShutdownSignal {
 	/**
 	 * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
 	 * constituting data pertaining to the member's details
-	 * 
+	 *
 	 * @return Map - &lt;Serializable, Serializable&gt;
 	 */
 	public Map<Serializable, Serializable> getMemberDetails() {
@@ -96,7 +100,7 @@ public class PlannedShutdownSignalImpl implements PlannedShutdownSignal {
 
 	/**
 	 * returns the group to which the member involved in the Signal belonged to
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getGroupName() {
@@ -110,7 +114,7 @@ public class PlannedShutdownSignalImpl implements PlannedShutdownSignal {
 	/**
 	 * Planned shutdown events can be one of two types, Group Shutdown or Instance Shutdown. These types are defined in an
 	 * enum in the class GMSConstants.shutdownType
-	 * 
+	 *
 	 * @see com.sun.enterprise.ee.cms.core.GMSConstants
 	 * @return GMSConstants.shutdownType
 	 */

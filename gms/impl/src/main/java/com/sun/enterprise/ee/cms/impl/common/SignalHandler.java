@@ -16,6 +16,11 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.FailureNotificationSignal;
 import com.sun.enterprise.ee.cms.core.FailureRecoverySignal;
 import com.sun.enterprise.ee.cms.core.FailureSuspectedSignal;
@@ -26,11 +31,6 @@ import com.sun.enterprise.ee.cms.core.MessageSignal;
 import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
 import com.sun.enterprise.ee.cms.core.Signal;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * On a separate thread, analyses and handles the Signals delivered to it. Picks up signals from a BlockingQueue and

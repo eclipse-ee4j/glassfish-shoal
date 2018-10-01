@@ -16,12 +16,12 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 public class NetworkUtilityTest extends TestCase {
 

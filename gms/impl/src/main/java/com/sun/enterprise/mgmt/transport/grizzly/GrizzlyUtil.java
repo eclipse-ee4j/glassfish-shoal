@@ -17,9 +17,6 @@
 package com.sun.enterprise.mgmt.transport.grizzly;
 
 import java.lang.reflect.Method;
-import java.nio.channels.DatagramChannel;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.util.logging.Logger;
 
 /**

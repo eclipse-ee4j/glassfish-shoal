@@ -16,20 +16,22 @@
 
 package org.shoal.adapter.store.commands;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 import org.shoal.ha.cache.impl.command.Command;
 import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Mahesh Kannan
  */
 public class StaleCopyRemoveCommand<K, V> extends Command<K, V> {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -5823823481273689103L;
 
 	protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_STALE_REMOVE_COMMAND);
 

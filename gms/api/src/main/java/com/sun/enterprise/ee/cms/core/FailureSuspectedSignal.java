@@ -21,7 +21,7 @@ package com.sun.enterprise.ee.cms.core;
  * unresponsive member. When the failure is confirmed, the FailureNotificationSignal is sent. Clients wishing to know
  * about suspected failure can register the corresponding FailureSuspectedActionFactory implementation and provide a
  * FailureSuspectedAction implementation for consuming this Signal.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Sep 14, 2005
  * @version $Revision$
  */

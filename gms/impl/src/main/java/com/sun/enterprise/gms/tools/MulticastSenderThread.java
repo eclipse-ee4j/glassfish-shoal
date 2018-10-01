@@ -16,14 +16,18 @@
 
 package com.sun.enterprise.gms.tools;
 
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.mgmt.transport.NetworkUtility;
-
 import static com.sun.enterprise.ee.cms.core.GMSConstants.MINIMUM_MULTICAST_TIME_TO_LIVE;
+
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
+
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.mgmt.transport.NetworkUtility;
 
 /**
  * Used to periodically send multicast messages.

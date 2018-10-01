@@ -16,13 +16,13 @@
 
 package com.sun.enterprise.ee.cms.core;
 
+import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.CORE;
+import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.WATCHDOG;
+
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
-
-import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.WATCHDOG;
-import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.CORE;
 
 /**
  * Encapsulates the member token and the member type in a serializable
@@ -82,7 +82,7 @@ public class GMSMember implements Serializable {
 
 	/**
 	 * Returns the time the member joined the group.
-	 * 
+	 *
 	 * @return the time the member joined the group
 	 */
 	public long getStartTime() {

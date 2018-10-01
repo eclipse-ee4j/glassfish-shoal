@@ -60,7 +60,7 @@ public class ReplicationInputStream extends ByteArrayInputStream {
 
 	public final long readLong() {
 		// TODO Check bounds
-		return ((long) readInt() << 32) | ((long) readInt() & 0xFFFFFFFFL);
+		return ((long) readInt() << 32) | (readInt() & 0xFFFFFFFFL);
 	}
 
 	public final String readLengthPrefixedString() {

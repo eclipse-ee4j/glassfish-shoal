@@ -16,14 +16,6 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
-import com.sun.enterprise.ee.cms.impl.base.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.mgmt.transport.*;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Inet6Address;
@@ -32,6 +24,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisementImpl;
+import com.sun.enterprise.ee.cms.impl.base.Utility;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.mgmt.transport.AbstractNetworkManager;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+import com.sun.enterprise.mgmt.transport.MessageListener;
+import com.sun.enterprise.mgmt.transport.NetworkManager;
+import com.sun.enterprise.mgmt.transport.NetworkUtility;
 
 /**
  * The ClusterManager is the entry point for using the cluster management module which provides group communications and
@@ -82,7 +93,7 @@ public class ClusterManager implements MessageListener {
 	 */
 	public ClusterManager(final String groupName, final String instanceName, final Map<String, String> identityMap, final Map props,
 	        final List<ClusterViewEventListener> viewListeners, final List<ClusterMessageListener> messageListeners) throws GMSException {
-		this.memberType = (String) identityMap.get(CustomTagNames.MEMBER_TYPE.toString());
+		this.memberType = identityMap.get(CustomTagNames.MEMBER_TYPE.toString());
 		this.groupName = groupName;
 		this.instanceName = instanceName;
 		this.loopbackMessages = isLoopBackEnabled(props);
@@ -216,7 +227,7 @@ public class ClusterManager implements MessageListener {
 
 	/**
 	 * Returns the NetworkManager instance
-	 * 
+	 *
 	 * @param transport The type of transport
 	 *
 	 * @return The networkManager value
@@ -476,7 +487,7 @@ public class ClusterManager implements MessageListener {
 	}
 
 	public String getNodeState(final PeerID peerID, long threshold, long timeout) {
-		return getHealthMonitor().getMemberState((PeerID) peerID, threshold, timeout);
+		return getHealthMonitor().getMemberState(peerID, threshold, timeout);
 	}
 
 	/**

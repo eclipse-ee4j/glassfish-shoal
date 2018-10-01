@@ -22,7 +22,7 @@ import java.nio.charset.Charset;
 /**
  * This is a wrapper Serializable so that a message sent to a remote member can be further filtered to a target
  * component in that remote member.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Mar 14, 2005
  * @version $Revision$
  */

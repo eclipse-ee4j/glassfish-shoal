@@ -16,17 +16,17 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
+import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
 import com.sun.enterprise.mgmt.transport.buffers.BufferUtils;
 import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager;
 import com.sun.grizzly.ProtocolParser;
 import com.sun.grizzly.SSLConfig;
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
 import com.sun.grizzly.util.WorkerThread;
-
-import java.nio.ByteBuffer;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Message protocol format is:

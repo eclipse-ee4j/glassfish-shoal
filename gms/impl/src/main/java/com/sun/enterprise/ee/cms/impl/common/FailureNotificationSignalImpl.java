@@ -16,20 +16,20 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
 import com.sun.enterprise.ee.cms.core.FailureNotificationSignal;
 import com.sun.enterprise.ee.cms.core.SignalAcquireException;
 import com.sun.enterprise.ee.cms.core.SignalReleaseException;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Implements FailureNotificationSignal
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 21, 2004
  * @version $Revision$
  */
@@ -68,7 +68,7 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
 	/**
 	 * Signal is acquired prior to processing of the signal to protect group resources that are being acquired from being
 	 * affected by a race condition
-	 * 
+	 *
 	 * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException the exception when signal is not acquired
 	 */
 	public void acquire() throws SignalAcquireException {
@@ -77,7 +77,7 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
 
 	/**
 	 * Signal is released after processing of the signal to bring the group resources to a state of availability
-	 * 
+	 *
 	 * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException the exception when signal is not released
 	 */
 	public void release() throws SignalReleaseException {
@@ -94,7 +94,7 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
 
 	/**
 	 * returns the identity token of the failed member
-	 * 
+	 *
 	 * @return java.lang.String
 	 * @deprecated
 	 */
@@ -105,7 +105,7 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
 	/**
 	 * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
 	 * constituting data pertaining to the member's details
-	 * 
+	 *
 	 * @return Map - &lt;Serializable, Serializable&gt;
 	 */
 	public Map<Serializable, Serializable> getMemberDetails() {
@@ -114,7 +114,7 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
 
 	/**
 	 * returns the group to which the member involved in the Signal belonged to
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getGroupName() {

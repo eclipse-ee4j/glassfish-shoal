@@ -30,17 +30,17 @@ public interface Storable {
 	 *
 	 * @return The version or null if this entry has no version
 	 */
-	public long _getVersion();
+	long _getVersion();
 
 	/**
 	 * An array of boolean indicating if the corresponding attribute is dirty (true) or not (false)
 	 *
 	 * @return
 	 */
-	public Set<String> _getDirtyAttributeNames();
+	Set<String> _getDirtyAttributeNames();
 
-	public <T> T _getAttributeValue(String attrName, Class<T> type);
+	<T> T _getAttributeValue(String attrName, Class<T> type);
 
-	public String _getOwnerInstanceName();
+	String _getOwnerInstanceName();
 
 }

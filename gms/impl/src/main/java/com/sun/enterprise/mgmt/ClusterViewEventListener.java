@@ -22,7 +22,7 @@ import java.util.EventListener;
  * The listener interface for receiving ClusterViewManager events.
  * <p>
  * The following example illustrates how to implement a {@link com.sun.enterprise.mgmt.ClusterViewEventListener}:
- * 
+ *
  * <pre>
  * <tt>
  * ClusterViewEventListener myListener = new ClusterViewEventListener() {

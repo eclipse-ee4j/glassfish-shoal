@@ -16,9 +16,15 @@
 
 package com.sun.enterprise.ee.cms.core;
 
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <p>
@@ -61,7 +67,7 @@ import java.util.logging.Level;
  * gms.addActionFactory(myfailureNotificationActionFactoryImpl); <br>
  * </code>
  * </p>
- * 
+ *
  * @author Shreedhar Ganapathy
  * @version $Revision$
  */
@@ -125,7 +131,7 @@ public class GMSFactory {
 
 	/**
 	 * This returns an instance of the GroupManagementService for a given non-null group name.
-	 * 
+	 *
 	 * @param groupName groupName
 	 * @return GroupManagementService
 	 * @throws GMSException - if the groupName is null
@@ -138,9 +144,9 @@ public class GMSFactory {
 			throw new GMSException(sm.get("ex.factory.start.missing.group"));
 		}
 		final String key = getCompositeKey(groupName);
-		if (groups.containsKey(key))
+		if (groups.containsKey(key)) {
 			return groups.get(key);
-		else if (!isGMSEnabled(groupName)) {
+		} else if (!isGMSEnabled(groupName)) {
 			throw new GMSNotEnabledException(sm.get("ex.factory.get.gms.is.disabled", new Object[] { groupName }));
 		} else {
 			throw new GMSNotInitializedException(sm.get("ex.factory.get.not.init", new Object[] { groupName }));
@@ -151,7 +157,7 @@ public class GMSFactory {
 	/**
 	 * This is to be used only in the case where this process is a member of one and only one group and the group name is
 	 * unknown to the caller.
-	 * 
+	 *
 	 * @return GroupManagementService
 	 * @throws GMSException - wraps a throwable GMSNotInitializedException if there are no GMS instances found.
 	 */
@@ -167,7 +173,7 @@ public class GMSFactory {
 
 	/**
 	 * For the case where there are multiple groups in which this process has become a member.
-	 * 
+	 *
 	 * @return Collection
 	 */
 	public static Collection getAllGMSInstancesForMember() {
@@ -180,7 +186,7 @@ public class GMSFactory {
 
 	/**
 	 * returns true if GMS is enabled for the specified group.
-	 * 
+	 *
 	 * @param groupName Name of the group
 	 * @return true if GMS is enabled
 	 */
@@ -192,7 +198,7 @@ public class GMSFactory {
 	/**
 	 * enables an initialization code in the Application layer to set GMS to be enabled or not based on the application's
 	 * configuration
-	 * 
+	 *
 	 * @param groupName Name of the group
 	 * @param value a Boolean value
 	 */
@@ -203,7 +209,7 @@ public class GMSFactory {
 	/**
 	 * removes the GMS instance that is cached from a prior initialization. This is typically called only when GMS module is
 	 * being shutdown by a lifecycle action.
-	 * 
+	 *
 	 * @param groupName Name of the Group
 	 */
 	public static void removeGMSModule(final String groupName) {

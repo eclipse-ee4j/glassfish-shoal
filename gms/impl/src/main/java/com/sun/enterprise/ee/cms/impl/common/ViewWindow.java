@@ -16,14 +16,14 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.GMSMember;
-
 import java.util.List;
+
+import com.sun.enterprise.ee.cms.core.GMSMember;
 
 /**
  * Caches Membership information for each snapshot so as to provide determination of failure, joins, and/or planned
  * shutdowns, etc.
- * 
+ *
  * @author Shreedhar Ganapathy Date: December 17, 2005
  * @version $Revision$
  */

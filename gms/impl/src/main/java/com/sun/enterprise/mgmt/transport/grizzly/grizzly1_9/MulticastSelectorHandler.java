@@ -16,26 +16,33 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.*;
-import com.sun.grizzly.util.Copyable;
-import com.sun.grizzly.async.UDPAsyncQueueReader;
-import com.sun.grizzly.async.UDPAsyncQueueWriter;
-import com.sun.enterprise.mgmt.transport.NetworkUtility;
-
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.BindException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.net.SocketAddress;
-import java.net.NetworkInterface;
-import java.net.InetSocketAddress;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.BindException;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
 import java.util.concurrent.Callable;
-import java.lang.reflect.Method;
+import java.util.logging.Level;
+
+import com.sun.enterprise.mgmt.transport.NetworkUtility;
+import com.sun.grizzly.CallbackHandler;
+import com.sun.grizzly.CallbackHandlerSelectionKeyAttachment;
+import com.sun.grizzly.ConnectorHandler;
+import com.sun.grizzly.ConnectorInstanceHandler;
+import com.sun.grizzly.Context;
+import com.sun.grizzly.ReusableUDPSelectorHandler;
+import com.sun.grizzly.Role;
+import com.sun.grizzly.TCPSelectorHandler;
+import com.sun.grizzly.async.UDPAsyncQueueReader;
+import com.sun.grizzly.async.UDPAsyncQueueWriter;
+import com.sun.grizzly.util.Copyable;
 
 /**
  * @author Bongjae Chang
@@ -112,10 +119,11 @@ public class MulticastSelectorHandler extends ReusableUDPSelectorHandler {
 			if (role != Role.CLIENT) {
 				datagramSocket = datagramChannel.socket();
 				datagramSocket.setReuseAddress(reuseAddress);
-				if (inet == null)
+				if (inet == null) {
 					datagramSocket.bind(new InetSocketAddress(getPort()));
-				else
+				} else {
 					datagramSocket.bind(new InetSocketAddress(inet, getPort()));
+				}
 
 				datagramChannel.configureBlocking(false);
 				datagramChannel.register(selector, SelectionKey.OP_READ);
@@ -140,15 +148,17 @@ public class MulticastSelectorHandler extends ReusableUDPSelectorHandler {
 	}
 
 	public void setMulticastAddress(String multicastAddress) throws UnknownHostException {
-		if (multicastAddress != null)
+		if (multicastAddress != null) {
 			this.multicastAddress = InetAddress.getByName(multicastAddress);
+		}
 	}
 
 	public void setNetworkInterface(String networkInterfaceName) throws SocketException {
 		if (networkInterfaceName != null) {
 			NetworkInterface anInterface = NetworkInterface.getByName(networkInterfaceName);
-			if (NetworkUtility.supportsMulticast(anInterface))
+			if (NetworkUtility.supportsMulticast(anInterface)) {
 				this.anInterface = anInterface;
+			}
 		}
 	}
 

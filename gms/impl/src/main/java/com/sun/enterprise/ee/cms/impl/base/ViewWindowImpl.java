@@ -16,20 +16,37 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import static com.sun.enterprise.ee.cms.core.GMSConstants.startupType.*;
+import static com.sun.enterprise.ee.cms.core.GMSConstants.startupType.GROUP_STARTUP;
+import static com.sun.enterprise.ee.cms.core.GMSConstants.startupType.INSTANCE_STARTUP;
+
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.Vector;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSCacheable;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.core.Signal;
 import com.sun.enterprise.ee.cms.impl.common.FailureNotificationSignalImpl;
 import com.sun.enterprise.ee.cms.impl.common.FailureRecoverySignalImpl;
 import com.sun.enterprise.ee.cms.impl.common.FailureSuspectedSignalImpl;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.core.GMSMember;
-import com.sun.enterprise.ee.cms.core.Signal;
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.core.DistributedStateCache;
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSCacheable;
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.RejoinSubevent;
 import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
 import com.sun.enterprise.ee.cms.impl.common.GroupLeadershipNotificationSignalImpl;
 import com.sun.enterprise.ee.cms.impl.common.JoinNotificationSignalImpl;
 import com.sun.enterprise.ee.cms.impl.common.JoinedAndReadyNotificationSignalImpl;
@@ -42,14 +59,6 @@ import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.ee.cms.spi.MemberStates;
 import com.sun.enterprise.mgmt.ClusterView;
 import com.sun.enterprise.mgmt.ClusterViewEvents;
-
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Shreedhar Ganapathy Date: Jun 26, 2006
@@ -82,7 +91,7 @@ class ViewWindowImpl implements ViewWindow, Runnable {
 
 	private GMSContext getGMSContext() {
 		if (ctx == null) {
-			ctx = (GMSContext) GMSContextFactory.getGMSContext(groupName);
+			ctx = GMSContextFactory.getGMSContext(groupName);
 		}
 		return ctx;
 	}

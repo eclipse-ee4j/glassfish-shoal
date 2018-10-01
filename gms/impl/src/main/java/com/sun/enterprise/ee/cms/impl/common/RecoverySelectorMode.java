@@ -17,7 +17,7 @@
 package com.sun.enterprise.ee.cms.impl.common;
 
 /**
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 20, 2004
  * @version $Revision$
  */

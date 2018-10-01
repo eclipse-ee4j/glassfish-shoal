@@ -21,7 +21,7 @@ import java.io.InputStream;
 
 /**
  * {@link InputStream} implementation over {@link Buffer}.
- * 
+ *
  * @author Alexey Stashok
  */
 public class BufferInputStream extends InputStream {

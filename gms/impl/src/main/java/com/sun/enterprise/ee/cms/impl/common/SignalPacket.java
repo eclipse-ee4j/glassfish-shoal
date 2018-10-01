@@ -20,7 +20,7 @@ import com.sun.enterprise.ee.cms.core.Signal;
 
 /**
  * A packet containing the Signal(s) being delivered to the Router's signal queue.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Jan 22, 2004
  * @version $Revision$
  */

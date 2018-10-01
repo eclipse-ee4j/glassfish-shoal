@@ -31,12 +31,13 @@ public class ArrayUtils {
 			int mid = (low + high) >>> 1;
 			int midVal = a[mid];
 
-			if (midVal < key)
+			if (midVal < key) {
 				low = mid + 1;
-			else if (midVal > key)
+			} else if (midVal > key) {
 				high = mid - 1;
-			else
+			} else {
 				return mid; // key found
+			}
 		}
 		return low; // key not found.
 	}

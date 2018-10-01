@@ -16,20 +16,20 @@
 
 package org.shoal.ha.cache.impl.store;
 
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.logging.Level;
+
 import org.glassfish.ha.store.util.SimpleMetadata;
 import org.shoal.adapter.store.commands.AbstractSaveCommand;
 import org.shoal.adapter.store.commands.LoadResponseCommand;
 import org.shoal.adapter.store.commands.SaveCommand;
 import org.shoal.adapter.store.commands.TouchCommand;
-import org.shoal.ha.cache.api.*;
-
-import java.util.Iterator;
-import java.util.TreeSet;
-import java.util.logging.Level;
+import org.shoal.ha.cache.api.DataStoreException;
 
 /**
  * @author Mahesh Kannan
- * 
+ *
  */
 public class SimpleStoreableDataStoreEntryUpdater<K, V extends SimpleMetadata> extends DataStoreEntryUpdater<K, V> {
 

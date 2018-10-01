@@ -16,15 +16,18 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.core.GMSMember;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.FailureRecoveryActionFactory;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Uses a specified algorithm to determine a member that will be selected to handle recovery operations on failure of a
@@ -51,7 +54,7 @@ public class RecoveryTargetSelector {
 	/**
 	 * Uses a resolution algorithm to determine whether the member this process represents is indeed responsible for
 	 * performing recovery operations.
-	 * 
+	 *
 	 * @param mode - as specified by the RecoverySelectorMode
 	 * @param members - a vector of members from a view that existed prior to the failure. Ideally, this view contains the
 	 * failedMemberToken.
@@ -92,7 +95,7 @@ public class RecoveryTargetSelector {
 	 * risk, etc associated with selecting recovery targets on the same machine as the one on which failed process was
 	 * located. If there are no members on other hosts (ex. Group of only two members running only on one host), then the
 	 * selection algorithm switches to the simple algorithm mode.
-	 * 
+	 *
 	 * @param members
 	 * @param failedMember
 	 * @return boolean
@@ -107,7 +110,7 @@ public class RecoveryTargetSelector {
 	 * member that stood <bold>immediately after</bold> the failed member, or where the failed member was last in this
 	 * ordered list, determine the first live member in the ordered list. In both such cases, recovery is determined to be
 	 * performed by this member.
-	 * 
+	 *
 	 * @return boolean true if recovery is to be performed by this process, false if not.
 	 */
 	private static boolean resolveWithSimpleSelectionAlgorithm(final List<GMSMember> viewCache, final String failedMember, final String groupName) {
@@ -229,7 +232,7 @@ public class RecoveryTargetSelector {
 	 * GMSMember failedMember, final String groupName) { boolean recover = false; final GMSContext ctx =
 	 * GMSContextFactory.getGMSContext( groupName ); final String self = ctx.getServerIdentityToken(); final GMSMember[]
 	 * cache = getMemberTokens(viewCache, exclusionList);
-	 * 
+	 *
 	 * // select a member who is not currently performing recovery String recoverer = selectNonRecoveringMember(cache, ctx);
 	 * //if no such member is available pick the one that is performing least //number of recoveries. if(recoverer == null){
 	 * recoverer = selectLeastRecoveryLoadedMember(cache, ctx); } //this in effect will be set by every GMS instance //
@@ -237,7 +240,7 @@ public class RecoveryTargetSelector {
 	 * //record of this selection setRecoverySelectionState(recoverer, failedMember.getMemberToken(), groupName); // if I am
 	 * (this process is) the first member, then I // select myself for recovery if(recoverer.equals(self)) { recover = true;
 	 * } return recover; }
-	 * 
+	 *
 	 * private static String selectNonRecoveringMember ( final GMSMember[] cache, final GMSContext ctx) { final String
 	 * recoverer; final DistributedStateCache dsc = ctx.getDistributedStateCache(); Map<GMSCacheable, Object> entries; final
 	 * List<GMSMember> candidates = new ArrayList<GMSMember>(); for(final GMSMember member : cache){ entries =
@@ -245,7 +248,7 @@ public class RecoveryTargetSelector {
 	 * ) {//this member is free to perform recoveries candidates.add(member); } } if(candidates.isEmpty()){//all members are
 	 * doing some recovery recoverer = null; } else { recoverer = candidates.get( 0 ); //pick the first from shuffled list }
 	 * return recoverer; }
-	 * 
+	 *
 	 * private static String selectLeastRecoveryLoadedMember ( final GMSMember[] cache, final GMSContext ctx ) { String
 	 * recoverer = null; final DistributedStateCache dsc = ctx.getDistributedStateCache(); Map<GMSCacheable, Object>
 	 * entries; final Map<String, Integer> candidates = new HashMap<String, Integer>(); int lowest = Integer.MAX_VALUE;
@@ -253,7 +256,7 @@ public class RecoveryTargetSelector {
 	 * getNumRecoveries( entries, member.getMemberToken() ); if(counter < lowest){ lowest = counter; }
 	 * candidates.put(member, new Integer(counter)); } for(String member : candidates.keySet()){ final int value =
 	 * candidates.get(member); if(value == lowest ) { recoverer = member; break; } } return recoverer; }
-	 * 
+	 *
 	 * private static int getNumRecoveries(final Map<GMSCacheable, Object> entries, final String member ) { int counter = 0;
 	 * Object entry; for(GMSCacheable c : entries.keySet()){ // if this member is not performing recovery for self or others
 	 * if(member.equals( c.getMemberTokenId() )) { if((entry = entries.get(c)) instanceof String &&

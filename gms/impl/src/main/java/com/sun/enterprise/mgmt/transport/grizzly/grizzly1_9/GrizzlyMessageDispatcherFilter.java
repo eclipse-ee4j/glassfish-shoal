@@ -16,15 +16,15 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.ProtocolFilter;
-import com.sun.grizzly.Context;
-import com.sun.grizzly.ProtocolParser;
-import com.sun.enterprise.mgmt.transport.Message;
-
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.grizzly.Context;
+import com.sun.grizzly.ProtocolFilter;
+import com.sun.grizzly.ProtocolParser;
 
 /**
  * @author Bongjae Chang
@@ -39,8 +39,9 @@ public class GrizzlyMessageDispatcherFilter implements ProtocolFilter {
 
 	public boolean execute(Context ctx) throws IOException {
 		Object obj = ctx.removeAttribute(ProtocolParser.MESSAGE);
-		if (!(obj instanceof Message))
+		if (!(obj instanceof Message)) {
 			throw new IOException("received message is not valid: " + obj);
+		}
 		final Message incomingMessage = (Message) obj;
 		final SelectionKey selectionKey = ctx.getSelectionKey();
 		Map<String, Object> piggyback = null;

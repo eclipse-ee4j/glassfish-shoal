@@ -65,14 +65,14 @@ public interface Signal {
 	 *
 	 * @return Map <Serializable, Serializable>
 	 */
-	public Map<Serializable, Serializable> getMemberDetails();
+	Map<Serializable, Serializable> getMemberDetails();
 
 	/**
 	 * returns the group to which the member involved in the Signal belonged to
 	 *
 	 * @return String
 	 */
-	public String getGroupName();
+	String getGroupName();
 
 	/**
 	 * returns the start time of the member involved in this Signal.

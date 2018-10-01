@@ -16,11 +16,7 @@
 
 package com.sun.enterprise.ee.cms.core;
 
-import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
-
-import com.sun.enterprise.ee.cms.core.Signal;
 
 /**
  * A read-only view consisting of all the AliveAndReady CORE members of a GMS group.
@@ -58,7 +54,7 @@ public interface AliveAndReadyView {
 	/**
 	 * Monotonically increasing id. Each GMS notification signal for a core member that causes a new view to be created
 	 * results in this value being increased.
-	 * 
+	 *
 	 * @return a generated id
 	 */
 	long getViewId();

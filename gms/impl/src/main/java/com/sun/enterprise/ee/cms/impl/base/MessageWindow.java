@@ -16,20 +16,29 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.MessageSignal;
-import com.sun.enterprise.ee.cms.impl.common.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.GMSMessage;
-
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.concurrent.*;
+import java.util.Iterator;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Iterator;
+
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.MessageSignal;
+import com.sun.enterprise.ee.cms.impl.common.DSCMessage;
+import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.impl.common.MessageSignalImpl;
+import com.sun.enterprise.ee.cms.impl.common.Router;
+import com.sun.enterprise.ee.cms.impl.common.ShutdownHelper;
+import com.sun.enterprise.ee.cms.impl.common.SignalPacket;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.GMSMessage;
 
 /**
  * Handles messages from the message queue and dispatches them to the interested parties. Also specially handles
@@ -60,7 +69,7 @@ public class MessageWindow implements Runnable {
 
 	private GMSContext getGMSContext() {
 		if (ctx == null) {
-			ctx = (GMSContext) GMSContextFactory.getGMSContext(groupName);
+			ctx = GMSContextFactory.getGMSContext(groupName);
 		}
 		return ctx;
 	}

@@ -25,13 +25,14 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.SocketConnectorHandler;
 import org.glassfish.grizzly.utils.Exceptions;
 
 /**
  * Connection cache implementation.
- * 
+ *
  * @author Alexey Stashok
  */
 public class ConnectionCache {
@@ -125,8 +126,9 @@ public class ConnectionCache {
 	}
 
 	private void closeCacheRecord(final CacheRecord cacheRecord) {
-		if (cacheRecord == null)
+		if (cacheRecord == null) {
 			return;
+		}
 		Connection connection;
 		while ((connection = cacheRecord.connections.poll()) != null) {
 			cacheRecord.idleConnectionsCount.decrementAndGet();

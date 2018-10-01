@@ -19,7 +19,7 @@ package com.sun.enterprise.ee.cms.core;
 /**
  * Signal corresponding to PlannedShutdownAction. This Signal enables the consumer to get specifics about a graceful
  * administratively driven shutdown of a member. This Signal type will only be passed to a PlannedShutdownAction.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Feb 3, 2005
  * @version $Revision$
  */
@@ -27,7 +27,7 @@ public interface PlannedShutdownSignal extends Signal, AliveAndReadySignal {
 	/**
 	 * Planned shutdown events can be one of two types, Group Shutdown or Instance Shutdown. These types are defined in an
 	 * enum in the class GMSConstants.shutdownType
-	 * 
+	 *
 	 * @see com.sun.enterprise.ee.cms.core.GMSConstants
 	 * @return GMSConstants.shutdownType
 	 */

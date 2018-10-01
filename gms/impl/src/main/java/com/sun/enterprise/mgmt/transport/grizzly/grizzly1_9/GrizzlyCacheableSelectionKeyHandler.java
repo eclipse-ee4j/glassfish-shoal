@@ -16,10 +16,10 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.util.Copyable;
-import com.sun.grizzly.connectioncache.server.CacheableSelectionKeyHandler;
-
 import java.nio.channels.SelectionKey;
+
+import com.sun.grizzly.connectioncache.server.CacheableSelectionKeyHandler;
+import com.sun.grizzly.util.Copyable;
 
 /**
  * @author Bongjae Chang
@@ -39,8 +39,9 @@ public class GrizzlyCacheableSelectionKeyHandler extends CacheableSelectionKeyHa
 	@Override
 	public void cancel(SelectionKey key) {
 		super.cancel(key);
-		if (networkManager != null)
+		if (networkManager != null) {
 			networkManager.removeRemotePeer(key);
+		}
 	}
 
 	@Override

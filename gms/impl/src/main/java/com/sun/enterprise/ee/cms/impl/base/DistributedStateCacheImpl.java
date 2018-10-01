@@ -16,11 +16,7 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.impl.common.DSCMessage;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.impl.common.GMSContext;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import static java.util.logging.Level.FINER;
 
 import java.io.Serializable;
 import java.util.Hashtable;
@@ -31,8 +27,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
-import static java.util.logging.Level.FINER;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSCacheable;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.impl.common.DSCMessage;
+import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Messaging based implementation of a shared distributed state cache(DSC). Every write entry made such as adding a new
@@ -406,7 +411,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
 	/*
 	 * adds all entries from a collection to the cache. This is used to sync states with the group when this instance is
 	 * joining an existing group.
-	 * 
+	 *
 	 * @param map - containing a GMSCacheable as key and an Object as value.
 	 */
 	void addAllToLocalCache(final Map<GMSCacheable, Object> map) {

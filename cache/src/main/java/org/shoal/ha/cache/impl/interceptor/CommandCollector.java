@@ -22,7 +22,7 @@ import org.shoal.ha.cache.impl.command.Command;
 
 /**
  * @author Mahesh Kannan
- * 
+ *
  */
 public interface CommandCollector<K, V> {
 	void initialize(String targetName, DataStoreContext<K, V> rsInfo);

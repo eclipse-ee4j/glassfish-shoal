@@ -22,7 +22,7 @@ import com.sun.enterprise.ee.cms.core.PlannedShutdownActionFactory;
 
 /**
  * Reference implementation of PlannedShutdownActionFactory.
- * 
+ *
  * @author Shreedhar Ganapathy Date: Mar 15, 2005
  * @version $Revision$
  */

@@ -16,14 +16,14 @@
 
 package com.sun.enterprise.ee.cms.spi;
 
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSConstants.groupStartupState;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSConstants.groupStartupState;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
 
 /**
  * Provides a plugging interface for integrating group communication providers(GCP). Acts as a bridge between GCP
@@ -56,14 +56,14 @@ public interface GroupCommunicationProvider {
 
 	/**
 	 * Sends an announcement to the group that a cluster wide shutdown is impending
-	 * 
+	 *
 	 * @param gmsMessage an object that encapsulates the application's Message
 	 */
 	void announceClusterShutdown(GMSMessage gmsMessage);
 
 	/**
 	 * Leaves the group as a result of a planned administrative action to shutdown.
-	 * 
+	 *
 	 * @param isClusterShutdown - true if we are leaving as part of a cluster wide shutdown
 	 */
 	void leave(boolean isClusterShutdown);
@@ -86,7 +86,7 @@ public interface GroupCommunicationProvider {
 	/**
 	 * Sends a message to the entire group using the underlying group communication provider's APIs. The Serializable object
 	 * here is a GMSMessage Object.
-	 * 
+	 *
 	 * @param message a Serializable object that wraps the users specified message in order to allow remote GMS instances to
 	 * unpack this message appropriately
 	 * @throws GMSException Underlying exception is wrapped in a GMSException
@@ -103,7 +103,7 @@ public interface GroupCommunicationProvider {
 
 	/**
 	 * Returns true if this peer is the leader of the group
-	 * 
+	 *
 	 * @return boolean true if group leader, false if not.
 	 */
 	boolean isGroupLeader();
@@ -114,7 +114,7 @@ public interface GroupCommunicationProvider {
 	 * local computed concept for a member's state. <code>threshold</code> parameter controls this. If the local state is
 	 * stale, then the <code>timeout</code> parameter enables one to control how long they are willing to wait for more
 	 * accurate state information from the member itself.
-	 * 
+	 *
 	 * @param member
 	 * @param threshold allows caller to specify how up-to-date the member state information has to be. The larger this
 	 * value, the better chance that this method just returns the local concept of this member's state. The smaller this
@@ -133,7 +133,7 @@ public interface GroupCommunicationProvider {
 
 	/**
 	 * Returns the member state as defined in the Enum MemberStates
-	 * 
+	 *
 	 * @return MemberStates
 	 * @param memberIdentityToken identity of member.
 	 */
@@ -141,7 +141,7 @@ public interface GroupCommunicationProvider {
 
 	/**
 	 * Returns the Group Leader as defined by the underlying Group Communication Provider.
-	 * 
+	 *
 	 * @return String
 	 */
 	String getGroupLeader();
@@ -179,7 +179,7 @@ public interface GroupCommunicationProvider {
 	 * Allow for enhanced GMS failure detection by external control entities (one example is NodeAgent of Glassfish
 	 * Application Server.) Only a GMS MemberType of WATCHDOG is allowed to broadcast to all members of a group that this
 	 * <code>serverToken</code> has failed.
-	 * 
+	 *
 	 * @param serverToken failed member
 	 * @throws GMSException if called by a member that is not a WATCHDOG member or if serverToken is not currently running
 	 * in group.

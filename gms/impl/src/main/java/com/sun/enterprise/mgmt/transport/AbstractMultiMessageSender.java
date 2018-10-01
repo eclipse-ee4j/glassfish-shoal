@@ -16,9 +16,9 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
 import java.io.IOException;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
 
 /**
  * This class implements both a common {@link MulticastMessageSender} and {@link MessageSender} logic simply in order to
@@ -41,10 +41,12 @@ public abstract class AbstractMultiMessageSender implements MulticastMessageSend
 	 * {@inheritDoc}
 	 */
 	public boolean broadcast(final Message message) throws IOException {
-		if (message == null)
+		if (message == null) {
 			throw new IOException("message is null");
-		if (localPeerID != null)
+		}
+		if (localPeerID != null) {
 			message.addMessageElement(Message.SOURCE_PEER_ID_TAG, localPeerID);
+		}
 		return doBroadcast(message);
 	}
 
@@ -52,14 +54,18 @@ public abstract class AbstractMultiMessageSender implements MulticastMessageSend
 	 * {@inheritDoc}
 	 */
 	public boolean send(final PeerID peerID, final Message message) throws IOException {
-		if (peerID == null)
+		if (peerID == null) {
 			throw new IOException("peer ID can not be null");
-		if (message == null)
+		}
+		if (message == null) {
 			throw new IOException("message is null");
-		if (localPeerID != null)
+		}
+		if (localPeerID != null) {
 			message.addMessageElement(Message.SOURCE_PEER_ID_TAG, localPeerID);
-		if (peerID != null)
+		}
+		if (peerID != null) {
 			message.addMessageElement(Message.TARGET_PEER_ID_TAG, peerID);
+		}
 		return doSend(peerID, message);
 	}
 

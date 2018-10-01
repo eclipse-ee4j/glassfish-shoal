@@ -16,31 +16,29 @@
 
 package org.shoal.test.command;
 
-import org.shoal.ha.cache.api.DataStoreContext;
-import org.shoal.ha.cache.api.DataStoreException;
 import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.util.ReplicationInputStream;
-import org.shoal.ha.cache.impl.util.ReplicationOutputStream;
-
-import java.io.IOException;
 
 /**
  * @author Mahesh Kannan
  */
-public class BatchedNoopCommand
-    extends Command {
+public class BatchedNoopCommand extends Command {
 
-    public BatchedNoopCommand() {
-        super((byte) 121);
-        super.setKey("NoopBatch" + System.identityHashCode(this));
-    }
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 4048003960462018415L;
 
-    public boolean beforeTransmit() {
-        return true;
-    }
+	public BatchedNoopCommand() {
+		super((byte) 121);
+		super.setKey("NoopBatch" + System.identityHashCode(this));
+	}
 
-    @Override
-    public void execute(String initiator) {
-        System.out.println("***>> Executed BatchedNoop command");
-    }
+	public boolean beforeTransmit() {
+		return true;
+	}
+
+	@Override
+	public void execute(String initiator) {
+		System.out.println("***>> Executed BatchedNoop command");
+	}
 }

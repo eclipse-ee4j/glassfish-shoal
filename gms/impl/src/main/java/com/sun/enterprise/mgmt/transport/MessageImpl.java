@@ -16,32 +16,32 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.mgmt.transport.buffers.BufferInputStream;
-import com.sun.enterprise.mgmt.transport.buffers.BufferUtils;
-import com.sun.enterprise.mgmt.transport.buffers.ExpandableBufferWriter;
-import com.sun.enterprise.mgmt.transport.buffers.Buffer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.impl.common.GMSContext;
 import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
 import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.ee.cms.spi.GMSMessage;
+import com.sun.enterprise.mgmt.transport.buffers.Buffer;
+import com.sun.enterprise.mgmt.transport.buffers.BufferInputStream;
+import com.sun.enterprise.mgmt.transport.buffers.BufferUtils;
+import com.sun.enterprise.mgmt.transport.buffers.ExpandableBufferWriter;
 import com.sun.enterprise.mgmt.transport.buffers.ExpandableBufferWriterFactory;
-
-import java.nio.ByteBuffer;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.DataOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.Set;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This is a default {@link Message}'s implementation
@@ -127,12 +127,15 @@ public class MessageImpl implements Message {
 	 * {@inheritDoc}
 	 */
 	public int parseHeader(final byte[] bytes, final int offset) throws IllegalArgumentException {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("bytes must be initialized");
-		if (offset < 0)
+		}
+		if (offset < 0) {
 			throw new IllegalArgumentException("offset is too small");
-		if (bytes.length < offset + HEADER_LENGTH)
+		}
+		if (bytes.length < offset + HEADER_LENGTH) {
 			throw new IllegalArgumentException("bytes' length is too small");
+		}
 
 		int messageLen;
 		if (bytes.length - offset < HEADER_LENGTH) {
@@ -153,19 +156,23 @@ public class MessageImpl implements Message {
 	 * {@inheritDoc}
 	 */
 	public int parseHeader(final Buffer buffer, final int offset) throws IllegalArgumentException {
-		if (buffer == null)
+		if (buffer == null) {
 			throw new IllegalArgumentException("byte buffer must be initialized");
-		if (offset < 0)
+		}
+		if (offset < 0) {
 			throw new IllegalArgumentException("offset is too small");
+		}
 		int messageLen;
 		int restorePosition = buffer.position();
 		try {
 			buffer.position(offset);
-			if (buffer.remaining() < HEADER_LENGTH)
+			if (buffer.remaining() < HEADER_LENGTH) {
 				throw new IllegalArgumentException("byte buffer's remaining() is too small");
+			}
 			int magicNumber = buffer.getInt();
-			if (magicNumber != MAGIC_NUMBER)
+			if (magicNumber != MAGIC_NUMBER) {
 				throw new IllegalArgumentException("magic number is not valid");
+			}
 			version = buffer.getInt();
 			type = buffer.getInt();
 			messageLen = buffer.getInt();
@@ -179,20 +186,25 @@ public class MessageImpl implements Message {
 	 * {@inheritDoc}
 	 */
 	public void parseMessage(final byte[] bytes, final int offset, final int length) throws IllegalArgumentException, MessageIOException {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("bytes must be initialized");
-		if (offset < 0)
+		}
+		if (offset < 0) {
 			throw new IllegalArgumentException("offset is too small");
-		if (length < 0)
+		}
+		if (length < 0) {
 			throw new IllegalArgumentException("length is too small");
-		if (bytes.length < offset + length)
+		}
+		if (bytes.length < offset + length) {
 			throw new IllegalArgumentException("bytes' length is too small");
+		}
 
 		if (length > 0) {
 			int msgSize = HEADER_LENGTH + length;
 			if (msgSize > maxTotalMessageLength) {
-				if (LOG.isLoggable(Level.WARNING))
+				if (LOG.isLoggable(Level.WARNING)) {
 					LOG.log(Level.WARNING, "total message size is too big: size = " + msgSize + ", max size = " + maxTotalMessageLength);
+				}
 			}
 
 			if (bytes.length - offset < length) {
@@ -218,25 +230,30 @@ public class MessageImpl implements Message {
 		long receiveDuration = 0L;
 		long receiveStartTime = 0L;
 		boolean calledMonitor = false;
-		if (buffer == null)
+		if (buffer == null) {
 			throw new IllegalArgumentException("byte buffer must be initialized");
-		if (offset < 0)
+		}
+		if (offset < 0) {
 			throw new IllegalArgumentException("offset is too small");
-		if (length < 0)
+		}
+		if (length < 0) {
 			throw new IllegalArgumentException("length is too small");
+		}
 		if (length > 0) {
 			int msgSize = HEADER_LENGTH + length;
 			if (msgSize > maxTotalMessageLength) {
-				if (LOG.isLoggable(Level.WARNING))
+				if (LOG.isLoggable(Level.WARNING)) {
 					LOG.log(Level.WARNING, "total message size is too big: size = " + msgSize + ", max size = " + maxTotalMessageLength);
+				}
 			}
 			int restorePosition = buffer.position();
 			int restoreLimit = buffer.limit();
 
 			try {
 				buffer.position(offset);
-				if (buffer.remaining() < length)
+				if (buffer.remaining() < length) {
 					throw new IllegalArgumentException("byte buffer's remaining() is too small");
+				}
 
 				buffer.limit(offset + length);
 				receiveStartTime = System.currentTimeMillis();
@@ -359,8 +376,9 @@ public class MessageImpl implements Message {
 			removed = messages.remove(key);
 			return removed;
 		} finally {
-			if (removed != null)
+			if (removed != null) {
 				modified = true;
+			}
 			messageLock.unlock();
 		}
 	}
@@ -378,8 +396,9 @@ public class MessageImpl implements Message {
 	public ByteBuffer getPlainByteBuffer() throws MessageIOException {
 		messageLock.lock();
 		try {
-			if (cachedByteBuffer != null && !modified)
+			if (cachedByteBuffer != null && !modified) {
 				return cachedByteBuffer;
+			}
 			MessageByteArrayOutputStream mbaos = new MessageByteArrayOutputStream();
 			DataOutputStream dos = null;
 			try {
@@ -400,10 +419,11 @@ public class MessageImpl implements Message {
 			}
 			int messageLen;
 			byte[] messageBytes = mbaos.getPlainByteArray();
-			if (messageBytes != null)
+			if (messageBytes != null) {
 				messageLen = Math.min(messageBytes.length, mbaos.size());
-			else
+			} else {
 				messageLen = 0;
+			}
 			int msgSize = HEADER_LENGTH + messageLen;
 			if (msgSize > maxTotalMessageLength) {
 				if (LOG.isLoggable(Level.WARNING)) {
@@ -529,8 +549,9 @@ public class MessageImpl implements Message {
 		int ch2 = is.read();
 		int ch3 = is.read();
 		int ch4 = is.read();
-		if ((ch1 | ch2 | ch3 | ch4) < 0)
+		if ((ch1 | ch2 | ch3 | ch4) < 0) {
 			throw new EOFException();
+		}
 
 		return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
 	}

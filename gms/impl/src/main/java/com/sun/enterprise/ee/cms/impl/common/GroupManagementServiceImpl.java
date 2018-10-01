@@ -23,9 +23,6 @@ package com.sun.enterprise.ee.cms.impl.common;
  * @version $Revision$
  */
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +31,22 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.FailureNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.FailureRecoveryActionFactory;
+import com.sun.enterprise.ee.cms.core.FailureSuspectedActionFactory;
+import com.sun.enterprise.ee.cms.core.GMSCacheable;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GMSFactory;
+import com.sun.enterprise.ee.cms.core.GroupHandle;
+import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.JoinNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.MessageActionFactory;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownActionFactory;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 public class GroupManagementServiceImpl implements GroupManagementService, Runnable {
 	private GMSContext ctx;

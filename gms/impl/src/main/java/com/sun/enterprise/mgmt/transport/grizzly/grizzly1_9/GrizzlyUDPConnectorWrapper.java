@@ -16,23 +16,20 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.enterprise.mgmt.transport.MessageIOException;
-import com.sun.grizzly.ConnectorHandler;
-import com.sun.grizzly.Controller;
-import com.sun.grizzly.util.OutputWriter;
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.NetworkUtility;
-import com.sun.enterprise.mgmt.transport.AbstractMultiMessageSender;
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.InetAddress;
 import java.nio.channels.DatagramChannel;
-import java.util.List;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.mgmt.transport.AbstractMultiMessageSender;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
+import com.sun.grizzly.ConnectorHandler;
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.util.OutputWriter;
 
 /**
  * @author Bongjae Chang
@@ -56,8 +53,9 @@ public class GrizzlyUDPConnectorWrapper extends AbstractMultiMessageSender {
 	}
 
 	protected boolean doSend(final PeerID peerID, final Message message) throws IOException {
-		if (peerID == null)
+		if (peerID == null) {
 			throw new IOException("peer ID can not be null");
+		}
 		Serializable uniqueID = peerID.getUniqueID();
 		SocketAddress remoteSocketAddress;
 		if (uniqueID instanceof GrizzlyPeerID) {
@@ -75,8 +73,9 @@ public class GrizzlyUDPConnectorWrapper extends AbstractMultiMessageSender {
 	}
 
 	protected boolean doBroadcast(final Message message) throws IOException {
-		if (multicastSocketAddress == null)
+		if (multicastSocketAddress == null) {
 			throw new IOException("multicast address can not be null");
+		}
 		try {
 			return send(multicastSocketAddress, localSocketAddress, message);
 		} catch (MessageIOException mioe) {
@@ -88,12 +87,15 @@ public class GrizzlyUDPConnectorWrapper extends AbstractMultiMessageSender {
 	}
 
 	private boolean send(SocketAddress remoteAddress, SocketAddress localAddress, Message message) throws IOException {
-		if (controller == null)
+		if (controller == null) {
 			throw new IOException("grizzly controller must be initialized");
-		if (remoteAddress == null)
+		}
+		if (remoteAddress == null) {
 			throw new IOException("remote address can not be null");
-		if (message == null)
+		}
+		if (message == null) {
 			throw new IOException("message can not be null");
+		}
 		ConnectorHandler connectorHandler = null;
 		try {
 			connectorHandler = controller.acquireConnectorHandler(Controller.Protocol.UDP);

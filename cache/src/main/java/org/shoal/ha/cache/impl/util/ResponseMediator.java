@@ -16,8 +16,6 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.shoal.ha.cache.impl.util.CommandResponse;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
