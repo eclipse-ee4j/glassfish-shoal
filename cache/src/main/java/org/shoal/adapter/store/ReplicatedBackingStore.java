@@ -36,101 +36,101 @@ import org.shoal.ha.cache.impl.store.ReplicatedDataStore;
  */
 public class ReplicatedBackingStore<K extends Serializable, V extends Serializable> extends BackingStore<K, V> {
 
-	private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_DATA_STORE);
+    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_DATA_STORE);
 
-	private String storeName = "";
+    private String storeName = "";
 
-	private DataStore<K, V> dataStore;
+    private DataStore<K, V> dataStore;
 
-	private ReplicatedBackingStoreFactory factory;
+    private ReplicatedBackingStoreFactory factory;
 
-	private long defaultMaxIdleTimeInMillis;
+    private long defaultMaxIdleTimeInMillis;
 
-	/* package */ void setBackingStoreFactory(ReplicatedBackingStoreFactory factory) {
-		this.factory = factory;
-	}
+    /* package */ void setBackingStoreFactory(ReplicatedBackingStoreFactory factory) {
+        this.factory = factory;
+    }
 
-	public BackingStoreFactory getBackingStoreFactory() {
-		return factory;
-	}
+    public BackingStoreFactory getBackingStoreFactory() {
+        return factory;
+    }
 
-	public DataStoreContext<K, V> getDataStoreContext() {
-		return dataStore == null ? null : ((ReplicatedDataStore) dataStore).getDataStoreContext();
-	}
+    public DataStoreContext<K, V> getDataStoreContext() {
+        return dataStore == null ? null : ((ReplicatedDataStore) dataStore).getDataStoreContext();
+    }
 
-	@Override
-	public void initialize(BackingStoreConfiguration<K, V> conf) throws BackingStoreException {
-		super.initialize(conf);
+    @Override
+    public void initialize(BackingStoreConfiguration<K, V> conf) throws BackingStoreException {
+        super.initialize(conf);
 
-		DataStoreContext<K, V> dsConf = new DataStoreContext<K, V>(conf);
-		dataStore = DataStoreFactory.createDataStore(dsConf);
+        DataStoreContext<K, V> dsConf = new DataStoreContext<K, V>(conf);
+        dataStore = DataStoreFactory.createDataStore(dsConf);
 
-		storeName = dsConf.getStoreName();
-	}
+        storeName = dsConf.getStoreName();
+    }
 
-	@Override
-	public V load(K key, String versionInfo) throws BackingStoreException {
-		try {
-			return dataStore.get(key);
-		} catch (DataStoreException dsEx) {
-			throw new BackingStoreException("Error during load: " + key, dsEx);
-		}
-	}
+    @Override
+    public V load(K key, String versionInfo) throws BackingStoreException {
+        try {
+            return dataStore.get(key);
+        } catch (DataStoreException dsEx) {
+            throw new BackingStoreException("Error during load: " + key, dsEx);
+        }
+    }
 
-	@Override
-	public String save(K key, V value, boolean isNew) throws BackingStoreException {
-		try {
-			return dataStore.put(key, value);
-		} catch (DataStoreException dsEx) {
-			throw new BackingStoreException("Error during save: " + key, dsEx);
-		}
-	}
+    @Override
+    public String save(K key, V value, boolean isNew) throws BackingStoreException {
+        try {
+            return dataStore.put(key, value);
+        } catch (DataStoreException dsEx) {
+            throw new BackingStoreException("Error during save: " + key, dsEx);
+        }
+    }
 
-	@Override
-	public void remove(K key) throws BackingStoreException {
-		try {
-			if (dataStore != null) {
-				dataStore.remove(key);
-			}
-		} catch (DataStoreException dsEx) {
-			throw new BackingStoreException("Error during remove: " + key, dsEx);
-		}
-	}
+    @Override
+    public void remove(K key) throws BackingStoreException {
+        try {
+            if (dataStore != null) {
+                dataStore.remove(key);
+            }
+        } catch (DataStoreException dsEx) {
+            throw new BackingStoreException("Error during remove: " + key, dsEx);
+        }
+    }
 
-	@Override
-	public int removeExpired(long idleTime) throws BackingStoreException {
-		return dataStore.removeIdleEntries(idleTime);
-	}
+    @Override
+    public int removeExpired(long idleTime) throws BackingStoreException {
+        return dataStore.removeIdleEntries(idleTime);
+    }
 
-	@Override
-	public int size() throws BackingStoreException {
-		return dataStore.size();
-	}
+    @Override
+    public int size() throws BackingStoreException {
+        return dataStore.size();
+    }
 
-	@Override
-	public void close() throws BackingStoreException {
-		destroy();
-	}
+    @Override
+    public void close() throws BackingStoreException {
+        destroy();
+    }
 
-	@Override
-	public void destroy() throws BackingStoreException {
-		if (dataStore != null) {
-			dataStore.close();
-			_logger.log(Level.FINE, "** StoreName = " + storeName + " is destroyed ");
-		} else {
-			_logger.log(Level.FINE, "** StoreName = " + storeName + " is already destroyed ");
-		}
-		dataStore = null;
-		factory = null;
-	}
+    @Override
+    public void destroy() throws BackingStoreException {
+        if (dataStore != null) {
+            dataStore.close();
+            _logger.log(Level.FINE, "** StoreName = " + storeName + " is destroyed ");
+        } else {
+            _logger.log(Level.FINE, "** StoreName = " + storeName + " is already destroyed ");
+        }
+        dataStore = null;
+        factory = null;
+    }
 
-	@Override
-	public void updateTimestamp(K key, long time) throws BackingStoreException {
-		try {
-			dataStore.touch(key, Long.MAX_VALUE - 1, time, defaultMaxIdleTimeInMillis);
-		} catch (DataStoreException dsEx) {
-			throw new BackingStoreException("Error during updateTimestamp: " + key, dsEx);
-		}
-	}
+    @Override
+    public void updateTimestamp(K key, long time) throws BackingStoreException {
+        try {
+            dataStore.touch(key, Long.MAX_VALUE - 1, time, defaultMaxIdleTimeInMillis);
+        } catch (DataStoreException dsEx) {
+            throw new BackingStoreException("Error during updateTimestamp: " + key, dsEx);
+        }
+    }
 
 }

@@ -24,74 +24,74 @@ import java.nio.charset.Charset;
  */
 public class ReplicationInputStream extends ByteArrayInputStream {
 
-	private int minPos = 0;
+    private int minPos = 0;
 
-	private int maxPos = -1;
+    private int maxPos = -1;
 
-	public ReplicationInputStream(byte[] data) {
-		super(data);
-		maxPos = data.length - 1;
-	}
+    public ReplicationInputStream(byte[] data) {
+        super(data);
+        maxPos = data.length - 1;
+    }
 
-	public ReplicationInputStream(byte[] data, int offset, int len) {
-		super(data, offset, len);
-		minPos = offset;
-		maxPos = offset + len - 1;
-	}
+    public ReplicationInputStream(byte[] data, int offset, int len) {
+        super(data, offset, len);
+        minPos = offset;
+        maxPos = offset + len - 1;
+    }
 
-	public int mark() {
-		super.mark(0);
-		return super.pos;
-	}
+    public int mark() {
+        super.mark(0);
+        return super.pos;
+    }
 
-	public void skipTo(int index) {
-		if (index < minPos || index > maxPos) {
-			throw new IllegalArgumentException("Illegal position (" + index + "). Valid values are from " + minPos + " to " + maxPos);
-		}
-		super.pos = index;
-	}
+    public void skipTo(int index) {
+        if (index < minPos || index > maxPos) {
+            throw new IllegalArgumentException("Illegal position (" + index + "). Valid values are from " + minPos + " to " + maxPos);
+        }
+        super.pos = index;
+    }
 
-	public final int readInt() {
-		// TODO Check bounds
-		int val = Utility.bytesToInt(buf, pos);
-		pos += 4;
-		return val;
-	}
+    public final int readInt() {
+        // TODO Check bounds
+        int val = Utility.bytesToInt(buf, pos);
+        pos += 4;
+        return val;
+    }
 
-	public final long readLong() {
-		// TODO Check bounds
-		return ((long) readInt() << 32) | (readInt() & 0xFFFFFFFFL);
-	}
+    public final long readLong() {
+        // TODO Check bounds
+        return ((long) readInt() << 32) | (readInt() & 0xFFFFFFFFL);
+    }
 
-	public final String readLengthPrefixedString() {
-		String str = null;
-		int len = readInt();
-		if (len > 0) {
-			str = new String(buf, pos, len, Charset.defaultCharset());
-			pos += len;
-		}
+    public final String readLengthPrefixedString() {
+        String str = null;
+        int len = readInt();
+        if (len > 0) {
+            str = new String(buf, pos, len, Charset.defaultCharset());
+            pos += len;
+        }
 
-		return str;
-	}
+        return str;
+    }
 
-	public final byte[] readLengthPrefixedBytes() {
-		byte[] data = null;
-		int len = readInt();
-		if (len > 0) {
-			data = new byte[len];
-			System.arraycopy(buf, pos, data, 0, len);
-			pos += len;
-		}
+    public final byte[] readLengthPrefixedBytes() {
+        byte[] data = null;
+        int len = readInt();
+        if (len > 0) {
+            data = new byte[len];
+            System.arraycopy(buf, pos, data, 0, len);
+            pos += len;
+        }
 
-		return data;
-	}
+        return data;
+    }
 
-	public boolean readBoolean() {
-		return buf[pos++] == 1;
-	}
+    public boolean readBoolean() {
+        return buf[pos++] == 1;
+    }
 
-	public byte[] getBuffer() {
-		return buf;
-	}
+    public byte[] getBuffer() {
+        return buf;
+    }
 
 }

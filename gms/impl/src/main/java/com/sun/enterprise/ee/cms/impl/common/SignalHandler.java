@@ -40,94 +40,94 @@ import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
  * @version $Revision$
  */
 public class SignalHandler implements Runnable {
-	private final BlockingQueue<SignalPacket> signalQueue;
-	private final Router router;
-	private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
-	private AtomicBoolean stopped = new AtomicBoolean(false);
+    private final BlockingQueue<SignalPacket> signalQueue;
+    private final Router router;
+    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+    private AtomicBoolean stopped = new AtomicBoolean(false);
 
-	/**
-	 * Creates a SignalHandler
-	 *
-	 * @param packetQueue the packet exchange queue
-	 * @param router the Router
-	 */
-	public SignalHandler(final BlockingQueue<SignalPacket> packetQueue, final Router router) {
-		this.signalQueue = packetQueue;
-		this.router = router;
-	}
+    /**
+     * Creates a SignalHandler
+     *
+     * @param packetQueue the packet exchange queue
+     * @param router the Router
+     */
+    public SignalHandler(final BlockingQueue<SignalPacket> packetQueue, final Router router) {
+        this.signalQueue = packetQueue;
+        this.router = router;
+    }
 
-	public void run() {
-		try {
-			Signal[] signals;
-			while (!stopped.get()) {
-				SignalPacket signalPacket = null;
-				try {
-					signalPacket = signalQueue.take();
-					if (signalPacket != null) {
-						if ((signals = signalPacket.getSignals()) != null) {
-							handleSignals(signals);
-						} else {
-							handleSignal(signalPacket.getSignal());
-						}
-					}
-				} catch (InterruptedException e) {
-					stopped.set(true);
-				} catch (Throwable e) {
-					logger.log(Level.SEVERE, "sig.handler.unhandled", new Object[] { Thread.currentThread().getName() });
-					logger.log(Level.WARNING, "stack trace", e);
-				}
-			}
-		} finally {
-			logger.log(Level.INFO, "sig.handler.thread.terminated", new Object[] { Thread.currentThread().getName() });
-		}
-	}
+    public void run() {
+        try {
+            Signal[] signals;
+            while (!stopped.get()) {
+                SignalPacket signalPacket = null;
+                try {
+                    signalPacket = signalQueue.take();
+                    if (signalPacket != null) {
+                        if ((signals = signalPacket.getSignals()) != null) {
+                            handleSignals(signals);
+                        } else {
+                            handleSignal(signalPacket.getSignal());
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    stopped.set(true);
+                } catch (Throwable e) {
+                    logger.log(Level.SEVERE, "sig.handler.unhandled", new Object[] { Thread.currentThread().getName() });
+                    logger.log(Level.WARNING, "stack trace", e);
+                }
+            }
+        } finally {
+            logger.log(Level.INFO, "sig.handler.thread.terminated", new Object[] { Thread.currentThread().getName() });
+        }
+    }
 
-	private void handleSignal(final Signal signal) {
-		analyzeSignal(signal);
-	}
+    private void handleSignal(final Signal signal) {
+        analyzeSignal(signal);
+    }
 
-	private void handleSignals(final Signal[] signals) {
-		for (Signal signal : signals) {
-			analyzeSignal(signal);
-		}
-	}
+    private void handleSignals(final Signal[] signals) {
+        for (Signal signal : signals) {
+            analyzeSignal(signal);
+        }
+    }
 
-	private void analyzeSignal(final Signal signal) {
-		if (signal == null) {
-			throw new IllegalArgumentException("Signal is null. Cannot analyze.");
-		}
-		if (logger.isLoggable(Level.FINEST)) {
-			logger.log(Level.FINEST, "SignalHandler : processing a received signal " + signal.getClass().getName());
-		}
-		try {
-			if (signal instanceof FailureRecoverySignal) {
-				router.notifyFailureRecoveryAction((FailureRecoverySignal) signal);
-			} else if (signal instanceof FailureNotificationSignal) {
-				router.aliveAndReadyView.processNotification(signal);
-				router.notifyFailureNotificationAction((FailureNotificationSignal) signal);
-			} else if (signal instanceof MessageSignal) {
-				router.notifyMessageAction((MessageSignal) signal);
-			} else if (signal instanceof JoinNotificationSignal) {
-				router.notifyJoinNotificationAction((JoinNotificationSignal) signal);
-			} else if (signal instanceof PlannedShutdownSignal) {
-				router.aliveAndReadyView.processNotification(signal);
-				router.notifyPlannedShutdownAction((PlannedShutdownSignal) signal);
-			} else if (signal instanceof FailureSuspectedSignal) {
-				router.notifyFailureSuspectedAction((FailureSuspectedSignal) signal);
-			} else if (signal instanceof JoinedAndReadyNotificationSignal) {
-				router.aliveAndReadyView.processNotification(signal);
-				router.notifyJoinedAndReadyNotificationAction((JoinedAndReadyNotificationSignal) signal);
-			} else if (signal instanceof GroupLeadershipNotificationSignal) {
-				router.notifyGroupLeadershipNotificationAction((GroupLeadershipNotificationSignal) signal);
-			}
-		} catch (Throwable t) {
-			logger.log(Level.WARNING, "sig.handler.ignoring.exception", new Object[] { t.getLocalizedMessage() });
-			logger.log(Level.WARNING, t.getLocalizedMessage(), t);
-		}
-	}
+    private void analyzeSignal(final Signal signal) {
+        if (signal == null) {
+            throw new IllegalArgumentException("Signal is null. Cannot analyze.");
+        }
+        if (logger.isLoggable(Level.FINEST)) {
+            logger.log(Level.FINEST, "SignalHandler : processing a received signal " + signal.getClass().getName());
+        }
+        try {
+            if (signal instanceof FailureRecoverySignal) {
+                router.notifyFailureRecoveryAction((FailureRecoverySignal) signal);
+            } else if (signal instanceof FailureNotificationSignal) {
+                router.aliveAndReadyView.processNotification(signal);
+                router.notifyFailureNotificationAction((FailureNotificationSignal) signal);
+            } else if (signal instanceof MessageSignal) {
+                router.notifyMessageAction((MessageSignal) signal);
+            } else if (signal instanceof JoinNotificationSignal) {
+                router.notifyJoinNotificationAction((JoinNotificationSignal) signal);
+            } else if (signal instanceof PlannedShutdownSignal) {
+                router.aliveAndReadyView.processNotification(signal);
+                router.notifyPlannedShutdownAction((PlannedShutdownSignal) signal);
+            } else if (signal instanceof FailureSuspectedSignal) {
+                router.notifyFailureSuspectedAction((FailureSuspectedSignal) signal);
+            } else if (signal instanceof JoinedAndReadyNotificationSignal) {
+                router.aliveAndReadyView.processNotification(signal);
+                router.notifyJoinedAndReadyNotificationAction((JoinedAndReadyNotificationSignal) signal);
+            } else if (signal instanceof GroupLeadershipNotificationSignal) {
+                router.notifyGroupLeadershipNotificationAction((GroupLeadershipNotificationSignal) signal);
+            }
+        } catch (Throwable t) {
+            logger.log(Level.WARNING, "sig.handler.ignoring.exception", new Object[] { t.getLocalizedMessage() });
+            logger.log(Level.WARNING, t.getLocalizedMessage(), t);
+        }
+    }
 
-	public void stop(Thread t) {
-		stopped.set(true);
-		t.interrupt();
-	}
+    public void stop(Thread t) {
+        stopped.set(true);
+        t.interrupt();
+    }
 }

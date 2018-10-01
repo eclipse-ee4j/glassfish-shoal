@@ -35,48 +35,48 @@ import org.shoal.ha.group.GroupService;
  */
 public final class TransmitInterceptor<K, V> extends AbstractCommandInterceptor<K, V> {
 
-	private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_TRANSMIT_INTERCEPTOR);
+    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_TRANSMIT_INTERCEPTOR);
 
-	@Override
-	public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
-		DataStoreContext<K, V> ctx = getDataStoreContext();
-		ByteArrayOutputStream bos = null;
-		ObjectOutputStream oos = null;
-		boolean transmitted = false;
-		try {
-			bos = new ByteArrayOutputStream();
-			oos = new ObjectOutputStream(bos);
-			oos.writeObject(cmd);
-			oos.close();
-			byte[] data = bos.toByteArray();
+    @Override
+    public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
+        DataStoreContext<K, V> ctx = getDataStoreContext();
+        ByteArrayOutputStream bos = null;
+        ObjectOutputStream oos = null;
+        boolean transmitted = false;
+        try {
+            bos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(cmd);
+            oos.close();
+            byte[] data = bos.toByteArray();
 
-			GroupService gs = ctx.getGroupService();
-			gs.sendMessage(cmd.getTargetName(), ctx.getServiceName(), data);
-			dsc.getDataStoreMBean().incrementGmsSendCount();
-			dsc.getDataStoreMBean().incrementGmsSendBytesCount(data.length);
-			if (_logger.isLoggable(Level.FINE)) {
-				_logger.log(Level.FINE, storeName + ": TransmitInterceptor." + ctx.getServiceName() + ":onTransmit() Sent " + cmd + " to "
-				        + (cmd.getTargetName() == null ? " ALL MEMBERS " : cmd.getTargetName()) + "; size: " + data.length);
-			}
-			cmd.onSuccess();
-			transmitted = true;
-		} catch (IOException ioEx) {
-			throw new DataStoreException("Error DURING transmit...", ioEx);
-		} finally {
-			if (!transmitted) {
-				cmd.onFailure();
-			}
-			try {
-				oos.close();
-			} catch (Exception ex) {
-				_logger.log(Level.FINEST, "Ignorable error while closing ObjectOutputStream");
-			}
-			try {
-				bos.close();
-			} catch (Exception ex) {
-				_logger.log(Level.FINEST, "Ignorable error while closing ByteArrayOutputStream");
-			}
-		}
-	}
+            GroupService gs = ctx.getGroupService();
+            gs.sendMessage(cmd.getTargetName(), ctx.getServiceName(), data);
+            dsc.getDataStoreMBean().incrementGmsSendCount();
+            dsc.getDataStoreMBean().incrementGmsSendBytesCount(data.length);
+            if (_logger.isLoggable(Level.FINE)) {
+                _logger.log(Level.FINE, storeName + ": TransmitInterceptor." + ctx.getServiceName() + ":onTransmit() Sent " + cmd + " to "
+                        + (cmd.getTargetName() == null ? " ALL MEMBERS " : cmd.getTargetName()) + "; size: " + data.length);
+            }
+            cmd.onSuccess();
+            transmitted = true;
+        } catch (IOException ioEx) {
+            throw new DataStoreException("Error DURING transmit...", ioEx);
+        } finally {
+            if (!transmitted) {
+                cmd.onFailure();
+            }
+            try {
+                oos.close();
+            } catch (Exception ex) {
+                _logger.log(Level.FINEST, "Ignorable error while closing ObjectOutputStream");
+            }
+            try {
+                bos.close();
+            } catch (Exception ex) {
+                _logger.log(Level.FINEST, "Ignorable error while closing ByteArrayOutputStream");
+            }
+        }
+    }
 
 }

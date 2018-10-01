@@ -21,24 +21,24 @@ package org.shoal.ha.cache.api;
  */
 public class TooManyRetriesException extends DataStoreException {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -6309507580534901353L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6309507580534901353L;
 
-	public TooManyRetriesException() {
-		super();
-	}
+    public TooManyRetriesException() {
+        super();
+    }
 
-	public TooManyRetriesException(String message) {
-		super(message);
-	}
+    public TooManyRetriesException(String message) {
+        super(message);
+    }
 
-	public TooManyRetriesException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public TooManyRetriesException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public TooManyRetriesException(Throwable cause) {
-		super(cause);
-	}
+    public TooManyRetriesException(Throwable cause) {
+        super(cause);
+    }
 }

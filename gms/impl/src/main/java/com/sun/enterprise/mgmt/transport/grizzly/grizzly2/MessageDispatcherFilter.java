@@ -35,29 +35,29 @@ import com.sun.enterprise.mgmt.transport.Message;
  * @author Alexey Stashok
  */
 public class MessageDispatcherFilter extends BaseFilter {
-	private final Attribute<Map<String, Connection>> piggyBackAttribute = Grizzly.DEFAULT_ATTRIBUTE_BUILDER
-	        .createAttribute(MessageDispatcherFilter.class.getName() + ".piggyBack");
+    private final Attribute<Map<String, Connection>> piggyBackAttribute = Grizzly.DEFAULT_ATTRIBUTE_BUILDER
+            .createAttribute(MessageDispatcherFilter.class.getName() + ".piggyBack");
 
-	private final GrizzlyNetworkManager2 networkManager;
+    private final GrizzlyNetworkManager2 networkManager;
 
-	public MessageDispatcherFilter(GrizzlyNetworkManager2 networkManager) {
-		this.networkManager = networkManager;
-	}
+    public MessageDispatcherFilter(GrizzlyNetworkManager2 networkManager) {
+        this.networkManager = networkManager;
+    }
 
-	@Override
-	public NextAction handleRead(final FilterChainContext ctx) throws IOException {
-		final Connection connection = ctx.getConnection();
-		final Message message = ctx.getMessage();
+    @Override
+    public NextAction handleRead(final FilterChainContext ctx) throws IOException {
+        final Connection connection = ctx.getConnection();
+        final Message message = ctx.getMessage();
 
-		Map<String, Connection> piggyBack = piggyBackAttribute.get(connection);
-		if (piggyBack == null) {
-			piggyBack = new HashMap<String, Connection>();
-			piggyBack.put(GrizzlyNetworkManager2.MESSAGE_CONNECTION_TAG, connection);
-			piggyBackAttribute.set(connection, piggyBack);
-		}
+        Map<String, Connection> piggyBack = piggyBackAttribute.get(connection);
+        if (piggyBack == null) {
+            piggyBack = new HashMap<String, Connection>();
+            piggyBack.put(GrizzlyNetworkManager2.MESSAGE_CONNECTION_TAG, connection);
+            piggyBackAttribute.set(connection, piggyBack);
+        }
 
-		networkManager.receiveMessage(message, piggyBack);
+        networkManager.receiveMessage(message, piggyBack);
 
-		return ctx.getInvokeAction();
-	}
+        return ctx.getInvokeAction();
+    }
 }

@@ -24,58 +24,58 @@ import junit.framework.TestCase;
 
 public class GMSFactoryTest extends TestCase {
 
-	public GMSFactoryTest(String testName) {
-		super(testName);
-	}
+    public GMSFactoryTest(String testName) {
+        super(testName);
+    }
 
-	void mySetup() {
-	}
+    void mySetup() {
+    }
 
-	// test to verify i18n string lookup for GMSNotInitializedException thrown when GMSFactory.getGMSModule() is called and
-	// there are no gms groups yet.
-	public void testGMSFactoryGetGMSModuleThrows() {
-		mySetup();
-		try {
-			GMSFactory.getGMSModule();
-			assertTrue(FALSE);
-		} catch (GMSException ge) {
-			assertTrue(TRUE);
-			System.out.println("passed. exception message:" + ge.getLocalizedMessage());
-		}
-		try {
-			GMSFactory.getGMSModule("undefinedGroup");
-			assertTrue(FALSE);
-		} catch (GMSException ge) {
-			assertTrue(TRUE);
-			System.out.println("passed. exception message:" + ge.getLocalizedMessage());
-		}
-		GMSFactory.setGMSEnabledState("noGmsGroup", false);
-		try {
-			GMSFactory.getGMSModule("noGmsGroup");
-			assertTrue(FALSE); // fail if no exception thrown.
-		} catch (GMSException ge) {
-			assertTrue(TRUE);
-			System.out.println("passed. exception message:" + ge.getLocalizedMessage());
-		}
+    // test to verify i18n string lookup for GMSNotInitializedException thrown when GMSFactory.getGMSModule() is called and
+    // there are no gms groups yet.
+    public void testGMSFactoryGetGMSModuleThrows() {
+        mySetup();
+        try {
+            GMSFactory.getGMSModule();
+            assertTrue(FALSE);
+        } catch (GMSException ge) {
+            assertTrue(TRUE);
+            System.out.println("passed. exception message:" + ge.getLocalizedMessage());
+        }
+        try {
+            GMSFactory.getGMSModule("undefinedGroup");
+            assertTrue(FALSE);
+        } catch (GMSException ge) {
+            assertTrue(TRUE);
+            System.out.println("passed. exception message:" + ge.getLocalizedMessage());
+        }
+        GMSFactory.setGMSEnabledState("noGmsGroup", false);
+        try {
+            GMSFactory.getGMSModule("noGmsGroup");
+            assertTrue(FALSE); // fail if no exception thrown.
+        } catch (GMSException ge) {
+            assertTrue(TRUE);
+            System.out.println("passed. exception message:" + ge.getLocalizedMessage());
+        }
 
-	}
+    }
 
-	public void testStartGMSModule() {
-		mySetup();
-		try {
-			GMSFactory.startGMSModule(null, "group", GroupManagementService.MemberType.CORE, new Properties());
-			assertTrue(FALSE);
-		} catch (RuntimeException ge) {
-			assertTrue(TRUE);
-			System.out.println("passed. exception message:" + ge.getLocalizedMessage());
-		}
-		try {
-			GMSFactory.startGMSModule("instanceName", null, GroupManagementService.MemberType.CORE, new Properties());
-			assert (FALSE);
-		} catch (RuntimeException ge) {
-			assertTrue(TRUE);
-			System.out.println("passed. exception message:" + ge.getLocalizedMessage());
-		}
+    public void testStartGMSModule() {
+        mySetup();
+        try {
+            GMSFactory.startGMSModule(null, "group", GroupManagementService.MemberType.CORE, new Properties());
+            assertTrue(FALSE);
+        } catch (RuntimeException ge) {
+            assertTrue(TRUE);
+            System.out.println("passed. exception message:" + ge.getLocalizedMessage());
+        }
+        try {
+            GMSFactory.startGMSModule("instanceName", null, GroupManagementService.MemberType.CORE, new Properties());
+            assert (FALSE);
+        } catch (RuntimeException ge) {
+            assertTrue(TRUE);
+            System.out.println("passed. exception message:" + ge.getLocalizedMessage());
+        }
 
-	}
+    }
 }

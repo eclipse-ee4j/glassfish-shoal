@@ -34,24 +34,24 @@ import java.io.Serializable;
  */
 public interface BackingStoreFactory {
 
-	/**
-	 * This method is called to create a BackingStore. This class must be thread safe.
-	 * <p>
-	 * If the factory can produce a BackingStore that can handle the factors specified in the conf, then it must return a
-	 * fully initialized and operational BackingStore. Else it must return null.
-	 *
-	 * @param conf The BackingStoreConfiguration
-	 *
-	 * @return a BackingStore. The returned BackingStore must be thread safe.
-	 *
-	 * @throws BackingStoreException If the store could not be created
-	 */
-	<K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf) throws BackingStoreException;
+    /**
+     * This method is called to create a BackingStore. This class must be thread safe.
+     * <p>
+     * If the factory can produce a BackingStore that can handle the factors specified in the conf, then it must return a
+     * fully initialized and operational BackingStore. Else it must return null.
+     *
+     * @param conf The BackingStoreConfiguration
+     *
+     * @return a BackingStore. The returned BackingStore must be thread safe.
+     *
+     * @throws BackingStoreException If the store could not be created
+     */
+    <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf) throws BackingStoreException;
 
-	/**
-	 *
-	 * @return
-	 */
-	BackingStoreTransaction createBackingStoreTransaction();
+    /**
+     *
+     * @return
+     */
+    BackingStoreTransaction createBackingStoreTransaction();
 
 }

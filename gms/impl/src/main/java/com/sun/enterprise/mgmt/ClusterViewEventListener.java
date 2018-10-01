@@ -38,11 +38,11 @@ import java.util.EventListener;
 
 public interface ClusterViewEventListener extends EventListener {
 
-	/**
-	 * Called when a cluster view event occurs.
-	 *
-	 * @param event The event that occurred.
-	 * @param clusterView the current membership snapshot after the event.
-	 */
-	void clusterViewEvent(ClusterViewEvent event, ClusterView clusterView);
+    /**
+     * Called when a cluster view event occurs.
+     *
+     * @param event The event that occurred.
+     * @param clusterView the current membership snapshot after the event.
+     */
+    void clusterViewEvent(ClusterViewEvent event, ClusterView clusterView);
 }

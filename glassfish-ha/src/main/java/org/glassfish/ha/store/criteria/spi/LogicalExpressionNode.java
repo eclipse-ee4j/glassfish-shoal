@@ -27,38 +27,38 @@ import java.util.Collection;
  */
 public class LogicalExpressionNode extends BinaryExpressionNode<Boolean> {
 
-	Collection entries;
+    Collection entries;
 
-	public LogicalExpressionNode(Opcode opcode, ExpressionNode left, ExpressionNode right) {
-		super(opcode, Boolean.class, left, right);
-	}
+    public LogicalExpressionNode(Opcode opcode, ExpressionNode left, ExpressionNode right) {
+        super(opcode, Boolean.class, left, right);
+    }
 
-	public LogicalExpressionNode and(LogicalExpressionNode expr) {
-		return new LogicalExpressionNode(Opcode.AND, this, expr);
-	}
+    public LogicalExpressionNode and(LogicalExpressionNode expr) {
+        return new LogicalExpressionNode(Opcode.AND, this, expr);
+    }
 
-	public LogicalExpressionNode or(LogicalExpressionNode expr) {
-		return new LogicalExpressionNode(Opcode.OR, this, expr);
-	}
+    public LogicalExpressionNode or(LogicalExpressionNode expr) {
+        return new LogicalExpressionNode(Opcode.OR, this, expr);
+    }
 
-	public LogicalExpressionNode isTrue() {
-		return new LogicalExpressionNode(Opcode.EQ, this, new LiteralNode(Boolean.class, true));
-	}
+    public LogicalExpressionNode isTrue() {
+        return new LogicalExpressionNode(Opcode.EQ, this, new LiteralNode(Boolean.class, true));
+    }
 
-	public LogicalExpressionNode eq(boolean value) {
-		return new LogicalExpressionNode(Opcode.EQ, this, new LiteralNode(Boolean.class, value));
-	}
+    public LogicalExpressionNode eq(boolean value) {
+        return new LogicalExpressionNode(Opcode.EQ, this, new LiteralNode(Boolean.class, value));
+    }
 
-	public LogicalExpressionNode isNotTrue() {
-		return new LogicalExpressionNode(Opcode.EQ, this, new LiteralNode(Boolean.class, true));
-	}
+    public LogicalExpressionNode isNotTrue() {
+        return new LogicalExpressionNode(Opcode.EQ, this, new LiteralNode(Boolean.class, true));
+    }
 
-	public LogicalExpressionNode neq(boolean value) {
-		return new LogicalExpressionNode(Opcode.NEQ, this, new LiteralNode(Boolean.class, value));
-	}
+    public LogicalExpressionNode neq(boolean value) {
+        return new LogicalExpressionNode(Opcode.NEQ, this, new LiteralNode(Boolean.class, value));
+    }
 
-	public Class<Boolean> getReturnType() {
-		return Boolean.class;
-	}
+    public Class<Boolean> getReturnType() {
+        return Boolean.class;
+    }
 
 }

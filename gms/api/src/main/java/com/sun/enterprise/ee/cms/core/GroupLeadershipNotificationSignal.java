@@ -26,31 +26,31 @@ import java.util.List;
  * @author Bongjae Chang
  */
 public interface GroupLeadershipNotificationSignal extends Signal {
-	/**
-	 * provides a read-only list of the previous view's snapshot at time signal arrives.
-	 *
-	 * @return List containing the list of <code>GMSMember</code>s which are corresponding to the view
-	 */
-	List<GMSMember> getPreviousView();
+    /**
+     * provides a read-only list of the previous view's snapshot at time signal arrives.
+     *
+     * @return List containing the list of <code>GMSMember</code>s which are corresponding to the view
+     */
+    List<GMSMember> getPreviousView();
 
-	/**
-	 * provides a read-only list of the current view's snapshot at time signal arrives.
-	 *
-	 * @return List containing the list of <code>GMSMember</code>s which are corresponding to the view
-	 */
-	List<GMSMember> getCurrentView();
+    /**
+     * provides a read-only list of the current view's snapshot at time signal arrives.
+     *
+     * @return List containing the list of <code>GMSMember</code>s which are corresponding to the view
+     */
+    List<GMSMember> getCurrentView();
 
-	/**
-	 * provides a list of all live and current CORE designated members.
-	 *
-	 * @return List containing the list of member token ids of core members
-	 */
-	List<String> getCurrentCoreMembers();
+    /**
+     * provides a list of all live and current CORE designated members.
+     *
+     * @return List containing the list of member token ids of core members
+     */
+    List<String> getCurrentCoreMembers();
 
-	/**
-	 * provides a list of all live members i.e. CORE and SPECTATOR members.
-	 *
-	 * @return List containing the list of member token ids of all members
-	 */
-	List<String> getAllCurrentMembers();
+    /**
+     * provides a list of all live members i.e. CORE and SPECTATOR members.
+     *
+     * @return List containing the list of member token ids of all members
+     */
+    List<String> getAllCurrentMembers();
 }

@@ -25,14 +25,14 @@ package org.glassfish.ha.store.criteria.spi;
  */
 public class LiteralNode<T> extends ExpressionNode<T> {
 
-	private T value;
+    private T value;
 
-	public LiteralNode(Class<T> clazz, T t) {
-		super(Opcode.LITERAL, clazz);
-		this.value = t;
-	}
+    public LiteralNode(Class<T> clazz, T t) {
+        super(Opcode.LITERAL, clazz);
+        this.value = t;
+    }
 
-	public T getValue() {
-		return value;
-	}
+    public T getValue() {
+        return value;
+    }
 }

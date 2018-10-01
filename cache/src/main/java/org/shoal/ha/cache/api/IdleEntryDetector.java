@@ -23,6 +23,6 @@ import org.shoal.ha.cache.impl.store.DataStoreEntry;
  */
 public interface IdleEntryDetector<K, V> {
 
-	boolean isIdle(DataStoreEntry<K, V> entry, long nowInMillis);
+    boolean isIdle(DataStoreEntry<K, V> entry, long nowInMillis);
 
 }

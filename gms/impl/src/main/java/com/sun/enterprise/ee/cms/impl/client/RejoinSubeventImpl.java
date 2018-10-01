@@ -24,21 +24,21 @@ import com.sun.enterprise.ee.cms.core.RejoinSubevent;
  * Implementation of rejoin subevent that captures the time that a previously failed instance had joined the cluster.
  */
 public class RejoinSubeventImpl implements RejoinSubevent {
-	static final long serialVersionUID = -3554482822551862156L;
+    static final long serialVersionUID = -3554482822551862156L;
 
-	final long groupJoinTime;
+    final long groupJoinTime;
 
-	public RejoinSubeventImpl(long groupJoinTime) {
-		this.groupJoinTime = groupJoinTime;
-	}
+    public RejoinSubeventImpl(long groupJoinTime) {
+        this.groupJoinTime = groupJoinTime;
+    }
 
-	@Override
-	public long getGroupJoinTime() {
-		return groupJoinTime;
-	}
+    @Override
+    public long getGroupJoinTime() {
+        return groupJoinTime;
+    }
 
-	@Override
-	public String toString() {
-		return new Date(groupJoinTime).toString();
-	}
+    @Override
+    public String toString() {
+        return new Date(groupJoinTime).toString();
+    }
 }

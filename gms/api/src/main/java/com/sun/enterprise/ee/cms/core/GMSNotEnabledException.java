@@ -21,24 +21,24 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public class GMSNotEnabledException extends GMSException {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -9164334926157710973L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -9164334926157710973L;
 
-	public GMSNotEnabledException() {
-		super();
-	}
+    public GMSNotEnabledException() {
+        super();
+    }
 
-	public GMSNotEnabledException(final String msg) {
-		super(msg);
-	}
+    public GMSNotEnabledException(final String msg) {
+        super(msg);
+    }
 
-	public GMSNotEnabledException(final String msg, final Throwable cause) {
-		super(msg, cause);
-	}
+    public GMSNotEnabledException(final String msg, final Throwable cause) {
+        super(msg, cause);
+    }
 
-	public GMSNotEnabledException(final Throwable cause) {
-		super(cause);
-	}
+    public GMSNotEnabledException(final Throwable cause) {
+        super(cause);
+    }
 }

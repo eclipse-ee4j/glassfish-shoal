@@ -22,23 +22,23 @@ package com.sun.enterprise.mgmt.transport;
  * @author Alexey Stashok
  */
 public class ArrayUtils {
-	// Reworked the java.util.Arrays's binarySearch
-	public static int binarySearch(final int[] a, final int fromIndex, final int toIndex, final int key) {
-		int low = fromIndex;
-		int high = toIndex - 1;
+    // Reworked the java.util.Arrays's binarySearch
+    public static int binarySearch(final int[] a, final int fromIndex, final int toIndex, final int key) {
+        int low = fromIndex;
+        int high = toIndex - 1;
 
-		while (low <= high) {
-			int mid = (low + high) >>> 1;
-			int midVal = a[mid];
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            int midVal = a[mid];
 
-			if (midVal < key) {
-				low = mid + 1;
-			} else if (midVal > key) {
-				high = mid - 1;
-			} else {
-				return mid; // key found
-			}
-		}
-		return low; // key not found.
-	}
+            if (midVal < key) {
+                low = mid + 1;
+            } else if (midVal > key) {
+                high = mid - 1;
+            } else {
+                return mid; // key found
+            }
+        }
+        return low; // key not found.
+    }
 }

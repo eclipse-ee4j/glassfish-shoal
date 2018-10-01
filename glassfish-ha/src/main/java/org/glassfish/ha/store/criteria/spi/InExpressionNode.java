@@ -27,15 +27,15 @@ import java.util.Collection;
  */
 public class InExpressionNode<T> extends LogicalExpressionNode {
 
-	Collection<? extends T> entries;
+    Collection<? extends T> entries;
 
-	public InExpressionNode(ExpressionNode<T> value, Collection<? extends T> entries) {
-		super(Opcode.IN, value, null);
-		this.entries = entries;
-	}
+    public InExpressionNode(ExpressionNode<T> value, Collection<? extends T> entries) {
+        super(Opcode.IN, value, null);
+        this.entries = entries;
+    }
 
-	public Collection<? extends T> getEntries() {
-		return entries;
-	}
+    public Collection<? extends T> getEntries() {
+        return entries;
+    }
 
 }

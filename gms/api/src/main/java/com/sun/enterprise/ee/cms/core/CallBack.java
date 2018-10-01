@@ -24,5 +24,5 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public interface CallBack {
-	void processNotification(Signal notification);
+    void processNotification(Signal notification);
 }

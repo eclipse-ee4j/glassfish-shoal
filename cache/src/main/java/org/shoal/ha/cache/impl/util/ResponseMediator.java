@@ -24,27 +24,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ResponseMediator {
 
-	private ConcurrentHashMap<Long, CommandResponse> responses = new ConcurrentHashMap<Long, CommandResponse>();
+    private ConcurrentHashMap<Long, CommandResponse> responses = new ConcurrentHashMap<Long, CommandResponse>();
 
-	public CommandResponse createCommandResponse() {
-		CommandResponse resp = new CommandResponse(this);
-		responses.put(resp.getTokenId(), resp);
+    public CommandResponse createCommandResponse() {
+        CommandResponse resp = new CommandResponse(this);
+        responses.put(resp.getTokenId(), resp);
 
-		return resp;
-	}
+        return resp;
+    }
 
-	public CumulativeCommandResponse createCumulativeCommandResponse(int maxResponse, Object initialValue) {
-		CumulativeCommandResponse resp = new CumulativeCommandResponse(this, maxResponse, initialValue);
-		responses.put(resp.getTokenId(), resp);
+    public CumulativeCommandResponse createCumulativeCommandResponse(int maxResponse, Object initialValue) {
+        CumulativeCommandResponse resp = new CumulativeCommandResponse(this, maxResponse, initialValue);
+        responses.put(resp.getTokenId(), resp);
 
-		return resp;
-	}
+        return resp;
+    }
 
-	public CommandResponse getCommandResponse(long tokenId) {
-		return responses.get(tokenId);
-	}
+    public CommandResponse getCommandResponse(long tokenId) {
+        return responses.get(tokenId);
+    }
 
-	public void removeCommandResponse(long id) {
-		responses.remove(id);
-	}
+    public void removeCommandResponse(long id) {
+        responses.remove(id);
+    }
 }

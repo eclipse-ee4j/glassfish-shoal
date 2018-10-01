@@ -30,17 +30,17 @@ import com.sun.enterprise.ee.cms.core.GMSMember;
 
 public interface ViewWindow {
 
-	boolean isCoordinator();
+    boolean isCoordinator();
 
-	List<GMSMember> getPreviousView();
+    List<GMSMember> getPreviousView();
 
-	List<GMSMember> getCurrentView();
+    List<GMSMember> getCurrentView();
 
-	List<String> getCurrentCoreMembers();
+    List<String> getCurrentCoreMembers();
 
-	List<String> getAllCurrentMembers();
+    List<String> getAllCurrentMembers();
 
-	List<String> getCurrentCoreMembersWithStartTimes();
+    List<String> getCurrentCoreMembersWithStartTimes();
 
-	List<String> getAllCurrentMembersWithStartTimes();
+    List<String> getAllCurrentMembersWithStartTimes();
 }

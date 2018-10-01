@@ -24,18 +24,18 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public interface MessageSignal extends Signal {
-	/**
-	 * Returns the message(payload) as a byte array.
-	 *
-	 * @return byte[]
-	 */
-	byte[] getMessage();
+    /**
+     * Returns the message(payload) as a byte array.
+     *
+     * @return byte[]
+     */
+    byte[] getMessage();
 
-	/**
-	 * Returns the target component in this member to which this message is addressed.
-	 *
-	 * @return String targetComponent
-	 */
-	String getTargetComponent();
+    /**
+     * Returns the target component in this member to which this message is addressed.
+     *
+     * @return String targetComponent
+     */
+    String getTargetComponent();
 
 }

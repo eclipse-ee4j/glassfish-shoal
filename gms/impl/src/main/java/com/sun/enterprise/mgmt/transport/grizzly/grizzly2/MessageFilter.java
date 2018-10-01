@@ -51,96 +51,96 @@ import com.sun.enterprise.mgmt.transport.MessageImpl;
  */
 public class MessageFilter extends BaseFilter {
 
-	private final Attribute<MessageParsingState> preparsedMessageAttr = Grizzly.DEFAULT_ATTRIBUTE_BUILDER
-	        .createAttribute(MessageFilter.class + ".preparsedMessageAttr", new NullaryFunction<MessageParsingState>() {
+    private final Attribute<MessageParsingState> preparsedMessageAttr = Grizzly.DEFAULT_ATTRIBUTE_BUILDER
+            .createAttribute(MessageFilter.class + ".preparsedMessageAttr", new NullaryFunction<MessageParsingState>() {
 
-		        @Override
-		        public MessageParsingState evaluate() {
-			        return new MessageParsingState();
-		        }
-	        });
+                @Override
+                public MessageParsingState evaluate() {
+                    return new MessageParsingState();
+                }
+            });
 
-	@Override
-	public NextAction handleRead(final FilterChainContext ctx) throws IOException {
-		final Connection connection = ctx.getConnection();
-		final Buffer buffer = ctx.getMessage();
+    @Override
+    public NextAction handleRead(final FilterChainContext ctx) throws IOException {
+        final Connection connection = ctx.getConnection();
+        final Buffer buffer = ctx.getMessage();
 
-		final MessageParsingState parsingState = preparsedMessageAttr.get(connection);
+        final MessageParsingState parsingState = preparsedMessageAttr.get(connection);
 
-		if (!parsingState.isHeaderParsed) {
-			// Header was not parsed yet
-			if (buffer.remaining() < MessageImpl.HEADER_LENGTH) {
-				// not enough data to parse the header
-				return ctx.getStopAction(buffer);
-			}
+        if (!parsingState.isHeaderParsed) {
+            // Header was not parsed yet
+            if (buffer.remaining() < MessageImpl.HEADER_LENGTH) {
+                // not enough data to parse the header
+                return ctx.getStopAction(buffer);
+            }
 
-			final MessageImpl message = new MessageImpl();
+            final MessageImpl message = new MessageImpl();
 
-			final GMSBufferWrapper gmsBuffer = parsingState.gmsBufferWrapper.wrap(buffer);
+            final GMSBufferWrapper gmsBuffer = parsingState.gmsBufferWrapper.wrap(buffer);
 
-			final int messageLength = message.parseHeader(gmsBuffer, gmsBuffer.position());
+            final int messageLength = message.parseHeader(gmsBuffer, gmsBuffer.position());
 
-			gmsBuffer.recycle();
+            gmsBuffer.recycle();
 
-			if (messageLength + MessageImpl.HEADER_LENGTH > MessageImpl.getMaxMessageLength()) {
-				throw new IllegalStateException("too large message." + " request-size=" + (messageLength + MessageImpl.HEADER_LENGTH) + " max-size="
-				        + MessageImpl.getMaxMessageLength());
-			}
+            if (messageLength + MessageImpl.HEADER_LENGTH > MessageImpl.getMaxMessageLength()) {
+                throw new IllegalStateException("too large message." + " request-size=" + (messageLength + MessageImpl.HEADER_LENGTH) + " max-size="
+                        + MessageImpl.getMaxMessageLength());
+            }
 
-			parsingState.isHeaderParsed = true;
-			parsingState.message = message;
-			parsingState.messageLength = messageLength;
-		}
+            parsingState.isHeaderParsed = true;
+            parsingState.message = message;
+            parsingState.messageLength = messageLength;
+        }
 
-		final int totalMsgLength = MessageImpl.HEADER_LENGTH + parsingState.messageLength;
+        final int totalMsgLength = MessageImpl.HEADER_LENGTH + parsingState.messageLength;
 
-		if (buffer.remaining() < totalMsgLength) {
-			// We don't have entire message
-			return ctx.getStopAction(buffer);
-		}
+        if (buffer.remaining() < totalMsgLength) {
+            // We don't have entire message
+            return ctx.getStopAction(buffer);
+        }
 
-		final int pos = buffer.position();
+        final int pos = buffer.position();
 
-		final GMSBufferWrapper gmsBuffer = parsingState.gmsBufferWrapper.wrap(buffer);
+        final GMSBufferWrapper gmsBuffer = parsingState.gmsBufferWrapper.wrap(buffer);
 
-		parsingState.message.parseMessage(gmsBuffer, pos + MessageImpl.HEADER_LENGTH, parsingState.messageLength);
+        parsingState.message.parseMessage(gmsBuffer, pos + MessageImpl.HEADER_LENGTH, parsingState.messageLength);
 
-		ctx.setMessage(parsingState.message);
+        ctx.setMessage(parsingState.message);
 
-		gmsBuffer.recycle();
+        gmsBuffer.recycle();
 
-		// Go to the next message
-		final Buffer remainder = buffer.split(pos + totalMsgLength);
+        // Go to the next message
+        final Buffer remainder = buffer.split(pos + totalMsgLength);
 
-		parsingState.reset();
+        parsingState.reset();
 
-		return ctx.getInvokeAction(remainder.hasRemaining() ? remainder : null);
-	}
+        return ctx.getInvokeAction(remainder.hasRemaining() ? remainder : null);
+    }
 
-	@Override
-	public NextAction handleWrite(final FilterChainContext ctx) throws IOException {
-		final Message message = ctx.getMessage();
+    @Override
+    public NextAction handleWrite(final FilterChainContext ctx) throws IOException {
+        final Message message = ctx.getMessage();
 
-		final MemoryManager mm = ctx.getConnection().getTransport().getMemoryManager();
+        final MemoryManager mm = ctx.getConnection().getTransport().getMemoryManager();
 
-		com.sun.enterprise.mgmt.transport.buffers.Buffer buffer = message.getPlainBuffer(Grizzly2ExpandableBufferWriter.createFactory(mm));
+        com.sun.enterprise.mgmt.transport.buffers.Buffer buffer = message.getPlainBuffer(Grizzly2ExpandableBufferWriter.createFactory(mm));
 
-		ctx.setMessage(buffer.underlying());
+        ctx.setMessage(buffer.underlying());
 
-		return ctx.getInvokeAction();
-	}
+        return ctx.getInvokeAction();
+    }
 
-	static final class MessageParsingState {
-		final GMSBufferWrapper gmsBufferWrapper = new GMSBufferWrapper();
-		boolean isHeaderParsed;
-		int messageLength;
-		MessageImpl message;
+    static final class MessageParsingState {
+        final GMSBufferWrapper gmsBufferWrapper = new GMSBufferWrapper();
+        boolean isHeaderParsed;
+        int messageLength;
+        MessageImpl message;
 
-		void reset() {
-			isHeaderParsed = false;
-			message = null;
-			messageLength = 0;
-			gmsBufferWrapper.recycle();
-		}
-	}
+        void reset() {
+            isHeaderParsed = false;
+            message = null;
+            messageLength = 0;
+            gmsBufferWrapper.recycle();
+        }
+    }
 }

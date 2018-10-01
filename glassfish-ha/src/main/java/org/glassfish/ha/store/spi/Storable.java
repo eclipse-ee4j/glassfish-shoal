@@ -25,22 +25,22 @@ import java.util.Set;
  */
 public interface Storable {
 
-	/**
-	 * Get the version of this entry. -1 means that this entry has no version
-	 *
-	 * @return The version or null if this entry has no version
-	 */
-	long _getVersion();
+    /**
+     * Get the version of this entry. -1 means that this entry has no version
+     *
+     * @return The version or null if this entry has no version
+     */
+    long _getVersion();
 
-	/**
-	 * An array of boolean indicating if the corresponding attribute is dirty (true) or not (false)
-	 *
-	 * @return
-	 */
-	Set<String> _getDirtyAttributeNames();
+    /**
+     * An array of boolean indicating if the corresponding attribute is dirty (true) or not (false)
+     *
+     * @return
+     */
+    Set<String> _getDirtyAttributeNames();
 
-	<T> T _getAttributeValue(String attrName, Class<T> type);
+    <T> T _getAttributeValue(String attrName, Class<T> type);
 
-	String _getOwnerInstanceName();
+    String _getOwnerInstanceName();
 
 }

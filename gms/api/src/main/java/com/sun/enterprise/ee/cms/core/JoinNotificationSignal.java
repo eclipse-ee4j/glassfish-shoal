@@ -30,25 +30,25 @@ import com.sun.enterprise.ee.cms.spi.MemberStates;
  */
 public interface JoinNotificationSignal extends Signal, GroupStartupNotificationSignal, RejoinableEvent {
 
-	/**
-	 * provides a list of all live and current CORE designated members.
-	 *
-	 * @return List containing the list of member token ids of core members
-	 */
-	List<String> getCurrentCoreMembers();
+    /**
+     * provides a list of all live and current CORE designated members.
+     *
+     * @return List containing the list of member token ids of core members
+     */
+    List<String> getCurrentCoreMembers();
 
-	/**
-	 * provides a list of all live members i.e. CORE and SPECTATOR members.
-	 *
-	 * @return List containing the list of member token ids of all members.
-	 */
-	List<String> getAllCurrentMembers();
+    /**
+     * provides a list of all live members i.e. CORE and SPECTATOR members.
+     *
+     * @return List containing the list of member token ids of all members.
+     */
+    List<String> getAllCurrentMembers();
 
-	/**
-	 * Provides the current liveness state of the member whose joining the group is being signaled by this JoinNotification
-	 * Signal. The state corresponds to one of the states enumerated by the MemberStates enum
-	 *
-	 * @return MemberStates
-	 */
-	MemberStates getMemberState();
+    /**
+     * Provides the current liveness state of the member whose joining the group is being signaled by this JoinNotification
+     * Signal. The state corresponds to one of the states enumerated by the MemberStates enum
+     *
+     * @return MemberStates
+     */
+    MemberStates getMemberState();
 }

@@ -30,42 +30,42 @@ import java.util.Vector;
  * @version $Revision$
  */
 public class ShutdownHelper {
-	private final List<String> gracefulShutdownList = new Vector<String>();
-	private final List<String> groupShutdownList = new ArrayList<String>();
+    private final List<String> gracefulShutdownList = new Vector<String>();
+    private final List<String> groupShutdownList = new ArrayList<String>();
 
-	public ShutdownHelper() {
+    public ShutdownHelper() {
 
-	}
+    }
 
-	public synchronized boolean isGroupBeingShutdown(final String groupName) {
-		return groupShutdownList.contains(groupName);
-	}
+    public synchronized boolean isGroupBeingShutdown(final String groupName) {
+        return groupShutdownList.contains(groupName);
+    }
 
-	public synchronized boolean isMemberBeingShutdown(final String memberToken) {
-		return gracefulShutdownList.contains(memberToken);
-	}
+    public synchronized boolean isMemberBeingShutdown(final String memberToken) {
+        return gracefulShutdownList.contains(memberToken);
+    }
 
-	public void addToGroupShutdownList(final String groupName) {
-		synchronized (groupShutdownList) {
-			groupShutdownList.add(groupName);
-		}
-	}
+    public void addToGroupShutdownList(final String groupName) {
+        synchronized (groupShutdownList) {
+            groupShutdownList.add(groupName);
+        }
+    }
 
-	public void addToGracefulShutdownList(final String memberToken) {
-		synchronized (gracefulShutdownList) {
-			gracefulShutdownList.add(memberToken);
-		}
-	}
+    public void addToGracefulShutdownList(final String memberToken) {
+        synchronized (gracefulShutdownList) {
+            gracefulShutdownList.add(memberToken);
+        }
+    }
 
-	public void removeFromGracefulShutdownList(final String memberToken) {
-		synchronized (gracefulShutdownList) {
-			gracefulShutdownList.remove(memberToken);
-		}
-	}
+    public void removeFromGracefulShutdownList(final String memberToken) {
+        synchronized (gracefulShutdownList) {
+            gracefulShutdownList.remove(memberToken);
+        }
+    }
 
-	public void removeFromGroupShutdownList(final String groupName) {
-		synchronized (groupShutdownList) {
-			groupShutdownList.remove(groupName);
-		}
-	}
+    public void removeFromGroupShutdownList(final String groupName) {
+        synchronized (groupShutdownList) {
+            groupShutdownList.remove(groupName);
+        }
+    }
 }

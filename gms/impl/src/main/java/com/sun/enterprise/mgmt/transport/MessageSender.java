@@ -29,13 +29,13 @@ import com.sun.enterprise.ee.cms.impl.base.PeerID;
  */
 public interface MessageSender extends ShoalMessageSender {
 
-	/**
-	 * Sends the given {@link Message} to the destination
-	 *
-	 * @param peerID the destination {@link PeerID}. <code>null</code> is not allowed
-	 * @param message a message which is sent to the peer
-	 * @return true if the message is sent to the destination successfully, otherwise false
-	 * @throws IOException if I/O error occurs or given parameters are not valid
-	 */
-	boolean send(final PeerID peerID, final Message message) throws IOException;
+    /**
+     * Sends the given {@link Message} to the destination
+     *
+     * @param peerID the destination {@link PeerID}. <code>null</code> is not allowed
+     * @param message a message which is sent to the peer
+     * @return true if the message is sent to the destination successfully, otherwise false
+     * @throws IOException if I/O error occurs or given parameters are not valid
+     */
+    boolean send(final PeerID peerID, final Message message) throws IOException;
 }

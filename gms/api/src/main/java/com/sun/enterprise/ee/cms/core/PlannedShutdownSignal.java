@@ -24,12 +24,12 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public interface PlannedShutdownSignal extends Signal, AliveAndReadySignal {
-	/**
-	 * Planned shutdown events can be one of two types, Group Shutdown or Instance Shutdown. These types are defined in an
-	 * enum in the class GMSConstants.shutdownType
-	 *
-	 * @see com.sun.enterprise.ee.cms.core.GMSConstants
-	 * @return GMSConstants.shutdownType
-	 */
-	GMSConstants.shutdownType getEventSubType();
+    /**
+     * Planned shutdown events can be one of two types, Group Shutdown or Instance Shutdown. These types are defined in an
+     * enum in the class GMSConstants.shutdownType
+     *
+     * @see com.sun.enterprise.ee.cms.core.GMSConstants
+     * @return GMSConstants.shutdownType
+     */
+    GMSConstants.shutdownType getEventSubType();
 }

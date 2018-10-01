@@ -39,94 +39,94 @@ import com.sun.enterprise.ee.cms.spi.MemberStates;
  * @version $Revision$
  */
 public interface GMSContext {
-	/**
-	 * returns the serverIdentityToken pertaining to the process that owns this GMS instance
-	 *
-	 * @return java.lang.String
-	 */
-	String getServerIdentityToken();
+    /**
+     * returns the serverIdentityToken pertaining to the process that owns this GMS instance
+     *
+     * @return java.lang.String
+     */
+    String getServerIdentityToken();
 
-	/**
-	 * returns the name of the group this context represents.
-	 *
-	 * @return the name of the group.
-	 */
-	String getGroupName();
+    /**
+     * returns the name of the group this context represents.
+     *
+     * @return the name of the group.
+     */
+    String getGroupName();
 
-	/**
-	 * returns Group handle
-	 *
-	 * @return Group handle
-	 */
-	GroupHandle getGroupHandle();
+    /**
+     * returns Group handle
+     *
+     * @return Group handle
+     */
+    GroupHandle getGroupHandle();
 
-	/**
-	 * returns the router
-	 *
-	 * @return router
-	 */
-	Router getRouter();
+    /**
+     * returns the router
+     *
+     * @return router
+     */
+    Router getRouter();
 
-	ViewWindow getViewWindow();
+    ViewWindow getViewWindow();
 
-	DistributedStateCache getDistributedStateCache();
+    DistributedStateCache getDistributedStateCache();
 
-	GMSMonitor getGMSMonitor();
+    GMSMonitor getGMSMonitor();
 
-	void join() throws GMSException;
+    void join() throws GMSException;
 
-	void leave(final GMSConstants.shutdownType shutdownType);
+    void leave(final GMSConstants.shutdownType shutdownType);
 
-	boolean isShuttingDown();
+    boolean isShuttingDown();
 
-	long getStartTime();
+    long getStartTime();
 
-	void announceGroupStartup(final String groupName, final GMSConstants.groupStartupState startupState, final List<String> memberTokens);
+    void announceGroupStartup(final String groupName, final GMSConstants.groupStartupState startupState, final List<String> memberTokens);
 
-	void announceGroupShutdown(final String groupName, final GMSConstants.shutdownState shutdownState);
+    void announceGroupShutdown(final String groupName, final GMSConstants.shutdownState shutdownState);
 
-	boolean addToSuspectList(final String token);
+    boolean addToSuspectList(final String token);
 
-	void removeFromSuspectList(final String token);
+    void removeFromSuspectList(final String token);
 
-	boolean isSuspected(final String token);
+    boolean isSuspected(final String token);
 
-	List<String> getSuspectList();
+    List<String> getSuspectList();
 
-	ShutdownHelper getShutdownHelper();
+    ShutdownHelper getShutdownHelper();
 
-	GroupCommunicationProvider getGroupCommunicationProvider();
+    GroupCommunicationProvider getGroupCommunicationProvider();
 
-	/**
-	 * lets this instance become a group leader explicitly Typically this can be employed by an administrative member to
-	 * become a group leader prior to shutting down a group of members simultaneously.
-	 *
-	 * For underlying Group Communication Providers who don't support the feature of a explicit leader role assumption, the
-	 * implementation of this method would be a no-op.
-	 */
-	void assumeGroupLeadership();
+    /**
+     * lets this instance become a group leader explicitly Typically this can be employed by an administrative member to
+     * become a group leader prior to shutting down a group of members simultaneously.
+     *
+     * For underlying Group Communication Providers who don't support the feature of a explicit leader role assumption, the
+     * implementation of this method would be a no-op.
+     */
+    void assumeGroupLeadership();
 
-	boolean isGroupBeingShutdown(String groupName);
+    boolean isGroupBeingShutdown(String groupName);
 
-	boolean isGroupStartup();
+    boolean isGroupStartup();
 
-	void setGroupStartup(boolean value);
+    void setGroupStartup(boolean value);
 
-	GroupManagementService.MemberType getMemberType();
+    GroupManagementService.MemberType getMemberType();
 
-	boolean isWatchdog();
+    boolean isWatchdog();
 
-	AliveAndReadyView getPreviousAliveAndReadyView();
+    AliveAndReadyView getPreviousAliveAndReadyView();
 
-	AliveAndReadyView getCurrentAliveAndReadyView();
+    AliveAndReadyView getCurrentAliveAndReadyView();
 
-	Map<String, RejoinSubevent> getInstanceRejoins();
+    Map<String, RejoinSubevent> getInstanceRejoins();
 
-	AliveAndReadyViewWindow getAliveAndReadyViewWindow();
+    AliveAndReadyViewWindow getAliveAndReadyViewWindow();
 
-	void setGroupStartupJoinMembers(Set<String> members);
+    void setGroupStartupJoinMembers(Set<String> members);
 
-	boolean isGroupStartupComplete();
+    boolean isGroupStartupComplete();
 
-	boolean setGroupStartupState(String member, MemberStates state);
+    boolean setGroupStartupState(String member, MemberStates state);
 }

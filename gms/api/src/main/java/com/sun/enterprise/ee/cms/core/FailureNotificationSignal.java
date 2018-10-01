@@ -25,11 +25,11 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public interface FailureNotificationSignal extends Signal, AliveAndReadySignal {
-	/**
-	 * returns the identity token of the failed member
-	 *
-	 * @return java.lang.String
-	 * @deprecated
-	 */
-	String getFailedMemberToken();
+    /**
+     * returns the identity token of the failed member
+     *
+     * @return java.lang.String
+     * @deprecated
+     */
+    String getFailedMemberToken();
 }

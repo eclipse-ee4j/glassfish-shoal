@@ -24,25 +24,25 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GMSThreadFactory implements ThreadFactory {
 
-	private final String threadPrefixName;
-	private final AtomicInteger threadNum = new AtomicInteger(1);
-	private final boolean isDaemon;
+    private final String threadPrefixName;
+    private final AtomicInteger threadNum = new AtomicInteger(1);
+    private final boolean isDaemon;
 
-	public GMSThreadFactory(String threadPrefixName) {
-		this(threadPrefixName, true);
-	}
+    public GMSThreadFactory(String threadPrefixName) {
+        this(threadPrefixName, true);
+    }
 
-	public GMSThreadFactory(String threadPrefixName, boolean isDaemon) {
-		this.threadPrefixName = threadPrefixName;
-		this.isDaemon = isDaemon;
-	}
+    public GMSThreadFactory(String threadPrefixName, boolean isDaemon) {
+        this.threadPrefixName = threadPrefixName;
+        this.isDaemon = isDaemon;
+    }
 
-	public Thread newThread(Runnable run) {
-		StringBuffer threadName = new StringBuffer(30);
-		threadName.append(threadPrefixName).append("-").append(threadNum.getAndIncrement());
-		Thread result = new Thread(run);
-		result.setName(threadName.toString());
-		result.setDaemon(isDaemon);
-		return result;
-	}
+    public Thread newThread(Runnable run) {
+        StringBuffer threadName = new StringBuffer(30);
+        threadName.append(threadPrefixName).append("-").append(threadNum.getAndIncrement());
+        Thread result = new Thread(run);
+        result.setName(threadName.toString());
+        result.setDaemon(isDaemon);
+        return result;
+    }
 }

@@ -27,26 +27,26 @@ import com.sun.enterprise.ee.cms.core.Signal;
  */
 public abstract class MessageReceiver implements CallBack {
 
-	private final static Logger logger = Logger.getLogger("ReplicationLogger");
+    private final static Logger logger = Logger.getLogger("ReplicationLogger");
 
-	@Override
-	public void processNotification(Signal signal) {
-		Object message = null;
-		MessageSignal messageSignal = null;
+    @Override
+    public void processNotification(Signal signal) {
+        Object message = null;
+        MessageSignal messageSignal = null;
 
 //            logger.log(Level.INFO, "Source Member: " + signal.getMemberToken() + " group : " + signal.getGroupName());
-		if (signal instanceof MessageSignal) {
-			messageSignal = (MessageSignal) signal;
-			message = ((MessageSignal) signal).getMessage();
+        if (signal instanceof MessageSignal) {
+            messageSignal = (MessageSignal) signal;
+            message = ((MessageSignal) signal).getMessage();
 //                logger.log(Level.INFO, "\t\t***  Message received: "
 //                        + ((MessageSignal) signal).getTargetComponent() + "; "
 //                        + ((MessageSignal) signal).getMemberToken());
 
-			if (messageSignal != null) {
-				handleMessage(messageSignal.getMemberToken(), messageSignal.getTargetComponent(), (byte[]) message);
-			}
-		}
-	}
+            if (messageSignal != null) {
+                handleMessage(messageSignal.getMemberToken(), messageSignal.getTargetComponent(), (byte[]) message);
+            }
+        }
+    }
 
-	protected abstract void handleMessage(String senderName, String messageToken, byte[] data);
+    protected abstract void handleMessage(String senderName, String messageToken, byte[] data);
 }

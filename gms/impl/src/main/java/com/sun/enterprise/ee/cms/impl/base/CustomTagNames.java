@@ -21,5 +21,5 @@ package com.sun.enterprise.ee.cms.impl.base;
  * @version $Revision$
  */
 public enum CustomTagNames {
-	MEMBER_TYPE, GROUP_NAME, START_TIME
+    MEMBER_TYPE, GROUP_NAME, START_TIME
 }

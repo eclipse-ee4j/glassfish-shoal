@@ -23,22 +23,22 @@ import org.shoal.ha.cache.impl.command.Command;
  */
 public class NoopCommand extends Command {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -7331429541785561201L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7331429541785561201L;
 
-	public NoopCommand() {
-		super((byte) 123);
-		super.setKey("Noop" + System.identityHashCode(this));
-	}
+    public NoopCommand() {
+        super((byte) 123);
+        super.setKey("Noop" + System.identityHashCode(this));
+    }
 
-	protected boolean beforeTransmit() {
-		return true;
-	}
+    protected boolean beforeTransmit() {
+        return true;
+    }
 
-	@Override
-	public void execute(String initiator) {
-		System.out.println("***>> Executed Noop command");
-	}
+    @Override
+    public void execute(String initiator) {
+        System.out.println("***>> Executed Noop command");
+    }
 }

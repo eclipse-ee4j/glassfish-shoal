@@ -51,6 +51,6 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public interface FailureRecoverySignal extends FailureNotificationSignal {
-	String getComponentName();
+    String getComponentName();
 
 }

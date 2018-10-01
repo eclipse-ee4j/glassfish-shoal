@@ -28,62 +28,62 @@ import com.sun.enterprise.ee.cms.impl.base.PeerID;
  * @author Bongjae Chang
  */
 public class MessageEvent extends EventObject {
-	static final long serialVersionUID = -7065693766490210768L;
+    static final long serialVersionUID = -7065693766490210768L;
 
-	/**
-	 * The received {@link Message}
-	 */
-	private final Message message;
+    /**
+     * The received {@link Message}
+     */
+    private final Message message;
 
-	/**
-	 * The received message's source {@link PeerID}
-	 */
-	private final PeerID sourcePeerID;
+    /**
+     * The received message's source {@link PeerID}
+     */
+    private final PeerID sourcePeerID;
 
-	/**
-	 * The received message's destination {@link PeerID}
-	 */
-	private final PeerID targetPeerID;
+    /**
+     * The received message's destination {@link PeerID}
+     */
+    private final PeerID targetPeerID;
 
-	/**
-	 * Creates a new event
-	 *
-	 * @param source The object on which the message was received.
-	 * @param message The message object
-	 * @param sourcePeerID source peer id
-	 * @param targetPeerID target peer id
-	 */
-	public MessageEvent(Object source, Message message, PeerID sourcePeerID, PeerID targetPeerID) {
-		super(source);
-		this.message = message;
-		this.sourcePeerID = sourcePeerID;
-		this.targetPeerID = targetPeerID;
-	}
+    /**
+     * Creates a new event
+     *
+     * @param source The object on which the message was received.
+     * @param message The message object
+     * @param sourcePeerID source peer id
+     * @param targetPeerID target peer id
+     */
+    public MessageEvent(Object source, Message message, PeerID sourcePeerID, PeerID targetPeerID) {
+        super(source);
+        this.message = message;
+        this.sourcePeerID = sourcePeerID;
+        this.targetPeerID = targetPeerID;
+    }
 
-	/**
-	 * Returns the message associated with the event
-	 *
-	 * @return message
-	 */
-	public Message getMessage() {
-		return message;
-	}
+    /**
+     * Returns the message associated with the event
+     *
+     * @return message
+     */
+    public Message getMessage() {
+        return message;
+    }
 
-	/**
-	 * Returns the source peer id from which this message is sent
-	 *
-	 * @return peer id
-	 */
-	public PeerID getSourcePeerID() {
-		return sourcePeerID;
-	}
+    /**
+     * Returns the source peer id from which this message is sent
+     *
+     * @return peer id
+     */
+    public PeerID getSourcePeerID() {
+        return sourcePeerID;
+    }
 
-	/**
-	 * Returns the target peer id to which this message is sent
-	 *
-	 * @return peer id
-	 */
-	public PeerID getTargetPeerID() {
-		return targetPeerID;
-	}
+    /**
+     * Returns the target peer id to which this message is sent
+     *
+     * @return peer id
+     */
+    public PeerID getTargetPeerID() {
+        return targetPeerID;
+    }
 }

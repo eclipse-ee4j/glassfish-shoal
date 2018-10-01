@@ -22,12 +22,12 @@ package com.sun.enterprise.ee.cms.impl.common;
  * @version $Revision$
  */
 public class RecoverySelectorMode {
-	private final String mode;
+    private final String mode;
 
-	RecoverySelectorMode(final String mode) {
-		this.mode = mode;
-	}
+    RecoverySelectorMode(final String mode) {
+        this.mode = mode;
+    }
 
-	static final RecoverySelectorMode SIMPLESELECT = new RecoverySelectorMode("simpleselect");
-	static final RecoverySelectorMode HOSTSELECT = new RecoverySelectorMode("hostselect");
+    static final RecoverySelectorMode SIMPLESELECT = new RecoverySelectorMode("simpleselect");
+    static final RecoverySelectorMode HOSTSELECT = new RecoverySelectorMode("hostselect");
 }

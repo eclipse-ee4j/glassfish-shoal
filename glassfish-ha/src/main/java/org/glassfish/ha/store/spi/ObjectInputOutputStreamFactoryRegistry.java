@@ -30,23 +30,23 @@ import java.io.OutputStream;
  */
 public class ObjectInputOutputStreamFactoryRegistry {
 
-	private static ObjectInputOutputStreamFactory _factory = new DefaultObjectInputOutputStreamFactory();
+    private static ObjectInputOutputStreamFactory _factory = new DefaultObjectInputOutputStreamFactory();
 
-	public static ObjectInputOutputStreamFactory getObjectInputOutputStreamFactory() {
-		return _factory;
-	}
+    public static ObjectInputOutputStreamFactory getObjectInputOutputStreamFactory() {
+        return _factory;
+    }
 
-	private static class DefaultObjectInputOutputStreamFactory implements ObjectInputOutputStreamFactory {
+    private static class DefaultObjectInputOutputStreamFactory implements ObjectInputOutputStreamFactory {
 
-		@Override
-		public ObjectOutputStream createObjectOutputStream(OutputStream os) throws IOException {
-			return new ObjectOutputStream(os);
-		}
+        @Override
+        public ObjectOutputStream createObjectOutputStream(OutputStream os) throws IOException {
+            return new ObjectOutputStream(os);
+        }
 
-		@Override
-		public ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader) throws IOException {
-			return new ObjectInputStreamWithLoader(is, loader);
-		}
-	}
+        @Override
+        public ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader) throws IOException {
+            return new ObjectInputStreamWithLoader(is, loader);
+        }
+    }
 
 }

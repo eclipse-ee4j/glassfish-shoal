@@ -23,8 +23,8 @@ import java.io.IOException;
  */
 public interface Replicable {
 
-	void writeState(ReplicationOutputStream ros) throws IOException;
+    void writeState(ReplicationOutputStream ros) throws IOException;
 
-	void readState(byte[] data, int offset);
+    void readState(byte[] data, int offset);
 
 }

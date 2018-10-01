@@ -27,19 +27,19 @@ import com.sun.enterprise.ee.cms.core.FailureSuspectedActionFactory;
  * @version $Revision$
  */
 public class FailureSuspectedActionFactoryImpl implements FailureSuspectedActionFactory {
-	private final CallBack cb;
+    private final CallBack cb;
 
-	public FailureSuspectedActionFactoryImpl(final CallBack cb) {
-		this.cb = cb;
-	}
+    public FailureSuspectedActionFactoryImpl(final CallBack cb) {
+        this.cb = cb;
+    }
 
-	/**
-	 * Produces an Action instance.
-	 *
-	 * @return com.sun.enterprise.ee.cms.Action
-	 */
-	public Action produceAction() {
-		return new FailureSuspectedActionImpl(cb);
-	}
+    /**
+     * Produces an Action instance.
+     *
+     * @return com.sun.enterprise.ee.cms.Action
+     */
+    public Action produceAction() {
+        return new FailureSuspectedActionImpl(cb);
+    }
 
 }

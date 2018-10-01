@@ -26,18 +26,18 @@ import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationActionFactory;
  * @author Sheetal Vartak
  */
 public class JoinedAndReadyNotificationActionFactoryImpl implements JoinedAndReadyNotificationActionFactory {
-	private final CallBack callBack;
+    private final CallBack callBack;
 
-	public JoinedAndReadyNotificationActionFactoryImpl(final CallBack callBack) {
-		this.callBack = callBack;
-	}
+    public JoinedAndReadyNotificationActionFactoryImpl(final CallBack callBack) {
+        this.callBack = callBack;
+    }
 
-	/**
-	 * Produces an Action instance.
-	 *
-	 * @return com.sun.enterprise.ee.cms.Action
-	 */
-	public Action produceAction() {
-		return new JoinedAndReadyNotificationActionImpl(callBack);
-	}
+    /**
+     * Produces an Action instance.
+     *
+     * @return com.sun.enterprise.ee.cms.Action
+     */
+    public Action produceAction() {
+        return new JoinedAndReadyNotificationActionImpl(callBack);
+    }
 }

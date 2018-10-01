@@ -34,98 +34,98 @@ import org.shoal.ha.cache.impl.util.ResponseMediator;
  */
 public class LoadResponseCommand<K, V> extends Command<K, V> {
 
-	private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_RESPONSE_COMMAND);
+    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_RESPONSE_COMMAND);
 
-	private long version;
+    private long version;
 
-	private byte[] rawV;
+    private byte[] rawV;
 
-	private long tokenId;
+    private long tokenId;
 
-	private String originatingInstance;
+    private String originatingInstance;
 
-	private String respondingInstanceName;
+    private String respondingInstanceName;
 
-	public LoadResponseCommand() {
-		super(ReplicationCommandOpcode.LOAD_RESPONSE);
-	}
+    public LoadResponseCommand() {
+        super(ReplicationCommandOpcode.LOAD_RESPONSE);
+    }
 
-	public LoadResponseCommand(K key, long version, byte[] rawV) {
-		this();
-		super.setKey(key);
-		this.version = version;
-		this.rawV = rawV;
-	}
+    public LoadResponseCommand(K key, long version, byte[] rawV) {
+        this();
+        super.setKey(key);
+        this.version = version;
+        this.rawV = rawV;
+    }
 
-	public void setTokenId(long tokenId) {
-		this.tokenId = tokenId;
-	}
+    public void setTokenId(long tokenId) {
+        this.tokenId = tokenId;
+    }
 
-	public long getVersion() {
-		return version;
-	}
+    public long getVersion() {
+        return version;
+    }
 
-	public void setOriginatingInstance(String originatingInstance) {
-		this.originatingInstance = originatingInstance;
-	}
+    public void setOriginatingInstance(String originatingInstance) {
+        this.originatingInstance = originatingInstance;
+    }
 
-	public byte[] getRawV() {
-		return rawV;
-	}
+    public byte[] getRawV() {
+        return rawV;
+    }
 
-	protected boolean beforeTransmit() {
-		setTargetName(originatingInstance);
-		return originatingInstance != null;
-	}
+    protected boolean beforeTransmit() {
+        setTargetName(originatingInstance);
+        return originatingInstance != null;
+    }
 
-	private void writeObject(ObjectOutputStream out) throws IOException {
+    private void writeObject(ObjectOutputStream out) throws IOException {
 
-		out.writeLong(version);
-		out.writeLong(tokenId);
-		out.writeUTF(originatingInstance);
-		out.writeUTF(dsc.getInstanceName());
+        out.writeLong(version);
+        out.writeLong(tokenId);
+        out.writeUTF(originatingInstance);
+        out.writeUTF(dsc.getInstanceName());
 
-		out.writeBoolean(rawV != null);
-		if (rawV != null) {
-			out.writeInt(rawV.length);
-			out.write(rawV);
-		}
-		if (_logger.isLoggable(Level.FINE)) {
-			_logger.log(Level.FINE, dsc.getInstanceName() + getName() + " sending load_response command for " + getKey() + " to " + originatingInstance
-			        + "; version = " + version + "; state = " + (rawV == null ? "NOT_FOUND" : rawV.length));
-		}
-	}
+        out.writeBoolean(rawV != null);
+        if (rawV != null) {
+            out.writeInt(rawV.length);
+            out.write(rawV);
+        }
+        if (_logger.isLoggable(Level.FINE)) {
+            _logger.log(Level.FINE, dsc.getInstanceName() + getName() + " sending load_response command for " + getKey() + " to " + originatingInstance
+                    + "; version = " + version + "; state = " + (rawV == null ? "NOT_FOUND" : rawV.length));
+        }
+    }
 
-	private void readObject(ObjectInputStream ris) throws IOException {
-		version = ris.readLong();
-		tokenId = ris.readLong();
-		originatingInstance = ris.readUTF();
-		respondingInstanceName = ris.readUTF();
-		boolean notNull = ris.readBoolean();
-		if (notNull) {
-			int vLen = ris.readInt();
-			rawV = new byte[vLen];
-			ris.readFully(rawV);
-		}
-	}
+    private void readObject(ObjectInputStream ris) throws IOException {
+        version = ris.readLong();
+        tokenId = ris.readLong();
+        originatingInstance = ris.readUTF();
+        respondingInstanceName = ris.readUTF();
+        boolean notNull = ris.readBoolean();
+        if (notNull) {
+            int vLen = ris.readInt();
+            rawV = new byte[vLen];
+            ris.readFully(rawV);
+        }
+    }
 
-	@Override
-	public void execute(String initiator) throws DataStoreException {
+    @Override
+    public void execute(String initiator) throws DataStoreException {
 
-		ResponseMediator respMed = getDataStoreContext().getResponseMediator();
-		CommandResponse resp = respMed.getCommandResponse(tokenId);
-		if (resp != null) {
-			if (_logger.isLoggable(Level.FINE)) {
-				_logger.log(Level.FINE,
-				        dsc.getInstanceName() + " received load_response key=" + getKey() + "; version=" + version + "; from " + respondingInstanceName);
-			}
+        ResponseMediator respMed = getDataStoreContext().getResponseMediator();
+        CommandResponse resp = respMed.getCommandResponse(tokenId);
+        if (resp != null) {
+            if (_logger.isLoggable(Level.FINE)) {
+                _logger.log(Level.FINE,
+                        dsc.getInstanceName() + " received load_response key=" + getKey() + "; version=" + version + "; from " + respondingInstanceName);
+            }
 
-			resp.setRespondingInstanceName(respondingInstanceName);
-			resp.setResult(this);
-		}
-	}
+            resp.setRespondingInstanceName(respondingInstanceName);
+            resp.setResult(this);
+        }
+    }
 
-	public String toString() {
-		return getName() + "(" + getKey() + ")";
-	}
+    public String toString() {
+        return getName() + "(" + getKey() + ")";
+    }
 }

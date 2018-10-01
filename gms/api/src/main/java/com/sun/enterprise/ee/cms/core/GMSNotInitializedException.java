@@ -23,24 +23,24 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public class GMSNotInitializedException extends GMSException {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -6120235287892833517L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6120235287892833517L;
 
-	public GMSNotInitializedException() {
-		super();
-	}
+    public GMSNotInitializedException() {
+        super();
+    }
 
-	public GMSNotInitializedException(final String message) {
-		super(message);
-	}
+    public GMSNotInitializedException(final String message) {
+        super(message);
+    }
 
-	public GMSNotInitializedException(final Throwable e) {
-		super(e);
-	}
+    public GMSNotInitializedException(final Throwable e) {
+        super(e);
+    }
 
-	public GMSNotInitializedException(final String s, Throwable e) {
-		super(s, e);
-	}
+    public GMSNotInitializedException(final String s, Throwable e) {
+        super(s, e);
+    }
 }

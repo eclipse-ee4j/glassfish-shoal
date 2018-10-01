@@ -21,6 +21,6 @@ package org.glassfish.ha.store.api;
  */
 public interface BackingStoreTransaction {
 
-	void commit() throws BackingStoreException;
+    void commit() throws BackingStoreException;
 
 }

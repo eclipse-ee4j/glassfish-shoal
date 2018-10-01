@@ -34,34 +34,34 @@ import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
  * @version $Revision$
  */
 public class PlannedShutdownActionImpl implements PlannedShutdownAction {
-	private CallBack callBack;
-	private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+    private CallBack callBack;
+    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
-	public PlannedShutdownActionImpl(final CallBack callBack) {
-		this.callBack = callBack;
-	}
+    public PlannedShutdownActionImpl(final CallBack callBack) {
+        this.callBack = callBack;
+    }
 
-	/**
-	 * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
-	 * Signal.
-	 */
-	public void consumeSignal(final Signal s) throws ActionException {
-		boolean signalAcquired = false;
-		try {
-			s.acquire();
-			signalAcquired = true;
-			callBack.processNotification(s);
+    /**
+     * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
+     * Signal.
+     */
+    public void consumeSignal(final Signal s) throws ActionException {
+        boolean signalAcquired = false;
+        try {
+            s.acquire();
+            signalAcquired = true;
+            callBack.processNotification(s);
 
-		} catch (SignalAcquireException e) {
-			logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		} finally {
-			if (signalAcquired) {
-				try {
-					s.release();
-				} catch (SignalReleaseException e) {
-					logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-				}
-			}
-		}
-	}
+        } catch (SignalAcquireException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        } finally {
+            if (signalAcquired) {
+                try {
+                    s.release();
+                } catch (SignalReleaseException e) {
+                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                }
+            }
+        }
+    }
 }

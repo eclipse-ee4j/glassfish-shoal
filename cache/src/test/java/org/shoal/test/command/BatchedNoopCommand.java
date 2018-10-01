@@ -23,22 +23,22 @@ import org.shoal.ha.cache.impl.command.Command;
  */
 public class BatchedNoopCommand extends Command {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 4048003960462018415L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4048003960462018415L;
 
-	public BatchedNoopCommand() {
-		super((byte) 121);
-		super.setKey("NoopBatch" + System.identityHashCode(this));
-	}
+    public BatchedNoopCommand() {
+        super((byte) 121);
+        super.setKey("NoopBatch" + System.identityHashCode(this));
+    }
 
-	public boolean beforeTransmit() {
-		return true;
-	}
+    public boolean beforeTransmit() {
+        return true;
+    }
 
-	@Override
-	public void execute(String initiator) {
-		System.out.println("***>> Executed BatchedNoop command");
-	}
+    @Override
+    public void execute(String initiator) {
+        System.out.println("***>> Executed BatchedNoop command");
+    }
 }

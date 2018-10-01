@@ -26,6 +26,6 @@ import java.io.Serializable;
  */
 public interface StoreEntryProcessor<K, V extends Serializable> extends Serializable {
 
-	Serializable process(K key, V value);
+    Serializable process(K key, V value);
 
 }

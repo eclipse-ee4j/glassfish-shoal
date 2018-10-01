@@ -22,5 +22,5 @@ package com.sun.enterprise.mgmt.transport.buffers;
  * @author Alexey Stashok
  */
 public interface ExpandableBufferWriterFactory {
-	ExpandableBufferWriter create();
+    ExpandableBufferWriter create();
 }

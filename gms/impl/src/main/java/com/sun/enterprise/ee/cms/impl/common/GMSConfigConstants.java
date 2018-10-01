@@ -24,12 +24,12 @@ package com.sun.enterprise.ee.cms.impl.common;
  * @version $Revision$ TODO: Move this out of here to impl.jxta
  */
 public class GMSConfigConstants {
-	public static final String MULTICAST_ADDRESS = "UDP::mcast_addr";
-	public static final String MULTICAST_PORT = "UDP::mcast_port";
-	public static final String FD_TIMEOUT = "FD::timeout";
-	public static final String FD_MAX_RETRIES = "FD::max_tries";
-	public static final String MERGE_MAX_INTERVAL = "MERGE2::max_interval";
-	public static final String MERGE_MIN_INTERVAL = "MERGE2::min_interval";
-	public static final String VS_TIMEOUT = "VERIFY_SUSPECT::timeout";
-	public static final String PING_TIMEOUT = "PING::timeout";
+    public static final String MULTICAST_ADDRESS = "UDP::mcast_addr";
+    public static final String MULTICAST_PORT = "UDP::mcast_port";
+    public static final String FD_TIMEOUT = "FD::timeout";
+    public static final String FD_MAX_RETRIES = "FD::max_tries";
+    public static final String MERGE_MAX_INTERVAL = "MERGE2::max_interval";
+    public static final String MERGE_MIN_INTERVAL = "MERGE2::min_interval";
+    public static final String VS_TIMEOUT = "VERIFY_SUSPECT::timeout";
+    public static final String PING_TIMEOUT = "PING::timeout";
 }

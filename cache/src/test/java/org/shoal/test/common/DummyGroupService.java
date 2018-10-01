@@ -28,52 +28,52 @@ import org.shoal.ha.group.GroupService;
  */
 public class DummyGroupService implements GroupService {
 
-	private String memberName;
+    private String memberName;
 
-	private String groupName;
+    private String groupName;
 
-	public DummyGroupService(String memberName, String groupName) {
-		this.memberName = memberName;
-		this.groupName = groupName;
-	}
+    public DummyGroupService(String memberName, String groupName) {
+        this.memberName = memberName;
+        this.groupName = groupName;
+    }
 
-	@Override
-	public String getGroupName() {
-		return groupName;
-	}
+    @Override
+    public String getGroupName() {
+        return groupName;
+    }
 
-	@Override
-	public String getMemberName() {
-		return memberName;
-	}
+    @Override
+    public String getMemberName() {
+        return memberName;
+    }
 
-	@Override
-	public void registerGroupMemberEventListener(GroupMemberEventListener listener) {
-		// To change body of implemented methods use File | Settings | File Templates.
-	}
+    @Override
+    public void registerGroupMemberEventListener(GroupMemberEventListener listener) {
+        // To change body of implemented methods use File | Settings | File Templates.
+    }
 
-	@Override
-	public void removeGroupMemberEventListener(GroupMemberEventListener listener) {
-		// To change body of implemented methods use File | Settings | File Templates.
-	}
+    @Override
+    public void removeGroupMemberEventListener(GroupMemberEventListener listener) {
+        // To change body of implemented methods use File | Settings | File Templates.
+    }
 
-	@Override
-	public void close() {
-		// To change body of implemented methods use File | Settings | File Templates.
-	}
+    @Override
+    public void close() {
+        // To change body of implemented methods use File | Settings | File Templates.
+    }
 
-	@Override
-	public void registerGroupMessageReceiver(String messagetoken, MessageReceiver receiver) {
-		// To change body of implemented methods use File | Settings | File Templates.
-	}
+    @Override
+    public void registerGroupMessageReceiver(String messagetoken, MessageReceiver receiver) {
+        // To change body of implemented methods use File | Settings | File Templates.
+    }
 
-	@Override
-	public boolean sendMessage(String targetMemberName, String token, byte[] data) {
-		return false; // To change body of implemented methods use File | Settings | File Templates.
-	}
+    @Override
+    public boolean sendMessage(String targetMemberName, String token, byte[] data) {
+        return false; // To change body of implemented methods use File | Settings | File Templates.
+    }
 
-	@Override
-	public List<String> getCurrentCoreMembers() {
-		return Collections.EMPTY_LIST;
-	}
+    @Override
+    public List<String> getCurrentCoreMembers() {
+        return Collections.EMPTY_LIST;
+    }
 }

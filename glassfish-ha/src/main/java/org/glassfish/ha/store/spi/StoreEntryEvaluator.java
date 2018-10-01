@@ -25,6 +25,6 @@ import java.io.Serializable;
  */
 public interface StoreEntryEvaluator<K, V> extends Serializable {
 
-	Object eval(K key, V value);
+    Object eval(K key, V value);
 
 }

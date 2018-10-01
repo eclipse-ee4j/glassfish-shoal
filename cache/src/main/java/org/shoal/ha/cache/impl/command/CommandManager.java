@@ -37,112 +37,112 @@ import org.shoal.ha.cache.impl.util.MessageReceiver;
  */
 public class CommandManager<K, V> extends MessageReceiver {
 
-	private String myName;
+    private String myName;
 
-	private DataStoreContext<K, V> dsc;
+    private DataStoreContext<K, V> dsc;
 
-	private Command<K, V>[] commands = (Command<K, V>[]) Array.newInstance(Command.class, 256);
+    private Command<K, V>[] commands = (Command<K, V>[]) Array.newInstance(Command.class, 256);
 
-	private volatile AbstractCommandInterceptor<K, V> head;
+    private volatile AbstractCommandInterceptor<K, V> head;
 
-	private volatile AbstractCommandInterceptor<K, V> tail;
+    private volatile AbstractCommandInterceptor<K, V> tail;
 
-	private static Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
+    private static Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
 
-	private static Logger _statsLogger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_STATS);
+    private static Logger _statsLogger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_STATS);
 
-	public CommandManager() {
-	}
+    public CommandManager() {
+    }
 
-	public void initialize(DataStoreContext<K, V> dsc) {
-		this.dsc = dsc;
-		this.myName = dsc.getInstanceName();
+    public void initialize(DataStoreContext<K, V> dsc) {
+        this.dsc = dsc;
+        this.myName = dsc.getInstanceName();
 
-		head = new CommandHandlerInterceptor<K, V>();
-		head.initialize(dsc);
+        head = new CommandHandlerInterceptor<K, V>();
+        head.initialize(dsc);
 
-		tail = new TransmitInterceptor<K, V>();
-		tail.initialize(dsc);
+        tail = new TransmitInterceptor<K, V>();
+        tail.initialize(dsc);
 
-		head.setNext(tail);
-		tail.setPrev(head);
-	}
+        head.setNext(tail);
+        tail.setPrev(head);
+    }
 
-	public void registerCommand(Command command) {
-		commands[command.getOpcode()] = command;
-		command.initialize(dsc);
-	}
+    public void registerCommand(Command command) {
+        commands[command.getOpcode()] = command;
+        command.initialize(dsc);
+    }
 
-	public synchronized void registerExecutionInterceptor(AbstractCommandInterceptor<K, V> interceptor) {
-		interceptor.initialize(dsc);
+    public synchronized void registerExecutionInterceptor(AbstractCommandInterceptor<K, V> interceptor) {
+        interceptor.initialize(dsc);
 
-		interceptor.setPrev(tail.getPrev());
-		tail.getPrev().setNext(interceptor);
+        interceptor.setPrev(tail.getPrev());
+        tail.getPrev().setNext(interceptor);
 
-		interceptor.setNext(tail);
-		tail.setPrev(interceptor);
-	}
+        interceptor.setNext(tail);
+        tail.setPrev(interceptor);
+    }
 
-	public void execute(Command<K, V> cmd) throws DataStoreException {
-		executeCommand(cmd, true, myName);
-	}
+    public void execute(Command<K, V> cmd) throws DataStoreException {
+        executeCommand(cmd, true, myName);
+    }
 
-	public final void executeCommand(Command<K, V> cmd, boolean forward, String initiator) throws DataStoreException {
-		cmd.initialize(dsc);
-		if (forward) {
-			try {
-				head.onTransmit(cmd, initiator);
-				cmd.onSuccess();
-			} catch (DataStoreException dseEx) {
-				cmd.onFailure();
-			}
-		} else {
-			tail.onReceive(cmd, initiator);
-		}
-	}
+    public final void executeCommand(Command<K, V> cmd, boolean forward, String initiator) throws DataStoreException {
+        cmd.initialize(dsc);
+        if (forward) {
+            try {
+                head.onTransmit(cmd, initiator);
+                cmd.onSuccess();
+            } catch (DataStoreException dseEx) {
+                cmd.onFailure();
+            }
+        } else {
+            tail.onReceive(cmd, initiator);
+        }
+    }
 
-	@Override
-	protected void handleMessage(String sourceMemberName, String token, byte[] messageData) {
+    @Override
+    protected void handleMessage(String sourceMemberName, String token, byte[] messageData) {
 
-		ObjectInputStream ois = null;
-		ByteArrayInputStream bis = null;
-		try {
-			bis = new ByteArrayInputStream(messageData);
-			ois = (dsc.getKeyTransformer() == null) ? new ObjectInputStreamWithLoader(bis, dsc.getClassLoader()) : new ObjectInputStream(bis);
-			Command<K, V> cmd = (Command<K, V>) ois.readObject();
-			if (_logger.isLoggable(Level.FINER)) {
-				_logger.log(Level.FINER, dsc.getServiceName() + " RECEIVED " + cmd);
-			}
-			cmd.initialize(dsc);
+        ObjectInputStream ois = null;
+        ByteArrayInputStream bis = null;
+        try {
+            bis = new ByteArrayInputStream(messageData);
+            ois = (dsc.getKeyTransformer() == null) ? new ObjectInputStreamWithLoader(bis, dsc.getClassLoader()) : new ObjectInputStream(bis);
+            Command<K, V> cmd = (Command<K, V>) ois.readObject();
+            if (_logger.isLoggable(Level.FINER)) {
+                _logger.log(Level.FINER, dsc.getServiceName() + " RECEIVED " + cmd);
+            }
+            cmd.initialize(dsc);
 
-			int receivedCount = dsc.getDataStoreMBean().incrementBatchReceivedCount();
-			if (_statsLogger.isLoggable(Level.FINE)) {
-				_statsLogger.log(Level.FINE, "Received message#  " + receivedCount + "  from " + sourceMemberName);
-			}
+            int receivedCount = dsc.getDataStoreMBean().incrementBatchReceivedCount();
+            if (_statsLogger.isLoggable(Level.FINE)) {
+                _statsLogger.log(Level.FINE, "Received message#  " + receivedCount + "  from " + sourceMemberName);
+            }
 
-			this.executeCommand(cmd, false, sourceMemberName);
-		} catch (IOException dse) {
-			_logger.log(Level.WARNING, "Error during parsing command: opcode: " + messageData[0], dse);
-		} catch (Throwable th) {
-			_logger.log(Level.WARNING, "Error[2] during parsing command: opcode: " + messageData[0], th);
-		} finally {
-			try {
-				bis.close();
-			} catch (Exception ex) {
-				_logger.log(Level.FINEST, "Ignorable error while closing ByteArrayInputStream");
-			}
-			try {
-				ois.close();
-			} catch (Exception ex) {
-				_logger.log(Level.FINEST, "Ignorable error while closing ObjectInputStream");
-			}
-		}
-	}
+            this.executeCommand(cmd, false, sourceMemberName);
+        } catch (IOException dse) {
+            _logger.log(Level.WARNING, "Error during parsing command: opcode: " + messageData[0], dse);
+        } catch (Throwable th) {
+            _logger.log(Level.WARNING, "Error[2] during parsing command: opcode: " + messageData[0], th);
+        } finally {
+            try {
+                bis.close();
+            } catch (Exception ex) {
+                _logger.log(Level.FINEST, "Ignorable error while closing ByteArrayInputStream");
+            }
+            try {
+                ois.close();
+            } catch (Exception ex) {
+                _logger.log(Level.FINEST, "Ignorable error while closing ObjectInputStream");
+            }
+        }
+    }
 
-	public void close() {
-		for (AbstractCommandInterceptor<K, V> h = head; h != null; h = h.getNext()) {
-			h.close();
-		}
-	}
+    public void close() {
+        for (AbstractCommandInterceptor<K, V> h = head; h != null; h = h.getNext()) {
+            h.close();
+        }
+    }
 
 }

@@ -24,16 +24,16 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public class ActionException extends Exception {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1991775566532192729L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1991775566532192729L;
 
-	public ActionException() {
-		super();
-	}
+    public ActionException() {
+        super();
+    }
 
-	public ActionException(String message) {
-		super(message);
-	}
+    public ActionException(String message) {
+        super(message);
+    }
 }

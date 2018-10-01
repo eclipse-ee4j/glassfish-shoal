@@ -23,25 +23,25 @@ package com.sun.enterprise.mgmt.transport.grizzly;
  * @author Bongjae Chang
  */
 public enum GrizzlyConfigConstants {
-	TCPSTARTPORT, TCPENDPORT, BIND_INTERFACE_NAME,
+    TCPSTARTPORT, TCPENDPORT, BIND_INTERFACE_NAME,
 
     // thread pool
-	MAX_POOLSIZE, // max threads for tcp and multicast processing. See max parameter for ThreadPoolExecutor constructor.
-	CORE_POOLSIZE, // core threads for tcp and multicast processing. See core parameter for ThreadPoolExecutor constructor.
-	KEEP_ALIVE_TIME, // ms
-	POOL_QUEUE_SIZE,
+    MAX_POOLSIZE, // max threads for tcp and multicast processing. See max parameter for ThreadPoolExecutor constructor.
+    CORE_POOLSIZE, // core threads for tcp and multicast processing. See core parameter for ThreadPoolExecutor constructor.
+    KEEP_ALIVE_TIME, // ms
+    POOL_QUEUE_SIZE,
 
     // pool management
-	HIGH_WATER_MARK, // maximum number of active outbound connections Controller will handle
-	NUMBER_TO_RECLAIM, // number of LRU connections, which will be reclaimed in case highWaterMark limit will be reached
-	MAX_PARALLEL, // maximum number of active outbound connections to single destination (usually <host>:<port>)
+    HIGH_WATER_MARK, // maximum number of active outbound connections Controller will handle
+    NUMBER_TO_RECLAIM, // number of LRU connections, which will be reclaimed in case highWaterMark limit will be reached
+    MAX_PARALLEL, // maximum number of active outbound connections to single destination (usually <host>:<port>)
 
-	START_TIMEOUT, // ms
-	WRITE_TIMEOUT, // ms
+    START_TIMEOUT, // ms
+    WRITE_TIMEOUT, // ms
 
-	MAX_WRITE_SELECTOR_POOL_SIZE,
+    MAX_WRITE_SELECTOR_POOL_SIZE,
 
     // comma separated list of tcp uri endpoints
     // ex) tcp://192.168.0.3:9090,tcp://61.77.153.2:9090
-	DISCOVERY_URI_LIST, MULTICAST_TIME_TO_LIVE
+    DISCOVERY_URI_LIST, MULTICAST_TIME_TO_LIVE
 }

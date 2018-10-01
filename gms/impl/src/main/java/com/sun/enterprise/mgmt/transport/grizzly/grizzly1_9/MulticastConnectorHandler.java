@@ -28,17 +28,17 @@ import com.sun.grizzly.UDPConnectorHandler;
  */
 public class MulticastConnectorHandler extends UDPConnectorHandler {
 
-	@Override
-	public void finishConnect(SelectionKey key) throws IOException {
-		if (Controller.logger().isLoggable(Level.FINE)) {
-			Controller.logger().log(Level.FINE, "Finish connect");
-		}
-		underlyingChannel = key.channel();
-		isConnected = true;
-		synchronized (this) {
-			if (isConnectedLatch != null) {
-				isConnectedLatch.countDown();
-			}
-		}
-	}
+    @Override
+    public void finishConnect(SelectionKey key) throws IOException {
+        if (Controller.logger().isLoggable(Level.FINE)) {
+            Controller.logger().log(Level.FINE, "Finish connect");
+        }
+        underlyingChannel = key.channel();
+        isConnected = true;
+        synchronized (this) {
+            if (isConnectedLatch != null) {
+                isConnectedLatch.countDown();
+            }
+        }
+    }
 }

@@ -24,30 +24,30 @@ package com.sun.enterprise.mgmt;
  * @version $Revision$
  */
 public enum ConfigConstants {
-	MULTICASTADDRESS,
+    MULTICASTADDRESS,
 
-	MULTICASTPORT,
+    MULTICASTPORT,
 
-	MULTICAST_PACKET_SIZE,
+    MULTICAST_PACKET_SIZE,
 
-	FAILURE_DETECTION_TIMEOUT,
+    FAILURE_DETECTION_TIMEOUT,
 
-	FAILURE_DETECTION_RETRIES,
+    FAILURE_DETECTION_RETRIES,
 
-	FAILURE_VERIFICATION_TIMEOUT,
+    FAILURE_VERIFICATION_TIMEOUT,
 
-	DISCOVERY_TIMEOUT,
+    DISCOVERY_TIMEOUT,
 
-	LOOPBACK,
+    LOOPBACK,
 
     // used for specifying which interface to use for group communication
     // This is the address which Shoal should bind to for communication.
-	BIND_INTERFACE_ADDRESS,
+    BIND_INTERFACE_ADDRESS,
 
     // admin can specify the timeout after which the HealthMonitor.isConnected() thread can
     // quit checking if the peer's machine is up or not.
-	FAILURE_DETECTION_TCP_RETRANSMIT_TIMEOUT,
+    FAILURE_DETECTION_TCP_RETRANSMIT_TIMEOUT,
 
     // port where a socket can be created to see if the instance's machine is up or down
-	FAILURE_DETECTION_TCP_RETRANSMIT_PORT
+    FAILURE_DETECTION_TCP_RETRANSMIT_PORT
 }

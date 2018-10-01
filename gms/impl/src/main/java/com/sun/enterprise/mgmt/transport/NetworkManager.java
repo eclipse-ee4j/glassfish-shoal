@@ -33,112 +33,112 @@ import com.sun.enterprise.ee.cms.impl.base.PeerID;
  */
 public interface NetworkManager extends MulticastMessageSender, MessageSender {
 
-	/**
-	 * Initializes this network manager with given params and properties
-	 *
-	 * @param groupName group name
-	 * @param instanceName instance name
-	 * @param properties specific properties
-	 * @throws IOException if an unexpected error occurs
-	 */
-	void initialize(final String groupName, final String instanceName, final Map properties) throws IOException;
+    /**
+     * Initializes this network manager with given params and properties
+     *
+     * @param groupName group name
+     * @param instanceName instance name
+     * @param properties specific properties
+     * @throws IOException if an unexpected error occurs
+     */
+    void initialize(final String groupName, final String instanceName, final Map properties) throws IOException;
 
-	/**
-	 * Starts this network manager
-	 *
-	 * This method will be called after
-	 * {@link com.sun.enterprise.mgmt.transport.NetworkManager#initialize(String, String, java.util.Map)} internally
-	 *
-	 * @throws IOException if an I/O error occurs
-	 */
-	void start() throws IOException;
+    /**
+     * Starts this network manager
+     *
+     * This method will be called after
+     * {@link com.sun.enterprise.mgmt.transport.NetworkManager#initialize(String, String, java.util.Map)} internally
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    void start() throws IOException;
 
-	/**
-	 * Stops this network manager
-	 *
-	 * For cleaning up remaining values and finishing I/O operation, this method could be used
-	 *
-	 * @throws IOException if an I/O error occurs
-	 */
-	void stop() throws IOException;
+    /**
+     * Stops this network manager
+     *
+     * For cleaning up remaining values and finishing I/O operation, this method could be used
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    void stop() throws IOException;
 
-	/**
-	 * Adds the {@link com.sun.enterprise.mgmt.transport.MessageListener}
-	 *
-	 * @param messageListener a message listener which should be registered on this network manager
-	 */
-	void addMessageListener(final MessageListener messageListener);
+    /**
+     * Adds the {@link com.sun.enterprise.mgmt.transport.MessageListener}
+     *
+     * @param messageListener a message listener which should be registered on this network manager
+     */
+    void addMessageListener(final MessageListener messageListener);
 
-	/**
-	 * Removes the {@link com.sun.enterprise.mgmt.transport.MessageListener}
-	 *
-	 * @param messageListener a message listener which should be removed
-	 */
-	void removeMessageListener(final MessageListener messageListener);
+    /**
+     * Removes the {@link com.sun.enterprise.mgmt.transport.MessageListener}
+     *
+     * @param messageListener a message listener which should be removed
+     */
+    void removeMessageListener(final MessageListener messageListener);
 
-	/**
-	 * Processes a received {@link Message}
-	 *
-	 * In this process, inbound {@link Message} will be wrapped into {@link MessageEvent} and be delivered to registered
-	 * {@link MessageListener} with corresponding to the message type
-	 *
-	 * @param message inbound message
-	 * @param piggyback piggyback
-	 */
-	void receiveMessage(Message message, Map piggyback);
+    /**
+     * Processes a received {@link Message}
+     *
+     * In this process, inbound {@link Message} will be wrapped into {@link MessageEvent} and be delivered to registered
+     * {@link MessageListener} with corresponding to the message type
+     *
+     * @param message inbound message
+     * @param piggyback piggyback
+     */
+    void receiveMessage(Message message, Map piggyback);
 
-	/**
-	 * Returns local {@link PeerID}
-	 *
-	 * @return peer id
-	 */
-	PeerID getLocalPeerID();
+    /**
+     * Returns local {@link PeerID}
+     *
+     * @return peer id
+     */
+    PeerID getLocalPeerID();
 
-	/**
-	 * Returns the proper {@link PeerID} corresponding with a given instance name
-	 *
-	 * @param instanceName instance name
-	 * @return peer id
-	 */
-	PeerID getPeerID(final String instanceName);
+    /**
+     * Returns the proper {@link PeerID} corresponding with a given instance name
+     *
+     * @param instanceName instance name
+     * @return peer id
+     */
+    PeerID getPeerID(final String instanceName);
 
-	/**
-	 * Add the <code>peerID</code> to this network manager
-	 *
-	 * @param peerID the peer Id
-	 */
-	void addRemotePeer(final PeerID peerID);
+    /**
+     * Add the <code>peerID</code> to this network manager
+     *
+     * @param peerID the peer Id
+     */
+    void addRemotePeer(final PeerID peerID);
 
-	/**
-	 * Removes the <code>peerID</code> from this network manager
-	 *
-	 * @param peerID the peer Id
-	 */
-	void removePeerID(final PeerID peerID);
+    /**
+     * Removes the <code>peerID</code> from this network manager
+     *
+     * @param peerID the peer Id
+     */
+    void removePeerID(final PeerID peerID);
 
-	/**
-	 * Check whether the suspicious peer is alive or not
-	 *
-	 * This API is mainly used in {@link com.sun.enterprise.mgmt.HealthMonitor} in order to determine the failure member
-	 *
-	 * @param peerID peer id
-	 * @return true if the peer is still alive, otherwise false
-	 */
-	boolean isConnected(final PeerID peerID);
+    /**
+     * Check whether the suspicious peer is alive or not
+     *
+     * This API is mainly used in {@link com.sun.enterprise.mgmt.HealthMonitor} in order to determine the failure member
+     *
+     * @param peerID peer id
+     * @return true if the peer is still alive, otherwise false
+     */
+    boolean isConnected(final PeerID peerID);
 
-	/**
-	 * Returns a {@link MessageSender} corresponding with transport type
-	 *
-	 * @param transport transport type. {@link ShoalMessageSender#TCP_TRANSPORT} or
-	 * {@link ShoalMessageSender#UDP_TRANSPORT}'s integer value
-	 * @return a {@link MessageSender}'s instance which this network manager contains
-	 */
-	MessageSender getMessageSender(int transport);
+    /**
+     * Returns a {@link MessageSender} corresponding with transport type
+     *
+     * @param transport transport type. {@link ShoalMessageSender#TCP_TRANSPORT} or
+     * {@link ShoalMessageSender#UDP_TRANSPORT}'s integer value
+     * @return a {@link MessageSender}'s instance which this network manager contains
+     */
+    MessageSender getMessageSender(int transport);
 
-	/**
-	 * Returns a {@link MulticastMessageSender}
-	 *
-	 * @return a {@link MulticastMessageSender}'s instance which this network manager contains
-	 */
-	MulticastMessageSender getMulticastMessageSender();
+    /**
+     * Returns a {@link MulticastMessageSender}
+     *
+     * @return a {@link MulticastMessageSender}'s instance which this network manager contains
+     */
+    MulticastMessageSender getMulticastMessageSender();
 }

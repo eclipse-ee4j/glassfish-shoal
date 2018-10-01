@@ -22,5 +22,5 @@ package org.glassfish.ha.store.criteria.spi;
  * @author Mahesh.Kannan@Sun.Com
  */
 public enum Opcode {
-	AND, OR, EQ, NEQ, LT, GT, LTE, GTE, IN, ATTR, LITERAL
+    AND, OR, EQ, NEQ, LT, GT, LTE, GTE, IN, ATTR, LITERAL
 }

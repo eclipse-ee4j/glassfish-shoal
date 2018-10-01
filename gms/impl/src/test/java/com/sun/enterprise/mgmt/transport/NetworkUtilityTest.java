@@ -25,63 +25,63 @@ import junit.framework.TestCase;
 
 public class NetworkUtilityTest extends TestCase {
 
-	/*
-	 * Separate test in case there is an error that prevents test from running.
-	 */
-	public void testBindInterfaceValidLocalHost() {
-		InetAddress localhost;
-		try {
-			localhost = InetAddress.getLocalHost();
-		} catch (UnknownHostException uhe) {
-			throw new RuntimeException(uhe);
-		}
-		String s = localhost.getHostAddress();
-		assertTrue(String.format("Expected true result for '%s'", s), NetworkUtility.isBindAddressValid(s));
-		s = localhost.getHostName();
-		assertTrue(String.format("Expected true result for '%s'", s), NetworkUtility.isBindAddressValid(s));
-	}
+    /*
+     * Separate test in case there is an error that prevents test from running.
+     */
+    public void testBindInterfaceValidLocalHost() {
+        InetAddress localhost;
+        try {
+            localhost = InetAddress.getLocalHost();
+        } catch (UnknownHostException uhe) {
+            throw new RuntimeException(uhe);
+        }
+        String s = localhost.getHostAddress();
+        assertTrue(String.format("Expected true result for '%s'", s), NetworkUtility.isBindAddressValid(s));
+        s = localhost.getHostName();
+        assertTrue(String.format("Expected true result for '%s'", s), NetworkUtility.isBindAddressValid(s));
+    }
 
-	/*
-	 * Change the values to test specific addresses. This has been tested with my local IP and IPv6 addresses, but those
-	 * values cannot obviously be checked in.
-	 */
-	public void testBindInterfaceValid() {
-		final String local[] = { "127.0.0.1", "127.0.1", // same as 127.0.0.1
-		        "127.1", // ditto
-		        "localhost"
+    /*
+     * Change the values to test specific addresses. This has been tested with my local IP and IPv6 addresses, but those
+     * values cannot obviously be checked in.
+     */
+    public void testBindInterfaceValid() {
+        final String local[] = { "127.0.0.1", "127.0.1", // same as 127.0.0.1
+                "127.1", // ditto
+                "localhost"
 //            "::1" // ipv6 version of 127.0.0.1
-		};
-		final String notLocalOrValid[] = { "_", "99999999999999", "www.oracle.com" };
+        };
+        final String notLocalOrValid[] = { "_", "99999999999999", "www.oracle.com" };
 
-		for (String s : local) {
-			assertTrue(String.format("Expected true result for '%s'", s), NetworkUtility.isBindAddressValid(s));
-		}
-		for (String s : notLocalOrValid) {
-			assertFalse(String.format("Expected false result for '%s'", s), NetworkUtility.isBindAddressValid(s));
-		}
-	}
+        for (String s : local) {
+            assertTrue(String.format("Expected true result for '%s'", s), NetworkUtility.isBindAddressValid(s));
+        }
+        for (String s : notLocalOrValid) {
+            assertFalse(String.format("Expected false result for '%s'", s), NetworkUtility.isBindAddressValid(s));
+        }
+    }
 
-	public void testAllLocalAddresses() {
-		List<InetAddress> locals = NetworkUtility.getAllLocalAddresses();
-		for (InetAddress local : locals) {
-			assertTrue(NetworkUtility.isBindAddressValid(local.getHostAddress()));
-		}
-	}
+    public void testAllLocalAddresses() {
+        List<InetAddress> locals = NetworkUtility.getAllLocalAddresses();
+        for (InetAddress local : locals) {
+            assertTrue(NetworkUtility.isBindAddressValid(local.getHostAddress()));
+        }
+    }
 
-	public void testGetFirstAddress() throws IOException {
-		boolean preferIPv6Addresses = NetworkUtility.getPreferIpv6Addresses();
+    public void testGetFirstAddress() throws IOException {
+        boolean preferIPv6Addresses = NetworkUtility.getPreferIpv6Addresses();
 
-		System.out.println("AllLocalAddresses() = " + NetworkUtility.getAllLocalAddresses());
-		System.out.println("getFirstNetworkInterface(preferIPv6) = " + NetworkUtility.getFirstNetworkInterface(preferIPv6Addresses));
-		System.out.println("getFirstNetworkInterface(!preferIPv6) = " + NetworkUtility.getFirstNetworkInterface(!preferIPv6Addresses));
-		System.out.println("java.net.preferIPv6Addresses=" + preferIPv6Addresses);
-		System.out.println("getFirstInetAddress( preferIPv6Addresses:" + preferIPv6Addresses + ") = " + NetworkUtility.getFirstInetAddress());
-		System.out.println("getFirstInetAddress( true ) = " + NetworkUtility.getFirstInetAddress(true));
-		System.out.println("getFirstInetAddress( false ) = " + NetworkUtility.getFirstInetAddress(false));
-		System.out.println("getNetworkInetAddress(firstNetworkInteface, true) = "
-		        + NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(true), true));
-		System.out.println("getNetworkInetAddress(firstNetworkInteface, false) = "
-		        + NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(false), false));
+        System.out.println("AllLocalAddresses() = " + NetworkUtility.getAllLocalAddresses());
+        System.out.println("getFirstNetworkInterface(preferIPv6) = " + NetworkUtility.getFirstNetworkInterface(preferIPv6Addresses));
+        System.out.println("getFirstNetworkInterface(!preferIPv6) = " + NetworkUtility.getFirstNetworkInterface(!preferIPv6Addresses));
+        System.out.println("java.net.preferIPv6Addresses=" + preferIPv6Addresses);
+        System.out.println("getFirstInetAddress( preferIPv6Addresses:" + preferIPv6Addresses + ") = " + NetworkUtility.getFirstInetAddress());
+        System.out.println("getFirstInetAddress( true ) = " + NetworkUtility.getFirstInetAddress(true));
+        System.out.println("getFirstInetAddress( false ) = " + NetworkUtility.getFirstInetAddress(false));
+        System.out.println("getNetworkInetAddress(firstNetworkInteface, true) = "
+                + NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(true), true));
+        System.out.println("getNetworkInetAddress(firstNetworkInteface, false) = "
+                + NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(false), false));
 
-	}
+    }
 }

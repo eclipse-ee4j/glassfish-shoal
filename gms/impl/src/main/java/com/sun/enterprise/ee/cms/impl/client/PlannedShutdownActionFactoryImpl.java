@@ -27,18 +27,18 @@ import com.sun.enterprise.ee.cms.core.PlannedShutdownActionFactory;
  * @version $Revision$
  */
 public class PlannedShutdownActionFactoryImpl implements PlannedShutdownActionFactory {
-	private final CallBack callBack;
+    private final CallBack callBack;
 
-	public PlannedShutdownActionFactoryImpl(final CallBack callBack) {
-		this.callBack = callBack;
-	}
+    public PlannedShutdownActionFactoryImpl(final CallBack callBack) {
+        this.callBack = callBack;
+    }
 
-	/**
-	 * Produces an instance of PlannedShutdownAction.
-	 *
-	 * @return com.sun.enterprise.ee.cms.Action
-	 */
-	public Action produceAction() {
-		return new PlannedShutdownActionImpl(callBack);
-	}
+    /**
+     * Produces an instance of PlannedShutdownAction.
+     *
+     * @return com.sun.enterprise.ee.cms.Action
+     */
+    public Action produceAction() {
+        return new PlannedShutdownActionImpl(callBack);
+    }
 }

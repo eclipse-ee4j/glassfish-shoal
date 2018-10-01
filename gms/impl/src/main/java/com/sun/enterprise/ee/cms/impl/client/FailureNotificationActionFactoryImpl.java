@@ -27,18 +27,18 @@ import com.sun.enterprise.ee.cms.core.FailureNotificationActionFactory;
  * @version $Revision$
  */
 public class FailureNotificationActionFactoryImpl implements FailureNotificationActionFactory {
-	private final CallBack cb;
+    private final CallBack cb;
 
-	public FailureNotificationActionFactoryImpl(final CallBack cb) {
-		this.cb = cb;
-	}
+    public FailureNotificationActionFactoryImpl(final CallBack cb) {
+        this.cb = cb;
+    }
 
-	/**
-	 * Produces an Action instance.
-	 *
-	 * @return com.sun.enterprise.ee.cms.Action
-	 */
-	public Action produceAction() {
-		return new FailureNotificationActionImpl(cb);
-	}
+    /**
+     * Produces an Action instance.
+     *
+     * @return com.sun.enterprise.ee.cms.Action
+     */
+    public Action produceAction() {
+        return new FailureNotificationActionImpl(cb);
+    }
 }

@@ -34,47 +34,47 @@ import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
  * @version $Revision$
  */
 public class MessageActionImpl implements MessageAction {
-	private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
-	private CallBack callback;
+    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+    private CallBack callback;
 
-	public MessageActionImpl(final CallBack callback) {
-		this.callback = callback;
-	}
+    public MessageActionImpl(final CallBack callback) {
+        this.callback = callback;
+    }
 
-	/**
-	 * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
-	 * Signal.
-	 */
-	public void consumeSignal(final Signal signal) throws ActionException {
-		boolean signalAcquired = false;
-		// Always Acquire before doing any other processing
-		try {
-			signal.acquire();
-			signalAcquired = true;
-			processMessage(signal);
-		} catch (SignalAcquireException e) {
-			logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		} finally {
-			// Always Release after completing any other processing.
-			if (signalAcquired) {
-				try {
-					signal.release();
-				} catch (SignalReleaseException e) {
-					logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-				}
-			}
-		}
-	}
+    /**
+     * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
+     * Signal.
+     */
+    public void consumeSignal(final Signal signal) throws ActionException {
+        boolean signalAcquired = false;
+        // Always Acquire before doing any other processing
+        try {
+            signal.acquire();
+            signalAcquired = true;
+            processMessage(signal);
+        } catch (SignalAcquireException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        } finally {
+            // Always Release after completing any other processing.
+            if (signalAcquired) {
+                try {
+                    signal.release();
+                } catch (SignalReleaseException e) {
+                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                }
+            }
+        }
+    }
 
-	private void processMessage(final Signal signal) throws ActionException {
-		try {
-			callback.processNotification(signal);
-		} catch (Throwable t) {
-			final String callbackClassName = callback == null ? "<null>" : callback.getClass().getName();
-			logger.log(Level.WARNING, "msg.action.unhandled.exception", new Object[] { t.getClass().getName(), callbackClassName });
-			ActionException ae = new ActionException("unhandled exception processing signal " + signal.toString());
-			ae.initCause(t);
-			throw ae;
-		}
-	}
+    private void processMessage(final Signal signal) throws ActionException {
+        try {
+            callback.processNotification(signal);
+        } catch (Throwable t) {
+            final String callbackClassName = callback == null ? "<null>" : callback.getClass().getName();
+            logger.log(Level.WARNING, "msg.action.unhandled.exception", new Object[] { t.getClass().getName(), callbackClassName });
+            ActionException ae = new ActionException("unhandled exception processing signal " + signal.toString());
+            ae.initCause(t);
+            throw ae;
+        }
+    }
 }

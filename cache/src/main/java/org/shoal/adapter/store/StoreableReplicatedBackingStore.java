@@ -23,8 +23,8 @@ import java.io.Serializable;
  */
 public class StoreableReplicatedBackingStore<K extends Serializable, V extends Serializable> extends ReplicatedBackingStore<K, V> {
 
-	public StoreableReplicatedBackingStore() {
+    public StoreableReplicatedBackingStore() {
 
-	}
+    }
 
 }

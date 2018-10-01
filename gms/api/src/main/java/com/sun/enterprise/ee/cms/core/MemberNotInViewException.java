@@ -22,24 +22,24 @@ package com.sun.enterprise.ee.cms.core;
  */
 public class MemberNotInViewException extends GMSException {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -8581553671167071724L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8581553671167071724L;
 
-	public MemberNotInViewException() {
-		super();
-	}
+    public MemberNotInViewException() {
+        super();
+    }
 
-	public MemberNotInViewException(String message) {
-		super(message);
-	}
+    public MemberNotInViewException(String message) {
+        super(message);
+    }
 
-	public MemberNotInViewException(Throwable e) {
-		super(e);
-	}
+    public MemberNotInViewException(Throwable e) {
+        super(e);
+    }
 
-	public MemberNotInViewException(String s, Throwable e) {
-		super(s, e);
-	}
+    public MemberNotInViewException(String s, Throwable e) {
+        super(s, e);
+    }
 }

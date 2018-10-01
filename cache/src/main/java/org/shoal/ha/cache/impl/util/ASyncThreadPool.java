@@ -27,16 +27,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class ASyncThreadPool extends ThreadPoolExecutor {
 
-	private static final Object _lock = new Object();
+    private static final Object _lock = new Object();
 
-	private static LinkedBlockingQueue _queue;
+    private static LinkedBlockingQueue _queue;
 
-	private static ThreadPoolExecutor _executor;
+    private static ThreadPoolExecutor _executor;
 
-	private static ScheduledThreadPoolExecutor _scheduledExecutor;
+    private static ScheduledThreadPoolExecutor _scheduledExecutor;
 
-	public ASyncThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> workQueue) {
-		super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue);
-	}
+    public ASyncThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> workQueue) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue);
+    }
 
 }

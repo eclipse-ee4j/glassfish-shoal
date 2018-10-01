@@ -28,40 +28,40 @@ import java.io.Serializable;
  */
 public interface Storeable extends Serializable {
 
-	/**
-	 * Get the version of this entry. -1 means that this entry has no version
-	 *
-	 * @return The version or null if this entry has no version
-	 */
-	long _storeable_getVersion();
+    /**
+     * Get the version of this entry. -1 means that this entry has no version
+     *
+     * @return The version or null if this entry has no version
+     */
+    long _storeable_getVersion();
 
-	void _storeable_setVersion(long version);
+    void _storeable_setVersion(long version);
 
-	long _storeable_getLastAccessTime();
+    long _storeable_getLastAccessTime();
 
-	void _storeable_setLastAccessTime(long version);
+    void _storeable_setLastAccessTime(long version);
 
-	long _storeable_getMaxIdleTime();
+    long _storeable_getMaxIdleTime();
 
-	void _storeable_setMaxIdleTime(long version);
+    void _storeable_setMaxIdleTime(long version);
 
-	/**
-	 * Providers can cache this
-	 *
-	 * @return an array of attribute names
-	 */
-	String[] _storeable_getAttributeNames();
+    /**
+     * Providers can cache this
+     *
+     * @return an array of attribute names
+     */
+    String[] _storeable_getAttributeNames();
 
-	/**
-	 * Providers can cache this
-	 *
-	 * @return A boolean array each representing the dirty status of the attribute whose name can be found at the same index
-	 * in the array returned by _getAttributeNames()
-	 */
-	boolean[] _storeable_getDirtyStatus();
+    /**
+     * Providers can cache this
+     *
+     * @return A boolean array each representing the dirty status of the attribute whose name can be found at the same index
+     * in the array returned by _getAttributeNames()
+     */
+    boolean[] _storeable_getDirtyStatus();
 
-	void _storeable_writeState(OutputStream os) throws IOException;
+    void _storeable_writeState(OutputStream os) throws IOException;
 
-	void _storeable_readState(InputStream is) throws IOException;
+    void _storeable_readState(InputStream is) throws IOException;
 
 }

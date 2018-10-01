@@ -33,74 +33,74 @@ import org.shoal.ha.cache.impl.util.ResponseMediator;
  */
 public class RemoveExpiredResultCommand<K, V> extends Command<String, V> {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -6402834139071754486L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6402834139071754486L;
 
-	protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
+    protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
 
-	private String target;
+    private String target;
 
-	private long tokenId;
+    private long tokenId;
 
-	private int result = 0;
+    private int result = 0;
 
-	public RemoveExpiredResultCommand(String target, long tokenId, int result) {
-		super(ReplicationCommandOpcode.REMOVE_EXPIRED_RESULT);
-		this.target = target;
-		this.tokenId = tokenId;
-		this.result = result;
+    public RemoveExpiredResultCommand(String target, long tokenId, int result) {
+        super(ReplicationCommandOpcode.REMOVE_EXPIRED_RESULT);
+        this.target = target;
+        this.tokenId = tokenId;
+        this.result = result;
 
-		super.setKey("RemExpResp:" + tokenId);
-	}
+        super.setKey("RemExpResp:" + tokenId);
+    }
 
-	public boolean beforeTransmit() {
-		setTargetName(target);
-		return target != null;
-	}
+    public boolean beforeTransmit() {
+        setTargetName(target);
+        return target != null;
+    }
 
-	private void writeObject(ObjectOutputStream ros) throws IOException {
-		ros.writeLong(tokenId);
-		ros.writeInt(result);
-	}
+    private void writeObject(ObjectOutputStream ros) throws IOException {
+        ros.writeLong(tokenId);
+        ros.writeInt(result);
+    }
 
-	private void readObject(ObjectInputStream ris) throws IOException, ClassNotFoundException {
-		tokenId = ris.readLong();
-		result = ris.readInt();
-	}
+    private void readObject(ObjectInputStream ris) throws IOException, ClassNotFoundException {
+        tokenId = ris.readLong();
+        result = ris.readInt();
+    }
 
-	@Override
-	public void execute(String initiator) {
-		ResponseMediator respMed = getDataStoreContext().getResponseMediator();
-		CommandResponse resp = respMed.getCommandResponse(tokenId);
-		if (resp != null) {
-			if (_logger.isLoggable(Level.FINE)) {
-				_logger.log(Level.FINE, dsc.getInstanceName() + "For tokenId = " + tokenId + " received remove_expired_response value=" + result);
-			}
+    @Override
+    public void execute(String initiator) {
+        ResponseMediator respMed = getDataStoreContext().getResponseMediator();
+        CommandResponse resp = respMed.getCommandResponse(tokenId);
+        if (resp != null) {
+            if (_logger.isLoggable(Level.FINE)) {
+                _logger.log(Level.FINE, dsc.getInstanceName() + "For tokenId = " + tokenId + " received remove_expired_response value=" + result);
+            }
 
-			int pendingUpdates = 0;
-			synchronized (resp) {
-				Integer existingValue = (Integer) resp.getTransientResult();
-				Integer newResult = new Integer(existingValue.intValue() + result);
-				resp.setTransientResult(newResult);
-				pendingUpdates = resp.decrementAndGetExpectedUpdateCount();
-			}
+            int pendingUpdates = 0;
+            synchronized (resp) {
+                Integer existingValue = (Integer) resp.getTransientResult();
+                Integer newResult = new Integer(existingValue.intValue() + result);
+                resp.setTransientResult(newResult);
+                pendingUpdates = resp.decrementAndGetExpectedUpdateCount();
+            }
 
-			if (pendingUpdates == 0) {
-				resp.setResult(resp.getTransientResult());
-			}
-		} else {
-			_logger.log(Level.FINE, "RemoveExpiredResult: TOKEN already removed for tokenId = " + tokenId);
-		}
-	}
+            if (pendingUpdates == 0) {
+                resp.setResult(resp.getTransientResult());
+            }
+        } else {
+            _logger.log(Level.FINE, "RemoveExpiredResult: TOKEN already removed for tokenId = " + tokenId);
+        }
+    }
 
-	@Override
-	protected boolean isArtificialKey() {
-		return true;
-	}
+    @Override
+    protected boolean isArtificialKey() {
+        return true;
+    }
 
-	public String toString() {
-		return getName() + "(result=" + result + ")";
-	}
+    public String toString() {
+        return getName() + "(result=" + result + ")";
+    }
 }

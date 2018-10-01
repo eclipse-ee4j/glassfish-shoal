@@ -30,22 +30,22 @@ import java.lang.reflect.Method;
  */
 public interface AttributeMetadata<S, T> {
 
-	String getName();
+    String getName();
 
-	/**
-	 * Get the java type of this attribute
-	 *
-	 * @return
-	 */
-	Class<T> getAttributeType();
+    /**
+     * Get the java type of this attribute
+     *
+     * @return
+     */
+    Class<T> getAttributeType();
 
-	// The getter method to access the value
-	Method getGetterMethod();
+    // The getter method to access the value
+    Method getGetterMethod();
 
-	// The setter method to set the value
-	Method getSetterMethod();
+    // The setter method to set the value
+    Method getSetterMethod();
 
-	boolean isVersionAttribute();
+    boolean isVersionAttribute();
 
-	boolean isHashKeyAttribute();
+    boolean isHashKeyAttribute();
 }

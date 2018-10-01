@@ -23,36 +23,36 @@ package org.glassfish.ha.store.spi;
  */
 public interface MutableStoreEntry extends Storable {
 
-	/**
-	 * Mark the entire store entry as dirty
-	 *
-	 */
-	void _markStoreEntryAsDirty();
+    /**
+     * Mark the entire store entry as dirty
+     *
+     */
+    void _markStoreEntryAsDirty();
 
-	/**
-	 * The store name for which this Storable was created
-	 *
-	 * @return The store name
-	 */
-	void _markAsDirty(int attrIndex);
+    /**
+     * The store name for which this Storable was created
+     *
+     * @return The store name
+     */
+    void _markAsDirty(int attrIndex);
 
-	/**
-	 * The String that can be used by the store implementation to hash the StoreEntry
-	 *
-	 * @return A (possibly null) key to be used for hashing purpose
-	 */
-	void _markAsClean(int attrIndex);
+    /**
+     * The String that can be used by the store implementation to hash the StoreEntry
+     *
+     * @return A (possibly null) key to be used for hashing purpose
+     */
+    void _markAsClean(int attrIndex);
 
-	/**
-	 * Get the version of this entry. A null value means that this entry
-	 *
-	 * @return The version or null if this entry has no version
-	 */
-	void _markStoreEntryAsClean();
+    /**
+     * Get the version of this entry. A null value means that this entry
+     *
+     * @return The version or null if this entry has no version
+     */
+    void _markStoreEntryAsClean();
 
-	/**
-	 * Set the replicating ownerid
-	 */
-	void _setOwnerId(String ownerName);
+    /**
+     * Set the replicating ownerid
+     */
+    void _setOwnerId(String ownerName);
 
 }

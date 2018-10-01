@@ -25,15 +25,15 @@ package com.sun.enterprise.ee.cms.core;
  * @author Joe Fialli Date: April 1, 2009
  */
 public interface GroupStartupNotificationSignal {
-	/**
-	 * Denote whether Joining member is joining group as part of an entire group startup or not.
-	 *
-	 * <P>
-	 * Handlers of Join and JoinAndReady notifications may use this information to optimize their handlers to perform
-	 * differently based on whether all members of group are being started at same time or whether a instance is just
-	 * joining an already running group.
-	 *
-	 * @return INSTANCE_STARTUP or GROUP_STARTUP.
-	 */
-	GMSConstants.startupType getEventSubType();
+    /**
+     * Denote whether Joining member is joining group as part of an entire group startup or not.
+     *
+     * <P>
+     * Handlers of Join and JoinAndReady notifications may use this information to optimize their handlers to perform
+     * differently based on whether all members of group are being started at same time or whether a instance is just
+     * joining an already running group.
+     *
+     * @return INSTANCE_STARTUP or GROUP_STARTUP.
+     */
+    GMSConstants.startupType getEventSubType();
 }

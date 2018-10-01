@@ -34,30 +34,30 @@ import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
  */
 public class GroupLeadershipNotificationActionImpl implements GroupLeadershipNotificationAction {
 
-	private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
-	private final CallBack callBack;
+    private final CallBack callBack;
 
-	public GroupLeadershipNotificationActionImpl(final CallBack callBack) {
-		this.callBack = callBack;
-	}
+    public GroupLeadershipNotificationActionImpl(final CallBack callBack) {
+        this.callBack = callBack;
+    }
 
-	/**
-	 * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
-	 * Signal.
-	 */
-	public void consumeSignal(final Signal s) throws ActionException {
-		try {
-			s.acquire();
-			callBack.processNotification(s);
-		} catch (SignalAcquireException e) {
-			logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		}
+    /**
+     * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
+     * Signal.
+     */
+    public void consumeSignal(final Signal s) throws ActionException {
+        try {
+            s.acquire();
+            callBack.processNotification(s);
+        } catch (SignalAcquireException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        }
 
-		try {
-			s.release();
-		} catch (SignalReleaseException e) {
-			logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		}
-	}
+        try {
+            s.release();
+        } catch (SignalReleaseException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        }
+    }
 }

@@ -29,20 +29,20 @@ import org.glassfish.ha.store.api.BackingStoreTransaction;
  */
 public class NoOpBackingStoreFactory implements BackingStoreFactory {
 
-	private static BackingStoreTransaction _noOpTransaction = new BackingStoreTransaction() {
-		public void commit() {
-		}
-	};
+    private static BackingStoreTransaction _noOpTransaction = new BackingStoreTransaction() {
+        public void commit() {
+        }
+    };
 
-	public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf)
-	        throws BackingStoreException {
-		NoOpBackingStore<K, V> store = new NoOpBackingStore<K, V>();
-		store.initialize(conf);
+    public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf)
+            throws BackingStoreException {
+        NoOpBackingStore<K, V> store = new NoOpBackingStore<K, V>();
+        store.initialize(conf);
 
-		return store;
-	}
+        return store;
+    }
 
-	public BackingStoreTransaction createBackingStoreTransaction() {
-		return _noOpTransaction;
-	}
+    public BackingStoreTransaction createBackingStoreTransaction() {
+        return _noOpTransaction;
+    }
 }

@@ -28,59 +28,59 @@ import java.nio.charset.Charset;
  */
 
 public class GMSMessage implements Serializable {
-	static final long serialVersionUID = -5485293884999776323L;
+    static final long serialVersionUID = -5485293884999776323L;
 
-	private final String componentName;
-	private final byte[] message;
-	private final String groupName;
-	private final Long startTime;
+    private final String componentName;
+    private final byte[] message;
+    private final String groupName;
+    private final Long startTime;
 
-	public GMSMessage(final String componentName, final byte[] message, final String groupName, final Long startTime) {
-		if (componentName == null) {
-			throw new IllegalArgumentException("parameter componentName must be non-null");
-		}
-		if (groupName == null) {
-			throw new IllegalArgumentException("parameter groupName must be non-null");
-		}
+    public GMSMessage(final String componentName, final byte[] message, final String groupName, final Long startTime) {
+        if (componentName == null) {
+            throw new IllegalArgumentException("parameter componentName must be non-null");
+        }
+        if (groupName == null) {
+            throw new IllegalArgumentException("parameter groupName must be non-null");
+        }
 
-		// a componentName of null acts as a wildcard and the message is delivered to all
-		// target components. see GroupHandle.sendMessage javadoc for details.
-		this.componentName = componentName;
-		this.message = message;
-		this.groupName = groupName;
-		this.startTime = startTime;
-	}
+        // a componentName of null acts as a wildcard and the message is delivered to all
+        // target components. see GroupHandle.sendMessage javadoc for details.
+        this.componentName = componentName;
+        this.message = message;
+        this.groupName = groupName;
+        this.startTime = startTime;
+    }
 
-	public String getComponentName() {
-		return componentName;
-	}
+    public String getComponentName() {
+        return componentName;
+    }
 
-	public byte[] getMessage() {
-		return message;
-	}
+    public byte[] getMessage() {
+        return message;
+    }
 
-	public String getGroupName() {
-		return groupName;
-	}
+    public String getGroupName() {
+        return groupName;
+    }
 
-	public long getStartTime() {
-		if (startTime == null) {
-			return 0;
-		}
-		return startTime;
-	}
+    public long getStartTime() {
+        if (startTime == null) {
+            return 0;
+        }
+        return startTime;
+    }
 
-	public String toString() {
-		StringBuffer sb = new StringBuffer(30);
-		sb.append("GMSMessage to componentName:").append(componentName);
-		sb.append(" message size:" + message.length);
-		sb.append(" payload:");
-		if (message.length < 30) {
-			sb.append(new String(message, Charset.defaultCharset()));
-		} else {
-			sb.append(new String(message, Charset.defaultCharset()).substring(0, 15));
-		}
-		sb.append(" group:").append(groupName);
-		return sb.toString();
-	}
+    public String toString() {
+        StringBuffer sb = new StringBuffer(30);
+        sb.append("GMSMessage to componentName:").append(componentName);
+        sb.append(" message size:" + message.length);
+        sb.append(" payload:");
+        if (message.length < 30) {
+            sb.append(new String(message, Charset.defaultCharset()));
+        } else {
+            sb.append(new String(message, Charset.defaultCharset()).substring(0, 15));
+        }
+        sb.append(" group:").append(groupName);
+        return sb.toString();
+    }
 }

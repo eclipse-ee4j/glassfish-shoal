@@ -21,23 +21,23 @@ package org.shoal.ha.cache.api;
  */
 public class DataStoreAlreadyClosedException extends DataStoreException {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 6828272055892858480L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6828272055892858480L;
 
-	public DataStoreAlreadyClosedException() {
-	}
+    public DataStoreAlreadyClosedException() {
+    }
 
-	public DataStoreAlreadyClosedException(String message) {
-		super(message);
-	}
+    public DataStoreAlreadyClosedException(String message) {
+        super(message);
+    }
 
-	public DataStoreAlreadyClosedException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public DataStoreAlreadyClosedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public DataStoreAlreadyClosedException(Throwable cause) {
-		super(cause);
-	}
+    public DataStoreAlreadyClosedException(Throwable cause) {
+        super(cause);
+    }
 }

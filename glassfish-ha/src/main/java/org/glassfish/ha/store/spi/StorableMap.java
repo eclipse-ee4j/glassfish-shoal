@@ -24,12 +24,12 @@ import java.util.Collection;
  */
 public interface StorableMap<K, V> {
 
-	Collection<K> getNewKeys();
+    Collection<K> getNewKeys();
 
-	Collection<K> getModifiedKeys();
+    Collection<K> getModifiedKeys();
 
-	Collection<K> getDeletedKeys();
+    Collection<K> getDeletedKeys();
 
-	V get(K k);
+    V get(K k);
 
 }

@@ -21,8 +21,8 @@ package org.shoal.ha.cache.impl.util;
  * Settings | File Templates.
  */
 public class GroupEventListener {
-	/*
-	 * STARTING, READY, ALIVE, ALIVEANDREADY, INDOUBT, DEAD, CLUSTERSTOPPING, PEERSTOPPING, STOPPED, UNKNOWN
-	 */
+    /*
+     * STARTING, READY, ALIVE, ALIVEANDREADY, INDOUBT, DEAD, CLUSTERSTOPPING, PEERSTOPPING, STOPPED, UNKNOWN
+     */
 
 }

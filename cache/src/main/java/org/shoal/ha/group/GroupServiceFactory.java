@@ -26,42 +26,42 @@ import org.shoal.ha.group.gms.GroupServiceProvider;
  */
 public class GroupServiceFactory {
 
-	private ConcurrentHashMap<String, GroupServiceProvider> groupHandles = new ConcurrentHashMap<String, GroupServiceProvider>();
+    private ConcurrentHashMap<String, GroupServiceProvider> groupHandles = new ConcurrentHashMap<String, GroupServiceProvider>();
 
-	private static final GroupServiceFactory _instance = new GroupServiceFactory();
+    private static final GroupServiceFactory _instance = new GroupServiceFactory();
 
-	private GroupServiceFactory() {
-	}
+    private GroupServiceFactory() {
+    }
 
-	public static GroupServiceFactory getInstance() {
-		return _instance;
-	}
+    public static GroupServiceFactory getInstance() {
+        return _instance;
+    }
 
-	public synchronized GroupService getGroupService(String myName, String groupName, boolean startGMS) {
-		String key = makeKey(myName, groupName);
-		GroupServiceProvider server = groupHandles.get(key);
-		if (server == null) {
-			server = new GroupServiceProvider(myName, groupName, startGMS);
-			groupHandles.put(key, server);
-		}
+    public synchronized GroupService getGroupService(String myName, String groupName, boolean startGMS) {
+        String key = makeKey(myName, groupName);
+        GroupServiceProvider server = groupHandles.get(key);
+        if (server == null) {
+            server = new GroupServiceProvider(myName, groupName, startGMS);
+            groupHandles.put(key, server);
+        }
 
-		return server;
-	}
+        return server;
+    }
 
-	private static String makeKey(String myName, String groupName) {
-		return myName + ":" + groupName;
-	}
+    private static String makeKey(String myName, String groupName) {
+        return myName + ":" + groupName;
+    }
 
-	public void shutdown(String myName, String groupName) {
-		String key = makeKey(myName, groupName);
-		GroupServiceProvider server = groupHandles.remove(key);
-		if (server != null) {
-			server.shutdown();
-		}
-	}
+    public void shutdown(String myName, String groupName) {
+        String key = makeKey(myName, groupName);
+        GroupServiceProvider server = groupHandles.remove(key);
+        if (server != null) {
+            server.shutdown();
+        }
+    }
 
-	public static void main(String[] args) throws Exception {
-		GroupServiceFactory factory = GroupServiceFactory.getInstance();
-		factory.getGroupService(args[0], args[1], true/* startGMS */);
-	}
+    public static void main(String[] args) throws Exception {
+        GroupServiceFactory factory = GroupServiceFactory.getInstance();
+        factory.getGroupService(args[0], args[1], true/* startGMS */);
+    }
 }

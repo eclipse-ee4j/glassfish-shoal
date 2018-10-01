@@ -23,24 +23,24 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public class GMSException extends Exception {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 3979325025517304424L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3979325025517304424L;
 
-	public GMSException() {
-		super();
-	}
+    public GMSException() {
+        super();
+    }
 
-	public GMSException(String message) {
-		super(message);
-	}
+    public GMSException(String message) {
+        super(message);
+    }
 
-	public GMSException(Throwable e) {
-		super(e);
-	}
+    public GMSException(Throwable e) {
+        super(e);
+    }
 
-	public GMSException(String s, Throwable e) {
-		super(s, e);
-	}
+    public GMSException(String s, Throwable e) {
+        super(s, e);
+    }
 }

@@ -29,34 +29,34 @@ import com.sun.grizzly.filter.ParserProtocolFilter;
  */
 public abstract class ParserFilter extends ParserProtocolFilter {
 
-	@Override
-	public boolean execute(final Context context) throws IOException {
-		if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
-			return false;
-		}
+    @Override
+    public boolean execute(final Context context) throws IOException {
+        if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
+            return false;
+        }
 
-		return super.execute(context);
-	}
+        return super.execute(context);
+    }
 
-	@Override
-	public boolean postExecute(final Context context) throws IOException {
-		if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
-			return false;
-		}
+    @Override
+    public boolean postExecute(final Context context) throws IOException {
+        if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
+            return false;
+        }
 
-		final GrizzlyMessageProtocolParser parser = (GrizzlyMessageProtocolParser) context.getAttribute(ProtocolParser.PARSER);
+        final GrizzlyMessageProtocolParser parser = (GrizzlyMessageProtocolParser) context.getAttribute(ProtocolParser.PARSER);
 
-		if (parser == null) {
-			return true;
-		}
+        if (parser == null) {
+            return true;
+        }
 
-		if (parser.isError()) {
-			parser.releaseBuffer();
-			context.setKeyRegistrationState(Context.KeyRegistrationState.CANCEL);
-			return false;
-		}
+        if (parser.isError()) {
+            parser.releaseBuffer();
+            context.setKeyRegistrationState(Context.KeyRegistrationState.CANCEL);
+            return false;
+        }
 
-		return super.postExecute(context);
-	}
+        return super.postExecute(context);
+    }
 
 }

@@ -33,42 +33,42 @@ import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
  * @version $Revision$
  */
 public class FailureSuspectedActionImpl implements FailureSuspectedAction {
-	private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
-	private CallBack caller;
+    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+    private CallBack caller;
 
-	public FailureSuspectedActionImpl(final CallBack caller) {
-		this.caller = caller;
-	}
+    public FailureSuspectedActionImpl(final CallBack caller) {
+        this.caller = caller;
+    }
 
-	/**
-	 * processes the signal. typically involves getting information from the signal, acquiring the signal and after
-	 * processing, releasing the signal
-	 *
-	 * @param signal the signal
-	 */
-	public void consumeSignal(final Signal signal) {
-		boolean signalAcquired = false;
-		// ALWAYS call Acquire before doing any other processing
-		try {
-			signal.acquire();
-			signalAcquired = true;
-			notifyListeners(signal);
-		} catch (SignalAcquireException e) {
-			logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		} finally {
-			if (signalAcquired) {
-				try {
-					// ALWAYS call Release after completing any other processing.
-					signal.release();
-				} catch (SignalReleaseException e) {
-					logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-				}
-			}
-		}
-	}
+    /**
+     * processes the signal. typically involves getting information from the signal, acquiring the signal and after
+     * processing, releasing the signal
+     *
+     * @param signal the signal
+     */
+    public void consumeSignal(final Signal signal) {
+        boolean signalAcquired = false;
+        // ALWAYS call Acquire before doing any other processing
+        try {
+            signal.acquire();
+            signalAcquired = true;
+            notifyListeners(signal);
+        } catch (SignalAcquireException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        } finally {
+            if (signalAcquired) {
+                try {
+                    // ALWAYS call Release after completing any other processing.
+                    signal.release();
+                } catch (SignalReleaseException e) {
+                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                }
+            }
+        }
+    }
 
-	private void notifyListeners(final Signal signal) {
-		caller.processNotification(signal);
-	}
+    private void notifyListeners(final Signal signal) {
+        caller.processNotification(signal);
+    }
 
 }

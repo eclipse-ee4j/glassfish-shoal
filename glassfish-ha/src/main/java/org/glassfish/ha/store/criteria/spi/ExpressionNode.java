@@ -27,21 +27,21 @@ import org.glassfish.ha.store.criteria.Expression;
  */
 public abstract class ExpressionNode<T> implements Expression<T> {
 
-	private Opcode opcode;
+    private Opcode opcode;
 
-	protected Class<T> returnType;
+    protected Class<T> returnType;
 
-	public ExpressionNode(Opcode opcode, Class<T> returnType) {
-		this.opcode = opcode;
-		this.returnType = returnType;
-	}
+    public ExpressionNode(Opcode opcode, Class<T> returnType) {
+        this.opcode = opcode;
+        this.returnType = returnType;
+    }
 
-	public Opcode getOpcode() {
-		return opcode;
-	}
+    public Opcode getOpcode() {
+        return opcode;
+    }
 
-	public Class<T> getReturnType() {
-		return returnType;
-	}
+    public Class<T> getReturnType() {
+        return returnType;
+    }
 
 }

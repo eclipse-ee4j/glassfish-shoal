@@ -25,43 +25,43 @@ import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
  */
 public class NoOpCommand<K, V> extends Command {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 3353080048287174569L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3353080048287174569L;
 
-	private transient static final byte[] rawReadState = new byte[] { ReplicationCommandOpcode.NOOP_COMMAND, (byte) 123 };
+    private transient static final byte[] rawReadState = new byte[] { ReplicationCommandOpcode.NOOP_COMMAND, (byte) 123 };
 
-	private transient static final NoOpCommand _noopCommand = new NoOpCommand();
+    private transient static final NoOpCommand _noopCommand = new NoOpCommand();
 
-	public NoOpCommand() {
-		super(ReplicationCommandOpcode.NOOP_COMMAND);
-		super.setKey("Noop" + System.identityHashCode(this));
-	}
+    public NoOpCommand() {
+        super(ReplicationCommandOpcode.NOOP_COMMAND);
+        super.setKey("Noop" + System.identityHashCode(this));
+    }
 
-	public boolean beforeTransmit() {
-		return true;
-	}
+    public boolean beforeTransmit() {
+        return true;
+    }
 
-	public Object getCommandKey() {
-		return "Noop" + System.identityHashCode(this);
-	}
+    public Object getCommandKey() {
+        return "Noop" + System.identityHashCode(this);
+    }
 
-	@Override
-	public void execute(String initiator) throws DataStoreException {
-	}
+    @Override
+    public void execute(String initiator) throws DataStoreException {
+    }
 
-	public String toString() {
-		return getName();
-	}
+    public String toString() {
+        return getName();
+    }
 
-	@Override
-	public String getKeyMappingInfo() {
-		return null;
-	}
+    @Override
+    public String getKeyMappingInfo() {
+        return null;
+    }
 
-	@Override
-	protected boolean isArtificialKey() {
-		return true;
-	}
+    @Override
+    protected boolean isArtificialKey() {
+        return true;
+    }
 }

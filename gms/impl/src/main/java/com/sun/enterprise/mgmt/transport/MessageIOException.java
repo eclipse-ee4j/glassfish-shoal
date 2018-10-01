@@ -25,22 +25,22 @@ import java.io.IOException;
  */
 public class MessageIOException extends IOException {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -3243045948393446810L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3243045948393446810L;
 
-	public MessageIOException(String msg) {
-		super(msg);
-	}
+    public MessageIOException(String msg) {
+        super(msg);
+    }
 
-	public MessageIOException(Throwable t) {
-		// super( t ); // JDK 1.6
-		super(t == null ? "" : t.getMessage());
-	}
+    public MessageIOException(Throwable t) {
+        // super( t ); // JDK 1.6
+        super(t == null ? "" : t.getMessage());
+    }
 
-	public MessageIOException(String msg, Throwable t) {
-		// super( msg, t ); // JDK 1.6
-		super(msg);
-	}
+    public MessageIOException(String msg, Throwable t) {
+        // super( msg, t ); // JDK 1.6
+        super(msg);
+    }
 }

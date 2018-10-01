@@ -27,7 +27,7 @@ import java.util.List;
  */
 public interface JoinedAndReadyNotificationSignal extends Signal, GroupStartupNotificationSignal, RejoinableEvent, AliveAndReadySignal {
 
-	List<String> getCurrentCoreMembers();
+    List<String> getCurrentCoreMembers();
 
-	List<String> getAllCurrentMembers();
+    List<String> getAllCurrentMembers();
 }

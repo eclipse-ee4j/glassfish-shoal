@@ -34,5 +34,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Attribute {
 
-	String value() default "";
+    String value() default "";
 }

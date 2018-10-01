@@ -23,10 +23,10 @@ import org.shoal.ha.cache.impl.store.DataStoreEntry;
  */
 public interface DataStoreEntryEvaluator<K, V> {
 
-	public enum Opcode {
-		KEEP, SELECT, DELETE, UPDATED
-	}
+    public enum Opcode {
+        KEEP, SELECT, DELETE, UPDATED
+    }
 
-	Opcode eval(DataStoreEntry<K, V> entry);
+    Opcode eval(DataStoreEntry<K, V> entry);
 
 }

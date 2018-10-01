@@ -27,18 +27,18 @@ import com.sun.enterprise.ee.cms.core.JoinNotificationActionFactory;
  * @version $Revision$
  */
 public class JoinNotificationActionFactoryImpl implements JoinNotificationActionFactory {
-	private final CallBack callBack;
+    private final CallBack callBack;
 
-	public JoinNotificationActionFactoryImpl(final CallBack callBack) {
-		this.callBack = callBack;
-	}
+    public JoinNotificationActionFactoryImpl(final CallBack callBack) {
+        this.callBack = callBack;
+    }
 
-	/**
-	 * Produces an Action instance.
-	 *
-	 * @return com.sun.enterprise.ee.cms.Action
-	 */
-	public Action produceAction() {
-		return new JoinNotificationActionImpl(callBack);
-	}
+    /**
+     * Produces an Action instance.
+     *
+     * @return com.sun.enterprise.ee.cms.Action
+     */
+    public Action produceAction() {
+        return new JoinNotificationActionImpl(callBack);
+    }
 }

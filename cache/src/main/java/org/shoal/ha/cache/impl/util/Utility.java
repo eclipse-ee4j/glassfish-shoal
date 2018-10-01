@@ -23,72 +23,72 @@ package org.shoal.ha.cache.impl.util;
  */
 public final class Utility {
 
-	/**
-	 * Unmarshal a byte array to an integer. Assume the bytes are in BIGENDIAN order. i.e. array[offset] is the
-	 * most-significant-byte and array[offset+3] is the least-significant-byte.
-	 *
-	 * @param array The array of bytes.
-	 * @param offset The offset from which to start unmarshalling.
-	 */
-	public static int bytesToInt(byte[] array, int offset) {
-		int b1, b2, b3, b4;
+    /**
+     * Unmarshal a byte array to an integer. Assume the bytes are in BIGENDIAN order. i.e. array[offset] is the
+     * most-significant-byte and array[offset+3] is the least-significant-byte.
+     *
+     * @param array The array of bytes.
+     * @param offset The offset from which to start unmarshalling.
+     */
+    public static int bytesToInt(byte[] array, int offset) {
+        int b1, b2, b3, b4;
 
-		return (array[offset] << 24) & 0xFF000000 | (array[offset + 1] << 16) & 0x00FF0000 | (array[offset + 2] << 8) & 0x0000FF00
-		        | (array[offset + 3] << 0) & 0x000000FF;
-	}
+        return (array[offset] << 24) & 0xFF000000 | (array[offset + 1] << 16) & 0x00FF0000 | (array[offset + 2] << 8) & 0x0000FF00
+                | (array[offset + 3] << 0) & 0x000000FF;
+    }
 
-	/**
-	 * Marshal an integer to a byte array. The bytes are in BIGENDIAN order. i.e. array[offset] is the most-significant-byte
-	 * and array[offset+3] is the least-significant-byte.
-	 */
-	public static byte[] intToBytes(int value) {
-		byte[] data = new byte[4];
-		intToBytes(value, data, 0);
+    /**
+     * Marshal an integer to a byte array. The bytes are in BIGENDIAN order. i.e. array[offset] is the most-significant-byte
+     * and array[offset+3] is the least-significant-byte.
+     */
+    public static byte[] intToBytes(int value) {
+        byte[] data = new byte[4];
+        intToBytes(value, data, 0);
 
-		return data;
-	}
+        return data;
+    }
 
-	public static void intToBytes(int value, byte[] array, int offset) {
-		array[offset] = (byte) ((value >>> 24) & 0xFF);
-		array[offset + 1] = (byte) ((value >>> 16) & 0xFF);
-		array[offset + 2] = (byte) ((value >>> 8) & 0xFF);
-		array[offset + 3] = (byte) ((value >>> 0) & 0xFF);
-	}
+    public static void intToBytes(int value, byte[] array, int offset) {
+        array[offset] = (byte) ((value >>> 24) & 0xFF);
+        array[offset + 1] = (byte) ((value >>> 16) & 0xFF);
+        array[offset + 2] = (byte) ((value >>> 8) & 0xFF);
+        array[offset + 3] = (byte) ((value >>> 0) & 0xFF);
+    }
 
-	/**
-	 * Unmarshal a byte array to an long. Assume the bytes are in BIGENDIAN order. i.e. array[offset] is the
-	 * most-significant-byte and array[offset+7] is the least-significant-byte.
-	 */
-	public static byte[] longToBytes(long value) {
-		byte[] data = new byte[8];
-		longToBytes(value, data, 0);
+    /**
+     * Unmarshal a byte array to an long. Assume the bytes are in BIGENDIAN order. i.e. array[offset] is the
+     * most-significant-byte and array[offset+7] is the least-significant-byte.
+     */
+    public static byte[] longToBytes(long value) {
+        byte[] data = new byte[8];
+        longToBytes(value, data, 0);
 
-		return data;
-	}
+        return data;
+    }
 
-	public static long bytesToLong(byte[] array, int offset) {
-		long l1, l2;
+    public static long bytesToLong(byte[] array, int offset) {
+        long l1, l2;
 
-		return ((long) bytesToInt(array, offset) << 32) | (bytesToInt(array, offset + 4) & 0xFFFFFFFFL);
+        return ((long) bytesToInt(array, offset) << 32) | (bytesToInt(array, offset + 4) & 0xFFFFFFFFL);
 
-	}
+    }
 
-	/**
-	 * Marshal an long to a byte array. The bytes are in BIGENDIAN order. i.e. array[offset] is the most-significant-byte
-	 * and array[offset+7] is the least-significant-byte.
-	 *
-	 * @param array The array of bytes.
-	 * @param offset The offset from which to start marshalling.
-	 */
-	public static void longToBytes(long value, byte[] array, int offset) {
-		array[offset] = (byte) ((value >>> 56) & 0xFF);
-		array[offset + 1] = (byte) ((value >>> 48) & 0xFF);
-		array[offset + 2] = (byte) ((value >>> 40) & 0xFF);
-		array[offset + 3] = (byte) ((value >>> 32) & 0xFF);
-		array[offset + 4] = (byte) ((value >>> 24) & 0xFF);
-		array[offset + 5] = (byte) ((value >>> 16) & 0xFF);
-		array[offset + 6] = (byte) ((value >>> 8) & 0xFF);
-		array[offset + 7] = (byte) ((value >>> 0) & 0xFF);
-	}
+    /**
+     * Marshal an long to a byte array. The bytes are in BIGENDIAN order. i.e. array[offset] is the most-significant-byte
+     * and array[offset+7] is the least-significant-byte.
+     *
+     * @param array The array of bytes.
+     * @param offset The offset from which to start marshalling.
+     */
+    public static void longToBytes(long value, byte[] array, int offset) {
+        array[offset] = (byte) ((value >>> 56) & 0xFF);
+        array[offset + 1] = (byte) ((value >>> 48) & 0xFF);
+        array[offset + 2] = (byte) ((value >>> 40) & 0xFF);
+        array[offset + 3] = (byte) ((value >>> 32) & 0xFF);
+        array[offset + 4] = (byte) ((value >>> 24) & 0xFF);
+        array[offset + 5] = (byte) ((value >>> 16) & 0xFF);
+        array[offset + 6] = (byte) ((value >>> 8) & 0xFF);
+        array[offset + 7] = (byte) ((value >>> 0) & 0xFF);
+    }
 
 }

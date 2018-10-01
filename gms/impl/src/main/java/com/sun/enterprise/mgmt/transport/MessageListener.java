@@ -30,19 +30,19 @@ import java.util.EventListener;
  */
 public interface MessageListener extends EventListener {
 
-	/**
-	 * Processing a {@link MessageEvent}
-	 *
-	 * @param event a received message event
-	 * @throws MessageIOException if I/O error occurs
-	 */
-	void receiveMessageEvent(final MessageEvent event) throws MessageIOException;
+    /**
+     * Processing a {@link MessageEvent}
+     *
+     * @param event a received message event
+     * @throws MessageIOException if I/O error occurs
+     */
+    void receiveMessageEvent(final MessageEvent event) throws MessageIOException;
 
-	/**
-	 * Returns the message type which {@link Message} is supporting i.g. {@link Message#TYPE_CLUSTER_MANAGER_MESSAGE} or
-	 * {@link Message#TYPE_HEALTH_MONITOR_MESSAGE}'s integer value or etc...
-	 *
-	 * @return the message type about which this listener is concerned
-	 */
-	int getType();
+    /**
+     * Returns the message type which {@link Message} is supporting i.g. {@link Message#TYPE_CLUSTER_MANAGER_MESSAGE} or
+     * {@link Message#TYPE_HEALTH_MONITOR_MESSAGE}'s integer value or etc...
+     *
+     * @return the message type about which this listener is concerned
+     */
+    int getType();
 }

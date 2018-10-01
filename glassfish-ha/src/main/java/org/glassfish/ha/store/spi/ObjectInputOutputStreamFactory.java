@@ -27,8 +27,8 @@ import java.io.OutputStream;
  */
 public interface ObjectInputOutputStreamFactory {
 
-	ObjectOutputStream createObjectOutputStream(OutputStream os) throws IOException;
+    ObjectOutputStream createObjectOutputStream(OutputStream os) throws IOException;
 
-	ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader) throws IOException;
+    ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader) throws IOException;
 
 }

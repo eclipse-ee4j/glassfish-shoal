@@ -25,76 +25,76 @@ import java.nio.charset.Charset;
  */
 public class ReplicationOutputStream extends ByteArrayOutputStream {
 
-	public ReplicationOutputStream() {
-		super();
-	}
+    public ReplicationOutputStream() {
+        super();
+    }
 
-	private int maxCount;
+    private int maxCount;
 
-	public int mark() {
-		return size();
-	}
+    public int mark() {
+        return size();
+    }
 
-	public void reWrite(int mark, byte[] data) {
-		System.arraycopy(data, 0, buf, mark, data.length);
-	}
+    public void reWrite(int mark, byte[] data) {
+        System.arraycopy(data, 0, buf, mark, data.length);
+    }
 
-	public void writeInt(int value) throws IOException {
-		write(Utility.intToBytes(value));
-	}
+    public void writeInt(int value) throws IOException {
+        write(Utility.intToBytes(value));
+    }
 
-	public void writeLong(long value) throws IOException {
-		write(Utility.longToBytes(value));
-	}
+    public void writeLong(long value) throws IOException {
+        write(Utility.longToBytes(value));
+    }
 
-	public void writeLengthPrefixedString(String str) throws IOException {
-		if (str == null) {
-			writeInt(0);
-		} else {
-			byte[] data = str.getBytes(Charset.defaultCharset());
-			writeInt(data.length);
-			write(data);
-		}
-	}
+    public void writeLengthPrefixedString(String str) throws IOException {
+        if (str == null) {
+            writeInt(0);
+        } else {
+            byte[] data = str.getBytes(Charset.defaultCharset());
+            writeInt(data.length);
+            write(data);
+        }
+    }
 
-	public void writeLengthPrefixedBytes(byte[] data) throws IOException {
-		if (data == null) {
-			writeInt(0);
-		} else {
-			writeInt(data.length);
-			write(data);
-		}
-	}
+    public void writeLengthPrefixedBytes(byte[] data) throws IOException {
+        if (data == null) {
+            writeInt(0);
+        } else {
+            writeInt(data.length);
+            write(data);
+        }
+    }
 
-	public void writeBoolean(boolean b) throws IOException {
-		write(b ? 1 : 0); // Writes one byte
-	}
+    public void writeBoolean(boolean b) throws IOException {
+        write(b ? 1 : 0); // Writes one byte
+    }
 
-	public int moveTo(int pos) {
-		if (count > maxCount) {
-			maxCount = count;
-		}
+    public int moveTo(int pos) {
+        if (count > maxCount) {
+            maxCount = count;
+        }
 
-		int oldPos = count;
-		if (pos >= 0 && pos <= count) {
-			count = pos;
-		}
+        int oldPos = count;
+        if (pos >= 0 && pos <= count) {
+            count = pos;
+        }
 
-		return oldPos;
-	}
+        return oldPos;
+    }
 
-	/**
-	 * Note: This must be used only after a call to moveTo
-	 */
-	public void backToAppendMode() {
-		if (count < maxCount) {
-			count = maxCount;
-		}
-	}
+    /**
+     * Note: This must be used only after a call to moveTo
+     */
+    public void backToAppendMode() {
+        if (count < maxCount) {
+            count = maxCount;
+        }
+    }
 
-	public byte[] toByteArray() {
-		backToAppendMode();
-		return super.toByteArray();
-	}
+    public byte[] toByteArray() {
+        backToAppendMode();
+        return super.toByteArray();
+    }
 
 }

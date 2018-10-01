@@ -27,50 +27,50 @@ import java.util.logging.Logger;
  */
 public class GMSLogDomain {
 
-	public static final String GMS_LOGGER = "ShoalLogger";
+    public static final String GMS_LOGGER = "ShoalLogger";
 
-	private static final String LOG_STRINGS = "com.sun.enterprise.ee.cms.logging.LogStrings";
+    private static final String LOG_STRINGS = "com.sun.enterprise.ee.cms.logging.LogStrings";
 
-	private static final String GMS_MONITOR_LOGGER = GMS_LOGGER + ".monitor";
-	private static final String GMS_HANDLER_LOGGER = GMS_LOGGER + ".handler";
-	private static final String MCAST_LOGGER_NAME = GMS_LOGGER + ".mcast";
-	private static final String MASTER_LOGGER_NAME = GMS_LOGGER + ".MasterNode";
-	private static final String GMS_SEND = GMS_LOGGER + ".send";
-	private static final String GMS_DSC = GMS_LOGGER + ".dsc";
-	private static final String GMS_NOMCAST = GMS_LOGGER + ".nomcast";
+    private static final String GMS_MONITOR_LOGGER = GMS_LOGGER + ".monitor";
+    private static final String GMS_HANDLER_LOGGER = GMS_LOGGER + ".handler";
+    private static final String MCAST_LOGGER_NAME = GMS_LOGGER + ".mcast";
+    private static final String MASTER_LOGGER_NAME = GMS_LOGGER + ".MasterNode";
+    private static final String GMS_SEND = GMS_LOGGER + ".send";
+    private static final String GMS_DSC = GMS_LOGGER + ".dsc";
+    private static final String GMS_NOMCAST = GMS_LOGGER + ".nomcast";
 
-	private GMSLogDomain() {
-		/* you can't have me */}
+    private GMSLogDomain() {
+        /* you can't have me */}
 
-	public static Logger getLogger(final String loggerName) {
-		return Logger.getLogger(loggerName, LOG_STRINGS);
-	}
+    public static Logger getLogger(final String loggerName) {
+        return Logger.getLogger(loggerName, LOG_STRINGS);
+    }
 
-	public static Logger getMonitorLogger() {
-		return Logger.getLogger(GMS_MONITOR_LOGGER, LOG_STRINGS);
-	}
+    public static Logger getMonitorLogger() {
+        return Logger.getLogger(GMS_MONITOR_LOGGER, LOG_STRINGS);
+    }
 
-	public static Logger getMcastLogger() {
-		return Logger.getLogger(MCAST_LOGGER_NAME, LOG_STRINGS);
-	}
+    public static Logger getMcastLogger() {
+        return Logger.getLogger(MCAST_LOGGER_NAME, LOG_STRINGS);
+    }
 
-	public static Logger getMasterNodeLogger() {
-		return Logger.getLogger(MASTER_LOGGER_NAME, LOG_STRINGS);
-	}
+    public static Logger getMasterNodeLogger() {
+        return Logger.getLogger(MASTER_LOGGER_NAME, LOG_STRINGS);
+    }
 
-	public static Logger getSendLogger() {
-		return Logger.getLogger(GMS_SEND, LOG_STRINGS);
-	}
+    public static Logger getSendLogger() {
+        return Logger.getLogger(GMS_SEND, LOG_STRINGS);
+    }
 
-	public static Logger getHandlerLogger() {
-		return Logger.getLogger(GMS_HANDLER_LOGGER, LOG_STRINGS);
-	}
+    public static Logger getHandlerLogger() {
+        return Logger.getLogger(GMS_HANDLER_LOGGER, LOG_STRINGS);
+    }
 
-	public static Logger getDSCLogger() {
-		return Logger.getLogger(GMS_DSC, LOG_STRINGS);
-	}
+    public static Logger getDSCLogger() {
+        return Logger.getLogger(GMS_DSC, LOG_STRINGS);
+    }
 
-	public static Logger getNoMCastLogger() {
-		return Logger.getLogger(GMS_NOMCAST, LOG_STRINGS);
-	}
+    public static Logger getNoMCastLogger() {
+        return Logger.getLogger(GMS_NOMCAST, LOG_STRINGS);
+    }
 }

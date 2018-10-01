@@ -27,10 +27,10 @@ import java.io.IOException;
  */
 public interface ShoalMessageSender {
 
-	int TCP_TRANSPORT = 0;
-	int UDP_TRANSPORT = 1;
+    int TCP_TRANSPORT = 0;
+    int UDP_TRANSPORT = 1;
 
-	void start() throws IOException;
+    void start() throws IOException;
 
-	void stop() throws IOException;
+    void stop() throws IOException;
 }

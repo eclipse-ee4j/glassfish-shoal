@@ -30,143 +30,143 @@ import java.util.Map;
  */
 public interface SystemAdvertisement extends Comparable<SystemAdvertisement>, Cloneable, Serializable {
 
-	long serialVersionUID = 4520670615616793233L;
+    long serialVersionUID = 4520670615616793233L;
 
-	String OSNameTag = "OSName";
-	String OSVersionTag = "OSVer";
-	String OSarchTag = "osarch";
-	String hwarchTag = "hwarch";
-	String hwvendorTag = "hwvendor";
-	String idTag = "ID";
-	String ipTag = "ip";
-	String nameTag = "name";
+    String OSNameTag = "OSName";
+    String OSVersionTag = "OSVer";
+    String OSarchTag = "osarch";
+    String hwarchTag = "hwarch";
+    String hwvendorTag = "hwvendor";
+    String idTag = "ID";
+    String ipTag = "ip";
+    String nameTag = "name";
 
-	/**
-	 * Sets the hWArch attribute of the SystemAdvertisement object
-	 *
-	 * @param hwarch The new hWArch value
-	 */
-	void setHWArch(final String hwarch);
+    /**
+     * Sets the hWArch attribute of the SystemAdvertisement object
+     *
+     * @param hwarch The new hWArch value
+     */
+    void setHWArch(final String hwarch);
 
-	/**
-	 * Sets the OSArch attribute of the SystemAdvertisement object
-	 *
-	 * @param osarch The new hWArch value
-	 */
-	void setOSArch(final String osarch);
+    /**
+     * Sets the OSArch attribute of the SystemAdvertisement object
+     *
+     * @param osarch The new hWArch value
+     */
+    void setOSArch(final String osarch);
 
-	/**
-	 * Sets the hWVendor attribute of the SystemAdvertisement object
-	 *
-	 * @param hwvendor The new hWVendor value
-	 */
-	void setHWVendor(final String hwvendor);
+    /**
+     * Sets the hWVendor attribute of the SystemAdvertisement object
+     *
+     * @param hwvendor The new hWVendor value
+     */
+    void setHWVendor(final String hwvendor);
 
-	/**
-	 * sets the unique id
-	 *
-	 * @param id The id
-	 */
-	void setID(final PeerID id);
+    /**
+     * sets the unique id
+     *
+     * @param id The id
+     */
+    void setID(final PeerID id);
 
-	/**
-	 * Sets the network interface's address in the form of a URI
-	 *
-	 * @param value new uri (tcp://host:port)
-	 */
-	void addEndpointAddress(final String value);
+    /**
+     * Sets the network interface's address in the form of a URI
+     *
+     * @param value new uri (tcp://host:port)
+     */
+    void addEndpointAddress(final String value);
 
-	/**
-	 * API for setting the IP addresses for all the network interfaces
-	 *
-	 * @param endpoints endpoint addresses
-	 */
-	void setEndpointAddresses(final List<String> endpoints);
+    /**
+     * API for setting the IP addresses for all the network interfaces
+     *
+     * @param endpoints endpoint addresses
+     */
+    void setEndpointAddresses(final List<String> endpoints);
 
-	/**
-	 * Sets the name attribute of the DeviceAdvertisement object
-	 *
-	 * @param name The new name value
-	 */
-	void setName(final String name);
+    /**
+     * Sets the name attribute of the DeviceAdvertisement object
+     *
+     * @param name The new name value
+     */
+    void setName(final String name);
 
-	/**
-	 * Sets the oSName attribute of the SystemAdvertisement object
-	 *
-	 * @param osname The new oSName value
-	 */
-	void setOSName(final String osname);
+    /**
+     * Sets the oSName attribute of the SystemAdvertisement object
+     *
+     * @param osname The new oSName value
+     */
+    void setOSName(final String osname);
 
-	/**
-	 * Sets the oSVersion attribute of the SystemAdvertisement object
-	 *
-	 * @param osversion The new oSVersion value
-	 */
-	void setOSVersion(final String osversion);
+    /**
+     * Sets the oSVersion attribute of the SystemAdvertisement object
+     *
+     * @param osversion The new oSVersion value
+     */
+    void setOSVersion(final String osversion);
 
-	void setCustomTag(final String tag, final String value);
+    void setCustomTag(final String tag, final String value);
 
-	void setCustomTags(final Map<String, String> tags);
+    void setCustomTags(final Map<String, String> tags);
 
-	/**
-	 * Gets the hWArch attribute of the SystemAdvertisement object
-	 *
-	 * @return The hWArch value
-	 */
-	String getHWArch();
+    /**
+     * Gets the hWArch attribute of the SystemAdvertisement object
+     *
+     * @return The hWArch value
+     */
+    String getHWArch();
 
-	/**
-	 * Gets the OSArch attribute of the SystemAdvertisement object
-	 *
-	 * @return The OSArch value
-	 */
-	String getOSArch();
+    /**
+     * Gets the OSArch attribute of the SystemAdvertisement object
+     *
+     * @return The OSArch value
+     */
+    String getOSArch();
 
-	/**
-	 * Gets the hWVendor attribute of the SystemAdvertisement object
-	 *
-	 * @return The hWVendor value
-	 */
-	String getHWVendor();
+    /**
+     * Gets the hWVendor attribute of the SystemAdvertisement object
+     *
+     * @return The hWVendor value
+     */
+    String getHWVendor();
 
-	/**
-	 * returns the id of the device
-	 *
-	 * @return ID the device id
-	 */
-	PeerID getID();
+    /**
+     * returns the id of the device
+     *
+     * @return ID the device id
+     */
+    PeerID getID();
 
-	/**
-	 * Gets the address of the network interface in the form of URI
-	 *
-	 * @return the list of URIs for all the network interfaces
-	 */
-	List<String> getEndpointAddresses();
+    /**
+     * Gets the address of the network interface in the form of URI
+     *
+     * @return the list of URIs for all the network interfaces
+     */
+    List<String> getEndpointAddresses();
 
-	List<URI> getURIs();
+    List<URI> getURIs();
 
-	/**
-	 * Gets the name attribute of the SystemAdvertisement object
-	 *
-	 * @return The name value
-	 */
-	String getName();
+    /**
+     * Gets the name attribute of the SystemAdvertisement object
+     *
+     * @return The name value
+     */
+    String getName();
 
-	/**
-	 * Gets the OSName attribute of the SystemAdvertisement object
-	 *
-	 * @return The OSName value
-	 */
-	String getOSName();
+    /**
+     * Gets the OSName attribute of the SystemAdvertisement object
+     *
+     * @return The OSName value
+     */
+    String getOSName();
 
-	/**
-	 * Gets the OSVersion attribute of the SystemAdvertisement object
-	 *
-	 * @return The OSVersion value
-	 */
-	String getOSVersion();
+    /**
+     * Gets the OSVersion attribute of the SystemAdvertisement object
+     *
+     * @return The OSVersion value
+     */
+    String getOSVersion();
 
-	String getCustomTagValue(final String tagName) throws NoSuchFieldException;
+    String getCustomTagValue(final String tagName) throws NoSuchFieldException;
 
-	Map<String, String> getCustomTags();
+    Map<String, String> getCustomTags();
 }

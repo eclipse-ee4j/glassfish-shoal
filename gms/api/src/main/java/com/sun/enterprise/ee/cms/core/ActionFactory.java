@@ -32,10 +32,10 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public interface ActionFactory {
-	/**
-	 * Produces an Action instance.
-	 *
-	 * @return com.sun.enterprise.ee.cms.Action
-	 */
-	Action produceAction();
+    /**
+     * Produces an Action instance.
+     *
+     * @return com.sun.enterprise.ee.cms.Action
+     */
+    Action produceAction();
 }

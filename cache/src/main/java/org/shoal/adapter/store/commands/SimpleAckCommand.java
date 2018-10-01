@@ -32,61 +32,61 @@ import org.shoal.ha.cache.impl.util.ResponseMediator;
  */
 public class SimpleAckCommand<K, V> extends Command {
 
-	private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_RESPONSE_COMMAND);
+    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_RESPONSE_COMMAND);
 
-	private long tokenId;
+    private long tokenId;
 
-	private String targetInstanceName;
+    private String targetInstanceName;
 
-	private String respondingInstanceName;
+    private String respondingInstanceName;
 
-	public SimpleAckCommand() {
-		super(ReplicationCommandOpcode.SIMPLE_ACK_COMMAND);
-	}
+    public SimpleAckCommand() {
+        super(ReplicationCommandOpcode.SIMPLE_ACK_COMMAND);
+    }
 
-	public SimpleAckCommand(String targetInstanceName, long tokenId) {
-		this();
-		super.setKey("SimpleAck:" + tokenId);
-		this.targetInstanceName = targetInstanceName;
-		this.tokenId = tokenId;
-	}
+    public SimpleAckCommand(String targetInstanceName, long tokenId) {
+        this();
+        super.setKey("SimpleAck:" + tokenId);
+        this.targetInstanceName = targetInstanceName;
+        this.tokenId = tokenId;
+    }
 
-	private void writeObject(ObjectOutputStream ros) throws IOException {
-		setTargetName(targetInstanceName);
+    private void writeObject(ObjectOutputStream ros) throws IOException {
+        setTargetName(targetInstanceName);
 
-		ros.writeLong(tokenId);
-		ros.writeUTF(targetInstanceName);
-		ros.writeUTF(dsc.getInstanceName());
-	}
+        ros.writeLong(tokenId);
+        ros.writeUTF(targetInstanceName);
+        ros.writeUTF(dsc.getInstanceName());
+    }
 
-	protected boolean beforeTransmit() {
-		super.setTargetName(targetInstanceName);
-		return targetInstanceName != null;
-	}
+    protected boolean beforeTransmit() {
+        super.setTargetName(targetInstanceName);
+        return targetInstanceName != null;
+    }
 
-	private void readObject(ObjectInputStream ris) throws IOException {
+    private void readObject(ObjectInputStream ris) throws IOException {
 
-		tokenId = ris.readLong();
-		targetInstanceName = ris.readUTF();
-		respondingInstanceName = ris.readUTF();
-	}
+        tokenId = ris.readLong();
+        targetInstanceName = ris.readUTF();
+        respondingInstanceName = ris.readUTF();
+    }
 
-	@Override
-	public void execute(String initiator) {
-		ResponseMediator respMed = getDataStoreContext().getResponseMediator();
-		CommandResponse resp = respMed.getCommandResponse(tokenId);
-		if (resp != null) {
-			resp.setRespondingInstanceName(respondingInstanceName);
-			resp.setResult(true);
-		}
-	}
+    @Override
+    public void execute(String initiator) {
+        ResponseMediator respMed = getDataStoreContext().getResponseMediator();
+        CommandResponse resp = respMed.getCommandResponse(tokenId);
+        if (resp != null) {
+            resp.setRespondingInstanceName(respondingInstanceName);
+            resp.setResult(true);
+        }
+    }
 
-	@Override
-	protected boolean isArtificialKey() {
-		return true;
-	}
+    @Override
+    protected boolean isArtificialKey() {
+        return true;
+    }
 
-	public String toString() {
-		return getName() + "()";
-	}
+    public String toString() {
+        return getName() + "()";
+    }
 }

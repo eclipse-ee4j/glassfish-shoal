@@ -27,18 +27,18 @@ import com.sun.enterprise.ee.cms.core.FailureRecoveryActionFactory;
  * @version $Revision$
  */
 public class FailureRecoveryActionFactoryImpl implements FailureRecoveryActionFactory {
-	private final CallBack cb;
+    private final CallBack cb;
 
-	public FailureRecoveryActionFactoryImpl(final CallBack cb) {
-		this.cb = cb;
-	}
+    public FailureRecoveryActionFactoryImpl(final CallBack cb) {
+        this.cb = cb;
+    }
 
-	/**
-	 * Produces an Action instance.
-	 *
-	 * @return com.sun.enterprise.ee.cms.Action
-	 */
-	public Action produceAction() {
-		return new FailureRecoveryActionImpl(cb);
-	}
+    /**
+     * Produces an Action instance.
+     *
+     * @return com.sun.enterprise.ee.cms.Action
+     */
+    public Action produceAction() {
+        return new FailureRecoveryActionImpl(cb);
+    }
 }

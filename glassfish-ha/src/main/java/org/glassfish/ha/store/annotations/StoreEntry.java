@@ -42,5 +42,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface StoreEntry {
-	String value() default "";
+    String value() default "";
 }

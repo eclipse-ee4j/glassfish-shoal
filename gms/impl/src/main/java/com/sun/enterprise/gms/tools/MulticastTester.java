@@ -27,206 +27,206 @@ import java.util.UUID;
  */
 public class MulticastTester {
 
-	static final StringManager sm = StringManager.getInstance();
+    static final StringManager sm = StringManager.getInstance();
 
-	static final String DASH = "--";
+    static final String DASH = "--";
 
-	static final String SEP = "|";
+    static final String SEP = "|";
 
-	// these are public so they can be used in external programs
-	public static final String HELP_OPTION = DASH + sm.get("help.option");
-	public static final String PORT_OPTION = DASH + sm.get("port.option");
-	public static final String ADDRESS_OPTION = DASH + sm.get("address.option");
-	public static final String BIND_OPTION = DASH + sm.get("bind.int.option");
-	public static final String TTL_OPTION = DASH + sm.get("ttl.option");
-	public static final String WAIT_PERIOD_OPTION = DASH + sm.get("period.option");
-	public static final String TIMEOUT_OPTION = DASH + sm.get("timeout.option");
-	public static final String DEBUG_OPTION = DASH + sm.get("debug.option");
+    // these are public so they can be used in external programs
+    public static final String HELP_OPTION = DASH + sm.get("help.option");
+    public static final String PORT_OPTION = DASH + sm.get("port.option");
+    public static final String ADDRESS_OPTION = DASH + sm.get("address.option");
+    public static final String BIND_OPTION = DASH + sm.get("bind.int.option");
+    public static final String TTL_OPTION = DASH + sm.get("ttl.option");
+    public static final String WAIT_PERIOD_OPTION = DASH + sm.get("period.option");
+    public static final String TIMEOUT_OPTION = DASH + sm.get("timeout.option");
+    public static final String DEBUG_OPTION = DASH + sm.get("debug.option");
 
-	int mcPort = 2048;
-	String mcAddress = "228.9.3.1";
-	String bindInterface = null;
-	int ttl = -1; // will only set if specified as command line param
-	long msgPeriodInMillis = 2000;
-	boolean debug = false;
+    int mcPort = 2048;
+    String mcAddress = "228.9.3.1";
+    String bindInterface = null;
+    int ttl = -1; // will only set if specified as command line param
+    long msgPeriodInMillis = 2000;
+    boolean debug = false;
 
-	// this is more useful for development, but there is a param for it
-	long testerTimeoutInSeconds = 20;
+    // this is more useful for development, but there is a param for it
+    long testerTimeoutInSeconds = 20;
 
-	/*
-	 * Called by main or external tool wrapper (such as asadmin in GlassFish). Returns the exit value.
-	 */
-	public int run(String[] args) {
-		if (!parseArgs(args)) {
-			return 1;
-		}
+    /*
+     * Called by main or external tool wrapper (such as asadmin in GlassFish). Returns the exit value.
+     */
+    public int run(String[] args) {
+        if (!parseArgs(args)) {
+            return 1;
+        }
 
-		StringBuilder out = new StringBuilder();
-		out.append(sm.get("port.set", Integer.toString(mcPort))).append("\n");
-		out.append(sm.get("address.set", mcAddress)).append("\n");
-		out.append(sm.get("bind.int.set", bindInterface)).append("\n");
-		out.append(sm.get("period.set", msgPeriodInMillis)).append("\n");
-		if (ttl != -1) {
-			out.append(sm.get("ttl.set", ttl)).append("\n");
-		}
-		System.out.println(out.toString());
+        StringBuilder out = new StringBuilder();
+        out.append(sm.get("port.set", Integer.toString(mcPort))).append("\n");
+        out.append(sm.get("address.set", mcAddress)).append("\n");
+        out.append(sm.get("bind.int.set", bindInterface)).append("\n");
+        out.append(sm.get("period.set", msgPeriodInMillis)).append("\n");
+        if (ttl != -1) {
+            out.append(sm.get("ttl.set", ttl)).append("\n");
+        }
+        System.out.println(out.toString());
 
-		String dataString;
+        String dataString;
 
-		try {
-			InetAddress localHost = InetAddress.getLocalHost();
-			dataString = mcAddress + SEP + localHost.getHostName() + SEP + UUID.randomUUID().toString();
-		} catch (UnknownHostException uhe) {
-			System.err.println(sm.get("whoops", uhe.getMessage()));
-			return 1;
-		}
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            dataString = mcAddress + SEP + localHost.getHostName() + SEP + UUID.randomUUID().toString();
+        } catch (UnknownHostException uhe) {
+            System.err.println(sm.get("whoops", uhe.getMessage()));
+            return 1;
+        }
 
-		/*
-		 * The receiver thread doesn't take a bind interface because the interface only impacts multicast sending.
-		 */
-		MultiCastReceiverThread receiver = new MultiCastReceiverThread(mcPort, mcAddress, debug, dataString);
-		MulticastSenderThread sender = new MulticastSenderThread(mcPort, mcAddress, bindInterface, ttl, msgPeriodInMillis, debug, dataString);
-		receiver.start();
-		sender.start();
+        /*
+         * The receiver thread doesn't take a bind interface because the interface only impacts multicast sending.
+         */
+        MultiCastReceiverThread receiver = new MultiCastReceiverThread(mcPort, mcAddress, debug, dataString);
+        MulticastSenderThread sender = new MulticastSenderThread(mcPort, mcAddress, bindInterface, ttl, msgPeriodInMillis, debug, dataString);
+        receiver.start();
+        sender.start();
 
-		try {
+        try {
 
-			Thread.sleep(1000 * testerTimeoutInSeconds);
+            Thread.sleep(1000 * testerTimeoutInSeconds);
 
-			receiver.done = true;
-			sender.done = true;
+            receiver.done = true;
+            sender.done = true;
 
-			receiver.interrupt();
-			receiver.join(500);
-			if (receiver.isAlive()) {
-				log("could not join receiver thread (expected)");
-			} else {
-				log("joined receiver thread");
-			}
+            receiver.interrupt();
+            receiver.join(500);
+            if (receiver.isAlive()) {
+                log("could not join receiver thread (expected)");
+            } else {
+                log("joined receiver thread");
+            }
 
-			sender.interrupt();
-			sender.join(500);
-			if (sender.isAlive()) {
-				log("could not join sender thread");
-			} else {
-				log("joined sender thread");
-			}
+            sender.interrupt();
+            sender.join(500);
+            if (sender.isAlive()) {
+                log("could not join sender thread");
+            } else {
+                log("joined sender thread");
+            }
 
-		} catch (InterruptedException ie) {
-			System.err.println(sm.get("whoops", ie.getMessage()));
-			ie.printStackTrace();
-		}
+        } catch (InterruptedException ie) {
+            System.err.println(sm.get("whoops", ie.getMessage()));
+            ie.printStackTrace();
+        }
 
-		System.out.println(sm.get("timeout.exit", testerTimeoutInSeconds, TIMEOUT_OPTION));
+        System.out.println(sm.get("timeout.exit", testerTimeoutInSeconds, TIMEOUT_OPTION));
 
-		if (!receiver.receivedAnything.get()) {
-			System.out.println(sm.get("no.data.for.you"));
-			return 1;
-		}
+        if (!receiver.receivedAnything.get()) {
+            System.out.println(sm.get("no.data.for.you"));
+            return 1;
+        }
 
-		return 0;
-	}
+        return 0;
+    }
 
-	/*
-	 * Can't catch every random input the user can throw at us, but let's at least make an attempt to correct honest
-	 * mistakes.
-	 *
-	 * Return true if we should keep processing.
-	 */
-	private boolean parseArgs(String[] args) {
-		String arg;
-		try {
-			for (int i = 0; i < args.length; i++) {
-				arg = args[i];
-				if (HELP_OPTION.equals(arg)) {
-					// yes, this will return a non-zero exit code
-					printHelp();
-					return false;
-				} else if (PORT_OPTION.equals(arg)) {
-					try {
-						arg = args[++i];
-						mcPort = Integer.parseInt(arg);
-					} catch (NumberFormatException nfe) {
-						System.err.println(sm.get("bad.num.param", arg, PORT_OPTION));
-						return false;
-					}
-				} else if (ADDRESS_OPTION.equals(arg)) {
-					mcAddress = args[++i];
-				} else if (BIND_OPTION.equals(arg)) {
-					bindInterface = args[++i];
-				} else if (TTL_OPTION.equals(arg)) {
-					try {
-						arg = args[++i];
-						ttl = Integer.parseInt(arg);
-					} catch (NumberFormatException nfe) {
-						System.err.println(sm.get("bad.num.param", arg, TTL_OPTION));
-						return false;
-					}
-				} else if (WAIT_PERIOD_OPTION.equals(arg)) {
-					try {
-						arg = args[++i];
-						msgPeriodInMillis = Long.parseLong(arg);
-					} catch (NumberFormatException nfe) {
-						System.err.println(sm.get("bad.num.param", arg, WAIT_PERIOD_OPTION));
-						return false;
-					}
-				} else if (TIMEOUT_OPTION.equals(arg)) {
-					try {
-						arg = args[++i];
-						testerTimeoutInSeconds = Long.parseLong(arg);
-					} catch (NumberFormatException nfe) {
-						System.err.println(sm.get("bad.num.param", arg, TIMEOUT_OPTION));
-						return false;
-					}
-					System.out.println(sm.get("timeout.set", testerTimeoutInSeconds));
-				} else if (DEBUG_OPTION.equals(arg)) {
-					System.err.println(sm.get("debug.set"));
-					debug = true;
-				} else {
-					System.err.println(sm.get("unknown.option", arg, HELP_OPTION));
-					return false;
-				}
-			}
-		} catch (ArrayIndexOutOfBoundsException badUser) {
-			System.err.println(sm.get("bad.user.param"));
-			printHelp();
-			return false;
-		}
-		return true;
-	}
+    /*
+     * Can't catch every random input the user can throw at us, but let's at least make an attempt to correct honest
+     * mistakes.
+     *
+     * Return true if we should keep processing.
+     */
+    private boolean parseArgs(String[] args) {
+        String arg;
+        try {
+            for (int i = 0; i < args.length; i++) {
+                arg = args[i];
+                if (HELP_OPTION.equals(arg)) {
+                    // yes, this will return a non-zero exit code
+                    printHelp();
+                    return false;
+                } else if (PORT_OPTION.equals(arg)) {
+                    try {
+                        arg = args[++i];
+                        mcPort = Integer.parseInt(arg);
+                    } catch (NumberFormatException nfe) {
+                        System.err.println(sm.get("bad.num.param", arg, PORT_OPTION));
+                        return false;
+                    }
+                } else if (ADDRESS_OPTION.equals(arg)) {
+                    mcAddress = args[++i];
+                } else if (BIND_OPTION.equals(arg)) {
+                    bindInterface = args[++i];
+                } else if (TTL_OPTION.equals(arg)) {
+                    try {
+                        arg = args[++i];
+                        ttl = Integer.parseInt(arg);
+                    } catch (NumberFormatException nfe) {
+                        System.err.println(sm.get("bad.num.param", arg, TTL_OPTION));
+                        return false;
+                    }
+                } else if (WAIT_PERIOD_OPTION.equals(arg)) {
+                    try {
+                        arg = args[++i];
+                        msgPeriodInMillis = Long.parseLong(arg);
+                    } catch (NumberFormatException nfe) {
+                        System.err.println(sm.get("bad.num.param", arg, WAIT_PERIOD_OPTION));
+                        return false;
+                    }
+                } else if (TIMEOUT_OPTION.equals(arg)) {
+                    try {
+                        arg = args[++i];
+                        testerTimeoutInSeconds = Long.parseLong(arg);
+                    } catch (NumberFormatException nfe) {
+                        System.err.println(sm.get("bad.num.param", arg, TIMEOUT_OPTION));
+                        return false;
+                    }
+                    System.out.println(sm.get("timeout.set", testerTimeoutInSeconds));
+                } else if (DEBUG_OPTION.equals(arg)) {
+                    System.err.println(sm.get("debug.set"));
+                    debug = true;
+                } else {
+                    System.err.println(sm.get("unknown.option", arg, HELP_OPTION));
+                    return false;
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException badUser) {
+            System.err.println(sm.get("bad.user.param"));
+            printHelp();
+            return false;
+        }
+        return true;
+    }
 
-	private void printHelp() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(sm.get("help.message")).append("\n");
-		sb.append(HELP_OPTION).append("\n");
-		sb.append(PORT_OPTION).append("\n");
-		sb.append(ADDRESS_OPTION).append("\n");
-		sb.append(BIND_OPTION).append("\n");
-		sb.append(TTL_OPTION).append("\n");
-		sb.append(WAIT_PERIOD_OPTION).append("\n");
-		sb.append(TIMEOUT_OPTION).append("\n");
-		sb.append(DEBUG_OPTION).append("\n");
-		System.out.println(sb.toString());
-	}
+    private void printHelp() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(sm.get("help.message")).append("\n");
+        sb.append(HELP_OPTION).append("\n");
+        sb.append(PORT_OPTION).append("\n");
+        sb.append(ADDRESS_OPTION).append("\n");
+        sb.append(BIND_OPTION).append("\n");
+        sb.append(TTL_OPTION).append("\n");
+        sb.append(WAIT_PERIOD_OPTION).append("\n");
+        sb.append(TIMEOUT_OPTION).append("\n");
+        sb.append(DEBUG_OPTION).append("\n");
+        System.out.println(sb.toString());
+    }
 
-	private void log(String msg) {
-		if (debug) {
-			System.err.println("MainThread: " + msg);
-		}
-	}
+    private void log(String msg) {
+        if (debug) {
+            System.err.println("MainThread: " + msg);
+        }
+    }
 
-	public static void main(String[] args) {
-		MulticastTester tester = new MulticastTester();
-		System.exit(tester.run(args));
-	}
+    public static void main(String[] args) {
+        MulticastTester tester = new MulticastTester();
+        System.exit(tester.run(args));
+    }
 
-	/*
-	 * Make the output a little more readable. The expected format is prefix|host|uuid. If a message received does not start
-	 * with the prefix, it is ignored and this method isn't called.
-	 */
-	static String trimDataString(String s) {
-		StringTokenizer st = new StringTokenizer(s, SEP);
-		st.nextToken();
-		return st.nextToken();
-	}
+    /*
+     * Make the output a little more readable. The expected format is prefix|host|uuid. If a message received does not start
+     * with the prefix, it is ignored and this method isn't called.
+     */
+    static String trimDataString(String s) {
+        StringTokenizer st = new StringTokenizer(s, SEP);
+        st.nextToken();
+        return st.nextToken();
+    }
 }

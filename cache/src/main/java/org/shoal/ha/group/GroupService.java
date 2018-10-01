@@ -27,20 +27,20 @@ import org.shoal.ha.cache.impl.util.MessageReceiver;
  */
 public interface GroupService {
 
-	String getGroupName();
+    String getGroupName();
 
-	String getMemberName();
+    String getMemberName();
 
-	List<String> getCurrentCoreMembers();
+    List<String> getCurrentCoreMembers();
 
-	void registerGroupMemberEventListener(GroupMemberEventListener listener);
+    void registerGroupMemberEventListener(GroupMemberEventListener listener);
 
-	void removeGroupMemberEventListener(GroupMemberEventListener listener);
+    void removeGroupMemberEventListener(GroupMemberEventListener listener);
 
-	void close();
+    void close();
 
-	void registerGroupMessageReceiver(String messageToken, MessageReceiver receiver);
+    void registerGroupMessageReceiver(String messageToken, MessageReceiver receiver);
 
-	boolean sendMessage(String targetMemberName, String messageToken, byte[] data);
+    boolean sendMessage(String targetMemberName, String messageToken, byte[] data);
 
 }

@@ -33,44 +33,44 @@ import com.sun.enterprise.mgmt.transport.NetworkManager;
  */
 public class PingMessageListener implements MessageListener {
 
-	private final static Logger LOG = GrizzlyNetworkManager.getLogger();
+    private final static Logger LOG = GrizzlyNetworkManager.getLogger();
 
-	@Override
-	public void receiveMessageEvent(final MessageEvent event) throws MessageIOException {
-		if (event == null) {
-			return;
-		}
-		final Message msg = event.getMessage();
-		if (msg == null) {
-			return;
-		}
-		Object obj = event.getSource();
-		if (!(obj instanceof NetworkManager)) {
-			return;
-		}
-		NetworkManager networkManager = (NetworkManager) obj;
-		PeerID sourcePeerId = event.getSourcePeerID();
-		if (sourcePeerId == null) {
-			return;
-		}
-		PeerID targetPeerId = event.getTargetPeerID();
-		if (targetPeerId == null) {
-			return;
-		}
-		if (networkManager.getLocalPeerID().equals(targetPeerId)) {
-			// send a pong message
-			try {
-				networkManager.send(sourcePeerId, new MessageImpl(Message.TYPE_PONG_MESSAGE));
-			} catch (IOException ie) {
-				if (LOG.isLoggable(Level.WARNING)) {
-					LOG.log(Level.WARNING, "failed to send a pong message", ie);
-				}
-			}
-		}
-	}
+    @Override
+    public void receiveMessageEvent(final MessageEvent event) throws MessageIOException {
+        if (event == null) {
+            return;
+        }
+        final Message msg = event.getMessage();
+        if (msg == null) {
+            return;
+        }
+        Object obj = event.getSource();
+        if (!(obj instanceof NetworkManager)) {
+            return;
+        }
+        NetworkManager networkManager = (NetworkManager) obj;
+        PeerID sourcePeerId = event.getSourcePeerID();
+        if (sourcePeerId == null) {
+            return;
+        }
+        PeerID targetPeerId = event.getTargetPeerID();
+        if (targetPeerId == null) {
+            return;
+        }
+        if (networkManager.getLocalPeerID().equals(targetPeerId)) {
+            // send a pong message
+            try {
+                networkManager.send(sourcePeerId, new MessageImpl(Message.TYPE_PONG_MESSAGE));
+            } catch (IOException ie) {
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "failed to send a pong message", ie);
+                }
+            }
+        }
+    }
 
-	@Override
-	public int getType() {
-		return Message.TYPE_PING_MESSAGE;
-	}
+    @Override
+    public int getType() {
+        return Message.TYPE_PING_MESSAGE;
+    }
 }
