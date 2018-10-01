@@ -19,33 +19,30 @@ package org.glassfish.ha.store.spi;
 import java.io.*;
 
 /**
- * Temporary class till we figure out how to reuse a similar class in naming module.
- * We do not want to add a dependency on naming (because of metro)
- *  
+ * Temporary class till we figure out how to reuse a similar class in naming module. We do not want to add a dependency
+ * on naming (because of metro)
+ * 
  * @author Mahesh Kannan
  */
 public class ObjectInputOutputStreamFactoryRegistry {
 
-    private static ObjectInputOutputStreamFactory _factory = new DefaultObjectInputOutputStreamFactory();
+	private static ObjectInputOutputStreamFactory _factory = new DefaultObjectInputOutputStreamFactory();
 
-    public static ObjectInputOutputStreamFactory getObjectInputOutputStreamFactory() {
-        return _factory;
-    }
+	public static ObjectInputOutputStreamFactory getObjectInputOutputStreamFactory() {
+		return _factory;
+	}
 
-    private static class DefaultObjectInputOutputStreamFactory
-        implements ObjectInputOutputStreamFactory {
-        
-        @Override
-        public ObjectOutputStream createObjectOutputStream(OutputStream os)
-            throws IOException {
-            return new ObjectOutputStream(os);
-        }
+	private static class DefaultObjectInputOutputStreamFactory implements ObjectInputOutputStreamFactory {
 
-        @Override
-        public ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader)
-            throws IOException {
-            return new ObjectInputStreamWithLoader(is, loader);
-        }
-    }
+		@Override
+		public ObjectOutputStream createObjectOutputStream(OutputStream os) throws IOException {
+			return new ObjectOutputStream(os);
+		}
+
+		@Override
+		public ObjectInputStream createObjectInputStream(InputStream is, ClassLoader loader) throws IOException {
+			return new ObjectInputStreamWithLoader(is, loader);
+		}
+	}
 
 }

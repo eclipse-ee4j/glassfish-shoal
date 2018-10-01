@@ -21,36 +21,34 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
 
-
 /**
  * @author Mahesh Kannan
  *
  */
-public class CumulativeCommandResponse
-    extends CommandResponse {
+public class CumulativeCommandResponse extends CommandResponse {
 
-    private int maxResponse;
+	private int maxResponse;
 
-    CountDownLatch latch;
+	CountDownLatch latch;
 
-    public CumulativeCommandResponse(ResponseMediator mediator, int maxResponse, Object initialValue) {
-        super(mediator);
-        this.maxResponse = maxResponse;
-        latch = new CountDownLatch(maxResponse);
+	public CumulativeCommandResponse(ResponseMediator mediator, int maxResponse, Object initialValue) {
+		super(mediator);
+		this.maxResponse = maxResponse;
+		latch = new CountDownLatch(maxResponse);
 
-        //set initial value
-        result = initialValue;
-    }
+		// set initial value
+		result = initialValue;
+	}
 
-    public void setResult(Object v) {
-        updateResult(result, v);
-        latch.countDown();
-        if (latch.getCount() == 0) {
-            super.setResult(result);
-        }
-    }
+	public void setResult(Object v) {
+		updateResult(result, v);
+		latch.countDown();
+		if (latch.getCount() == 0) {
+			super.setResult(result);
+		}
+	}
 
-    protected void updateResult(Object oldValue, Object newValue) {
+	protected void updateResult(Object oldValue, Object newValue) {
 
-    }
+	}
 }

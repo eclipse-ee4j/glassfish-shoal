@@ -28,82 +28,79 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public abstract class AbstractSaveCommand<K, V>
-    extends AcknowledgedCommand<K, V> {
+public abstract class AbstractSaveCommand<K, V> extends AcknowledgedCommand<K, V> {
 
-    protected transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
+	protected transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
 
-    protected long version;
+	protected long version;
 
-    protected long lastAccessedAt;
+	protected long lastAccessedAt;
 
-    protected long maxIdleTime;
+	protected long maxIdleTime;
 
-    private transient String targetInstanceName;
+	private transient String targetInstanceName;
 
-    protected AbstractSaveCommand(byte opcode) {
-        super(opcode);
-    }
+	protected AbstractSaveCommand(byte opcode) {
+		super(opcode);
+	}
 
-    public AbstractSaveCommand(byte opcode, K k, long version, long lastAccessedAt, long maxIdleTime) {
-        this(opcode);
-        super.setKey(k);
-        this.version = version;
-        this.lastAccessedAt = lastAccessedAt;
-        this.maxIdleTime = maxIdleTime;
-    }
+	public AbstractSaveCommand(byte opcode, K k, long version, long lastAccessedAt, long maxIdleTime) {
+		this(opcode);
+		super.setKey(k);
+		this.version = version;
+		this.lastAccessedAt = lastAccessedAt;
+		this.maxIdleTime = maxIdleTime;
+	}
 
-    public boolean beforeTransmit() {
-        targetInstanceName = dsc.getKeyMapper().getMappedInstance(dsc.getGroupName(), getKey());
-        super.setTargetName(targetInstanceName);
-        super.beforeTransmit();
-        return getTargetName() != null;
-    }
+	public boolean beforeTransmit() {
+		targetInstanceName = dsc.getKeyMapper().getMappedInstance(dsc.getGroupName(), getKey());
+		super.setTargetName(targetInstanceName);
+		super.beforeTransmit();
+		return getTargetName() != null;
+	}
 
-    public abstract void execute(String initiator)
-        throws DataStoreException;
+	public abstract void execute(String initiator) throws DataStoreException;
 
-    public String toString() {
-        return getName() + "(" + getKey() + ")";
-    }
+	public String toString() {
+		return getName() + "(" + getKey() + ")";
+	}
 
-    @Override
-    public String getKeyMappingInfo() {
-        return targetInstanceName;
-    }
+	@Override
+	public String getKeyMappingInfo() {
+		return targetInstanceName;
+	}
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
-        out.writeLong(version);
-        out.writeLong(lastAccessedAt);
-        out.writeLong(maxIdleTime);
-        
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, dsc.getServiceName() + " sending state for key = " + getKey() + "; version = " + version + "; lastAccessedAt = " + lastAccessedAt + "; to " + getTargetName());
-        }
-    }
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.writeLong(version);
+		out.writeLong(lastAccessedAt);
+		out.writeLong(maxIdleTime);
 
-    public long getVersion() {
-        return version;
-    }
+		if (_logger.isLoggable(Level.FINE)) {
+			_logger.log(Level.FINE, dsc.getServiceName() + " sending state for key = " + getKey() + "; version = " + version + "; lastAccessedAt = "
+			        + lastAccessedAt + "; to " + getTargetName());
+		}
+	}
 
-    public long getLastAccessedAt() {
-        return lastAccessedAt;
-    }
+	public long getVersion() {
+		return version;
+	}
 
-    public long getMaxIdleTime() {
-        return maxIdleTime;
-    }
+	public long getLastAccessedAt() {
+		return lastAccessedAt;
+	}
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
-        version = in.readLong();
-        lastAccessedAt = in.readLong();
-        maxIdleTime = in.readLong();
-    }
+	public long getMaxIdleTime() {
+		return maxIdleTime;
+	}
 
-    public boolean hasState() {
-        return false;
-    }
-    
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		version = in.readLong();
+		lastAccessedAt = in.readLong();
+		maxIdleTime = in.readLong();
+	}
+
+	public boolean hasState() {
+		return false;
+	}
+
 }

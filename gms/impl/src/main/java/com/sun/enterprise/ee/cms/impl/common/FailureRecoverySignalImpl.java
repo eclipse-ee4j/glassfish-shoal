@@ -21,45 +21,40 @@ import com.sun.enterprise.ee.cms.core.*;
 import java.util.logging.Level;
 
 /**
- * Implements the FailureRecoverySignal Interface and provides operations
- * corresponding to a recovery oriented Signal's behavior
+ * Implements the FailureRecoverySignal Interface and provides operations corresponding to a recovery oriented Signal's
+ * behavior
  *
- * @author Shreedhar Ganapathy
- * Date: November 07, 2003
+ * @author Shreedhar Ganapathy Date: November 07, 2003
  * @version $Revision$
  */
-public class FailureRecoverySignalImpl extends FailureNotificationSignalImpl
-        implements FailureRecoverySignal
- {
-    private String componentName;
-    public FailureRecoverySignalImpl(final String componentName,
-                                     final String failedMember, 
-                                     final String groupName, 
-                                     final long startTime)
-    {
-        this.failedMember = failedMember;
-        this.componentName = componentName;
-        this.groupName = groupName;
-        this.startTime = startTime;
-        this.ctx = GMSContextFactory.getGMSContext(groupName);
-    }
+public class FailureRecoverySignalImpl extends FailureNotificationSignalImpl implements FailureRecoverySignal {
+	private String componentName;
 
-    FailureRecoverySignalImpl ( final FailureRecoverySignal signal ) {
-        this.failedMember = signal.getMemberToken();
-        this.componentName = signal.getComponentName();
-        this.groupName = signal.getGroupName();
-        this.startTime = signal.getStartTime();
-        this.ctx = GMSContextFactory.getGMSContext(groupName);
-    }
+	public FailureRecoverySignalImpl(final String componentName, final String failedMember, final String groupName, final long startTime) {
+		this.failedMember = failedMember;
+		this.componentName = componentName;
+		this.groupName = groupName;
+		this.startTime = startTime;
+		this.ctx = GMSContextFactory.getGMSContext(groupName);
+	}
 
-    /**
-     * Must be called by client before beginning any recovery operation
-     * in order to get support of failure fencing.
-     * @throws SignalAcquireException Exception when signal is not acquired
-     */
-    @Override public void acquire() throws SignalAcquireException {
+	FailureRecoverySignalImpl(final FailureRecoverySignal signal) {
+		this.failedMember = signal.getMemberToken();
+		this.componentName = signal.getComponentName();
+		this.groupName = signal.getGroupName();
+		this.startTime = signal.getStartTime();
+		this.ctx = GMSContextFactory.getGMSContext(groupName);
+	}
 
-        // deprecate fencing in gms proper. transaction handling fencing itself.
+	/**
+	 * Must be called by client before beginning any recovery operation in order to get support of failure fencing.
+	 * 
+	 * @throws SignalAcquireException Exception when signal is not acquired
+	 */
+	@Override
+	public void acquire() throws SignalAcquireException {
+
+		// deprecate fencing in gms proper. transaction handling fencing itself.
 //        try {
 //            final GroupHandle gh = ctx.getGroupHandle();
 //            if(gh.isMemberAlive( failedMember ) ){
@@ -71,31 +66,29 @@ public class FailureRecoverySignalImpl extends FailureNotificationSignalImpl
 //        catch ( GMSException e ) {
 //            throw new SignalAcquireException( e );
 //        }
-    }
+	}
 
-    /**
-     * Must be called by client after recovery operation is complete
-     * to bring the group state up-to-date on this recovery operation.
-     * Not doing so will leave a stale entry in the group's state.
-     */
-    @Override public void release() throws SignalReleaseException
-    {
-        try {
-            // deprecated fencining in gms proper.
+	/**
+	 * Must be called by client after recovery operation is complete to bring the group state up-to-date on this recovery
+	 * operation. Not doing so will leave a stale entry in the group's state.
+	 */
+	@Override
+	public void release() throws SignalReleaseException {
+		try {
+			// deprecated fencining in gms proper.
 //          ctx.getGroupHandle().lowerFence(componentName, failedMember);
 //          logger.log(Level.FINE, "lowered fence for component "+ componentName +" and member "+ failedMember);
 
-            // GMS will reissue FailureRecovery if instance appointed as Recovery Agent fails before removing
-            // its appointment.
-            ctx.getGroupHandle().removeRecoveryAppointments(failedMember, componentName);
-            failedMember=null;
-        }
-        catch ( GMSException e ) {
-            throw new SignalReleaseException( e );
-        }
-    }
+			// GMS will reissue FailureRecovery if instance appointed as Recovery Agent fails before removing
+			// its appointment.
+			ctx.getGroupHandle().removeRecoveryAppointments(failedMember, componentName);
+			failedMember = null;
+		} catch (GMSException e) {
+			throw new SignalReleaseException(e);
+		}
+	}
 
-    public String getComponentName () {
-        return componentName;
-    }
+	public String getComponentName() {
+		return componentName;
+	}
 }

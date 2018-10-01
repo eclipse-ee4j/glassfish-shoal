@@ -25,106 +25,102 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Provides contextual information about all useful GMS artifacts. These are
- * GMS objects that are tied to a particular group identity and thus scoped
- * to provide information within the group's context. There can be as many
- * GMSContext objects as there are groups within a single JVM process.
+ * Provides contextual information about all useful GMS artifacts. These are GMS objects that are tied to a particular
+ * group identity and thus scoped to provide information within the group's context. There can be as many GMSContext
+ * objects as there are groups within a single JVM process.
  *
- * @author Shreedhar Ganapathy
- * Date: Jan 12, 2004
+ * @author Shreedhar Ganapathy Date: Jan 12, 2004
  * @version $Revision$
  */
 public interface GMSContext {
-    /**
-     * returns the serverIdentityToken pertaining to the process that
-     * owns this GMS instance
-     * @return java.lang.String
-     */
-    public String getServerIdentityToken();
+	/**
+	 * returns the serverIdentityToken pertaining to the process that owns this GMS instance
+	 * 
+	 * @return java.lang.String
+	 */
+	public String getServerIdentityToken();
 
-    /**
-     * returns the name of the group this context represents.
-     * @return  the name of the group.
-     */
-    public String getGroupName();
+	/**
+	 * returns the name of the group this context represents.
+	 * 
+	 * @return the name of the group.
+	 */
+	public String getGroupName();
 
-    /**
-     * returns Group handle
-     * @return Group handle
-     */
-    GroupHandle getGroupHandle();
+	/**
+	 * returns Group handle
+	 * 
+	 * @return Group handle
+	 */
+	GroupHandle getGroupHandle();
 
-    /**
-     * returns the router
-     * @return router
-     */
-    Router getRouter();
+	/**
+	 * returns the router
+	 * 
+	 * @return router
+	 */
+	Router getRouter();
 
-    ViewWindow getViewWindow();
+	ViewWindow getViewWindow();
 
-    DistributedStateCache getDistributedStateCache();
+	DistributedStateCache getDistributedStateCache();
 
-    GMSMonitor getGMSMonitor();
+	GMSMonitor getGMSMonitor();
 
-    void join() throws GMSException ;
+	void join() throws GMSException;
 
-    void leave(final GMSConstants.shutdownType shutdownType) ;
+	void leave(final GMSConstants.shutdownType shutdownType);
 
-    boolean isShuttingDown ();
+	boolean isShuttingDown();
 
-    long getStartTime();
+	long getStartTime();
 
-    public void announceGroupStartup(final String groupName,
-                                     final GMSConstants.groupStartupState startupState,
-                                     final List<String> memberTokens);
+	public void announceGroupStartup(final String groupName, final GMSConstants.groupStartupState startupState, final List<String> memberTokens);
 
-    void announceGroupShutdown(final String groupName,
-                           final GMSConstants.shutdownState shutdownState );
+	void announceGroupShutdown(final String groupName, final GMSConstants.shutdownState shutdownState);
 
-    boolean addToSuspectList( final String token );
+	boolean addToSuspectList(final String token);
 
-    void removeFromSuspectList( final String token );
+	void removeFromSuspectList(final String token);
 
-    boolean isSuspected ( final String token );
+	boolean isSuspected(final String token);
 
-    List<String> getSuspectList();
+	List<String> getSuspectList();
 
-    ShutdownHelper getShutdownHelper ();
+	ShutdownHelper getShutdownHelper();
 
-    GroupCommunicationProvider getGroupCommunicationProvider();
+	GroupCommunicationProvider getGroupCommunicationProvider();
 
-    /**
-     * lets this instance become a group leader explicitly
-     * Typically this can be employed by an administrative member to become
-     * a group leader prior to shutting down a group of members simultaneously.
-     *
-     * For underlying Group Communication Providers who don't support the feature
-     * of a explicit leader role assumption, the implementation of this method
-     * would be a no-op.
-     * */
-    void assumeGroupLeadership();
+	/**
+	 * lets this instance become a group leader explicitly Typically this can be employed by an administrative member to
+	 * become a group leader prior to shutting down a group of members simultaneously.
+	 *
+	 * For underlying Group Communication Providers who don't support the feature of a explicit leader role assumption, the
+	 * implementation of this method would be a no-op.
+	 */
+	void assumeGroupLeadership();
 
-    boolean isGroupBeingShutdown(String groupName);
+	boolean isGroupBeingShutdown(String groupName);
 
-    boolean isGroupStartup();
+	boolean isGroupStartup();
 
-    void setGroupStartup(boolean value);
+	void setGroupStartup(boolean value);
 
-    public GroupManagementService.MemberType getMemberType();
+	public GroupManagementService.MemberType getMemberType();
 
-    public boolean isWatchdog();
+	public boolean isWatchdog();
 
-    public AliveAndReadyView getPreviousAliveAndReadyView();
+	public AliveAndReadyView getPreviousAliveAndReadyView();
 
-    public AliveAndReadyView getCurrentAliveAndReadyView();
+	public AliveAndReadyView getCurrentAliveAndReadyView();
 
-    public Map<String, RejoinSubevent> getInstanceRejoins();
+	public Map<String, RejoinSubevent> getInstanceRejoins();
 
-    public AliveAndReadyViewWindow  getAliveAndReadyViewWindow();
+	public AliveAndReadyViewWindow getAliveAndReadyViewWindow();
 
-    public void setGroupStartupJoinMembers(Set<String> members);
+	public void setGroupStartupJoinMembers(Set<String> members);
 
-    public boolean isGroupStartupComplete();
+	public boolean isGroupStartupComplete();
 
-    public boolean setGroupStartupState(String member, MemberStates state);
+	public boolean setGroupStartupState(String member, MemberStates state);
 }

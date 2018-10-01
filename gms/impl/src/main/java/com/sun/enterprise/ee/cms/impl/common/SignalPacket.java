@@ -18,43 +18,42 @@ package com.sun.enterprise.ee.cms.impl.common;
 
 import com.sun.enterprise.ee.cms.core.Signal;
 
-
 /**
  * A packet containing the Signal(s) being delivered to the Router's signal queue.
- * @author Shreedhar Ganapathy
- * Date: Jan 22, 2004
+ * 
+ * @author Shreedhar Ganapathy Date: Jan 22, 2004
  * @version $Revision$
  */
 public class SignalPacket {
-    private Signal[] signals=null;
-    private Signal signal=null;
+	private Signal[] signals = null;
+	private Signal signal = null;
 
-    public SignalPacket(final Signal[] signals){
-        this.signals=signals;
-    }
+	public SignalPacket(final Signal[] signals) {
+		this.signals = signals;
+	}
 
-    public SignalPacket(final Signal signal){
-        this.signal=signal;
-    }
+	public SignalPacket(final Signal signal) {
+		this.signal = signal;
+	}
 
-    Signal[] getSignals(){
-        return signals;
-    }
+	Signal[] getSignals() {
+		return signals;
+	}
 
-    Signal getSignal(){
-        return signal;
-    }
+	Signal getSignal() {
+		return signal;
+	}
 
-    public String toString() {
-        String result = "SignalPacket contains: ";
-        if (signal != null) {
-            result += signal.toString();
-        } else if (signals != null) {
-            for (Signal s : signals) {
-                result += s.toString() + " ";
-            }
+	public String toString() {
+		String result = "SignalPacket contains: ";
+		if (signal != null) {
+			result += signal.toString();
+		} else if (signals != null) {
+			for (Signal s : signals) {
+				result += s.toString() + " ";
+			}
 
-        }
-        return result;
-    }
+		}
+		return result;
+	}
 }

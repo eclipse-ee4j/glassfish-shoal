@@ -17,10 +17,10 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * An <code>Action</code> type that consumes <code>GroupLeadershipNotificationSignal</code>.
- * When the master for the cluster has changed, a <code>GroupLeadershipNotificationSignal</code> is
- * generated to be consumed by <code>GroupLeadershipNotificationAction</code> instances
- * that are produced by registered instances of GroupLeadershipNotificationActionFactory.
+ * An <code>Action</code> type that consumes <code>GroupLeadershipNotificationSignal</code>. When the master for the
+ * cluster has changed, a <code>GroupLeadershipNotificationSignal</code> is generated to be consumed by
+ * <code>GroupLeadershipNotificationAction</code> instances that are produced by registered instances of
+ * GroupLeadershipNotificationActionFactory.
  *
  * @author Bongjae Chang
  */

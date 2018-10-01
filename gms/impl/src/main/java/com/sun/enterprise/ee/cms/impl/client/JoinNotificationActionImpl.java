@@ -24,37 +24,38 @@ import java.util.logging.Logger;
 
 /**
  * Reference Implementation of JoinNotificationAction
- * @author Shreedhar Ganapathy
- *         Date: Mar 15, 2005
+ * 
+ * @author Shreedhar Ganapathy Date: Mar 15, 2005
  * @version $Revision$
  */
 public class JoinNotificationActionImpl implements JoinNotificationAction {
-    private final CallBack callBack;
-    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
-    public JoinNotificationActionImpl(final CallBack callBack) {
-        this.callBack = callBack;
-    }
+	private final CallBack callBack;
+	private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
-    /**
-     * Implementations of consumeSignal should strive to return control
-     * promptly back to the thread that has delivered the Signal.
-     */
-    public void consumeSignal(final Signal s) throws ActionException {
-        boolean signalAcquired = false;
-        try {
-            s.acquire();
-            signalAcquired = true;
-            callBack.processNotification(s);
-        } catch (SignalAcquireException e) {
-            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-        } finally {
-            if (signalAcquired) {
-                try {
-                    s.release();
-                } catch (SignalReleaseException e) {
-                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-                }
-            }
-        }
-    }
+	public JoinNotificationActionImpl(final CallBack callBack) {
+		this.callBack = callBack;
+	}
+
+	/**
+	 * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
+	 * Signal.
+	 */
+	public void consumeSignal(final Signal s) throws ActionException {
+		boolean signalAcquired = false;
+		try {
+			s.acquire();
+			signalAcquired = true;
+			callBack.processNotification(s);
+		} catch (SignalAcquireException e) {
+			logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		} finally {
+			if (signalAcquired) {
+				try {
+					s.release();
+				} catch (SignalReleaseException e) {
+					logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+				}
+			}
+		}
+	}
 }

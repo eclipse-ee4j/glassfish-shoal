@@ -32,70 +32,68 @@ import java.util.logging.Logger;
  * @author Mahesh Kannan
  *
  */
-public class ReplicationCommandTransmitterManager<K, V>
-        extends AbstractCommandInterceptor<K, V> {
+public class ReplicationCommandTransmitterManager<K, V> extends AbstractCommandInterceptor<K, V> {
 
-    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
+	private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
 
-    private ConcurrentHashMap<String, CommandCollector<K, V>> transmitters
-            = new ConcurrentHashMap<String, CommandCollector<K, V>>();
+	private ConcurrentHashMap<String, CommandCollector<K, V>> transmitters = new ConcurrentHashMap<String, CommandCollector<K, V>>();
 
-    private CommandCollector<K, V> broadcastTransmitter;
+	private CommandCollector<K, V> broadcastTransmitter;
 
-    public ReplicationCommandTransmitterManager() {
-    }
+	public ReplicationCommandTransmitterManager() {
+	}
 
-    @Override
-    public void initialize(DataStoreContext<K, V> dsc) {
-        super.initialize(dsc);
-        broadcastTransmitter = new ReplicationCommandTransmitterWithList<K, V>();
-        broadcastTransmitter.initialize(null, dsc);
+	@Override
+	public void initialize(DataStoreContext<K, V> dsc) {
+		super.initialize(dsc);
+		broadcastTransmitter = new ReplicationCommandTransmitterWithList<K, V>();
+		broadcastTransmitter.initialize(null, dsc);
 
-        _logger.log(Level.FINE, "ReplicationCommandTransmitterManager(" + dsc.getServiceName() + ") instantiated with: "
-            + dsc.isUseMapToCacheCommands() + " : " + dsc.isSafeToDelayCaptureState());
-    }
+		_logger.log(Level.FINE, "ReplicationCommandTransmitterManager(" + dsc.getServiceName() + ") instantiated with: " + dsc.isUseMapToCacheCommands() + " : "
+		        + dsc.isSafeToDelayCaptureState());
+	}
 
-    @Override
-    public void onTransmit(Command<K, V> cmd, String initiator)
-        throws DataStoreException {
-        switch (cmd.getOpcode()) {
-            case ReplicationCommandOpcode.REPLICATION_FRAME_PAYLOAD:
-                super.onTransmit(cmd, initiator);
-                break;
+	@Override
+	public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
+		switch (cmd.getOpcode()) {
+		case ReplicationCommandOpcode.REPLICATION_FRAME_PAYLOAD:
+			super.onTransmit(cmd, initiator);
+			break;
 
-            default:
-                String target = cmd.getTargetName();
-                if (target != null) {
-                    CommandCollector<K, V> rft = transmitters.get(target);
-                    if (rft == null) {
-                        rft = dsc.isUseMapToCacheCommands()
-                                ? new ReplicationCommandTransmitterWithMap<K, V>()
-                                : new ReplicationCommandTransmitterWithList<K, V>();
-                        rft.initialize(target, getDataStoreContext());
-                        CommandCollector oldRCT = transmitters.putIfAbsent(target, rft);
-                        if (oldRCT != null) {
-                            rft = oldRCT;
-                        }
-                    }
-                    if (cmd.getOpcode() == ReplicationCommandOpcode.REMOVE) {
-                        rft.removeCommand(cmd);
-                    } else {
-                        rft.addCommand(cmd);
-                    }
-                } else {
-                    broadcastTransmitter.addCommand(cmd);
-                }
-                break;
-        }
-    }
+		default:
+			String target = cmd.getTargetName();
+			if (target != null) {
+				CommandCollector<K, V> rft = transmitters.get(target);
+				if (rft == null) {
+					rft = dsc.isUseMapToCacheCommands() ? new ReplicationCommandTransmitterWithMap<K, V>() : new ReplicationCommandTransmitterWithList<K, V>();
+					rft.initialize(target, getDataStoreContext());
+					CommandCollector oldRCT = transmitters.putIfAbsent(target, rft);
+					if (oldRCT != null) {
+						rft = oldRCT;
+					}
+				}
+				if (cmd.getOpcode() == ReplicationCommandOpcode.REMOVE) {
+					rft.removeCommand(cmd);
+				} else {
+					rft.addCommand(cmd);
+				}
+			} else {
+				broadcastTransmitter.addCommand(cmd);
+			}
+			break;
+		}
+	}
 
-    public void close() {
-        for (CommandCollector<K, V> cc : transmitters.values()) {
-            cc.close();
-        }
+	public void close() {
+		for (CommandCollector<K, V> cc : transmitters.values()) {
+			cc.close();
+		}
 
-       try { broadcastTransmitter.addCommand(new NoOpCommand()); } catch (DataStoreException dsEx) {}
-       broadcastTransmitter.close();
-    }
+		try {
+			broadcastTransmitter.addCommand(new NoOpCommand());
+		} catch (DataStoreException dsEx) {
+		}
+		broadcastTransmitter.close();
+	}
 
 }

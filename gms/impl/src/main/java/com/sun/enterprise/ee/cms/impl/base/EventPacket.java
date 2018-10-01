@@ -20,38 +20,34 @@ import com.sun.enterprise.mgmt.ClusterView;
 import com.sun.enterprise.mgmt.ClusterViewEvents;
 
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jun 27, 2006
+ * @author Shreedhar Ganapathy Date: Jun 27, 2006
  * @version $Revision$
  */
 public class EventPacket {
-    private final ClusterViewEvents clusterViewEvent;
-    private final SystemAdvertisement systemAdvertisement;
-    private final ClusterView clusterView;
+	private final ClusterViewEvents clusterViewEvent;
+	private final SystemAdvertisement systemAdvertisement;
+	private final ClusterView clusterView;
 
-    public EventPacket(
-            final ClusterViewEvents clusterViewEvent,
-            final SystemAdvertisement systemAdvertisement,
-            final ClusterView clusterView) {
-        this.clusterViewEvent = clusterViewEvent;
-        this.systemAdvertisement = systemAdvertisement;
-        this.clusterView = clusterView;
-    }
+	public EventPacket(final ClusterViewEvents clusterViewEvent, final SystemAdvertisement systemAdvertisement, final ClusterView clusterView) {
+		this.clusterViewEvent = clusterViewEvent;
+		this.systemAdvertisement = systemAdvertisement;
+		this.clusterView = clusterView;
+	}
 
-    public ClusterViewEvents getClusterViewEvent() {
-        return clusterViewEvent;
-    }
+	public ClusterViewEvents getClusterViewEvent() {
+		return clusterViewEvent;
+	}
 
-    public SystemAdvertisement getSystemAdvertisement() {
-        return systemAdvertisement;
-    }
+	public SystemAdvertisement getSystemAdvertisement() {
+		return systemAdvertisement;
+	}
 
-    public ClusterView getClusterView() {
-        return clusterView;
-    }
+	public ClusterView getClusterView() {
+		return clusterView;
+	}
 
-    public String toString() {
-        final String token = systemAdvertisement.getName();
-        return clusterViewEvent.toString() + " from " + token;
-    }
+	public String toString() {
+		final String token = systemAdvertisement.getName();
+		return clusterViewEvent.toString() + " from " + token;
+	}
 }

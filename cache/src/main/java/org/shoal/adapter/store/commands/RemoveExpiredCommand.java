@@ -31,68 +31,66 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public class RemoveExpiredCommand<K, V>
-    extends Command {
+public class RemoveExpiredCommand<K, V> extends Command {
 
-    protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
+	protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
 
-    private long maxIdleInMillis;
+	private long maxIdleInMillis;
 
-    private long tokenId;
+	private long tokenId;
 
-    private String target;
+	private String target;
 
-    public RemoveExpiredCommand(long maxIdleInMillis, long tokenId) {
-        super(ReplicationCommandOpcode.REMOVE_EXPIRED);
-        this.maxIdleInMillis = maxIdleInMillis;
-        this.tokenId = tokenId;
+	public RemoveExpiredCommand(long maxIdleInMillis, long tokenId) {
+		super(ReplicationCommandOpcode.REMOVE_EXPIRED);
+		this.maxIdleInMillis = maxIdleInMillis;
+		this.tokenId = tokenId;
 
-        super.setKey("RemExpired" + System.identityHashCode(this));
-    }
+		super.setKey("RemExpired" + System.identityHashCode(this));
+	}
 
-    public void setTarget(String t) {
-        this.target = t;
-    }
+	public void setTarget(String t) {
+		this.target = t;
+	}
 
-    public boolean beforeTransmit() {
-        setTargetName(target);
-        return target != null;
-    }
+	public boolean beforeTransmit() {
+		setTargetName(target);
+		return target != null;
+	}
 
-    public Object getCommandKey() {
-        return "RemExpired" + System.identityHashCode(this);
-    }
-    
-    private void writeObject(ObjectOutputStream ros) throws IOException {
-        ros.writeLong(maxIdleInMillis);
-        ros.writeLong(tokenId);
-        ros.writeUTF(dsc.getInstanceName());
-    }
+	public Object getCommandKey() {
+		return "RemExpired" + System.identityHashCode(this);
+	}
 
-    private void readObject(ObjectInputStream ris)
-        throws IOException, ClassNotFoundException {
-        maxIdleInMillis = ris.readLong();
-        tokenId = ris.readLong();
-        target = ris.readUTF();
-    }
+	private void writeObject(ObjectOutputStream ros) throws IOException {
+		ros.writeLong(maxIdleInMillis);
+		ros.writeLong(tokenId);
+		ros.writeUTF(dsc.getInstanceName());
+	}
 
-    @Override
-    public void execute(String initiator) {
-        int localResult = dsc.getReplicaStore().removeExpired();
-        RemoveExpiredResultCommand<K, V> resultCmd = new RemoveExpiredResultCommand<K, V>(target, tokenId, localResult);
-        try {
-            dsc.getCommandManager().execute(resultCmd);
-        } catch (Exception ex) {
-            _logger.log(Level.WARNING, "Exception while trying to send result for remove_expired", ex);
-        }
-    }
+	private void readObject(ObjectInputStream ris) throws IOException, ClassNotFoundException {
+		maxIdleInMillis = ris.readLong();
+		tokenId = ris.readLong();
+		target = ris.readUTF();
+	}
 
-    @Override
-    protected boolean isArtificialKey() {
-        return true;
-    }
+	@Override
+	public void execute(String initiator) {
+		int localResult = dsc.getReplicaStore().removeExpired();
+		RemoveExpiredResultCommand<K, V> resultCmd = new RemoveExpiredResultCommand<K, V>(target, tokenId, localResult);
+		try {
+			dsc.getCommandManager().execute(resultCmd);
+		} catch (Exception ex) {
+			_logger.log(Level.WARNING, "Exception while trying to send result for remove_expired", ex);
+		}
+	}
 
-    public String toString() {
-        return getName() + "(" + maxIdleInMillis + ")";
-    }
+	@Override
+	protected boolean isArtificialKey() {
+		return true;
+	}
+
+	public String toString() {
+		return getName() + "(" + maxIdleInMillis + ")";
+	}
 }

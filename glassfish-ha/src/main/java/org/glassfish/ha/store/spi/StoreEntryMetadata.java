@@ -24,8 +24,8 @@ import java.util.Collection;
  */
 public interface StoreEntryMetadata<S> {
 
-    public AttributeMetadata<S, ?> getAttributeMetadata(String name);
+	public AttributeMetadata<S, ?> getAttributeMetadata(String name);
 
-    public Collection<AttributeMetadata<S, ?>> getAllAttributeMetadata();
-    
+	public Collection<AttributeMetadata<S, ?>> getAllAttributeMetadata();
+
 }

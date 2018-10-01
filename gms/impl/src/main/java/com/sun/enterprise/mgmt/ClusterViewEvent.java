@@ -21,54 +21,50 @@ import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 import java.io.Serializable;
 
 /**
- * Denotes a Cluster View Change Event. Provides the event and the system
- * advertisement in question.
+ * Denotes a Cluster View Change Event. Provides the event and the system advertisement in question.
  *
- * @author Shreedhar Ganapathy
- *         Date: Jun 29, 2006
+ * @author Shreedhar Ganapathy Date: Jun 29, 2006
  * @version $Revision$
  */
 public class ClusterViewEvent implements Serializable {
-    static final long serialVersionUID = 4125228994646649851L;
+	static final long serialVersionUID = 4125228994646649851L;
 
-    private final ClusterViewEvents event;
-    private final SystemAdvertisement advertisement;
+	private final ClusterViewEvents event;
+	private final SystemAdvertisement advertisement;
 
-    /**
-     * Constructor for the ClusterViewEvent object
-     *
-     * @param event         the Event
-     * @param advertisement The system advertisement associated with the event
-     */
-    ClusterViewEvent(final ClusterViewEvents event,
-                     final SystemAdvertisement advertisement) {
+	/**
+	 * Constructor for the ClusterViewEvent object
+	 *
+	 * @param event the Event
+	 * @param advertisement The system advertisement associated with the event
+	 */
+	ClusterViewEvent(final ClusterViewEvents event, final SystemAdvertisement advertisement) {
 
-        if (event == null) {
-            throw new IllegalArgumentException("Null event not allowed");
-        }
-        if (advertisement == null) {
-            throw new IllegalArgumentException("Null advertisement not allowed");
-        }
-        this.event = event;
-        this.advertisement = advertisement;
-    }
+		if (event == null) {
+			throw new IllegalArgumentException("Null event not allowed");
+		}
+		if (advertisement == null) {
+			throw new IllegalArgumentException("Null advertisement not allowed");
+		}
+		this.event = event;
+		this.advertisement = advertisement;
+	}
 
-    /**
-     * Gets the event attribute of the ClusterViewEvent object
-     *
-     * @return The event value
-     */
-    public ClusterViewEvents getEvent() {
-        return event;
-    }
+	/**
+	 * Gets the event attribute of the ClusterViewEvent object
+	 *
+	 * @return The event value
+	 */
+	public ClusterViewEvents getEvent() {
+		return event;
+	}
 
-    /**
-     * Gets the advertisement attribute of the ClusterViewEvent object
-     *
-     * @return The advertisement value
-     */
-    public SystemAdvertisement getAdvertisement() {
-        return advertisement;
-    }
+	/**
+	 * Gets the advertisement attribute of the ClusterViewEvent object
+	 *
+	 * @return The advertisement value
+	 */
+	public SystemAdvertisement getAdvertisement() {
+		return advertisement;
+	}
 }
-

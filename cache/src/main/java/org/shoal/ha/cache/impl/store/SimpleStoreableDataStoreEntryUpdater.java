@@ -31,131 +31,117 @@ import java.util.logging.Level;
  * @author Mahesh Kannan
  * 
  */
-public class SimpleStoreableDataStoreEntryUpdater<K, V extends SimpleMetadata>
-    extends DataStoreEntryUpdater<K, V> {
+public class SimpleStoreableDataStoreEntryUpdater<K, V extends SimpleMetadata> extends DataStoreEntryUpdater<K, V> {
 
-    @Override
-    public SaveCommand<K, V> createSaveCommand(DataStoreEntry<K, V> entry, K k, V v) {
-        SaveCommand<K, V> cmd = new SaveCommand<K, V>(k, v, v._storeable_getVersion(),
-                v._storeable_getLastAccessTime(), v._storeable_getMaxIdleTime());
-        super.updateMetaInfoInDataStoreEntry(entry, cmd);
-        entry.setIsReplicaNode(false);
-        return cmd;
-    }
+	@Override
+	public SaveCommand<K, V> createSaveCommand(DataStoreEntry<K, V> entry, K k, V v) {
+		SaveCommand<K, V> cmd = new SaveCommand<K, V>(k, v, v._storeable_getVersion(), v._storeable_getLastAccessTime(), v._storeable_getMaxIdleTime());
+		super.updateMetaInfoInDataStoreEntry(entry, cmd);
+		entry.setIsReplicaNode(false);
+		return cmd;
+	}
 
-    @Override
-    public V extractVFrom(LoadResponseCommand<K, V> cmd)
-        throws DataStoreException {
-        return (V) new SimpleMetadata(cmd.getVersion(),
-                    System.currentTimeMillis(), 600000, cmd.getRawV());
-    }
+	@Override
+	public V extractVFrom(LoadResponseCommand<K, V> cmd) throws DataStoreException {
+		return (V) new SimpleMetadata(cmd.getVersion(), System.currentTimeMillis(), 600000, cmd.getRawV());
+	}
 
-    @Override
-    public LoadResponseCommand<K, V> createLoadResponseCommand(DataStoreEntry<K, V> entry, K k, long minVersion) {
-        LoadResponseCommand<K, V> cmd = null;
-        if (entry != null && entry.isReplicaNode() && entry.getVersion() >= minVersion) {
+	@Override
+	public LoadResponseCommand<K, V> createLoadResponseCommand(DataStoreEntry<K, V> entry, K k, long minVersion) {
+		LoadResponseCommand<K, V> cmd = null;
+		if (entry != null && entry.isReplicaNode() && entry.getVersion() >= minVersion) {
 
-            if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.createLoadResp "
-                    + " entry.version " + entry.getVersion() + ">= " + minVersion
-                    + "; rawV.length = " + entry.getRawV());
-            }
-            cmd = new LoadResponseCommand<K, V>(k, entry.getVersion(), entry.getRawV());
-        } else {
-            if (_logger.isLoggable(Level.FINE)) {
-                String entryMsg = (entry == null) ? "NULL ENTRY"
-                        : (entry.getVersion() + " >= " + minVersion);
-                _logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.createLoadResp " + entryMsg
-                   + "; rawV.length = " + (entry == null ? " null " : "" + entry.getRawV()));
-            }
-            
-            cmd = new LoadResponseCommand<K, V>(k, Long.MIN_VALUE, null);
-        }
-        return cmd;
-    }
+			if (_logger.isLoggable(Level.FINE)) {
+				_logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.createLoadResp " + " entry.version " + entry.getVersion() + ">= " + minVersion
+				        + "; rawV.length = " + entry.getRawV());
+			}
+			cmd = new LoadResponseCommand<K, V>(k, entry.getVersion(), entry.getRawV());
+		} else {
+			if (_logger.isLoggable(Level.FINE)) {
+				String entryMsg = (entry == null) ? "NULL ENTRY" : (entry.getVersion() + " >= " + minVersion);
+				_logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.createLoadResp " + entryMsg + "; rawV.length = "
+				        + (entry == null ? " null " : "" + entry.getRawV()));
+			}
 
-    @Override
-    public void executeSave(DataStoreEntry<K, V> entry, SaveCommand<K, V> cmd) {
-        if (entry != null && entry.getVersion() < cmd.getVersion()) {
-            if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.executeSave. SAVING ... "
-                    + "entry = " + entry + "; entry.version = " + entry.getVersion()
-                    + "; cmd.version = " + cmd.getVersion());
-            }
-            entry.setIsReplicaNode(true);
-            super.updateMetaInfoInDataStoreEntry(entry, cmd);
-            entry.setRawV(cmd.getRawV());
-            super.printEntryInfo("SimpleStoreableDataStoreEntryUpdater:Updated", entry, cmd.getKey());
-            updateFromPendingUpdates(entry);
-            super.printEntryInfo("SimpleStoreableDataStoreEntryUpdater:Updated", entry, cmd.getKey());
-        } else {
-            if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.executeSave. IGNORING ... "
-                    + "entry = " + entry + "; entry.version = " + entry.getVersion()
-                    + "; cmd.version = " + cmd.getVersion());
-            }
-        }
-    }
+			cmd = new LoadResponseCommand<K, V>(k, Long.MIN_VALUE, null);
+		}
+		return cmd;
+	}
 
-    @Override
-    public void executeTouch(DataStoreEntry<K, V> entry, TouchCommand<K, V> touchCmd)
-            throws DataStoreException {
+	@Override
+	public void executeSave(DataStoreEntry<K, V> entry, SaveCommand<K, V> cmd) {
+		if (entry != null && entry.getVersion() < cmd.getVersion()) {
+			if (_logger.isLoggable(Level.FINE)) {
+				_logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.executeSave. SAVING ... " + "entry = " + entry + "; entry.version = "
+				        + entry.getVersion() + "; cmd.version = " + cmd.getVersion());
+			}
+			entry.setIsReplicaNode(true);
+			super.updateMetaInfoInDataStoreEntry(entry, cmd);
+			entry.setRawV(cmd.getRawV());
+			super.printEntryInfo("SimpleStoreableDataStoreEntryUpdater:Updated", entry, cmd.getKey());
+			updateFromPendingUpdates(entry);
+			super.printEntryInfo("SimpleStoreableDataStoreEntryUpdater:Updated", entry, cmd.getKey());
+		} else {
+			if (_logger.isLoggable(Level.FINE)) {
+				_logger.log(Level.FINE, "SimpleStoreableDataStoreEntryUpdater.executeSave. IGNORING ... " + "entry = " + entry + "; entry.version = "
+				        + entry.getVersion() + "; cmd.version = " + cmd.getVersion());
+			}
+		}
+	}
 
-        entry.addPendingUpdate(touchCmd);
-        //TODO: For 'full save' mode there is no need to keep multiple touch commands
-        updateFromPendingUpdates(entry);
-        entry.setIsReplicaNode(true);
-    }
+	@Override
+	public void executeTouch(DataStoreEntry<K, V> entry, TouchCommand<K, V> touchCmd) throws DataStoreException {
 
-    private void updateFromPendingUpdates(DataStoreEntry<K, V> entry) {
-        TreeSet<AbstractSaveCommand<K, V>> pendingUpdates = entry.getPendingUpdates();
-        if (pendingUpdates != null) {
-            Iterator<AbstractSaveCommand<K, V>> iter = entry.getPendingUpdates().iterator();
+		entry.addPendingUpdate(touchCmd);
+		// TODO: For 'full save' mode there is no need to keep multiple touch commands
+		updateFromPendingUpdates(entry);
+		entry.setIsReplicaNode(true);
+	}
 
-            while (iter.hasNext()) {
-                AbstractSaveCommand<K, V> pendingCmd = iter.next();
-                if (entry.getVersion() > pendingCmd.getVersion()) {
-                    iter.remove();
-                    if (_logger.isLoggable(Level.FINE)) {
-                        _logger.log(Level.FINE, "**Ignoring Pending touch because "
-                                + entry.getVersion() + " > " + pendingCmd.getVersion());
-                    }
-                } else if (entry.getVersion() + 1 == pendingCmd.getVersion()) {
-                    if (_logger.isLoggable(Level.FINE)) {
-                        _logger.log(Level.FINE, "**Updated with Pending touch because, cmd.version = "
-                                + entry.getVersion() + " & pending.version = " + pendingCmd.getVersion());
-                    }
-                    iter.remove();
-                    super.updateMetaInfoInDataStoreEntry(entry, pendingCmd);
-                } else {
-                    if (_logger.isLoggable(Level.FINE)) {
-                        _logger.log(Level.FINE, "**Added Touch as pending because, cmd.version = "
-                                + entry.getVersion() + " & pending.version = " + pendingCmd.getVersion());
-                    }
-                    break;
-                }
-            }
-        }
-    }
+	private void updateFromPendingUpdates(DataStoreEntry<K, V> entry) {
+		TreeSet<AbstractSaveCommand<K, V>> pendingUpdates = entry.getPendingUpdates();
+		if (pendingUpdates != null) {
+			Iterator<AbstractSaveCommand<K, V>> iter = entry.getPendingUpdates().iterator();
 
-    @Override
-    public V getV(DataStoreEntry<K, V> entry)
-        throws DataStoreException {
-        V v = entry == null ? null : entry.getV();
-        if (entry != null && v == null && entry.getRawV() != null) {
-            SimpleMetadata ssm = new SimpleMetadata(entry.getVersion(),
-                    entry.getLastAccessedAt(), entry.getMaxIdleTime(), entry.getRawV());
-            v = (V) ssm;
-        }
+			while (iter.hasNext()) {
+				AbstractSaveCommand<K, V> pendingCmd = iter.next();
+				if (entry.getVersion() > pendingCmd.getVersion()) {
+					iter.remove();
+					if (_logger.isLoggable(Level.FINE)) {
+						_logger.log(Level.FINE, "**Ignoring Pending touch because " + entry.getVersion() + " > " + pendingCmd.getVersion());
+					}
+				} else if (entry.getVersion() + 1 == pendingCmd.getVersion()) {
+					if (_logger.isLoggable(Level.FINE)) {
+						_logger.log(Level.FINE, "**Updated with Pending touch because, cmd.version = " + entry.getVersion() + " & pending.version = "
+						        + pendingCmd.getVersion());
+					}
+					iter.remove();
+					super.updateMetaInfoInDataStoreEntry(entry, pendingCmd);
+				} else {
+					if (_logger.isLoggable(Level.FINE)) {
+						_logger.log(Level.FINE,
+						        "**Added Touch as pending because, cmd.version = " + entry.getVersion() + " & pending.version = " + pendingCmd.getVersion());
+					}
+					break;
+				}
+			}
+		}
+	}
 
-        return v;
-    }
+	@Override
+	public V getV(DataStoreEntry<K, V> entry) throws DataStoreException {
+		V v = entry == null ? null : entry.getV();
+		if (entry != null && v == null && entry.getRawV() != null) {
+			SimpleMetadata ssm = new SimpleMetadata(entry.getVersion(), entry.getLastAccessedAt(), entry.getMaxIdleTime(), entry.getRawV());
+			v = (V) ssm;
+		}
 
+		return v;
+	}
 
-    @Override
-    public byte[] getState(V v)
-        throws DataStoreException {
-        return v.getState();
-    }
+	@Override
+	public byte[] getState(V v) throws DataStoreException {
+		return v.getState();
+	}
 
 }

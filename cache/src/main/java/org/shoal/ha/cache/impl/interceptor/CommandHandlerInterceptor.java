@@ -24,46 +24,40 @@ import org.shoal.ha.cache.impl.command.Command;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * @author Mahesh Kannan
  */
-public final class CommandHandlerInterceptor<K, V>
-        extends AbstractCommandInterceptor<K, V> {
+public final class CommandHandlerInterceptor<K, V> extends AbstractCommandInterceptor<K, V> {
 
-    private static final Logger _logger =
-            Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
+	private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
 
-    @Override
-    public void onTransmit(Command<K, V> cmd, String initiator)
-            throws DataStoreException {
-        try {
-            cmd.prepareTransmit(dsc);
-        } catch (Exception ex) {
-            throw new DataStoreException("Error during writeCommandPayload", ex);
-        }
+	@Override
+	public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
+		try {
+			cmd.prepareTransmit(dsc);
+		} catch (Exception ex) {
+			throw new DataStoreException("Error during writeCommandPayload", ex);
+		}
 
-        if (dsc.getInstanceName().equals(cmd.getTargetName())) {
-            _logger.log(Level.WARNING, "To Me??? Cmd: " + cmd);
-            cmd.execute(initiator);
-        } else {
-            super.onTransmit(cmd, initiator);
-        }
-    }
+		if (dsc.getInstanceName().equals(cmd.getTargetName())) {
+			_logger.log(Level.WARNING, "To Me??? Cmd: " + cmd);
+			cmd.execute(initiator);
+		} else {
+			super.onTransmit(cmd, initiator);
+		}
+	}
 
-    @Override
-    public void onReceive(Command<K, V> cmd, String initiator)
-            throws DataStoreException {
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, storeName + ": Received " + cmd + " from " + initiator);
-        }
-        
-        
-        try {
-            cmd.execute(initiator);
-        } catch (Exception ex) {
-            throw new DataStoreException("Error during writeCommandPayload", ex);
-        }
-    }
+	@Override
+	public void onReceive(Command<K, V> cmd, String initiator) throws DataStoreException {
+		if (_logger.isLoggable(Level.FINE)) {
+			_logger.log(Level.FINE, storeName + ": Received " + cmd + " from " + initiator);
+		}
+
+		try {
+			cmd.execute(initiator);
+		} catch (Exception ex) {
+			throw new DataStoreException("Error during writeCommandPayload", ex);
+		}
+	}
 
 }

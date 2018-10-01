@@ -27,44 +27,40 @@ import java.io.ObjectOutputStream;
 /**
  * @author Mahesh Kannan
  */
-public class NoOpCommand<K, V>
-    extends Command {
+public class NoOpCommand<K, V> extends Command {
 
-    private transient static final byte[] rawReadState = new byte[] {
-            (byte) ReplicationCommandOpcode.NOOP_COMMAND,
-            (byte) 123};
+	private transient static final byte[] rawReadState = new byte[] { (byte) ReplicationCommandOpcode.NOOP_COMMAND, (byte) 123 };
 
-    private transient static final NoOpCommand _noopCommand = new NoOpCommand();
+	private transient static final NoOpCommand _noopCommand = new NoOpCommand();
 
-    public NoOpCommand() {
-        super(ReplicationCommandOpcode.NOOP_COMMAND);
-        super.setKey("Noop" + System.identityHashCode(this));
-    }
+	public NoOpCommand() {
+		super(ReplicationCommandOpcode.NOOP_COMMAND);
+		super.setKey("Noop" + System.identityHashCode(this));
+	}
 
-    public boolean beforeTransmit() {
-        return true;
-    }
+	public boolean beforeTransmit() {
+		return true;
+	}
 
-    public Object getCommandKey() {
-        return "Noop" + System.identityHashCode(this);
-    }
-    
-    @Override
-    public void execute(String initiator)
-        throws DataStoreException {
-    }
+	public Object getCommandKey() {
+		return "Noop" + System.identityHashCode(this);
+	}
 
-    public String toString() {
-        return getName();
-    }
+	@Override
+	public void execute(String initiator) throws DataStoreException {
+	}
 
-    @Override
-    public String getKeyMappingInfo() {
-        return null;
-    }
+	public String toString() {
+		return getName();
+	}
 
-    @Override
-    protected boolean isArtificialKey() {
-        return true;
-    }
+	@Override
+	public String getKeyMappingInfo() {
+		return null;
+	}
+
+	@Override
+	protected boolean isArtificialKey() {
+		return true;
+	}
 }

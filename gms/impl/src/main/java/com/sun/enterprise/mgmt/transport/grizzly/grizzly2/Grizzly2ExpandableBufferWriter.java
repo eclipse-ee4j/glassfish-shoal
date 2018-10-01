@@ -27,61 +27,59 @@ import org.glassfish.grizzly.memory.MemoryManager;
  * @author Alexey Stashok
  */
 public final class Grizzly2ExpandableBufferWriter extends ExpandableBufferWriter {
-    
-    public static ExpandableBufferWriterFactory createFactory(
-            final MemoryManager memoryManager) {
-        return new ExpandableBufferWriterFactory() {
 
-            @Override
-            public ExpandableBufferWriter create() {
-                return new Grizzly2ExpandableBufferWriter(memoryManager);
-            }
-        };
-    }
+	public static ExpandableBufferWriterFactory createFactory(final MemoryManager memoryManager) {
+		return new ExpandableBufferWriterFactory() {
 
-    private final MemoryManager memoryManager;
+			@Override
+			public ExpandableBufferWriter create() {
+				return new Grizzly2ExpandableBufferWriter(memoryManager);
+			}
+		};
+	}
 
-    private final GMSBufferWrapper wrapper = new GMSBufferWrapper();    
-    private org.glassfish.grizzly.Buffer grizzlyBuffer;
-    
-    private Grizzly2ExpandableBufferWriter(final MemoryManager memoryManager) {
-        this.memoryManager = memoryManager;
-        grizzlyBuffer = memoryManager.allocate(4096);
-        wrapper.wrap(grizzlyBuffer);
-    }
+	private final MemoryManager memoryManager;
 
-    @Override
-    public Buffer getBuffer() {
-        return wrapper;
-    }
+	private final GMSBufferWrapper wrapper = new GMSBufferWrapper();
+	private org.glassfish.grizzly.Buffer grizzlyBuffer;
 
-    @Override
-    public Buffer toBuffer() {
-        grizzlyBuffer.trim();
-        final Buffer duplicate = wrapper.duplicate();
-        grizzlyBuffer.position(grizzlyBuffer.limit());
+	private Grizzly2ExpandableBufferWriter(final MemoryManager memoryManager) {
+		this.memoryManager = memoryManager;
+		grizzlyBuffer = memoryManager.allocate(4096);
+		wrapper.wrap(grizzlyBuffer);
+	}
 
-        return duplicate;
-    }
+	@Override
+	public Buffer getBuffer() {
+		return wrapper;
+	}
 
-    @Override
-    public int position() {
-        return grizzlyBuffer.position();
-    }
+	@Override
+	public Buffer toBuffer() {
+		grizzlyBuffer.trim();
+		final Buffer duplicate = wrapper.duplicate();
+		grizzlyBuffer.position(grizzlyBuffer.limit());
 
-    @Override
-    public void position(final int pos) {
-        grizzlyBuffer.position(pos);
-    }
+		return duplicate;
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    protected void ensureCapacity(final int delta) {
-        if (delta <= 0 || grizzlyBuffer.remaining() >= delta) return;
+	@Override
+	public int position() {
+		return grizzlyBuffer.position();
+	}
 
-        grizzlyBuffer = memoryManager.reallocate(grizzlyBuffer,
-                Math.max(grizzlyBuffer.capacity() * 2,
-                grizzlyBuffer.capacity() + delta));
-        wrapper.wrap(grizzlyBuffer);
-    }
+	@Override
+	public void position(final int pos) {
+		grizzlyBuffer.position(pos);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected void ensureCapacity(final int delta) {
+		if (delta <= 0 || grizzlyBuffer.remaining() >= delta)
+			return;
+
+		grizzlyBuffer = memoryManager.reallocate(grizzlyBuffer, Math.max(grizzlyBuffer.capacity() * 2, grizzlyBuffer.capacity() + delta));
+		wrapper.wrap(grizzlyBuffer);
+	}
 }

@@ -17,24 +17,23 @@
 package com.sun.enterprise.ee.cms.impl.base;
 
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jul 11, 2006
+ * @author Shreedhar Ganapathy Date: Jul 11, 2006
  * @version $Revision$
  */
 public class MessagePacket {
-    private SystemAdvertisement advertisement;
-    private Object message;
+	private SystemAdvertisement advertisement;
+	private Object message;
 
-    public MessagePacket(final SystemAdvertisement advertisement, final Object message) {
-        this.advertisement = advertisement;
-        this.message = message;
-    }
+	public MessagePacket(final SystemAdvertisement advertisement, final Object message) {
+		this.advertisement = advertisement;
+		this.message = message;
+	}
 
-    public SystemAdvertisement getAdvertisement() {
-        return advertisement;
-    }
+	public SystemAdvertisement getAdvertisement() {
+		return advertisement;
+	}
 
-    public Object getMessage() {
-        return message;
-    }
+	public Object getMessage() {
+		return message;
+	}
 }

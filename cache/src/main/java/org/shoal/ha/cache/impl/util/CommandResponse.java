@@ -22,81 +22,79 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
 
-
 /**
  * @author Mahesh Kannan
  *
  */
-public class CommandResponse
-    implements Callable {
+public class CommandResponse implements Callable {
 
-    private static final AtomicLong tokenCounter = new AtomicLong(0);
+	private static final AtomicLong tokenCounter = new AtomicLong(0);
 
-    private long tokenId;
+	private long tokenId;
 
-    private String respondingInstanceName;
+	private String respondingInstanceName;
 
-    protected Object result;
+	protected Object result;
 
-    protected int expectedUpdateCount;
+	protected int expectedUpdateCount;
 
-    private FutureTask future;
+	private FutureTask future;
 
-    private ResponseMediator mediator;
+	private ResponseMediator mediator;
 
-    public CommandResponse(ResponseMediator mediator) {
-        this.mediator = mediator;
-        this.tokenId = tokenCounter.incrementAndGet();
-        this.future = new FutureTask(this);
-    }
+	public CommandResponse(ResponseMediator mediator) {
+		this.mediator = mediator;
+		this.tokenId = tokenCounter.incrementAndGet();
+		this.future = new FutureTask(this);
+	}
 
-    public void setExpectedUpdateCount(int value) {
-        this.expectedUpdateCount = value;
-    }
+	public void setExpectedUpdateCount(int value) {
+		this.expectedUpdateCount = value;
+	}
 
-    public int getExpectedUpdateCount() {
-        return expectedUpdateCount;
-    }
+	public int getExpectedUpdateCount() {
+		return expectedUpdateCount;
+	}
 
-    public int decrementAndGetExpectedUpdateCount() {
-        return --expectedUpdateCount;
-    }
+	public int decrementAndGetExpectedUpdateCount() {
+		return --expectedUpdateCount;
+	}
 
-    public long getTokenId() {
-        return tokenId;
-    }
+	public long getTokenId() {
+		return tokenId;
+	}
 
-    public FutureTask getFuture() {
-        return future;
-    }
+	public FutureTask getFuture() {
+		return future;
+	}
 
-    public void setResult(Object v) {
-        this.result = v;
-        mediator.removeCommandResponse(tokenId);
-        future.run(); //Which calls our call()
-    }
+	public void setResult(Object v) {
+		this.result = v;
+		mediator.removeCommandResponse(tokenId);
+		future.run(); // Which calls our call()
+	}
 
-    public Object getTransientResult() {
-        return result;
-    }
+	public Object getTransientResult() {
+		return result;
+	}
 
-    public void setTransientResult(Object temp) {
-        result = temp;
-    }
+	public void setTransientResult(Object temp) {
+		result = temp;
+	}
 
-    public void setException(Exception ex) {
-        setResult(ex);
-    }
+	public void setException(Exception ex) {
+		setResult(ex);
+	}
 
-    public String getRespondingInstanceName() {
-        return respondingInstanceName;
-    }
+	public String getRespondingInstanceName() {
+		return respondingInstanceName;
+	}
 
-    public void setRespondingInstanceName(String respondingInstanceName) {
-        this.respondingInstanceName = respondingInstanceName;
-    }
+	public void setRespondingInstanceName(String respondingInstanceName) {
+		this.respondingInstanceName = respondingInstanceName;
+	}
 
-    public Object call() {
-        return result;
-    }
+	public Object call() {
+		return result;
+	}
 }

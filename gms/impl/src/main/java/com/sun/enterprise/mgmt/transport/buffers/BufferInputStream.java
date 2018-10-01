@@ -26,36 +26,36 @@ import java.io.InputStream;
  */
 public class BufferInputStream extends InputStream {
 
-    private final Buffer buffer;
+	private final Buffer buffer;
 
-    public BufferInputStream(Buffer buffer) {
-        this.buffer = buffer;
-    }
-    
-    @Override
-    public int read() throws IOException {
-        return buffer.get() & 0xFF;
-    }
+	public BufferInputStream(Buffer buffer) {
+		this.buffer = buffer;
+	}
 
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        int length = Math.min(len, available());
-        
-        buffer.get(b, off, length);
-        
-        return length;
-    }
+	@Override
+	public int read() throws IOException {
+		return buffer.get() & 0xFF;
+	}
 
-    @Override
-    public int available() throws IOException {
-        return buffer.remaining();
-    }
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		int length = Math.min(len, available());
 
-    @Override
-    public long skip(long n) throws IOException {
-        int skipped = (int) Math.min(n, available());
+		buffer.get(b, off, length);
 
-        buffer.position(buffer.position() + skipped);
-        return skipped;
-    }
+		return length;
+	}
+
+	@Override
+	public int available() throws IOException {
+		return buffer.remaining();
+	}
+
+	@Override
+	public long skip(long n) throws IOException {
+		int skipped = (int) Math.min(n, available());
+
+		buffer.position(buffer.position() + skipped);
+		return skipped;
+	}
 }

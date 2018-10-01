@@ -27,63 +27,62 @@ import java.util.Properties;
 /**
  * @author Mahesh Kannan
  */
-public class NoOpBackingStore<K extends Serializable, V extends Serializable>
-    extends BackingStore<K, V> {
+public class NoOpBackingStore<K extends Serializable, V extends Serializable> extends BackingStore<K, V> {
 
-    private String myName;
+	private String myName;
 
-    NoOpBackingStore() {
+	NoOpBackingStore() {
 
-    }
+	}
 
-    @Override
-    protected void initialize(BackingStoreConfiguration<K, V> conf)
-        throws BackingStoreException {
-        super.initialize(conf);
+	@Override
+	protected void initialize(BackingStoreConfiguration<K, V> conf) throws BackingStoreException {
+		super.initialize(conf);
 
-        myName = conf == null ? null : conf.getInstanceName();
-    }
+		myName = conf == null ? null : conf.getInstanceName();
+	}
 
-    @Override
-    public V load(K key, String version) throws BackingStoreException {
-        return null;
-    }
-    public V load(K key, Long version) throws BackingStoreException {
-        return null;
-    }
+	@Override
+	public V load(K key, String version) throws BackingStoreException {
+		return null;
+	}
 
-    @Override
-    public String save(K key, V value, boolean isNew) throws BackingStoreException {
-        return null;
-    }
+	public V load(K key, Long version) throws BackingStoreException {
+		return null;
+	}
 
-    @Override
-    public void remove(K key) throws BackingStoreException {
+	@Override
+	public String save(K key, V value, boolean isNew) throws BackingStoreException {
+		return null;
+	}
 
-    }
+	@Override
+	public void remove(K key) throws BackingStoreException {
 
-    @Override
-    public void updateTimestamp(K key, long time) throws BackingStoreException {
+	}
 
-    }
+	@Override
+	public void updateTimestamp(K key, long time) throws BackingStoreException {
 
-    @Override
-    public String updateTimestamp(K key, Long version, Long accessTime, Long maxIdleTime) throws BackingStoreException {
-        return myName;
-    }
+	}
 
-    @Override
-    public int removeExpired(long idleForMillis) throws BackingStoreException {
-        return 0;
-    }
+	@Override
+	public String updateTimestamp(K key, Long version, Long accessTime, Long maxIdleTime) throws BackingStoreException {
+		return myName;
+	}
 
-    @Override
-    public int size() throws BackingStoreException {
-        return 0;
-    }
+	@Override
+	public int removeExpired(long idleForMillis) throws BackingStoreException {
+		return 0;
+	}
 
-    @Override
-    public void destroy() throws BackingStoreException {
-        
-    }
+	@Override
+	public int size() throws BackingStoreException {
+		return 0;
+	}
+
+	@Override
+	public void destroy() throws BackingStoreException {
+
+	}
 }

@@ -23,30 +23,28 @@ package org.glassfish.ha.store.criteria.spi;
  *
  * @author Mahesh.Kannan@Sun.Com
  */
-public class BinaryExpressionNode<T>
-    extends ExpressionNode<T> {
+public class BinaryExpressionNode<T> extends ExpressionNode<T> {
 
-    private ExpressionNode<T> left;
+	private ExpressionNode<T> left;
 
-    private ExpressionNode<T> right;
+	private ExpressionNode<T> right;
 
-    public BinaryExpressionNode(Opcode opcode, Class<T> returnType, ExpressionNode<T> left) {
-        this(opcode, returnType, left, null);
-    }
+	public BinaryExpressionNode(Opcode opcode, Class<T> returnType, ExpressionNode<T> left) {
+		this(opcode, returnType, left, null);
+	}
 
-    public BinaryExpressionNode(Opcode opcode, Class<T> returnType,
-                                ExpressionNode<T> left, ExpressionNode<T> right) {
-        super(opcode, returnType);
-        this.left= left;
-        this.right = right;
-    }
+	public BinaryExpressionNode(Opcode opcode, Class<T> returnType, ExpressionNode<T> left, ExpressionNode<T> right) {
+		super(opcode, returnType);
+		this.left = left;
+		this.right = right;
+	}
 
-    public ExpressionNode<T> getLeft() {
-        return left;
-    }
+	public ExpressionNode<T> getLeft() {
+		return left;
+	}
 
-    public ExpressionNode<T> getRight() {
-        return right;
-    }
+	public ExpressionNode<T> getRight() {
+		return right;
+	}
 
 }

@@ -29,235 +29,225 @@ import java.util.List;
  */
 public class DataStoreConfigurator<K, V> {
 
-    private String instanceName;
+	private String instanceName;
 
-    private String groupName;
+	private String groupName;
 
-    private String storeName;
+	private String storeName;
 
-    private Class<K> keyClazz;
+	private Class<K> keyClazz;
 
-    private Class<V> valueClazz;
+	private Class<V> valueClazz;
 
-    private KeyMapper keyMapper;
+	private KeyMapper keyMapper;
 
-    private boolean startGMS;
+	private boolean startGMS;
 
-    private ClassLoader clazzLoader;
+	private ClassLoader clazzLoader;
 
-    private boolean cacheLocally;
+	private boolean cacheLocally;
 
-    private boolean doSynchronousReplication;
+	private boolean doSynchronousReplication;
 
-    private List<Command<K, ? super V>> commands = new ArrayList<Command<K, ? super V>>();
+	private List<Command<K, ? super V>> commands = new ArrayList<Command<K, ? super V>>();
 
-    private List<AbstractCommandInterceptor<K, V>> interceptors;
+	private List<AbstractCommandInterceptor<K, V>> interceptors;
 
-    private boolean addCommands;
+	private boolean addCommands;
 
-    private IdleEntryDetector<K, V> idleEntryDetector;
+	private IdleEntryDetector<K, V> idleEntryDetector;
 
-    private long defaultMaxIdleTimeInMillis = -1;
+	private long defaultMaxIdleTimeInMillis = -1;
 
-    private DataStoreEntryUpdater<K, V> dseUpdater;
+	private DataStoreEntryUpdater<K, V> dseUpdater;
 
-    private boolean safeToDelayCaptureState = true;
+	private boolean safeToDelayCaptureState = true;
 
-    private boolean useMapToCacheCommands = true;
+	private boolean useMapToCacheCommands = true;
 
-    private KeyTransformer<K> keyTransformer;
+	private KeyTransformer<K> keyTransformer;
 
-    private boolean broadcastRemovedExpired = true;
+	private boolean broadcastRemovedExpired = true;
 
-    protected DataStoreConfigurator() {
+	protected DataStoreConfigurator() {
 
-    }
+	}
 
-    public String getInstanceName() {
-        return instanceName;
-    }
+	public String getInstanceName() {
+		return instanceName;
+	}
 
-    public DataStoreConfigurator<K, V> setInstanceName(String instanceName) {
-        this.instanceName = instanceName;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
+		return this;
+	}
 
-    public String getGroupName() {
-        return groupName;
-    }
+	public String getGroupName() {
+		return groupName;
+	}
 
-    public DataStoreConfigurator<K, V> setGroupName(String groupName) {
-        this.groupName = groupName;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setGroupName(String groupName) {
+		this.groupName = groupName;
+		return this;
+	}
 
-    public String getStoreName() {
-        return storeName;
-    }
+	public String getStoreName() {
+		return storeName;
+	}
 
-    public DataStoreConfigurator<K, V> setStoreName(String storeName) {
-        this.storeName = storeName;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setStoreName(String storeName) {
+		this.storeName = storeName;
+		return this;
+	}
 
-    public Class<K> getKeyClazz() {
-        return keyClazz;
-    }
+	public Class<K> getKeyClazz() {
+		return keyClazz;
+	}
 
-    public DataStoreConfigurator<K, V> setKeyClazz(Class<K> kClazz) {
-        this.keyClazz = kClazz;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setKeyClazz(Class<K> kClazz) {
+		this.keyClazz = kClazz;
+		return this;
+	}
 
-    public Class<V> getValueClazz() {
-        return valueClazz;
-    }
+	public Class<V> getValueClazz() {
+		return valueClazz;
+	}
 
-    public DataStoreConfigurator<K, V> setValueClazz(Class<V> vClazz) {
-        this.valueClazz = vClazz;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setValueClazz(Class<V> vClazz) {
+		this.valueClazz = vClazz;
+		return this;
+	}
 
-    public KeyMapper getKeyMapper() {
-        return keyMapper;
-    }
+	public KeyMapper getKeyMapper() {
+		return keyMapper;
+	}
 
-    public DataStoreConfigurator<K, V> setKeyMapper(KeyMapper keyMapper) {
-        this.keyMapper = keyMapper;
-        return this;
-    }
-    public boolean isStartGMS() {
-        return startGMS;
-    }
+	public DataStoreConfigurator<K, V> setKeyMapper(KeyMapper keyMapper) {
+		this.keyMapper = keyMapper;
+		return this;
+	}
 
-    public DataStoreConfigurator<K, V> setStartGMS(boolean startGMS) {
-        this.startGMS = startGMS;
-        return this;
-    }
+	public boolean isStartGMS() {
+		return startGMS;
+	}
 
-    public ClassLoader getClassLoader() {
-        return clazzLoader;
-    }
+	public DataStoreConfigurator<K, V> setStartGMS(boolean startGMS) {
+		this.startGMS = startGMS;
+		return this;
+	}
 
-    public DataStoreConfigurator<K, V> setClassLoader(ClassLoader loader) {
-        this.clazzLoader = loader == null ? ClassLoader.getSystemClassLoader() : loader;
-        return this;
-    }
+	public ClassLoader getClassLoader() {
+		return clazzLoader;
+	}
 
-    public boolean isCacheLocally() {
-        return cacheLocally;
-    }
+	public DataStoreConfigurator<K, V> setClassLoader(ClassLoader loader) {
+		this.clazzLoader = loader == null ? ClassLoader.getSystemClassLoader() : loader;
+		return this;
+	}
 
-    public DataStoreConfigurator<K, V> setCacheLocally(boolean cacheLocally) {
-        this.cacheLocally = cacheLocally;
-        return this;
-    }
+	public boolean isCacheLocally() {
+		return cacheLocally;
+	}
 
-    public boolean isDoSynchronousReplication() {
-        return doSynchronousReplication;
-    }
+	public DataStoreConfigurator<K, V> setCacheLocally(boolean cacheLocally) {
+		this.cacheLocally = cacheLocally;
+		return this;
+	}
 
-    public DataStoreConfigurator<K, V> setDoSynchronousReplication(boolean val) {
-        this.doSynchronousReplication = val;
-        return this;
-    }
+	public boolean isDoSynchronousReplication() {
+		return doSynchronousReplication;
+	}
 
-    public List<Command<K, ? super V>> getCommands() {
-        return commands;
-    }
+	public DataStoreConfigurator<K, V> setDoSynchronousReplication(boolean val) {
+		this.doSynchronousReplication = val;
+		return this;
+	}
 
-    public void addCommand(Command<K, V> cmd) {
-        commands.add(cmd);
-    }
+	public List<Command<K, ? super V>> getCommands() {
+		return commands;
+	}
 
-    public DataStoreConfigurator<K, V> setDoAddCommands() {
-        addCommands = true;
-        return this;
-    }
+	public void addCommand(Command<K, V> cmd) {
+		commands.add(cmd);
+	}
 
-    public boolean isDoAddCommands() {
-        return addCommands;
-    }
+	public DataStoreConfigurator<K, V> setDoAddCommands() {
+		addCommands = true;
+		return this;
+	}
 
-    public IdleEntryDetector<K, V> getIdleEntryDetector() {
-        return idleEntryDetector;
-    }
+	public boolean isDoAddCommands() {
+		return addCommands;
+	}
 
-    public DataStoreConfigurator<K, V> setIdleEntryDetector(IdleEntryDetector<K, V> idleEntryDetector) {
-        this.idleEntryDetector = idleEntryDetector;
-        return this;
-    }
+	public IdleEntryDetector<K, V> getIdleEntryDetector() {
+		return idleEntryDetector;
+	}
 
-    public long getDefaultMaxIdleTimeInMillis() {
-        return defaultMaxIdleTimeInMillis;
-    }
+	public DataStoreConfigurator<K, V> setIdleEntryDetector(IdleEntryDetector<K, V> idleEntryDetector) {
+		this.idleEntryDetector = idleEntryDetector;
+		return this;
+	}
 
-    public DataStoreConfigurator<K, V> setDefaultMaxIdleTimeInMillis(long defaultMaxIdleTimeInMillis) {
-        this.defaultMaxIdleTimeInMillis = defaultMaxIdleTimeInMillis;
-        return this;
-    }
+	public long getDefaultMaxIdleTimeInMillis() {
+		return defaultMaxIdleTimeInMillis;
+	}
 
-    public DataStoreEntryUpdater<K, V> getDataStoreEntryUpdater() {
-        return dseUpdater;
-    }
+	public DataStoreConfigurator<K, V> setDefaultMaxIdleTimeInMillis(long defaultMaxIdleTimeInMillis) {
+		this.defaultMaxIdleTimeInMillis = defaultMaxIdleTimeInMillis;
+		return this;
+	}
 
-    public DataStoreConfigurator<K, V> setDataStoreEntryUpdater(DataStoreEntryUpdater<K, V> dseUpdater) {
-        this.dseUpdater = dseUpdater;
-        return this;
-    }
+	public DataStoreEntryUpdater<K, V> getDataStoreEntryUpdater() {
+		return dseUpdater;
+	}
 
+	public DataStoreConfigurator<K, V> setDataStoreEntryUpdater(DataStoreEntryUpdater<K, V> dseUpdater) {
+		this.dseUpdater = dseUpdater;
+		return this;
+	}
 
-    public boolean isSafeToDelayCaptureState() {
-        return safeToDelayCaptureState;
-    }
+	public boolean isSafeToDelayCaptureState() {
+		return safeToDelayCaptureState;
+	}
 
-    public DataStoreConfigurator<K, V> setSafeToDelayCaptureState(boolean safeToDelayCaptureState) {
-        this.safeToDelayCaptureState = safeToDelayCaptureState;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setSafeToDelayCaptureState(boolean safeToDelayCaptureState) {
+		this.safeToDelayCaptureState = safeToDelayCaptureState;
+		return this;
+	}
 
-    public boolean isUseMapToCacheCommands() {
-        return useMapToCacheCommands;
-    }
+	public boolean isUseMapToCacheCommands() {
+		return useMapToCacheCommands;
+	}
 
-    public DataStoreConfigurator<K, V> setUseMapToCacheCommands(boolean useMapToCacheCommands) {
-        this.useMapToCacheCommands = useMapToCacheCommands;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setUseMapToCacheCommands(boolean useMapToCacheCommands) {
+		this.useMapToCacheCommands = useMapToCacheCommands;
+		return this;
+	}
 
-    public KeyTransformer<K> getKeyTransformer() {
-        return keyTransformer;
-    }
+	public KeyTransformer<K> getKeyTransformer() {
+		return keyTransformer;
+	}
 
-    public DataStoreConfigurator<K, V> setKeyTransformer(KeyTransformer<K> keyTransformer) {
-        this.keyTransformer = keyTransformer;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setKeyTransformer(KeyTransformer<K> keyTransformer) {
+		this.keyTransformer = keyTransformer;
+		return this;
+	}
 
-    public boolean isBroadcastRemovedExpired() {
-        return broadcastRemovedExpired;
-    }
+	public boolean isBroadcastRemovedExpired() {
+		return broadcastRemovedExpired;
+	}
 
-    public DataStoreConfigurator<K, V> setBroadcastRemovedExpired(boolean broadcastRemovedExpired) {
-        this.broadcastRemovedExpired = broadcastRemovedExpired;
-        return this;
-    }
+	public DataStoreConfigurator<K, V> setBroadcastRemovedExpired(boolean broadcastRemovedExpired) {
+		this.broadcastRemovedExpired = broadcastRemovedExpired;
+		return this;
+	}
 
-    @Override
-    public String toString() {
-        return "DataStoreConfigurator{" +
-                "instanceName='" + instanceName + '\'' +
-                ", groupName='" + groupName + '\'' +
-                ", storeName='" + storeName + '\'' +
-                ", keyClazz=" + keyClazz +
-                ", valueClazz=" + valueClazz +
-                ", keyMapper=" + keyMapper +
-                ", startGMS=" + startGMS +
-                ", cacheLocally= " + cacheLocally +
-                ", clazzLoader=" + clazzLoader +
-                ", doSynchronousReplication=" + doSynchronousReplication +
-                ", broadcastRemovedExpired=" + broadcastRemovedExpired +
-                ", keyTransformer=" + ((keyTransformer == null) ? null : keyTransformer.getClass().getName()) +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "DataStoreConfigurator{" + "instanceName='" + instanceName + '\'' + ", groupName='" + groupName + '\'' + ", storeName='" + storeName + '\''
+		        + ", keyClazz=" + keyClazz + ", valueClazz=" + valueClazz + ", keyMapper=" + keyMapper + ", startGMS=" + startGMS + ", cacheLocally= "
+		        + cacheLocally + ", clazzLoader=" + clazzLoader + ", doSynchronousReplication=" + doSynchronousReplication + ", broadcastRemovedExpired="
+		        + broadcastRemovedExpired + ", keyTransformer=" + ((keyTransformer == null) ? null : keyTransformer.getClass().getName()) + '}';
+	}
 }

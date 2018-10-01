@@ -33,172 +33,169 @@ import java.util.logging.Logger;
  * @author Mahesh Kannan
  * 
  */
-public abstract class Command<K, V>
-    implements Serializable {
+public abstract class Command<K, V> implements Serializable {
 
-    private transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
+	private transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
 
-    private byte opcode;
+	private byte opcode;
 
-    private byte[] rawKey;
+	private byte[] rawKey;
 
-    
-    private transient K key;
+	private transient K key;
 
-    protected transient DataStoreContext<K, V> dsc;
+	protected transient DataStoreContext<K, V> dsc;
 
-    private transient CommandManager<K, V> cm;
+	private transient CommandManager<K, V> cm;
 
-    private transient String commandName;
+	private transient String commandName;
 
-    protected transient String targetInstanceName;
+	protected transient String targetInstanceName;
 
-    protected Command(byte opcode) {
-        this.opcode = opcode;
-    }
+	protected Command(byte opcode) {
+		this.opcode = opcode;
+	}
 
-    public final void initialize(DataStoreContext<K, V> rs) {
-        this.dsc = rs;
-        this.cm = rs.getCommandManager();
-        
-        this.commandName = this.getClass().getName();
-        int index = commandName.lastIndexOf('.');
-        commandName = commandName.substring(index+1);
-    }
+	public final void initialize(DataStoreContext<K, V> rs) {
+		this.dsc = rs;
+		this.cm = rs.getCommandManager();
 
-    protected final void setKey(K k) {
-        this.key = k;
-    }
+		this.commandName = this.getClass().getName();
+		int index = commandName.lastIndexOf('.');
+		commandName = commandName.substring(index + 1);
+	}
 
-    public final K getKey() {
-        if (key == null && rawKey != null) {
-            KeyTransformer<K> kt = dsc.getKeyTransformer();
-            if (kt != null) {
-                key = kt.byteArrayToKey(rawKey, 0, rawKey.length);
-            }
-        }
+	protected final void setKey(K k) {
+		this.key = k;
+	}
 
-        return key;
-    }
+	public final K getKey() {
+		if (key == null && rawKey != null) {
+			KeyTransformer<K> kt = dsc.getKeyTransformer();
+			if (kt != null) {
+				key = kt.byteArrayToKey(rawKey, 0, rawKey.length);
+			}
+		}
 
-    protected final DataStoreContext<K, V> getDataStoreContext() {
-        return dsc;
-    }
+		return key;
+	}
 
-    protected final CommandManager<K, V> getCommandManager() {
-        return cm;
-    }
+	protected final DataStoreContext<K, V> getDataStoreContext() {
+		return dsc;
+	}
 
-    public String getTargetName() {
-        return targetInstanceName;
-    }
-    
-    public final byte getOpcode() {
-        return opcode;
-    }
+	protected final CommandManager<K, V> getCommandManager() {
+		return cm;
+	}
 
-    protected void setTargetName(String val) {
-        this.targetInstanceName = val;
-    }
+	public String getTargetName() {
+		return targetInstanceName;
+	}
 
-    public void prepareTransmit(DataStoreContext<K, V> ctx)
-            throws IOException {
+	public final byte getOpcode() {
+		return opcode;
+	}
 
-        if (! beforeTransmit()) {
-            _logger.log(Level.FINE, "Aborting command transmission for " + getName() + " because beforeTransmit returned false");
-        }
-    }
+	protected void setTargetName(String val) {
+		this.targetInstanceName = val;
+	}
 
-    protected static byte[] captureState(Object obj)
-        throws DataStoreException {
-        byte[] result = null;
-        ByteArrayOutputStream bos = null;
-        ObjectOutputStream oos = null;
-        try {
-            bos = new ByteArrayOutputStream();
-            oos = new ObjectOutputStream(bos);
-            oos.writeObject(obj);
-            oos.close();
+	public void prepareTransmit(DataStoreContext<K, V> ctx) throws IOException {
 
-            result = bos.toByteArray();
-        } catch (Exception ex) {
-            throw new DataStoreException("Error during prepareToTransmit()", ex);
-        } finally {
-            try { oos.close(); } catch (Exception ex) {}
-            try { bos.close(); } catch (Exception ex) {}
-        }
+		if (!beforeTransmit()) {
+			_logger.log(Level.FINE, "Aborting command transmission for " + getName() + " because beforeTransmit returned false");
+		}
+	}
 
-        return result;
-    }
+	protected static byte[] captureState(Object obj) throws DataStoreException {
+		byte[] result = null;
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
+		try {
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(obj);
+			oos.close();
 
-    public String getKeyMappingInfo() {
-        return targetInstanceName == null ? "" : targetInstanceName;
-    }
+			result = bos.toByteArray();
+		} catch (Exception ex) {
+			throw new DataStoreException("Error during prepareToTransmit()", ex);
+		} finally {
+			try {
+				oos.close();
+			} catch (Exception ex) {
+			}
+			try {
+				bos.close();
+			} catch (Exception ex) {
+			}
+		}
 
-    public final String getName() {
-        return commandName + ":" + opcode;
-    }
+		return result;
+	}
 
-    public abstract void execute(String initiator)
-            throws DataStoreException;
+	public String getKeyMappingInfo() {
+		return targetInstanceName == null ? "" : targetInstanceName;
+	}
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
-        out.writeByte(opcode);
-        writeKey(out);
-    }
+	public final String getName() {
+		return commandName + ":" + opcode;
+	}
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
-        opcode = in.readByte();
-        readKey(in);
-    }
+	public abstract void execute(String initiator) throws DataStoreException;
 
-    public void onSuccess() {
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.writeByte(opcode);
+		writeKey(out);
+	}
 
-    }
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		opcode = in.readByte();
+		readKey(in);
+	}
 
-    public void onFailure() {
-        
-    }
-    public String toString() {
-        return getName() + "(" + getKey() + ")";
-    }
+	public void onSuccess() {
 
-    private void writeKey(ObjectOutputStream out)
-            throws IOException {
-        if (isArtificialKey()) {
-            out.writeObject(key);
-        } else {
-            KeyTransformer<K> kt = dsc.getKeyTransformer();
-            out.writeBoolean(kt != null);
-            if (kt != null) {
-                out.writeObject(kt.keyToByteArray(key));
-            }  else {
-                out.writeObject(key);
-            }
-        }
-    }
+	}
 
-    private void readKey(ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
-        if (isArtificialKey()) {
-            key = (K) in.readObject();
-        } else {
-            boolean needToTransformKey = in.readBoolean();
-            if (! needToTransformKey) {
-                key = (K) in.readObject();
-            } else {
-                rawKey = (byte[]) in.readObject();
-            }
-        }
-    }
+	public void onFailure() {
 
-    protected boolean isArtificialKey() {
-        return false;
-    }
+	}
 
-    protected abstract boolean beforeTransmit()
-            throws IOException;
+	public String toString() {
+		return getName() + "(" + getKey() + ")";
+	}
+
+	private void writeKey(ObjectOutputStream out) throws IOException {
+		if (isArtificialKey()) {
+			out.writeObject(key);
+		} else {
+			KeyTransformer<K> kt = dsc.getKeyTransformer();
+			out.writeBoolean(kt != null);
+			if (kt != null) {
+				out.writeObject(kt.keyToByteArray(key));
+			} else {
+				out.writeObject(key);
+			}
+		}
+	}
+
+	private void readKey(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		if (isArtificialKey()) {
+			key = (K) in.readObject();
+		} else {
+			boolean needToTransformKey = in.readBoolean();
+			if (!needToTransformKey) {
+				key = (K) in.readObject();
+			} else {
+				rawKey = (byte[]) in.readObject();
+			}
+		}
+	}
+
+	protected boolean isArtificialKey() {
+		return false;
+	}
+
+	protected abstract boolean beforeTransmit() throws IOException;
 
 }

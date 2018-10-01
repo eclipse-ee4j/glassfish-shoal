@@ -23,40 +23,39 @@ import java.io.IOException;
 
 /**
  * {@link ParserProtocolFilter}, which allows just OP_READ.
+ * 
  * @author Alexey Stashok
  */
 public abstract class ParserFilter extends ParserProtocolFilter {
 
-    @Override
-    public boolean execute(final Context context) throws IOException {
-        if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
-            return false;
-        }
+	@Override
+	public boolean execute(final Context context) throws IOException {
+		if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
+			return false;
+		}
 
-        return super.execute(context);
-    }
+		return super.execute(context);
+	}
 
-    @Override
-    public boolean postExecute(final Context context) throws IOException {
-        if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
-            return false;
-        }
-        
-        final GrizzlyMessageProtocolParser parser =
-                (GrizzlyMessageProtocolParser) context.getAttribute(ProtocolParser.PARSER);
+	@Override
+	public boolean postExecute(final Context context) throws IOException {
+		if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
+			return false;
+		}
 
-        if (parser == null) {
-            return true;
-        }
+		final GrizzlyMessageProtocolParser parser = (GrizzlyMessageProtocolParser) context.getAttribute(ProtocolParser.PARSER);
 
-        if (parser.isError()) {
-            parser.releaseBuffer();
-            context.setKeyRegistrationState(Context.KeyRegistrationState.CANCEL);
-            return false;
-        }
+		if (parser == null) {
+			return true;
+		}
 
-        return super.postExecute(context);
-    }
+		if (parser.isError()) {
+			parser.releaseBuffer();
+			context.setKeyRegistrationState(Context.KeyRegistrationState.CANCEL);
+			return false;
+		}
 
+		return super.postExecute(context);
+	}
 
-} 
+}

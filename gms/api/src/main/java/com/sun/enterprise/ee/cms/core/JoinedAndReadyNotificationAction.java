@@ -14,16 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
- package com.sun.enterprise.ee.cms.core;
+package com.sun.enterprise.ee.cms.core;
 
 /**
- * An <code>Action</code> type that consumes <code>JoinedAndReadyNotificationSignal</code>.
- * When a member has joined the group and is ready for processing requests, a
- * <code>JoinedAndReadyNotificationSignal</code> is
- * generated to be consumed by <code>JoinedAndReadyNotificationAction</code> instances
- * that are produced by registered instances of JoinedAndReadyNotificationActionFactory.
+ * An <code>Action</code> type that consumes <code>JoinedAndReadyNotificationSignal</code>. When a member has joined the
+ * group and is ready for processing requests, a <code>JoinedAndReadyNotificationSignal</code> is generated to be
+ * consumed by <code>JoinedAndReadyNotificationAction</code> instances that are produced by registered instances of
+ * JoinedAndReadyNotificationActionFactory.
  *
- *  @author Sheetal Vartak
+ * @author Sheetal Vartak
  */
-public interface JoinedAndReadyNotificationAction extends Action{
+public interface JoinedAndReadyNotificationAction extends Action {
 }

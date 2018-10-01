@@ -27,31 +27,32 @@ import java.util.logging.Logger;
  */
 public class GrizzlyUtil {
 
-    private static final boolean IS_SUPPORT_NIO_MULTICAST = ( getNIOMulticastMethod() != null );
+	private static final boolean IS_SUPPORT_NIO_MULTICAST = (getNIOMulticastMethod() != null);
 
-    private static Logger logger = Logger.getLogger("org.glassfish.grizzly");
-    private GrizzlyUtil() {
-    }
+	private static Logger logger = Logger.getLogger("org.glassfish.grizzly");
 
-    public static Logger getLogger() {
-        return logger;
-    }
+	private GrizzlyUtil() {
+	}
 
-    public static boolean isSupportNIOMulticast() {
-        return IS_SUPPORT_NIO_MULTICAST;
-    }
+	public static Logger getLogger() {
+		return logger;
+	}
 
-    private static Method getNIOMulticastMethod() {
-        Method method = null;
-        try {
-            // TODO: consider re-enabling using JDK 7 NIO Multicast after more testing.
-            // See Glassfish issue 16173 for details.
+	public static boolean isSupportNIOMulticast() {
+		return IS_SUPPORT_NIO_MULTICAST;
+	}
 
-            // uncomment next line to enable using JDK 7 NIO multicast when it is available.
-            //method = DatagramChannel.class.getMethod( "join", InetAddress.class, NetworkInterface.class );
-        } catch( Throwable t ) {
-            method = null;
-        }
-        return method;
-    }
+	private static Method getNIOMulticastMethod() {
+		Method method = null;
+		try {
+			// TODO: consider re-enabling using JDK 7 NIO Multicast after more testing.
+			// See Glassfish issue 16173 for details.
+
+			// uncomment next line to enable using JDK 7 NIO multicast when it is available.
+			// method = DatagramChannel.class.getMethod( "join", InetAddress.class, NetworkInterface.class );
+		} catch (Throwable t) {
+			method = null;
+		}
+		return method;
+	}
 }

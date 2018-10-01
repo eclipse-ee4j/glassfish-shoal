@@ -29,93 +29,88 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author Mahesh Kannan
  */
-public abstract class AcknowledgedCommand<K, V>
-        extends Command<K, V> {
+public abstract class AcknowledgedCommand<K, V> extends Command<K, V> {
 
-    private transient CommandResponse resp;
+	private transient CommandResponse resp;
 
-    private transient Future future;
+	private transient Future future;
 
-    private long tokenId;
+	private long tokenId;
 
-    private String originatingInstance;
+	private String originatingInstance;
 
-    protected AcknowledgedCommand(byte opCode) {
-        super(opCode);
-    }
+	protected AcknowledgedCommand(byte opCode) {
+		super(opCode);
+	}
 
-    protected boolean beforeTransmit() {
-        if (dsc.isDoSynchronousReplication()) {
-            originatingInstance = dsc.getInstanceName();
-            ResponseMediator respMed = dsc.getResponseMediator();
-            resp = respMed.createCommandResponse();
-            tokenId = resp.getTokenId();
-            future = resp.getFuture();
-        }
+	protected boolean beforeTransmit() {
+		if (dsc.isDoSynchronousReplication()) {
+			originatingInstance = dsc.getInstanceName();
+			ResponseMediator respMed = dsc.getResponseMediator();
+			resp = respMed.createCommandResponse();
+			tokenId = resp.getTokenId();
+			future = resp.getFuture();
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    protected void sendAcknowledgement() {
-        try {
-            dsc.getCommandManager().execute(
-                    new SimpleAckCommand<K, V>(originatingInstance, tokenId));
-        } catch (DataStoreException dse) {
-            //TODO: But can safely ignore
-        }
-    }
+	protected void sendAcknowledgement() {
+		try {
+			dsc.getCommandManager().execute(new SimpleAckCommand<K, V>(originatingInstance, tokenId));
+		} catch (DataStoreException dse) {
+			// TODO: But can safely ignore
+		}
+	}
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
-        out.writeBoolean(dsc.isDoSynchronousReplication());
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.writeBoolean(dsc.isDoSynchronousReplication());
 
-        if (dsc.isDoSynchronousReplication()) {
-            out.writeLong(tokenId);
-            out.writeUTF(originatingInstance);
-        }
-    }
+		if (dsc.isDoSynchronousReplication()) {
+			out.writeLong(tokenId);
+			out.writeUTF(originatingInstance);
+		}
+	}
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 
-        boolean doSync = in.readBoolean();
-        if (doSync) {
-            tokenId = in.readLong();
-            originatingInstance = in.readUTF();
-        }
-    }
+		boolean doSync = in.readBoolean();
+		if (doSync) {
+			tokenId = in.readLong();
+			originatingInstance = in.readUTF();
+		}
+	}
 
-    @Override
-    public final void onSuccess() {
-        if (dsc.isDoSynchronousReplication()) {
-            try {
-                waitForAck();
-            } catch (Exception ex) {
-                System.out.println("** Got exception: " + ex);
-            }
-        }
-    }
+	@Override
+	public final void onSuccess() {
+		if (dsc.isDoSynchronousReplication()) {
+			try {
+				waitForAck();
+			} catch (Exception ex) {
+				System.out.println("** Got exception: " + ex);
+			}
+		}
+	}
 
-    @Override
-    public final void onFailure() {
-        if (dsc.isDoSynchronousReplication()) {
-            ResponseMediator respMed = dsc.getResponseMediator();
-            respMed.removeCommandResponse(tokenId);
-        }
-    }
+	@Override
+	public final void onFailure() {
+		if (dsc.isDoSynchronousReplication()) {
+			ResponseMediator respMed = dsc.getResponseMediator();
+			respMed.removeCommandResponse(tokenId);
+		}
+	}
 
-    private void waitForAck()
-        throws DataStoreException, TimeoutException {
-        try {
-            future.get(3, TimeUnit.SECONDS);
-        } catch (TimeoutException tEx) {
-            throw tEx;
-        } catch (Exception inEx) {
-            throw new DataStoreException(inEx);
-        } finally {
-            ResponseMediator respMed = dsc.getResponseMediator();
-            respMed.removeCommandResponse(tokenId);
-        }
-    }
+	private void waitForAck() throws DataStoreException, TimeoutException {
+		try {
+			future.get(3, TimeUnit.SECONDS);
+		} catch (TimeoutException tEx) {
+			throw tEx;
+		} catch (Exception inEx) {
+			throw new DataStoreException(inEx);
+		} finally {
+			ResponseMediator respMed = dsc.getResponseMediator();
+			respMed.removeCommandResponse(tokenId);
+		}
+	}
 
 }

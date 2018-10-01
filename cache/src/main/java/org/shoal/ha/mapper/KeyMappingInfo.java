@@ -22,20 +22,20 @@ package org.shoal.ha.mapper;
  */
 public class KeyMappingInfo {
 
-    private int index;
+	private int index;
 
-    private String[] members;
+	private String[] members;
 
-    public KeyMappingInfo(int index, String[] members) {
-        this.index = index;
-        this.members = members;
-    }
+	public KeyMappingInfo(int index, String[] members) {
+		this.index = index;
+		this.members = members;
+	}
 
-    public int getIndex() {
-        return index;
-    }
+	public int getIndex() {
+		return index;
+	}
 
-    public String[] getMembers() {
-        return members;
-    }
+	public String[] getMembers() {
+		return members;
+	}
 }

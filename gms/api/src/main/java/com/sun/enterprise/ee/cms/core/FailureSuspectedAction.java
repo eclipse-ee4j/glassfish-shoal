@@ -17,13 +17,12 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * An <code>Action</code> type that consumes <code>FailureSuspectedSignal</code>.
- * When a failure is first detected but not yet confirmed, a
- * <code>FailureSuspectedSignal</code> is generated to be consumed by
- * <code>FailureSuspectedAction</code> instances
- * that are produced by registered instances of FailureSuspectedActionFactory.
- * @author Shreedhar Ganapathy
- *         Date: Sep 14, 2005
+ * An <code>Action</code> type that consumes <code>FailureSuspectedSignal</code>. When a failure is first detected but
+ * not yet confirmed, a <code>FailureSuspectedSignal</code> is generated to be consumed by
+ * <code>FailureSuspectedAction</code> instances that are produced by registered instances of
+ * FailureSuspectedActionFactory.
+ * 
+ * @author Shreedhar Ganapathy Date: Sep 14, 2005
  * @version $Revision$
  */
 public interface FailureSuspectedAction extends Action {

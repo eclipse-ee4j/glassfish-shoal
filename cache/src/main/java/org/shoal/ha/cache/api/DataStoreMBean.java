@@ -21,53 +21,53 @@ package org.shoal.ha.cache.api;
  */
 public interface DataStoreMBean {
 
-    public String getStoreName();
+	public String getStoreName();
 
-    public String getKeyClassName();
+	public String getKeyClassName();
 
-    public String getValueClassName();
+	public String getValueClassName();
 
-    public String getEntryUpdaterClassName();
+	public String getEntryUpdaterClassName();
 
-    public String getKeyTransformerClassName();
+	public String getKeyTransformerClassName();
 
-    public int getSize();
+	public int getSize();
 
-    public int getSentSaveCount();
+	public int getSentSaveCount();
 
-    public int getExecutedSaveCount();
+	public int getExecutedSaveCount();
 
-    public int getBatchSentCount();
+	public int getBatchSentCount();
 
-    public int getLoadCount();
+	public int getLoadCount();
 
-    public int getLoadSuccessCount();
+	public int getLoadSuccessCount();
 
-    public int getLocalLoadSuccessCount();
+	public int getLocalLoadSuccessCount();
 
-    public int getSimpleLoadSuccessCount();
+	public int getSimpleLoadSuccessCount();
 
-    public int getBroadcastLoadSuccessCount();
+	public int getBroadcastLoadSuccessCount();
 
-    public int getSaveOnLoadCount();
+	public int getSaveOnLoadCount();
 
-    public int getLoadFailureCount();
+	public int getLoadFailureCount();
 
-    public int getBatchReceivedCount();
+	public int getBatchReceivedCount();
 
-    public int getSentRemoveCount();
+	public int getSentRemoveCount();
 
-    public int getExecutedRemoveCount();
-    
-    public int getFlushThreadFlushedCount();
+	public int getExecutedRemoveCount();
 
-    public int getFlushThreadWakeupCount();
+	public int getFlushThreadFlushedCount();
 
-    public int getRemoveExpiredCallCount();
+	public int getFlushThreadWakeupCount();
 
-    public int getExpiredEntriesCount();
+	public int getRemoveExpiredCallCount();
 
-    public int getGmsSendCount();
+	public int getExpiredEntriesCount();
 
-    public long getGmsSendBytesCount();
+	public int getGmsSendCount();
+
+	public long getGmsSendBytesCount();
 }

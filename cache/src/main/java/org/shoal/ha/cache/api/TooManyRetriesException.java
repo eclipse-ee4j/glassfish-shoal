@@ -21,22 +21,21 @@ import java.io.IOException;
 /**
  * @author Mahesh Kannan
  */
-public class TooManyRetriesException
-    extends DataStoreException {
+public class TooManyRetriesException extends DataStoreException {
 
-    public TooManyRetriesException() {
-        super();
-    }
+	public TooManyRetriesException() {
+		super();
+	}
 
-    public TooManyRetriesException(String message) {
-        super(message);
-    }
+	public TooManyRetriesException(String message) {
+		super(message);
+	}
 
-    public TooManyRetriesException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public TooManyRetriesException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public TooManyRetriesException(Throwable cause) {
-        super(cause);
-    }
+	public TooManyRetriesException(Throwable cause) {
+		super(cause);
+	}
 }

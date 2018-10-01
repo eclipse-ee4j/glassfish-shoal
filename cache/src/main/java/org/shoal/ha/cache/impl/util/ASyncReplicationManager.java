@@ -23,51 +23,51 @@ import java.util.concurrent.*;
  */
 public class ASyncReplicationManager {
 
-    private static final Object _lock = new Object();
+	private static final Object _lock = new Object();
 
-    private static volatile ASyncReplicationManager _me = new ASyncReplicationManager();
+	private static volatile ASyncReplicationManager _me = new ASyncReplicationManager();
 
-    private static volatile ASyncThreadPool _asyncPool;
+	private static volatile ASyncThreadPool _asyncPool;
 
-    private static ScheduledThreadPoolExecutor _scheduledTP;
+	private static ScheduledThreadPoolExecutor _scheduledTP;
 
-    public static ASyncReplicationManager _getInstance() {
-        return _me;
-    }
+	public static ASyncReplicationManager _getInstance() {
+		return _me;
+	}
 
-    private ASyncReplicationManager() {
-        int corePoolSize = getSystemProp("org.shoal.ha.threadpool.core.pool.size", 16);
-        int maxPoolSize = getSystemProp("org.shoal.ha.threadpool.max.pool.size", 16);
-        int keepAliveInSeconds = getSystemProp("org.shoal.ha.threadpool.keepalive.in.seconds", 300);
-        int boundedPoolSize = getSystemProp("org.shoal.ha.threadpool.max.pending.replication.limit", 32 * 1024);
+	private ASyncReplicationManager() {
+		int corePoolSize = getSystemProp("org.shoal.ha.threadpool.core.pool.size", 16);
+		int maxPoolSize = getSystemProp("org.shoal.ha.threadpool.max.pool.size", 16);
+		int keepAliveInSeconds = getSystemProp("org.shoal.ha.threadpool.keepalive.in.seconds", 300);
+		int boundedPoolSize = getSystemProp("org.shoal.ha.threadpool.max.pending.replication.limit", 32 * 1024);
 
-        LinkedBlockingQueue queue = new LinkedBlockingQueue(boundedPoolSize);
-        _asyncPool = new ASyncThreadPool(corePoolSize, maxPoolSize, keepAliveInSeconds, queue);
+		LinkedBlockingQueue queue = new LinkedBlockingQueue(boundedPoolSize);
+		_asyncPool = new ASyncThreadPool(corePoolSize, maxPoolSize, keepAliveInSeconds, queue);
 
-        //TODO Should we another system property?
-        _scheduledTP = new ScheduledThreadPoolExecutor(2);
+		// TODO Should we another system property?
+		_scheduledTP = new ScheduledThreadPoolExecutor(2);
 
 //        System.out.println("Created ExecutorService with: " +
 //            "core=" + corePoolSize + "; max=" + maxPoolSize +
 //            "; keepAlive=" + keepAliveInSeconds + "; maxLimit=" + boundedPoolSize);
-    }
+	}
 
-    private static final int getSystemProp(String propName, int defaultValue) {
-        int value = defaultValue;
-        try {
-            value = Integer.parseInt(System.getProperty(propName, "" + defaultValue));
-        } catch (Exception ex) {
-            //Ignore
-        }
+	private static final int getSystemProp(String propName, int defaultValue) {
+		int value = defaultValue;
+		try {
+			value = Integer.parseInt(System.getProperty(propName, "" + defaultValue));
+		} catch (Exception ex) {
+			// Ignore
+		}
 
-        return value;
-    }
+		return value;
+	}
 
-    public ThreadPoolExecutor getExecutorService() {
-        return _asyncPool;
-    }
+	public ThreadPoolExecutor getExecutorService() {
+		return _asyncPool;
+	}
 
-    public ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor() {
-        return _scheduledTP;
-    }
+	public ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor() {
+		return _scheduledTP;
+	}
 }

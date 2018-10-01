@@ -30,11 +30,10 @@ import java.io.Serializable;
 /**
  * @author Mahesh Kannan
  */
-public class StoreableReplicatedBackingStore<K extends Serializable, V extends Serializable>
-        extends ReplicatedBackingStore<K, V> {
+public class StoreableReplicatedBackingStore<K extends Serializable, V extends Serializable> extends ReplicatedBackingStore<K, V> {
 
-    public StoreableReplicatedBackingStore() {
-        
-    }
+	public StoreableReplicatedBackingStore() {
+
+	}
 
 }

@@ -34,150 +34,131 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public class ReplicationFramePayloadCommand<K, V>
-        extends Command {
+public class ReplicationFramePayloadCommand<K, V> extends Command {
 
-    private transient static final Logger _logger =
-            Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REPLICATION_FRAME_COMMAND);
+	private transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REPLICATION_FRAME_COMMAND);
 
-    private String targetInstanceName;
+	private String targetInstanceName;
 
-    private List<Command<K, V>> commands = new ArrayList<Command<K, V>>();
+	private List<Command<K, V>> commands = new ArrayList<Command<K, V>>();
 
-    private Collection<K> removedKeys = new ArrayList<K>();
+	private Collection<K> removedKeys = new ArrayList<K>();
 
-    private List<byte[]> rawRemovedKeys = new ArrayList<byte[]>();
+	private List<byte[]> rawRemovedKeys = new ArrayList<byte[]>();
 
-    public ReplicationFramePayloadCommand() {
-        super(ReplicationCommandOpcode.REPLICATION_FRAME_PAYLOAD);
-        setKey("RepFP:" + System.identityHashCode(this));
-    }
+	public ReplicationFramePayloadCommand() {
+		super(ReplicationCommandOpcode.REPLICATION_FRAME_PAYLOAD);
+		setKey("RepFP:" + System.identityHashCode(this));
+	}
 
-    public void addComamnd(Command<K, V> cmd) {
-        commands.add(cmd);
-    }
+	public void addComamnd(Command<K, V> cmd) {
+		commands.add(cmd);
+	}
 
-    public void setTargetInstance(String target) {
-        targetInstanceName = target;
-    }
+	public void setTargetInstance(String target) {
+		targetInstanceName = target;
+	}
 
-    void setRemovedKeys(Collection<K> removedKeys) {
-        this.removedKeys = removedKeys;
-    }
+	void setRemovedKeys(Collection<K> removedKeys) {
+		this.removedKeys = removedKeys;
+	}
 
-    protected boolean beforeTransmit()
-        throws DataStoreException {
-        setTargetName(targetInstanceName);
-        return targetInstanceName != null;
-    }
+	protected boolean beforeTransmit() throws DataStoreException {
+		setTargetName(targetInstanceName);
+		return targetInstanceName != null;
+	}
 
-    private void writeObject(ObjectOutputStream ros)
-            throws IOException {
-        try {
-            ros.writeObject(commands);
-            ros.writeBoolean(dsc.getKeyTransformer() == null);
-            if (dsc.getKeyTransformer() == null) {
-                ros.writeObject(removedKeys);
-            } else {
-                KeyTransformer<K> kt = dsc.getKeyTransformer();
-                int sz = removedKeys.size();
-                rawRemovedKeys = new ArrayList<byte[]>();
-                for (K k : removedKeys) {
-                    rawRemovedKeys.add(kt.keyToByteArray(k));
-                }
+	private void writeObject(ObjectOutputStream ros) throws IOException {
+		try {
+			ros.writeObject(commands);
+			ros.writeBoolean(dsc.getKeyTransformer() == null);
+			if (dsc.getKeyTransformer() == null) {
+				ros.writeObject(removedKeys);
+			} else {
+				KeyTransformer<K> kt = dsc.getKeyTransformer();
+				int sz = removedKeys.size();
+				rawRemovedKeys = new ArrayList<byte[]>();
+				for (K k : removedKeys) {
+					rawRemovedKeys.add(kt.keyToByteArray(k));
+				}
 
-                ros.writeObject(rawRemovedKeys);
-            }
-        } catch (IOException ioEx) {
-            _logger.log(Level.INFO, "Error during ReplicationFramePayloadCommand.writeObject ", ioEx);
-            throw ioEx;
-        }
-    }
+				ros.writeObject(rawRemovedKeys);
+			}
+		} catch (IOException ioEx) {
+			_logger.log(Level.INFO, "Error during ReplicationFramePayloadCommand.writeObject ", ioEx);
+			throw ioEx;
+		}
+	}
 
-    private void readObject(ObjectInputStream ris)
-            throws IOException, ClassNotFoundException {
-        try {
-            commands = (List<Command<K, V>>) ris.readObject();
-            boolean ktAbsent = ris.readBoolean();
-            if (ktAbsent) {
-                removedKeys = (Collection<K>) ris.readObject();
-            } else {
-                rawRemovedKeys = (List<byte[]>) ris.readObject();
-            }
-        } catch (IOException ioEx) {
-            _logger.log(Level.INFO, "Error during ReplicationFramePayloadCommand.readObject ", ioEx);
-            throw ioEx;
-        }
+	private void readObject(ObjectInputStream ris) throws IOException, ClassNotFoundException {
+		try {
+			commands = (List<Command<K, V>>) ris.readObject();
+			boolean ktAbsent = ris.readBoolean();
+			if (ktAbsent) {
+				removedKeys = (Collection<K>) ris.readObject();
+			} else {
+				rawRemovedKeys = (List<byte[]>) ris.readObject();
+			}
+		} catch (IOException ioEx) {
+			_logger.log(Level.INFO, "Error during ReplicationFramePayloadCommand.readObject ", ioEx);
+			throw ioEx;
+		}
 
-    }
+	}
 
-    @Override
-    public void execute(String initiator)
-            throws DataStoreException {
-        /*
-        int sz = list.size();
-        commands = new ArrayList<Command<K, V>>();
-        for (int i = 0; i < sz; i++) {
-            ByteArrayInputStream bis = null;
-            ObjectInputStreamWithLoader ois = null;
-            try {
-                bis = new ByteArrayInputStream(list.get(i));
-                ois = new ObjectInputStreamWithLoader(bis, dsc.getClassLoader());
-                Command<K, V> cmd = (Command<K, V>) ois.readObject();
+	@Override
+	public void execute(String initiator) throws DataStoreException {
+		/*
+		 * int sz = list.size(); commands = new ArrayList<Command<K, V>>(); for (int i = 0; i < sz; i++) { ByteArrayInputStream
+		 * bis = null; ObjectInputStreamWithLoader ois = null; try { bis = new ByteArrayInputStream(list.get(i)); ois = new
+		 * ObjectInputStreamWithLoader(bis, dsc.getClassLoader()); Command<K, V> cmd = (Command<K, V>) ois.readObject();
+		 * 
+		 * commands.add(cmd); cmd.initialize(dsc); } catch (Exception ex) { _logger.log(Level.WARNING, "Error during execute ",
+		 * ex); } finally { try { ois.close(); } catch (Exception ex) {} try { bis.close(); } catch (Exception ex) {} } }
+		 */
 
-                commands.add(cmd);
-                cmd.initialize(dsc);
-            } catch (Exception ex) {
-                _logger.log(Level.WARNING, "Error during execute ", ex);
-            } finally {
-                try { ois.close(); } catch (Exception ex) {}
-                try { bis.close(); } catch (Exception ex) {}
-            }
-        }
-        */
+		if (rawRemovedKeys != null) {
+			KeyTransformer<K> kt = dsc.getKeyTransformer();
+			removedKeys = new ArrayList<K>();
+			for (byte[] bytes : rawRemovedKeys) {
+				K k = kt.byteArrayToKey(bytes, 0, bytes.length);
+				removedKeys.add(k);
+			}
+		}
 
-        if (rawRemovedKeys != null) {
-            KeyTransformer<K> kt = dsc.getKeyTransformer();
-            removedKeys = new ArrayList<K>();
-            for (byte[] bytes : rawRemovedKeys) {
-                K k = kt.byteArrayToKey(bytes, 0, bytes.length);
-                removedKeys.add(k);
-            }
-        }
-        
-        for (Command<K, V> cmd : commands) {
-            cmd.initialize(dsc);
-            getCommandManager().executeCommand(cmd, false, initiator);
-        }
+		for (Command<K, V> cmd : commands) {
+			cmd.initialize(dsc);
+			getCommandManager().executeCommand(cmd, false, initiator);
+		}
 
-        int executedRemoveCount = 0;
-        if (removedKeys != null) {
-            for (K k : removedKeys) {
-                dsc.getReplicaStore().remove(k);
-                executedRemoveCount++;
-            }
+		int executedRemoveCount = 0;
+		if (removedKeys != null) {
+			for (K k : removedKeys) {
+				dsc.getReplicaStore().remove(k);
+				executedRemoveCount++;
+			}
 
-            if (dsc.getDataStoreMBean() != null) {
-                dsc.getDataStoreMBean().updateExecutedRemoveCount(executedRemoveCount);
-            }
-        }
-    }
+			if (dsc.getDataStoreMBean() != null) {
+				dsc.getDataStoreMBean().updateExecutedRemoveCount(executedRemoveCount);
+			}
+		}
+	}
 
-    @Override
-    public void onFailure() {
-        int sz = commands.size();
-        for (int i = 0; i < sz; i++) {
-            Command cmd = commands.get(i);
-            cmd.onFailure();
-        }
-    }
+	@Override
+	public void onFailure() {
+		int sz = commands.size();
+		for (int i = 0; i < sz; i++) {
+			Command cmd = commands.get(i);
+			cmd.onFailure();
+		}
+	}
 
-    @Override
-    protected boolean isArtificialKey() {
-        return true;
-    }
+	@Override
+	protected boolean isArtificialKey() {
+		return true;
+	}
 
-    public String toString() {
-        return "ReplicationFramePayloadCommand: contains " + commands.size() + " commands";
-    }
+	public String toString() {
+		return "ReplicationFramePayloadCommand: contains " + commands.size() + " commands";
+	}
 }

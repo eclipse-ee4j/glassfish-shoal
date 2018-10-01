@@ -33,80 +33,74 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public class SizeResponseCommand<K, V>
-        extends Command {
+public class SizeResponseCommand<K, V> extends Command {
 
-    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SIZE_RESPONSE_COMMAND);
+	private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SIZE_RESPONSE_COMMAND);
 
-    private long tokenId;
+	private long tokenId;
 
-    private int size;
+	private int size;
 
-    private String originatingInstance;
+	private String originatingInstance;
 
-    private String respondingInstanceName;
+	private String respondingInstanceName;
 
-    public SizeResponseCommand() {
-        super(ReplicationCommandOpcode.SIZE_RESPONSE);
-        super.setKey("SizeResp:" + tokenId);
-    }
+	public SizeResponseCommand() {
+		super(ReplicationCommandOpcode.SIZE_RESPONSE);
+		super.setKey("SizeResp:" + tokenId);
+	}
 
-    public SizeResponseCommand(String originatingInstance, long tokenId, int size) {
-        this();
-        this.originatingInstance = originatingInstance;
-        this.tokenId = tokenId;
-        this.size = size;
-    }
+	public SizeResponseCommand(String originatingInstance, long tokenId, int size) {
+		this();
+		this.originatingInstance = originatingInstance;
+		this.tokenId = tokenId;
+		this.size = size;
+	}
 
+	protected boolean beforeTransmit() {
+		setTargetName(originatingInstance);
+		return originatingInstance != null;
+	}
 
-    protected boolean beforeTransmit() {
-        setTargetName(originatingInstance);
-        return originatingInstance != null;
-    }
+	public Object getCommandKey() {
+		return "SizeResp:" + tokenId;
+	}
 
-    public Object getCommandKey() {
-        return "SizeResp:" + tokenId;
-    }
+	private void writeObject(ObjectOutputStream ros) throws IOException {
 
-    private void writeObject(ObjectOutputStream ros)
-        throws IOException {
+		ros.writeLong(tokenId);
+		ros.writeInt(size);
+		ros.writeUTF(dsc.getInstanceName());
+	}
 
-        ros.writeLong(tokenId);
-        ros.writeInt(size);
-        ros.writeUTF(dsc.getInstanceName());
-    }
+	private void readObject(ObjectInputStream ris) throws IOException {
 
+		tokenId = ris.readLong();
+		size = ris.readInt();
+		respondingInstanceName = ris.readUTF();
+	}
 
+	@Override
+	public void execute(String initiator) {
 
-    private void readObject(ObjectInputStream ris)
-        throws IOException {
+		ResponseMediator respMed = getDataStoreContext().getResponseMediator();
+		CommandResponse resp = respMed.getCommandResponse(tokenId);
+		if (resp != null) {
+			if (_logger.isLoggable(Level.FINE)) {
+				_logger.log(Level.FINE, dsc.getInstanceName() + " executed size_response tokenId=" + tokenId + " value " + size);
+			}
 
-        tokenId = ris.readLong();
-        size = ris.readInt();
-        respondingInstanceName = ris.readUTF();
-    }
+			resp.setRespondingInstanceName(respondingInstanceName);
+			resp.setResult(size);
+		}
+	}
 
-    @Override
-    public void execute(String initiator) {
+	@Override
+	protected boolean isArtificialKey() {
+		return true;
+	}
 
-        ResponseMediator respMed = getDataStoreContext().getResponseMediator();
-        CommandResponse resp = respMed.getCommandResponse(tokenId);
-        if (resp != null) {
-            if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, dsc.getInstanceName() + " executed size_response tokenId=" + tokenId + " value " + size);
-            }
-            
-            resp.setRespondingInstanceName(respondingInstanceName);
-            resp.setResult(size);
-        }
-    }
-
-    @Override
-    protected boolean isArtificialKey() {
-        return true;
-    }
-       
-    public String toString() {
-        return getName() + "(" + tokenId + ")";
-    }
+	public String toString() {
+		return getName() + "(" + tokenId + ")";
+	}
 }

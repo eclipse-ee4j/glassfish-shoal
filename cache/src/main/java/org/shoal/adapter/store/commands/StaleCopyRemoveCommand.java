@@ -29,42 +29,41 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public class StaleCopyRemoveCommand<K, V>
-    extends Command<K, V> {
+public class StaleCopyRemoveCommand<K, V> extends Command<K, V> {
 
-    protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_STALE_REMOVE_COMMAND);
+	protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_STALE_REMOVE_COMMAND);
 
-    private String staleTargetName;
+	private String staleTargetName;
 
-    public StaleCopyRemoveCommand() {
-        super(ReplicationCommandOpcode.STALE_REMOVE);
-    }
+	public StaleCopyRemoveCommand() {
+		super(ReplicationCommandOpcode.STALE_REMOVE);
+	}
 
-    public StaleCopyRemoveCommand(K k) {
-        this();
-        super.setKey(k);
-    }
+	public StaleCopyRemoveCommand(K k) {
+		this();
+		super.setKey(k);
+	}
 
-    public String getStaleTargetName() {
-        return staleTargetName;
-    }
+	public String getStaleTargetName() {
+		return staleTargetName;
+	}
 
-    public void setStaleTargetName(String targetName) {
-        this.staleTargetName = targetName;
-    }
-    
-    @Override
-    protected boolean beforeTransmit() {
-        setTargetName(staleTargetName);
-        return staleTargetName != null;
-    }
+	public void setStaleTargetName(String targetName) {
+		this.staleTargetName = targetName;
+	}
 
-    @Override
-    public void execute(String initiator) {
-        dsc.getReplicaStore().remove(getKey());
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, "*********************  REMOVED STALE REPLICA: " + getKey() + "   ** SENT BY: " + initiator);
-        }
-    }
+	@Override
+	protected boolean beforeTransmit() {
+		setTargetName(staleTargetName);
+		return staleTargetName != null;
+	}
+
+	@Override
+	public void execute(String initiator) {
+		dsc.getReplicaStore().remove(getKey());
+		if (_logger.isLoggable(Level.FINE)) {
+			_logger.log(Level.FINE, "*********************  REMOVED STALE REPLICA: " + getKey() + "   ** SENT BY: " + initiator);
+		}
+	}
 
 }

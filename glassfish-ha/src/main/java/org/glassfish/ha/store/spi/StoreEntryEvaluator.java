@@ -23,9 +23,8 @@ import java.io.Serializable;
  * @param <K> The key type
  * @param <V> The value type
  */
-public interface StoreEntryEvaluator<K, V>
-    extends Serializable {
+public interface StoreEntryEvaluator<K, V> extends Serializable {
 
-    public Object eval(K key, V value);
-    
+	public Object eval(K key, V value);
+
 }

@@ -25,27 +25,26 @@ import java.util.ResourceBundle;
  */
 public class StringManager {
 
-    private static final StringManager instance = new StringManager();
+	private static final StringManager instance = new StringManager();
 
-    private static final ResourceBundle bundle = ResourceBundle.getBundle(
-        "com.sun.enterprise.gms.tools.LocalStrings", Locale.getDefault());
+	private static final ResourceBundle bundle = ResourceBundle.getBundle("com.sun.enterprise.gms.tools.LocalStrings", Locale.getDefault());
 
-    private StringManager() {}
+	private StringManager() {
+	}
 
-    static StringManager getInstance() {
-        return instance;
-    }
+	static StringManager getInstance() {
+		return instance;
+	}
 
-    /*
-     * This is a utility method so that the rest of the code
-     * doesn't have to deal with resource bundles and
-     * formatting strings.  
-     */
-    String get(String key, Object... params) {
-        final String message = bundle.getString(key);
-        if (params == null || params.length == 0) {
-            return message;
-        }
-        return MessageFormat.format(message, params);
-    }
+	/*
+	 * This is a utility method so that the rest of the code doesn't have to deal with resource bundles and formatting
+	 * strings.
+	 */
+	String get(String key, Object... params) {
+		final String message = bundle.getString(key);
+		if (params == null || params.length == 0) {
+			return message;
+		}
+		return MessageFormat.format(message, params);
+	}
 }

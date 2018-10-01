@@ -21,21 +21,20 @@ import java.io.IOException;
 /**
  * @author Mahesh Kannan
  */
-public class DataStoreAlreadyClosedException
-    extends DataStoreException {
+public class DataStoreAlreadyClosedException extends DataStoreException {
 
-    public DataStoreAlreadyClosedException() {
-    }
+	public DataStoreAlreadyClosedException() {
+	}
 
-    public DataStoreAlreadyClosedException(String message) {
-        super(message);
-    }
+	public DataStoreAlreadyClosedException(String message) {
+		super(message);
+	}
 
-    public DataStoreAlreadyClosedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public DataStoreAlreadyClosedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public DataStoreAlreadyClosedException(Throwable cause) {
-        super(cause);
-    }
+	public DataStoreAlreadyClosedException(Throwable cause) {
+		super(cause);
+	}
 }

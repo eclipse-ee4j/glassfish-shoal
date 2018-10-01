@@ -28,20 +28,20 @@ import java.util.List;
  */
 public interface GroupService {
 
-    public String getGroupName();
+	public String getGroupName();
 
-    public String getMemberName();
+	public String getMemberName();
 
-    public List<String> getCurrentCoreMembers();
+	public List<String> getCurrentCoreMembers();
 
-    public void registerGroupMemberEventListener(GroupMemberEventListener listener);
+	public void registerGroupMemberEventListener(GroupMemberEventListener listener);
 
-    public void removeGroupMemberEventListener(GroupMemberEventListener listener);
+	public void removeGroupMemberEventListener(GroupMemberEventListener listener);
 
-    public void close();
+	public void close();
 
-    public void registerGroupMessageReceiver(String messageToken, MessageReceiver receiver);
+	public void registerGroupMessageReceiver(String messageToken, MessageReceiver receiver);
 
-    public boolean sendMessage(String targetMemberName, String messageToken, byte[] data);
+	public boolean sendMessage(String targetMemberName, String messageToken, byte[] data);
 
 }

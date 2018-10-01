@@ -19,70 +19,68 @@ package org.shoal.ha.cache.api;
 import org.shoal.ha.cache.impl.command.Command;
 import org.shoal.ha.cache.impl.command.CommandManager;
 
-
 /**
  * @author Mahesh Kannan
  *
  */
 public abstract class AbstractCommandInterceptor<K, V> {
 
-    protected String storeName;
+	protected String storeName;
 
-    protected DataStoreContext<K, V> dsc;
-    
-    private CommandManager<K, V> cm;
-    
-    private AbstractCommandInterceptor<K, V> next;
-  
-    private AbstractCommandInterceptor<K, V> prev;
-    
-    public void initialize(DataStoreContext<K, V> dsc) {
-        this.dsc = dsc;
-        this.cm = dsc.getCommandManager();
+	protected DataStoreContext<K, V> dsc;
 
-        this.storeName = dsc.getServiceName();
-    }
+	private CommandManager<K, V> cm;
 
-    public final DataStoreContext<K, V> getDataStoreContext() {
-        return dsc;
-    }
+	private AbstractCommandInterceptor<K, V> next;
 
-    public CommandManager getCommandManager() {
-        return cm;
-    }
+	private AbstractCommandInterceptor<K, V> prev;
 
-    public final void setNext(AbstractCommandInterceptor<K, V> next) {
-        this.next = next;
-    }
+	public void initialize(DataStoreContext<K, V> dsc) {
+		this.dsc = dsc;
+		this.cm = dsc.getCommandManager();
 
-    public final void setPrev(AbstractCommandInterceptor<K, V> prev) {
-        this.prev = prev;
-    }
+		this.storeName = dsc.getServiceName();
+	}
 
-    public final AbstractCommandInterceptor<K, V> getNext() {
-        return next;    
-    }
-    
-    public final AbstractCommandInterceptor<K, V> getPrev() {
-        return prev;
-    }
+	public final DataStoreContext<K, V> getDataStoreContext() {
+		return dsc;
+	}
 
-    public void onTransmit(Command<K, V> cmd, String initiator)
-        throws DataStoreException {
-        AbstractCommandInterceptor n = getNext();
-        if (n != null) {
-            n.onTransmit(cmd, initiator);
-        }
-    }
+	public CommandManager getCommandManager() {
+		return cm;
+	}
 
-    public void onReceive(Command<K, V> cmd, String initiator)
-        throws DataStoreException {
-        AbstractCommandInterceptor<K, V> p = getPrev();
-        if (p != null) {
-            p.onReceive(cmd, initiator);
-        }
-    }
+	public final void setNext(AbstractCommandInterceptor<K, V> next) {
+		this.next = next;
+	}
 
-    public void close() {}
+	public final void setPrev(AbstractCommandInterceptor<K, V> prev) {
+		this.prev = prev;
+	}
+
+	public final AbstractCommandInterceptor<K, V> getNext() {
+		return next;
+	}
+
+	public final AbstractCommandInterceptor<K, V> getPrev() {
+		return prev;
+	}
+
+	public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
+		AbstractCommandInterceptor n = getNext();
+		if (n != null) {
+			n.onTransmit(cmd, initiator);
+		}
+	}
+
+	public void onReceive(Command<K, V> cmd, String initiator) throws DataStoreException {
+		AbstractCommandInterceptor<K, V> p = getPrev();
+		if (p != null) {
+			p.onReceive(cmd, initiator);
+		}
+	}
+
+	public void close() {
+	}
 
 }

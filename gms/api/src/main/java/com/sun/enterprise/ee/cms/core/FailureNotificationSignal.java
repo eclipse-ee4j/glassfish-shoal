@@ -17,20 +17,19 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Signal corresponding to FailureNotificationAction. This Signal enables the
- * consumer to get specifics about a failure notification. This Signal type
- * will only be passed to a FailureNotificationAction.  This Signal
- * is delivered to registered GMS Clients on all members of the group.
+ * Signal corresponding to FailureNotificationAction. This Signal enables the consumer to get specifics about a failure
+ * notification. This Signal type will only be passed to a FailureNotificationAction. This Signal is delivered to
+ * registered GMS Clients on all members of the group.
  *
- * @author Shreedhar Ganapathy
- * Date: Jan 8, 2004
+ * @author Shreedhar Ganapathy Date: Jan 8, 2004
  * @version $Revision$
  */
 public interface FailureNotificationSignal extends Signal, AliveAndReadySignal {
-    /**
-     * returns the identity token of the failed member
-     * @return java.lang.String
-     * @deprecated
-     */
-    String getFailedMemberToken() ;
+	/**
+	 * returns the identity token of the failed member
+	 * 
+	 * @return java.lang.String
+	 * @deprecated
+	 */
+	String getFailedMemberToken();
 }

@@ -29,153 +29,142 @@ import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.SocketConnectorHandler;
 import org.glassfish.grizzly.utils.Exceptions;
 
-
 /**
  * Connection cache implementation.
  * 
  * @author Alexey Stashok
  */
 public class ConnectionCache {
-    private final SocketConnectorHandler socketConnectorHandler;
+	private final SocketConnectorHandler socketConnectorHandler;
 
-    private final int highWaterMark;
-    private final int maxParallelConnections;
-    private final int numberToReclaim;
+	private final int highWaterMark;
+	private final int maxParallelConnections;
+	private final int numberToReclaim;
 
-    private final AtomicBoolean isClosed = new AtomicBoolean();
+	private final AtomicBoolean isClosed = new AtomicBoolean();
 
-    private final AtomicInteger totalCachedConnectionsCount = new AtomicInteger();
-    
-    private final ConcurrentHashMap<SocketAddress, CacheRecord> cache =
-            new ConcurrentHashMap<SocketAddress, CacheRecord>();
+	private final AtomicInteger totalCachedConnectionsCount = new AtomicInteger();
 
-    // Connect timeout 5 seconds
-    static private final long connectTimeoutMillis = 5000;
+	private final ConcurrentHashMap<SocketAddress, CacheRecord> cache = new ConcurrentHashMap<SocketAddress, CacheRecord>();
 
-    private final Connection.CloseListener removeCachedConnectionOnCloseListener =
-            new RemoveCachedConnectionOnCloseListener();
-    
-    public ConnectionCache(SocketConnectorHandler socketConnectorHandler,
-            int highWaterMark, int maxParallelConnections, int numberToReclaim) {
-        this.socketConnectorHandler = socketConnectorHandler;
+	// Connect timeout 5 seconds
+	static private final long connectTimeoutMillis = 5000;
 
-        this.highWaterMark = highWaterMark;
-        this.maxParallelConnections = maxParallelConnections;
-        this.numberToReclaim = numberToReclaim;
-    }
+	private final Connection.CloseListener removeCachedConnectionOnCloseListener = new RemoveCachedConnectionOnCloseListener();
 
-    public Connection poll(final SocketAddress localAddress,
-            final SocketAddress remoteAddress) throws IOException {
+	public ConnectionCache(SocketConnectorHandler socketConnectorHandler, int highWaterMark, int maxParallelConnections, int numberToReclaim) {
+		this.socketConnectorHandler = socketConnectorHandler;
 
-        final CacheRecord cacheRecord = obtainCacheRecord(remoteAddress);
+		this.highWaterMark = highWaterMark;
+		this.maxParallelConnections = maxParallelConnections;
+		this.numberToReclaim = numberToReclaim;
+	}
 
-        if (isClosed.get()) {
-            // remove cache entry associated with the remoteAddress (only if we have the actual value)
-            cache.remove(remoteAddress, cacheRecord);
-            closeCacheRecord(cacheRecord);
-            throw new IOException("ConnectionCache is closed");
-        }
+	public Connection poll(final SocketAddress localAddress, final SocketAddress remoteAddress) throws IOException {
 
-        // take connection from cache
-        Connection connection = cacheRecord.connections.poll();
-        if (connection != null) {
-            // if we have one - just return it
-            connection.removeCloseListener(removeCachedConnectionOnCloseListener);
-            cacheRecord.idleConnectionsCount.decrementAndGet();
-            return connection;
-        }
+		final CacheRecord cacheRecord = obtainCacheRecord(remoteAddress);
 
-        final Future<Connection> connectFuture =
-                socketConnectorHandler.connect(remoteAddress, localAddress);
+		if (isClosed.get()) {
+			// remove cache entry associated with the remoteAddress (only if we have the actual value)
+			cache.remove(remoteAddress, cacheRecord);
+			closeCacheRecord(cacheRecord);
+			throw new IOException("ConnectionCache is closed");
+		}
 
-        try {
-            connection = connectFuture.get(connectTimeoutMillis, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            throw Exceptions.makeIOException(e);
-        }
+		// take connection from cache
+		Connection connection = cacheRecord.connections.poll();
+		if (connection != null) {
+			// if we have one - just return it
+			connection.removeCloseListener(removeCachedConnectionOnCloseListener);
+			cacheRecord.idleConnectionsCount.decrementAndGet();
+			return connection;
+		}
 
-        return connection;
-    }
-    
-    public void offer(final Connection connection) {
-        final SocketAddress remoteAddress = (SocketAddress) connection.getPeerAddress();
+		final Future<Connection> connectFuture = socketConnectorHandler.connect(remoteAddress, localAddress);
 
-        final CacheRecord cacheRecord = obtainCacheRecord(remoteAddress);
+		try {
+			connection = connectFuture.get(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			throw Exceptions.makeIOException(e);
+		}
 
-        final int totalConnectionsN = totalCachedConnectionsCount.incrementAndGet();
-        final int parallelConnectionN = cacheRecord.idleConnectionsCount.incrementAndGet();
+		return connection;
+	}
 
-        if (totalConnectionsN > highWaterMark ||
-                parallelConnectionN > maxParallelConnections) {
-            totalCachedConnectionsCount.decrementAndGet();
-            cacheRecord.idleConnectionsCount.decrementAndGet();
-        }
+	public void offer(final Connection connection) {
+		final SocketAddress remoteAddress = (SocketAddress) connection.getPeerAddress();
 
-        connection.addCloseListener(removeCachedConnectionOnCloseListener);
+		final CacheRecord cacheRecord = obtainCacheRecord(remoteAddress);
 
-        cacheRecord.connections.offer(connection);
-        
-        if (isClosed.get()) {
-            // remove cache entry associated with the remoteAddress (only if we have the actual value)
-            cache.remove(remoteAddress, cacheRecord);
-            closeCacheRecord(cacheRecord);
-        }
-    }
+		final int totalConnectionsN = totalCachedConnectionsCount.incrementAndGet();
+		final int parallelConnectionN = cacheRecord.idleConnectionsCount.incrementAndGet();
 
-    public void close() {
-        if (!isClosed.getAndSet(true)) {
-            for (SocketAddress key : cache.keySet()) {
-                final CacheRecord cacheRecord = cache.remove(key);
-                closeCacheRecord(cacheRecord);
-            }
-        }
-    }
+		if (totalConnectionsN > highWaterMark || parallelConnectionN > maxParallelConnections) {
+			totalCachedConnectionsCount.decrementAndGet();
+			cacheRecord.idleConnectionsCount.decrementAndGet();
+		}
 
-    private void closeCacheRecord(final CacheRecord cacheRecord) {
-        if (cacheRecord == null) return;
-        Connection connection;
-        while ((connection = cacheRecord.connections.poll()) != null) {
-            cacheRecord.idleConnectionsCount.decrementAndGet();
-            connection.close();
-        }
-    }
+		connection.addCloseListener(removeCachedConnectionOnCloseListener);
 
-    private CacheRecord obtainCacheRecord(final SocketAddress remoteAddress) {
-        CacheRecord cacheRecord = cache.get(remoteAddress);
-        if (cacheRecord == null) {
-            // make sure we added CacheRecord corresponding to the remoteAddress
-            final CacheRecord newCacheRecord = new CacheRecord();
-            cacheRecord = cache.putIfAbsent(remoteAddress, newCacheRecord);
-            if (cacheRecord == null) {
-                cacheRecord = newCacheRecord;
-            }
-        }
+		cacheRecord.connections.offer(connection);
 
-        return cacheRecord;
-    }
+		if (isClosed.get()) {
+			// remove cache entry associated with the remoteAddress (only if we have the actual value)
+			cache.remove(remoteAddress, cacheRecord);
+			closeCacheRecord(cacheRecord);
+		}
+	}
 
-    private static final class CacheRecord {
-        final AtomicInteger idleConnectionsCount =
-                new AtomicInteger();
+	public void close() {
+		if (!isClosed.getAndSet(true)) {
+			for (SocketAddress key : cache.keySet()) {
+				final CacheRecord cacheRecord = cache.remove(key);
+				closeCacheRecord(cacheRecord);
+			}
+		}
+	}
 
-        final Queue<Connection> connections =
-                new LinkedTransferQueue<Connection>();
-        
-    }
+	private void closeCacheRecord(final CacheRecord cacheRecord) {
+		if (cacheRecord == null)
+			return;
+		Connection connection;
+		while ((connection = cacheRecord.connections.poll()) != null) {
+			cacheRecord.idleConnectionsCount.decrementAndGet();
+			connection.close();
+		}
+	}
 
-    private final class RemoveCachedConnectionOnCloseListener implements
-            Connection.CloseListener {
+	private CacheRecord obtainCacheRecord(final SocketAddress remoteAddress) {
+		CacheRecord cacheRecord = cache.get(remoteAddress);
+		if (cacheRecord == null) {
+			// make sure we added CacheRecord corresponding to the remoteAddress
+			final CacheRecord newCacheRecord = new CacheRecord();
+			cacheRecord = cache.putIfAbsent(remoteAddress, newCacheRecord);
+			if (cacheRecord == null) {
+				cacheRecord = newCacheRecord;
+			}
+		}
 
-        @Override
-        public void onClosed(Connection connection, Connection.CloseType type) throws IOException {
-            final SocketAddress remoteAddress =
-                    (SocketAddress) connection.getPeerAddress();
-            final CacheRecord cacheRecord = cache.get(remoteAddress);
-            if (cacheRecord != null &&
-                    cacheRecord.connections.remove(connection)) {
-                cacheRecord.idleConnectionsCount.decrementAndGet();
-            }
-        }
+		return cacheRecord;
+	}
 
-    }
+	private static final class CacheRecord {
+		final AtomicInteger idleConnectionsCount = new AtomicInteger();
+
+		final Queue<Connection> connections = new LinkedTransferQueue<Connection>();
+
+	}
+
+	private final class RemoveCachedConnectionOnCloseListener implements Connection.CloseListener {
+
+		@Override
+		public void onClosed(Connection connection, Connection.CloseType type) throws IOException {
+			final SocketAddress remoteAddress = (SocketAddress) connection.getPeerAddress();
+			final CacheRecord cacheRecord = cache.get(remoteAddress);
+			if (cacheRecord != null && cacheRecord.connections.remove(connection)) {
+				cacheRecord.idleConnectionsCount.decrementAndGet();
+			}
+		}
+
+	}
 }

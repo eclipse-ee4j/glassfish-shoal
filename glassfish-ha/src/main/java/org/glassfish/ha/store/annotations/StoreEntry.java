@@ -22,24 +22,19 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 /**
- * An annotation to describe a class as a SToreEntry. For each class a.b.X
- *  that is annotated with @StoreEntry, an APT will be used to generate
- *  a class a.b.X_
+ * An annotation to describe a class as a SToreEntry. For each class a.b.X that is annotated with @StoreEntry, an APT
+ * will be used to generate a class a.b.X_
  *
- * For each attribute A of type T in X, a.b.X_ contains a (static) field whose
- *  type is SessionAttributeMetadata<X, T>. SessionAttributeMetadata describes the attribute
- *  by giving its (java) type, name etc.
+ * For each attribute A of type T in X, a.b.X_ contains a (static) field whose type is SessionAttributeMetadata<X, T>.
+ * SessionAttributeMetadata describes the attribute by giving its (java) type, name etc.
  *
- * Also, for each a.b.X a sub-class by name a.b.X_Storable will also be generated.
- *  a.b.X_Storable will implement Storable interface. The Storable interface allows
- *  a Store implementation to detect dirty attributes. An attribute A is dirty, if
- *  its setter method (or the method that was annotated with @Attribute("A") was
- *  invoked). An instance of a.b.X_Storable can be obtained by calling
- * BackingStore.getStorable()
+ * Also, for each a.b.X a sub-class by name a.b.X_Storable will also be generated. a.b.X_Storable will implement
+ * Storable interface. The Storable interface allows a Store implementation to detect dirty attributes. An attribute A
+ * is dirty, if its setter method (or the method that was annotated with @Attribute("A") was invoked). An instance of
+ * a.b.X_Storable can be obtained by calling BackingStore.getStorable()
  * 
- * An annotation that can be used to declare a String Attribute
- *  as a Version. Version attribute is a special attribute of
- *  a StoreEntry.
+ * An annotation that can be used to declare a String Attribute as a Version. Version attribute is a special attribute
+ * of a StoreEntry.
  *
  * @author Mahesh.Kannan@Sun.Com
  *
@@ -47,5 +42,5 @@ import java.lang.annotation.ElementType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface StoreEntry {
-    String value() default "";
+	String value() default "";
 }

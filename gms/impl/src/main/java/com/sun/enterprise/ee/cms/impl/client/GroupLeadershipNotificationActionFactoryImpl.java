@@ -27,18 +27,18 @@ import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationActionFactory;
  */
 public class GroupLeadershipNotificationActionFactoryImpl implements GroupLeadershipNotificationActionFactory {
 
-    private final CallBack callBack;
+	private final CallBack callBack;
 
-    public GroupLeadershipNotificationActionFactoryImpl( final CallBack callBack ) {
-        this.callBack = callBack;
-    }
+	public GroupLeadershipNotificationActionFactoryImpl(final CallBack callBack) {
+		this.callBack = callBack;
+	}
 
-    /**
-     * Produces an Action instance.
-     *
-     * @return com.sun.enterprise.ee.cms.Action
-     */
-    public Action produceAction() {
-        return new GroupLeadershipNotificationActionImpl( callBack );
-    }
+	/**
+	 * Produces an Action instance.
+	 *
+	 * @return com.sun.enterprise.ee.cms.Action
+	 */
+	public Action produceAction() {
+		return new GroupLeadershipNotificationActionImpl(callBack);
+	}
 }

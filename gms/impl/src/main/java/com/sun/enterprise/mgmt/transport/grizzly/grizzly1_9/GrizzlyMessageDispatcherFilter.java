@@ -31,28 +31,28 @@ import java.util.HashMap;
  */
 public class GrizzlyMessageDispatcherFilter implements ProtocolFilter {
 
-    private final GrizzlyNetworkManager1_9 networkManager;
+	private final GrizzlyNetworkManager1_9 networkManager;
 
-    public GrizzlyMessageDispatcherFilter( GrizzlyNetworkManager1_9 networkManager ) {
-        this.networkManager = networkManager;
-    }
+	public GrizzlyMessageDispatcherFilter(GrizzlyNetworkManager1_9 networkManager) {
+		this.networkManager = networkManager;
+	}
 
-    public boolean execute( Context ctx ) throws IOException {
-        Object obj = ctx.removeAttribute( ProtocolParser.MESSAGE );
-        if( !( obj instanceof Message ) )
-            throw new IOException( "received message is not valid: " + obj );
-        final Message incomingMessage = (Message)obj;
-        final SelectionKey selectionKey = ctx.getSelectionKey();
-        Map<String, Object> piggyback = null;
-        if( selectionKey != null ) {
-            piggyback = new HashMap<String, Object>();
-            piggyback.put( GrizzlyNetworkManager1_9.MESSAGE_SELECTION_KEY_TAG, selectionKey );
-        }
-        networkManager.receiveMessage( incomingMessage, piggyback );
-        return false;
-    }
+	public boolean execute(Context ctx) throws IOException {
+		Object obj = ctx.removeAttribute(ProtocolParser.MESSAGE);
+		if (!(obj instanceof Message))
+			throw new IOException("received message is not valid: " + obj);
+		final Message incomingMessage = (Message) obj;
+		final SelectionKey selectionKey = ctx.getSelectionKey();
+		Map<String, Object> piggyback = null;
+		if (selectionKey != null) {
+			piggyback = new HashMap<String, Object>();
+			piggyback.put(GrizzlyNetworkManager1_9.MESSAGE_SELECTION_KEY_TAG, selectionKey);
+		}
+		networkManager.receiveMessage(incomingMessage, piggyback);
+		return false;
+	}
 
-    public boolean postExecute( Context context ) throws IOException {
-        return true;
-    }
+	public boolean postExecute(Context context) throws IOException {
+		return true;
+	}
 }

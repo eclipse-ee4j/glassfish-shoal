@@ -28,211 +28,200 @@ import java.util.logging.Logger;
  */
 public class BackingStoreConfiguration<K extends Serializable, V extends Serializable> {
 
-    public static final String BASE_DIRECTORY_NAME = "base.directory.name";
+	public static final String BASE_DIRECTORY_NAME = "base.directory.name";
 
-    public static final String NO_OP_PERSISTENCE_TYPE = "noop";
+	public static final String NO_OP_PERSISTENCE_TYPE = "noop";
 
-    public static final String START_GMS = "start.gms";
+	public static final String START_GMS = "start.gms";
 
-    private String clusterName;
+	private String clusterName;
 
-    private String instanceName;
+	private String instanceName;
 
-    private String storeName;
+	private String storeName;
 
-    private String shortUniqueName;
+	private String shortUniqueName;
 
-    private String storeType;
+	private String storeType;
 
-    private long maxIdleTimeInSeconds = -1;
+	private long maxIdleTimeInSeconds = -1;
 
-    private String relaxVersionCheck;
+	private String relaxVersionCheck;
 
-    private long maxLoadWaitTimeInSeconds;
+	private long maxLoadWaitTimeInSeconds;
 
-    private File baseDirectory;
+	private File baseDirectory;
 
-    private Class<K> keyClazz;
+	private Class<K> keyClazz;
 
-    private Class<V> valueClazz;
+	private Class<V> valueClazz;
 
-    private boolean synchronousSave;
+	private boolean synchronousSave;
 
-    private long typicalPayloadSizeInKiloBytes;
+	private long typicalPayloadSizeInKiloBytes;
 
-    private Logger logger;
+	private Logger logger;
 
-    private Map<String, Object> vendorSpecificSettings = new HashMap<String, Object>();
+	private Map<String, Object> vendorSpecificSettings = new HashMap<String, Object>();
 
-    private ClassLoader classLoader;
+	private ClassLoader classLoader;
 
-    private boolean startGroupService;
+	private boolean startGroupService;
 
-    public String getClusterName() {
-        return clusterName;
-    }
+	public String getClusterName() {
+		return clusterName;
+	}
 
-    public BackingStoreConfiguration<K, V> setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setClusterName(String clusterName) {
+		this.clusterName = clusterName;
+		return this;
+	}
 
-    public String getInstanceName() {
-        return instanceName;
-    }
+	public String getInstanceName() {
+		return instanceName;
+	}
 
-    public BackingStoreConfiguration<K, V> setInstanceName(String instanceName) {
-        this.instanceName = instanceName;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
+		return this;
+	}
 
-    public String getStoreName() {
-        return storeName;
-    }
+	public String getStoreName() {
+		return storeName;
+	}
 
-    public BackingStoreConfiguration<K, V> setStoreName(String storeName) {
-        this.storeName = storeName;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setStoreName(String storeName) {
+		this.storeName = storeName;
+		return this;
+	}
 
-    public String getShortUniqueName() {
-        return shortUniqueName;
-    }
+	public String getShortUniqueName() {
+		return shortUniqueName;
+	}
 
-    public BackingStoreConfiguration<K, V> setShortUniqueName(String shortUniqueName) {
-        this.shortUniqueName = shortUniqueName;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setShortUniqueName(String shortUniqueName) {
+		this.shortUniqueName = shortUniqueName;
+		return this;
+	}
 
-    public String getStoreType() {
-        return storeType;
-    }
+	public String getStoreType() {
+		return storeType;
+	}
 
-    public BackingStoreConfiguration<K, V> setStoreType(String storeType) {
-        this.storeType = storeType;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setStoreType(String storeType) {
+		this.storeType = storeType;
+		return this;
+	}
 
-    public long getMaxIdleTimeInSeconds() {
-        return maxIdleTimeInSeconds;
-    }
+	public long getMaxIdleTimeInSeconds() {
+		return maxIdleTimeInSeconds;
+	}
 
-    public BackingStoreConfiguration<K, V> setMaxIdleTimeInSeconds(long maxIdleTimeInSeconds) {
-        this.maxIdleTimeInSeconds = maxIdleTimeInSeconds;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setMaxIdleTimeInSeconds(long maxIdleTimeInSeconds) {
+		this.maxIdleTimeInSeconds = maxIdleTimeInSeconds;
+		return this;
+	}
 
-    public String getRelaxVersionCheck() {
-        return relaxVersionCheck;
-    }
+	public String getRelaxVersionCheck() {
+		return relaxVersionCheck;
+	}
 
-    public BackingStoreConfiguration<K, V> setRelaxVersionCheck(String relaxVersionCheck) {
-        this.relaxVersionCheck = relaxVersionCheck;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setRelaxVersionCheck(String relaxVersionCheck) {
+		this.relaxVersionCheck = relaxVersionCheck;
+		return this;
+	}
 
-    public long getMaxLoadWaitTimeInSeconds() {
-        return maxLoadWaitTimeInSeconds;
-    }
+	public long getMaxLoadWaitTimeInSeconds() {
+		return maxLoadWaitTimeInSeconds;
+	}
 
-    public BackingStoreConfiguration<K, V> setMaxLoadWaitTimeInSeconds(long maxLoadWaitTimeInSeconds) {
-        this.maxLoadWaitTimeInSeconds = maxLoadWaitTimeInSeconds;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setMaxLoadWaitTimeInSeconds(long maxLoadWaitTimeInSeconds) {
+		this.maxLoadWaitTimeInSeconds = maxLoadWaitTimeInSeconds;
+		return this;
+	}
 
-    public File getBaseDirectory() {
-        return baseDirectory;
-    }
+	public File getBaseDirectory() {
+		return baseDirectory;
+	}
 
-    public BackingStoreConfiguration<K, V> setBaseDirectory(File baseDirectory) {
-        this.baseDirectory = baseDirectory;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setBaseDirectory(File baseDirectory) {
+		this.baseDirectory = baseDirectory;
+		return this;
+	}
 
-    public Class<K> getKeyClazz() {
-        return keyClazz;
-    }
+	public Class<K> getKeyClazz() {
+		return keyClazz;
+	}
 
-    public BackingStoreConfiguration<K, V> setKeyClazz(Class<K> kClazz) {
-        this.keyClazz = kClazz;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setKeyClazz(Class<K> kClazz) {
+		this.keyClazz = kClazz;
+		return this;
+	}
 
-    public Class<V> getValueClazz() {
-        return valueClazz;
-    }
+	public Class<V> getValueClazz() {
+		return valueClazz;
+	}
 
-    public BackingStoreConfiguration<K, V> setValueClazz(Class<V> vClazz) {
-        this.valueClazz = vClazz;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setValueClazz(Class<V> vClazz) {
+		this.valueClazz = vClazz;
+		return this;
+	}
 
-    public boolean isSynchronousSave() {
-        return synchronousSave;
-    }
+	public boolean isSynchronousSave() {
+		return synchronousSave;
+	}
 
-    public BackingStoreConfiguration<K, V> setSynchronousSave(boolean synchronousSave) {
-        this.synchronousSave = synchronousSave;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setSynchronousSave(boolean synchronousSave) {
+		this.synchronousSave = synchronousSave;
+		return this;
+	}
 
-    public long getTypicalPayloadSizeInKiloBytes() {
-        return typicalPayloadSizeInKiloBytes;
-    }
+	public long getTypicalPayloadSizeInKiloBytes() {
+		return typicalPayloadSizeInKiloBytes;
+	}
 
-    public BackingStoreConfiguration<K, V> setTypicalPayloadSizeInKiloBytes(long typicalPayloadSizeInKiloBytes) {
-        this.typicalPayloadSizeInKiloBytes = typicalPayloadSizeInKiloBytes;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setTypicalPayloadSizeInKiloBytes(long typicalPayloadSizeInKiloBytes) {
+		this.typicalPayloadSizeInKiloBytes = typicalPayloadSizeInKiloBytes;
+		return this;
+	}
 
-    public Logger getLogger() {
-        return logger;
-    }
+	public Logger getLogger() {
+		return logger;
+	}
 
-    public BackingStoreConfiguration<K, V> setLogger(Logger logger) {
-        this.logger = logger;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setLogger(Logger logger) {
+		this.logger = logger;
+		return this;
+	}
 
-    public Map<String, Object> getVendorSpecificSettings() {
-        return vendorSpecificSettings;
-    }
+	public Map<String, Object> getVendorSpecificSettings() {
+		return vendorSpecificSettings;
+	}
 
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
 
-    public BackingStoreConfiguration<K, V> setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+		return this;
+	}
 
-    public boolean getStartGroupService() {
-        return startGroupService;
-    }
+	public boolean getStartGroupService() {
+		return startGroupService;
+	}
 
-    public BackingStoreConfiguration<K, V> setStartGroupService(boolean startGroupService) {
-        this.startGroupService = startGroupService;
-        return this;
-    }
+	public BackingStoreConfiguration<K, V> setStartGroupService(boolean startGroupService) {
+		this.startGroupService = startGroupService;
+		return this;
+	}
 
-    @Override
-    public String toString() {
-        return "BackingStoreConfiguration{" +
-                "clusterName='" + clusterName + '\'' +
-                ", instanceName='" + instanceName + '\'' +
-                ", storeName='" + storeName + '\'' +
-                ", shortUniqueName='" + shortUniqueName + '\'' +
-                ", storeType='" + storeType + '\'' +
-                ", maxIdleTimeInSeconds=" + maxIdleTimeInSeconds +
-                ", relaxVersionCheck='" + relaxVersionCheck + '\'' +
-                ", maxLoadWaitTimeInSeconds=" + maxLoadWaitTimeInSeconds +
-                ", baseDirectoryName='" + baseDirectory + '\'' +
-                ", keyClazz=" + keyClazz +
-                ", valueClazz=" + valueClazz +
-                ", synchronousSave=" + synchronousSave +
-                ", typicalPayloadSizeInKiloBytes=" + typicalPayloadSizeInKiloBytes +
-                ", vendorSpecificSettings=" + vendorSpecificSettings +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "BackingStoreConfiguration{" + "clusterName='" + clusterName + '\'' + ", instanceName='" + instanceName + '\'' + ", storeName='" + storeName
+		        + '\'' + ", shortUniqueName='" + shortUniqueName + '\'' + ", storeType='" + storeType + '\'' + ", maxIdleTimeInSeconds=" + maxIdleTimeInSeconds
+		        + ", relaxVersionCheck='" + relaxVersionCheck + '\'' + ", maxLoadWaitTimeInSeconds=" + maxLoadWaitTimeInSeconds + ", baseDirectoryName='"
+		        + baseDirectory + '\'' + ", keyClazz=" + keyClazz + ", valueClazz=" + valueClazz + ", synchronousSave=" + synchronousSave
+		        + ", typicalPayloadSizeInKiloBytes=" + typicalPayloadSizeInKiloBytes + ", vendorSpecificSettings=" + vendorSpecificSettings + '}';
+	}
 }

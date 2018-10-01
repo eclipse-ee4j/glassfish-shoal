@@ -17,11 +17,11 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Marker interface to provide a specific type of ActionFactory  namely JoinedAndReadyNotificationActionFactory.
- * The GroupManagementService module internals would expect such sub-types when a factory is added.
- * This factory's implementation provides a way to produce a JoinedAndReadyNotificationAction
- * implementation
+ * Marker interface to provide a specific type of ActionFactory namely JoinedAndReadyNotificationActionFactory. The
+ * GroupManagementService module internals would expect such sub-types when a factory is added. This factory's
+ * implementation provides a way to produce a JoinedAndReadyNotificationAction implementation
+ * 
  * @author Sheetal Vartak
  */
-public interface JoinedAndReadyNotificationActionFactory extends ActionFactory{
+public interface JoinedAndReadyNotificationActionFactory extends ActionFactory {
 }

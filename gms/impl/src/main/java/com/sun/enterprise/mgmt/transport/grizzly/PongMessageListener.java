@@ -30,29 +30,29 @@ import java.util.logging.Logger;
  */
 public class PongMessageListener implements MessageListener {
 
-    private final static Logger LOG = GrizzlyNetworkManager.getLogger();
+	private final static Logger LOG = GrizzlyNetworkManager.getLogger();
 
-    @Override
-    public void receiveMessageEvent( final MessageEvent event ) throws MessageIOException {
-        if( event == null )
-            return;
-        final Message msg = event.getMessage();
-        if( msg == null )
-            return;
-        Object obj = event.getSource();
-        if( !( obj instanceof GrizzlyNetworkManager ) )
-            return;
-        GrizzlyNetworkManager networkManager = (GrizzlyNetworkManager)obj;
-        PeerID sourcePeerId = event.getSourcePeerID();
-        if( sourcePeerId == null )
-            return;
-        CountDownLatch pingMessageLock = networkManager.getPingMessageLock( sourcePeerId );
-        if( pingMessageLock != null )
-            pingMessageLock.countDown();
-    }
+	@Override
+	public void receiveMessageEvent(final MessageEvent event) throws MessageIOException {
+		if (event == null)
+			return;
+		final Message msg = event.getMessage();
+		if (msg == null)
+			return;
+		Object obj = event.getSource();
+		if (!(obj instanceof GrizzlyNetworkManager))
+			return;
+		GrizzlyNetworkManager networkManager = (GrizzlyNetworkManager) obj;
+		PeerID sourcePeerId = event.getSourcePeerID();
+		if (sourcePeerId == null)
+			return;
+		CountDownLatch pingMessageLock = networkManager.getPingMessageLock(sourcePeerId);
+		if (pingMessageLock != null)
+			pingMessageLock.countDown();
+	}
 
-    @Override
-    public int getType() {
-        return Message.TYPE_PONG_MESSAGE;
-    }
+	@Override
+	public int getType() {
+		return Message.TYPE_PONG_MESSAGE;
+	}
 }

@@ -25,12 +25,12 @@ import java.io.IOException;
  */
 public interface MulticastMessageSender extends ShoalMessageSender {
 
-    /**
-     * Broadcasts or Multicasts the given {@link Message} to all members
-     *
-     * @param message a message which is sent to all members
-     * @return true if the message is sent to all members successfully, otherwise false
-     * @throws IOException if I/O error occurs or given parameters are not valid
-     */
-    public boolean broadcast( final Message message ) throws IOException;
+	/**
+	 * Broadcasts or Multicasts the given {@link Message} to all members
+	 *
+	 * @param message a message which is sent to all members
+	 * @return true if the message is sent to all members successfully, otherwise false
+	 * @throws IOException if I/O error occurs or given parameters are not valid
+	 */
+	public boolean broadcast(final Message message) throws IOException;
 }

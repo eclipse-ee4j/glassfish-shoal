@@ -21,54 +21,51 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * Provides support for maintaining information about an impending shutdown
- * announcement either in an instance context or in a group context. An instance
- * of this object is consulted for distinguishing an abnormal failure from a
- * planned shutdown resulting in a failure notification from heart beat agents.
- * Also consulted for determining if a member being suspected has already
- * announced shutdown or there is a group shutdown.
+ * Provides support for maintaining information about an impending shutdown announcement either in an instance context
+ * or in a group context. An instance of this object is consulted for distinguishing an abnormal failure from a planned
+ * shutdown resulting in a failure notification from heart beat agents. Also consulted for determining if a member being
+ * suspected has already announced shutdown or there is a group shutdown.
  *
- * @author Shreedhar Ganapathy
- *         Date: Sep 21, 2005
+ * @author Shreedhar Ganapathy Date: Sep 21, 2005
  * @version $Revision$
  */
 public class ShutdownHelper {
-    private final List<String> gracefulShutdownList = new Vector<String>();
-    private final List<String> groupShutdownList = new ArrayList<String>();
+	private final List<String> gracefulShutdownList = new Vector<String>();
+	private final List<String> groupShutdownList = new ArrayList<String>();
 
-    public ShutdownHelper() {
+	public ShutdownHelper() {
 
-    }
+	}
 
-    public synchronized boolean isGroupBeingShutdown(final String groupName) {
-        return groupShutdownList.contains(groupName);
-    }
+	public synchronized boolean isGroupBeingShutdown(final String groupName) {
+		return groupShutdownList.contains(groupName);
+	}
 
-    public synchronized boolean isMemberBeingShutdown(final String memberToken) {
-        return gracefulShutdownList.contains(memberToken);
-    }
+	public synchronized boolean isMemberBeingShutdown(final String memberToken) {
+		return gracefulShutdownList.contains(memberToken);
+	}
 
-    public void addToGroupShutdownList(final String groupName) {
-        synchronized (groupShutdownList) {
-            groupShutdownList.add(groupName);
-        }
-    }
+	public void addToGroupShutdownList(final String groupName) {
+		synchronized (groupShutdownList) {
+			groupShutdownList.add(groupName);
+		}
+	}
 
-    public void addToGracefulShutdownList(final String memberToken) {
-        synchronized (gracefulShutdownList) {
-            gracefulShutdownList.add(memberToken);
-        }
-    }
+	public void addToGracefulShutdownList(final String memberToken) {
+		synchronized (gracefulShutdownList) {
+			gracefulShutdownList.add(memberToken);
+		}
+	}
 
-    public void removeFromGracefulShutdownList(final String memberToken) {
-        synchronized (gracefulShutdownList) {
-            gracefulShutdownList.remove(memberToken);
-        }
-    }
+	public void removeFromGracefulShutdownList(final String memberToken) {
+		synchronized (gracefulShutdownList) {
+			gracefulShutdownList.remove(memberToken);
+		}
+	}
 
-    public void removeFromGroupShutdownList(final String groupName) {
-        synchronized (groupShutdownList) {
-            groupShutdownList.remove(groupName);
-        }
-    }
+	public void removeFromGroupShutdownList(final String groupName) {
+		synchronized (groupShutdownList) {
+			groupShutdownList.remove(groupName);
+		}
+	}
 }

@@ -21,27 +21,26 @@ import com.sun.enterprise.ee.cms.core.GMSMember;
 import java.util.List;
 
 /**
- * Caches Membership information for each snapshot so as to provide
- * determination of failure, joins, and/or planned shutdowns, etc.
+ * Caches Membership information for each snapshot so as to provide determination of failure, joins, and/or planned
+ * shutdowns, etc.
  * 
- * @author Shreedhar Ganapathy
- * Date: December 17, 2005
+ * @author Shreedhar Ganapathy Date: December 17, 2005
  * @version $Revision$
  */
 
 public interface ViewWindow {
 
-    boolean isCoordinator ();
+	boolean isCoordinator();
 
-    List<GMSMember> getPreviousView();
+	List<GMSMember> getPreviousView();
 
-    List<GMSMember> getCurrentView();
+	List<GMSMember> getCurrentView();
 
-    List<String> getCurrentCoreMembers();
+	List<String> getCurrentCoreMembers();
 
-    List<String> getAllCurrentMembers();
+	List<String> getAllCurrentMembers();
 
-    List<String> getCurrentCoreMembersWithStartTimes();
+	List<String> getCurrentCoreMembersWithStartTimes();
 
-    List<String> getAllCurrentMembersWithStartTimes();
+	List<String> getAllCurrentMembersWithStartTimes();
 }

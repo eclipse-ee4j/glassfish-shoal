@@ -17,20 +17,12 @@
 package com.sun.enterprise.mgmt;
 
 /**
- * An enumeration of the type of events expected to be disseminated by the
- * ClusterManagement layer to consuming applications.
+ * An enumeration of the type of events expected to be disseminated by the ClusterManagement layer to consuming
+ * applications.
  *
- * @author Shreedhar Ganapathy
- *         Date: Jun 29, 2006
+ * @author Shreedhar Ganapathy Date: Jun 29, 2006
  * @version $Revision$
  */
 public enum ClusterViewEvents {
-    ADD_EVENT,
-    PEER_STOP_EVENT,
-    CLUSTER_STOP_EVENT,
-    MASTER_CHANGE_EVENT,
-    IN_DOUBT_EVENT,
-    FAILURE_EVENT,
-    NO_LONGER_INDOUBT_EVENT,
-    JOINED_AND_READY_EVENT
+	ADD_EVENT, PEER_STOP_EVENT, CLUSTER_STOP_EVENT, MASTER_CHANGE_EVENT, IN_DOUBT_EVENT, FAILURE_EVENT, NO_LONGER_INDOUBT_EVENT, JOINED_AND_READY_EVENT
 }

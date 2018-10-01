@@ -26,46 +26,46 @@ import java.util.logging.Logger;
  * Reference implementation of the FailureNotificationAction
  *
  * @author Shreedhar Ganapathy
- * @author Masood Mortazavi
- * Date: Jan 8, 2004
+ * @author Masood Mortazavi Date: Jan 8, 2004
  * @version $Revision$
  */
-public class FailureNotificationActionImpl implements FailureNotificationAction{
-    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
-    private CallBack caller;
+public class FailureNotificationActionImpl implements FailureNotificationAction {
+	private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+	private CallBack caller;
 
-    public FailureNotificationActionImpl (final CallBack caller) {
-        this.caller=caller;
-    }
-    /**
-     * processes the recovery signal. typically involves getting information
-     * from the signal, acquiring the signal and after processing, releasing
-     * the signal
-     * @param signal the signal
-     */
-    public void consumeSignal(final Signal signal) throws ActionException {
-        //ALWAYS call Acquire before doing any other processing
-        boolean signalAcquired = false;
-        try {
-            signal.acquire();
-            signalAcquired = true;
-            notifyListeners(signal);
-        } catch (SignalAcquireException e) {
-            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-        } finally {
+	public FailureNotificationActionImpl(final CallBack caller) {
+		this.caller = caller;
+	}
 
-            //ALWAYS call Release after completing any other processing.
-            if (signalAcquired) {
-                try {
-                    signal.release();
-                } catch (SignalReleaseException e) {
-                    logger.log(Level.SEVERE, e.getLocalizedMessage(),e);
-                }
-            }
-        }
-    }
+	/**
+	 * processes the recovery signal. typically involves getting information from the signal, acquiring the signal and after
+	 * processing, releasing the signal
+	 * 
+	 * @param signal the signal
+	 */
+	public void consumeSignal(final Signal signal) throws ActionException {
+		// ALWAYS call Acquire before doing any other processing
+		boolean signalAcquired = false;
+		try {
+			signal.acquire();
+			signalAcquired = true;
+			notifyListeners(signal);
+		} catch (SignalAcquireException e) {
+			logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		} finally {
 
-    private void notifyListeners(final Signal signal) {
-        caller.processNotification(signal);
-    }
+			// ALWAYS call Release after completing any other processing.
+			if (signalAcquired) {
+				try {
+					signal.release();
+				} catch (SignalReleaseException e) {
+					logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+				}
+			}
+		}
+	}
+
+	private void notifyListeners(final Signal signal) {
+		caller.processNotification(signal);
+	}
 }

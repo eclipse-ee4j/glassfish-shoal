@@ -18,8 +18,8 @@ package com.sun.enterprise.ee.cms.core;
 
 /**
  * Marker interface to provide a specific type of ActionFactory namely MessageActionFactory.
- * @author Shreedhar Ganapathy
- * Date: Jan 16, 2004
+ * 
+ * @author Shreedhar Ganapathy Date: Jan 16, 2004
  * @version $Revision$
  */
 public interface MessageActionFactory extends ActionFactory {

@@ -25,13 +25,11 @@ import org.shoal.ha.cache.impl.command.Command;
  * 
  */
 public interface CommandCollector<K, V> {
-    void initialize(String targetName, DataStoreContext<K, V> rsInfo);
+	void initialize(String targetName, DataStoreContext<K, V> rsInfo);
 
-    void close();
+	void close();
 
-    void addCommand(Command<K, V> cmd)
-            throws DataStoreException;
+	void addCommand(Command<K, V> cmd) throws DataStoreException;
 
-    void removeCommand(Command<K, V> cmd)
-            throws DataStoreException;
+	void removeCommand(Command<K, V> cmd) throws DataStoreException;
 }

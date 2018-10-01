@@ -21,41 +21,40 @@ import org.glassfish.ha.store.spi.AttributeMetadata;
 import java.util.Collection;
 
 /**
- * An ExpressionNode that denotes an Attribute access. The type of the
- *  expression is same as the Attribute's type itself.
+ * An ExpressionNode that denotes an Attribute access. The type of the expression is same as the Attribute's type
+ * itself.
  *
  * @param <V> The enclosing StoreEntry type
  * @param <T> The Attribute's type
  *
  * @author Mahesh.Kannan@Sun.Com
  */
-public final class AttributeAccessNode<V, T>
-    extends ExpressionNode<T> {
+public final class AttributeAccessNode<V, T> extends ExpressionNode<T> {
 
-    private AttributeMetadata<V, T> attr;
+	private AttributeMetadata<V, T> attr;
 
-    public AttributeAccessNode(AttributeMetadata<V, T> attr) {
-        super(Opcode.ATTR, attr.getAttributeType());
-        this.attr = attr;
-    }
+	public AttributeAccessNode(AttributeMetadata<V, T> attr) {
+		super(Opcode.ATTR, attr.getAttributeType());
+		this.attr = attr;
+	}
 
-    /**
-     * Return the SessionAttributeMetadata associated with this Attribute
-     *
-     * @return The SessionAttributeMetadata of this Attribute
-     */
-    public AttributeMetadata<V, T> getAttributeMetadata() {
-        return attr;
-    }
+	/**
+	 * Return the SessionAttributeMetadata associated with this Attribute
+	 *
+	 * @return The SessionAttributeMetadata of this Attribute
+	 */
+	public AttributeMetadata<V, T> getAttributeMetadata() {
+		return attr;
+	}
 
-    /**
-     * Checks if the value of the Attribute is in the Collection.
-     *
-     * @param entries The Collection of data to examine
-     * @return true if this attribute exists in the Collection, false if not
-     */
-    public LogicalExpressionNode in(Collection<? extends T> entries) {
-        return new InExpressionNode(this, entries);
-    }
-    
+	/**
+	 * Checks if the value of the Attribute is in the Collection.
+	 *
+	 * @param entries The Collection of data to examine
+	 * @return true if this attribute exists in the Collection, false if not
+	 */
+	public LogicalExpressionNode in(Collection<? extends T> entries) {
+		return new InExpressionNode(this, entries);
+	}
+
 }

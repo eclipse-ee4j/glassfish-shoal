@@ -25,6 +25,5 @@ import java.util.List;
  */
 public interface GroupMemberEventListener {
 
-    public void onViewChange(String memberName, Collection<String> currentAliveAndReadyMembers,
-                                    Collection<String> previousView, boolean isJoinEvent);
+	public void onViewChange(String memberName, Collection<String> currentAliveAndReadyMembers, Collection<String> previousView, boolean isJoinEvent);
 }

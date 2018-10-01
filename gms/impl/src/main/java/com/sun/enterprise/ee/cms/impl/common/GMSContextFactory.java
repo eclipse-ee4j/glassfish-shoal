@@ -30,36 +30,34 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Produces and retains the GMSContext for the lifetime of the GMS instance
- * @author Shreedhar Ganapathy
- * Date: Jan 16, 2004
+ * 
+ * @author Shreedhar Ganapathy Date: Jan 16, 2004
  * @version $Revision$
  */
 public class GMSContextFactory {
-    private static final Map<String, GMSContext> ctxCache =
-                                new HashMap<String, GMSContext>();
-    private static Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+	private static final Map<String, GMSContext> ctxCache = new HashMap<String, GMSContext>();
+	private static Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
-    private GMSContextFactory () { }
+	private GMSContextFactory() {
+	}
 
-    //TODO: Shreedhar's comment: The invocation of appropriate provider's context has got to get better
-    @SuppressWarnings("unchecked")
-    static GMSContext produceGMSContext(final String serverToken,
-                            final String groupName,
-                            final GroupManagementService.MemberType memberType,
-                            final Properties properties){
-        GMSContext ctx;
-        if((ctx = ctxCache.get( groupName )) ==  null){
-            ctx = new com.sun.enterprise.ee.cms.impl.base.GMSContextImpl( serverToken, groupName, memberType, properties );
-            ctxCache.put(groupName, ctx);
-        }
-        return ctx;
-    }
+	// TODO: Shreedhar's comment: The invocation of appropriate provider's context has got to get better
+	@SuppressWarnings("unchecked")
+	static GMSContext produceGMSContext(final String serverToken, final String groupName, final GroupManagementService.MemberType memberType,
+	        final Properties properties) {
+		GMSContext ctx;
+		if ((ctx = ctxCache.get(groupName)) == null) {
+			ctx = new com.sun.enterprise.ee.cms.impl.base.GMSContextImpl(serverToken, groupName, memberType, properties);
+			ctxCache.put(groupName, ctx);
+		}
+		return ctx;
+	}
 
-    public static GMSContext getGMSContext( final String groupName ){
-        return ctxCache.get(groupName);
-    }
+	public static GMSContext getGMSContext(final String groupName) {
+		return ctxCache.get(groupName);
+	}
 
-    public static void removeGMSContext ( final String groupName ) {
-        ctxCache.remove( groupName );
-    }
+	public static void removeGMSContext(final String groupName) {
+		ctxCache.remove(groupName);
+	}
 }

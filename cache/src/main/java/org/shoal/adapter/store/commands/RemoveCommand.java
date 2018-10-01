@@ -27,36 +27,35 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public class RemoveCommand<K, V>
-    extends AcknowledgedCommand<K, V> {
+public class RemoveCommand<K, V> extends AcknowledgedCommand<K, V> {
 
-    protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
+	protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
 
-    private String target;
+	private String target;
 
-    public RemoveCommand(K k) {
-        super(ReplicationCommandOpcode.REMOVE);
-        super.setKey(k);
-    }
+	public RemoveCommand(K k) {
+		super(ReplicationCommandOpcode.REMOVE);
+		super.setKey(k);
+	}
 
-    public void setTarget(String t) {
-        this.target = t;
-    }
+	public void setTarget(String t) {
+		this.target = t;
+	}
 
-    public boolean beforeTransmit() {
-        setTargetName(target);
-        super.beforeTransmit();
-        return target != null;
-    }
+	public boolean beforeTransmit() {
+		setTargetName(target);
+		super.beforeTransmit();
+		return target != null;
+	}
 
-    @Override
-    public void execute(String initiator) {
-        dsc.getReplicaStore().remove(getKey());
-        if (dsc.isDoSynchronousReplication()) {
-            super.sendAcknowledgement();
-        }
+	@Override
+	public void execute(String initiator) {
+		dsc.getReplicaStore().remove(getKey());
+		if (dsc.isDoSynchronousReplication()) {
+			super.sendAcknowledgement();
+		}
 
-        dsc.getDataStoreMBean().incrementExecutedRemoveCount();
-    }
-    
+		dsc.getDataStoreMBean().incrementExecutedRemoveCount();
+	}
+
 }

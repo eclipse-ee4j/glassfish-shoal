@@ -30,74 +30,71 @@ import java.util.logging.Level;
  */
 public class ControllerUtils {
 
-    /**
-     *  Start controller in seperate thread
-     * 
-     * @param controller the controller
-     */
-    public static void startController(final Controller controller) {
-        final CountDownLatch latch = new CountDownLatch(1);
-        controller.addStateListener(new ControllerStateListenerAdapter() {
-            @Override
-            public void onReady() {
-                latch.countDown();
-            }
+	/**
+	 * Start controller in seperate thread
+	 * 
+	 * @param controller the controller
+	 */
+	public static void startController(final Controller controller) {
+		final CountDownLatch latch = new CountDownLatch(1);
+		controller.addStateListener(new ControllerStateListenerAdapter() {
+			@Override
+			public void onReady() {
+				latch.countDown();
+			}
 
-            @Override
-            public void onException(Throwable e) {
-                if (latch.getCount() > 0) {
-                    Controller.logger().log(Level.SEVERE, "Exception during " +
-                            "starting the controller", e);
-                    latch.countDown();
-                } else {
-                    Controller.logger().log(Level.SEVERE, "Exception during " +
-                            "controller processing", e);
-                }
-            }
-        });
+			@Override
+			public void onException(Throwable e) {
+				if (latch.getCount() > 0) {
+					Controller.logger().log(Level.SEVERE, "Exception during " + "starting the controller", e);
+					latch.countDown();
+				} else {
+					Controller.logger().log(Level.SEVERE, "Exception during " + "controller processing", e);
+				}
+			}
+		});
 
-        new WorkerThreadImpl("ControllerWorker", controller).start();
+		new WorkerThreadImpl("ControllerWorker", controller).start();
 
-        try {
-            latch.await();
-        } catch (InterruptedException ex) {
-        }
+		try {
+			latch.await();
+		} catch (InterruptedException ex) {
+		}
 
-        if (!controller.isStarted()) {
-            throw new IllegalStateException("Controller is not started!");
-        }
-    }
+		if (!controller.isStarted()) {
+			throw new IllegalStateException("Controller is not started!");
+		}
+	}
 
-    /**
-     *  Stop controller in seperate thread
-     * 
-     * @param controller the controller
-     */
-    public static void stopController(Controller controller) {
-        try {
-            controller.stop();
-        } catch(IOException e) {
-        }
-    }
+	/**
+	 * Stop controller in seperate thread
+	 * 
+	 * @param controller the controller
+	 */
+	public static void stopController(Controller controller) {
+		try {
+			controller.stop();
+		} catch (IOException e) {
+		}
+	}
 
-    public static void startControllers(Controller[] controllers) {
-        startControllers(Arrays.asList(controllers));
-    }
+	public static void startControllers(Controller[] controllers) {
+		startControllers(Arrays.asList(controllers));
+	}
 
-    public static void startControllers(Collection<Controller> controllers) {
-        for(Controller controller : controllers) {
-            startController(controller);
-        }
-    }
+	public static void startControllers(Collection<Controller> controllers) {
+		for (Controller controller : controllers) {
+			startController(controller);
+		}
+	}
 
-    public static void stopControllers(Controller[] controllers) {
-        stopControllers(Arrays.asList(controllers));
-    }
+	public static void stopControllers(Controller[] controllers) {
+		stopControllers(Arrays.asList(controllers));
+	}
 
-    public static void stopControllers(Collection<Controller> controllers) {
-        for(Controller controller : controllers) {
-            stopController(controller);
-        }
-    }
+	public static void stopControllers(Collection<Controller> controllers) {
+		for (Controller controller : controllers) {
+			stopController(controller);
+		}
+	}
 }
-

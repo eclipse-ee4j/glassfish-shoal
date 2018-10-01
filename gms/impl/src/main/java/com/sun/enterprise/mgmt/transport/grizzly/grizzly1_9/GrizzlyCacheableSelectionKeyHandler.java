@@ -26,29 +26,29 @@ import java.nio.channels.SelectionKey;
  */
 public class GrizzlyCacheableSelectionKeyHandler extends CacheableSelectionKeyHandler {
 
-    private GrizzlyNetworkManager1_9 networkManager;
+	private GrizzlyNetworkManager1_9 networkManager;
 
-    public GrizzlyCacheableSelectionKeyHandler() {
-    }
+	public GrizzlyCacheableSelectionKeyHandler() {
+	}
 
-    public GrizzlyCacheableSelectionKeyHandler( int highWaterMark, int numberToReclaim, GrizzlyNetworkManager1_9 networkManager ) {
-        super( highWaterMark, numberToReclaim );
-        this.networkManager = networkManager;
-    }
+	public GrizzlyCacheableSelectionKeyHandler(int highWaterMark, int numberToReclaim, GrizzlyNetworkManager1_9 networkManager) {
+		super(highWaterMark, numberToReclaim);
+		this.networkManager = networkManager;
+	}
 
-    @Override
-    public void cancel( SelectionKey key ) {
-        super.cancel( key );
-        if( networkManager != null )
-            networkManager.removeRemotePeer( key );
-    }
+	@Override
+	public void cancel(SelectionKey key) {
+		super.cancel(key);
+		if (networkManager != null)
+			networkManager.removeRemotePeer(key);
+	}
 
-    @Override
-    public void copyTo( Copyable copy ) {
-        super.copyTo( copy );
-        if( copy instanceof GrizzlyCacheableSelectionKeyHandler ) {
-            GrizzlyCacheableSelectionKeyHandler copyHandler = (GrizzlyCacheableSelectionKeyHandler)copy;
-            copyHandler.networkManager = networkManager;
-        }
-    }
+	@Override
+	public void copyTo(Copyable copy) {
+		super.copyTo(copy);
+		if (copy instanceof GrizzlyCacheableSelectionKeyHandler) {
+			GrizzlyCacheableSelectionKeyHandler copyHandler = (GrizzlyCacheableSelectionKeyHandler) copy;
+			copyHandler.networkManager = networkManager;
+		}
+	}
 }

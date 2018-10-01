@@ -20,6 +20,7 @@ package com.sun.enterprise.ee.cms.core;
  * Any signal that results in a change in the AliveAndReady members should implement this interface.
  */
 public interface AliveAndReadySignal {
-    AliveAndReadyView getCurrentView();
-    AliveAndReadyView getPreviousView();
+	AliveAndReadyView getCurrentView();
+
+	AliveAndReadyView getPreviousView();
 }

@@ -14,17 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
- package com.sun.enterprise.ee.cms.core;
+package com.sun.enterprise.ee.cms.core;
 
 /**
- * An <code>Action</code> type that consumes <code>JoinNotificationSignal</code>.
-  * When a member has joined the group, a <code>JoinNotificationSignal</code> is
- * generated to be consumed by <code>JoinNotificationAction</code> instances
- * that are produced by registered instances of JoinNotificationActionFactory.
+ * An <code>Action</code> type that consumes <code>JoinNotificationSignal</code>. When a member has joined the group, a
+ * <code>JoinNotificationSignal</code> is generated to be consumed by <code>JoinNotificationAction</code> instances that
+ * are produced by registered instances of JoinNotificationActionFactory.
  *
- *  @author Shreedhar Ganapathy
- *         Date: Feb 3, 2005
+ * @author Shreedhar Ganapathy Date: Feb 3, 2005
  * @version $Revision$
  */
-public interface JoinNotificationAction extends Action{
+public interface JoinNotificationAction extends Action {
 }

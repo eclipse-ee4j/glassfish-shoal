@@ -29,142 +29,138 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
-
 /**
  * @author Mahesh Kannan
  */
 public class DataStoreEntry<K, V> {
 
-    public static final long MIN_VERSION = -8;
+	public static final long MIN_VERSION = -8;
 
-    private K key;
+	private K key;
 
-    private V v;
+	private V v;
 
-    private String replicaInstanceName;
+	private String replicaInstanceName;
 
-    private TreeSet<AbstractSaveCommand<K, V>> pendingUpdates;
+	private TreeSet<AbstractSaveCommand<K, V>> pendingUpdates;
 
-    private boolean removed;
+	private boolean removed;
 
-    private long lastAccessedAt;
+	private long lastAccessedAt;
 
-    private long maxIdleTime;
+	private long maxIdleTime;
 
-    private long version = MIN_VERSION; //some negative number that is small enough to allow updates/saves to succeed
+	private long version = MIN_VERSION; // some negative number that is small enough to allow updates/saves to succeed
 
-    private byte[] rawV;
+	private byte[] rawV;
 
-    private boolean isReplicaNode = true;
+	private boolean isReplicaNode = true;
 
-    public DataStoreEntry() {
+	public DataStoreEntry() {
 
-    }
+	}
 
-    public void setKey(K key) {
-        this.key = key;
-    }
+	public void setKey(K key) {
+		this.key = key;
+	}
 
-    public K getKey() {
-        return key;
-    }
+	public K getKey() {
+		return key;
+	}
 
-    /*package*/ V getV() {
-        return v;
-    }
+	/* package */ V getV() {
+		return v;
+	}
 
-    public void setVersion(long version) {
-        this.version = version;
-    }
+	public void setVersion(long version) {
+		this.version = version;
+	}
 
-    public void setV(V state) {
-        this.v = state;
-    }
+	public void setV(V state) {
+		this.v = state;
+	}
 
-    public byte[] getRawV() {
-        return rawV;
-    }
+	public byte[] getRawV() {
+		return rawV;
+	}
 
-    public void setRawV(byte[] rawV) {
-        this.rawV = rawV;
-        this.v = null;
-    }
+	public void setRawV(byte[] rawV) {
+		this.rawV = rawV;
+		this.v = null;
+	}
 
-    public String getReplicaInstanceName() {
-        return replicaInstanceName;
-    }
+	public String getReplicaInstanceName() {
+		return replicaInstanceName;
+	}
 
-    public String setReplicaInstanceName(String replicaInstanceName) {
-        String oldValue = this.replicaInstanceName;
-        this.replicaInstanceName = replicaInstanceName;
-        this.removed = false; // Because we just saved the data in a replica
-        return oldValue == null ? null : oldValue.equals(replicaInstanceName) ? null : oldValue;
-    }
+	public String setReplicaInstanceName(String replicaInstanceName) {
+		String oldValue = this.replicaInstanceName;
+		this.replicaInstanceName = replicaInstanceName;
+		this.removed = false; // Because we just saved the data in a replica
+		return oldValue == null ? null : oldValue.equals(replicaInstanceName) ? null : oldValue;
+	}
 
-    public TreeSet<AbstractSaveCommand<K, V>> getPendingUpdates() {
-        return pendingUpdates;
-    }
+	public TreeSet<AbstractSaveCommand<K, V>> getPendingUpdates() {
+		return pendingUpdates;
+	}
 
+	public void clearPendingUpdates() {
+		if (pendingUpdates != null) {
+			pendingUpdates.clear();
+		}
+	}
 
-    public void clearPendingUpdates() {
-        if (pendingUpdates != null) {
-            pendingUpdates.clear();
-        }
-    }
+	public void addPendingUpdate(AbstractSaveCommand<K, V> cmd) {
+		if (pendingUpdates == null) {
+			pendingUpdates = new TreeSet<AbstractSaveCommand<K, V>>(new Comparator<AbstractSaveCommand<K, V>>() {
+				@Override
+				public int compare(AbstractSaveCommand<K, V> cmd1, AbstractSaveCommand<K, V> cmd2) {
+					return (int) (cmd1.getVersion() - cmd2.getVersion());
+				}
+			});
+		}
+		this.pendingUpdates.add(cmd);
+	}
 
-    public void addPendingUpdate(AbstractSaveCommand<K, V> cmd) {
-        if (pendingUpdates == null) {
-            pendingUpdates = new TreeSet<AbstractSaveCommand<K, V>>(
-                    new Comparator<AbstractSaveCommand<K, V>>() {
-                        @Override
-                        public int compare(AbstractSaveCommand<K, V> cmd1, AbstractSaveCommand<K, V> cmd2) {
-                            return (int) (cmd1.getVersion() - cmd2.getVersion());
-                        }
-                    }
-            );
-        }
-        this.pendingUpdates.add(cmd);
-    }
+	public boolean isRemoved() {
+		return removed;
+	}
 
-    public boolean isRemoved() {
-        return removed;
-    }
+	public void markAsRemoved(String reason) {
+		this.removed = true;
+		v = null;
+		pendingUpdates = null;
+	}
 
-    public void markAsRemoved(String reason) {
-        this.removed = true;
-        v = null;
-        pendingUpdates = null;
-    }
+	public long getLastAccessedAt() {
+		return lastAccessedAt;
+	}
 
-    public long getLastAccessedAt() {
-        return lastAccessedAt;
-    }
+	public void setLastAccessedAt(long lastAccessedAt) {
+		this.lastAccessedAt = lastAccessedAt;
+	}
 
-    public void setLastAccessedAt(long lastAccessedAt) {
-        this.lastAccessedAt = lastAccessedAt;
-    }
+	public long getVersion() {
+		return version;
+	}
 
-    public long getVersion() {
-        return version;
-    }
+	public long incrementAndGetVersion() {
+		return ++version;
+	}
 
-    public long incrementAndGetVersion() {
-        return ++version;
-    }
+	public long getMaxIdleTime() {
+		return maxIdleTime;
+	}
 
-    public long getMaxIdleTime() {
-        return maxIdleTime;
-    }
+	public void setMaxIdleTime(long maxIdleTime) {
+		this.maxIdleTime = maxIdleTime;
+	}
 
-    public void setMaxIdleTime(long maxIdleTime) {
-        this.maxIdleTime = maxIdleTime;
-    }
+	public boolean isReplicaNode() {
+		return isReplicaNode;
+	}
 
-    public boolean isReplicaNode() {
-        return isReplicaNode;
-    }
-
-    public void setIsReplicaNode(boolean replicaNode) {
-        isReplicaNode = replicaNode;
-    }
+	public void setIsReplicaNode(boolean replicaNode) {
+		isReplicaNode = replicaNode;
+	}
 }

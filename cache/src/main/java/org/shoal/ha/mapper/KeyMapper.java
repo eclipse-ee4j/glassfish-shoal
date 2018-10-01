@@ -22,12 +22,12 @@ package org.shoal.ha.mapper;
  */
 public interface KeyMapper {
 
-    public String getMappedInstance(String groupName, Object key);
+	public String getMappedInstance(String groupName, Object key);
 
-    public String[] findReplicaInstance(String groupName, Object key, String keyMappingInfo);
+	public String[] findReplicaInstance(String groupName, Object key, String keyMappingInfo);
 
-    public String getReplicaChoices(String groupName, Object key);
+	public String getReplicaChoices(String groupName, Object key);
 
-    public String[] getCurrentMembers();
-    
+	public String[] getCurrentMembers();
+
 }

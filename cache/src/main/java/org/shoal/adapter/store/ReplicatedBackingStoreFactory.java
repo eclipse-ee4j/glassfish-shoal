@@ -24,35 +24,34 @@ import java.util.Properties;
 /**
  * @author Mahesh Kannan
  */
-public class ReplicatedBackingStoreFactory
-    implements BackingStoreFactory {
+public class ReplicatedBackingStoreFactory implements BackingStoreFactory {
 
-    private Properties props;
+	private Properties props;
 
-    public ReplicatedBackingStoreFactory()  {
-    }
+	public ReplicatedBackingStoreFactory() {
+	}
 
-    public ReplicatedBackingStoreFactory(Properties p)  {
-        this.props=p;
-    }
+	public ReplicatedBackingStoreFactory(Properties p) {
+		this.props = p;
+	}
 
-    @Override
-    public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf)
-            throws BackingStoreException {
+	@Override
+	public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf)
+	        throws BackingStoreException {
 
-        ReplicatedBackingStore<K, V> store =  new ReplicatedBackingStore<K, V>();
-        store.setBackingStoreFactory(this);
-        store.initialize(conf);
+		ReplicatedBackingStore<K, V> store = new ReplicatedBackingStore<K, V>();
+		store.setBackingStoreFactory(this);
+		store.initialize(conf);
 
-        return store;
-    }
+		return store;
+	}
 
-    @Override
-    public BackingStoreTransaction createBackingStoreTransaction() {
-        return new BackingStoreTransaction() {
-            @Override
-            public void commit() throws BackingStoreException {    
-            }
-        };
-    }
+	@Override
+	public BackingStoreTransaction createBackingStoreTransaction() {
+		return new BackingStoreTransaction() {
+			@Override
+			public void commit() throws BackingStoreException {
+			}
+		};
+	}
 }

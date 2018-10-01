@@ -31,39 +31,36 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public class TouchCommand<K, V>
-    extends AbstractSaveCommand<K, V> {
+public class TouchCommand<K, V> extends AbstractSaveCommand<K, V> {
 
-    public TouchCommand() {
-        super(ReplicationCommandOpcode.TOUCH);
-    }
+	public TouchCommand() {
+		super(ReplicationCommandOpcode.TOUCH);
+	}
 
-    public TouchCommand(K k, long version, long accessTime, long maxIdleTime) {
-        super(ReplicationCommandOpcode.TOUCH, k, version, accessTime, maxIdleTime);
-    }
+	public TouchCommand(K k, long version, long accessTime, long maxIdleTime) {
+		super(ReplicationCommandOpcode.TOUCH, k, version, accessTime, maxIdleTime);
+	}
 
-    @Override
-    public void execute(String initiator)
-        throws DataStoreException {
+	@Override
+	public void execute(String initiator) throws DataStoreException {
 
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, dsc.getServiceName() + getName() + " received touch_command for key = " + getKey() + " from " + initiator);
-        }
+		if (_logger.isLoggable(Level.FINE)) {
+			_logger.log(Level.FINE, dsc.getServiceName() + getName() + " received touch_command for key = " + getKey() + " from " + initiator);
+		}
 
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE,  dsc.getServiceName() + getName()
-                    + " received touch_command for key = " + getKey() + " from " + initiator
-                    + "; version = " + getVersion() + "; " + dsc.getDataStoreEntryUpdater().getClass().getCanonicalName());
-        }
+		if (_logger.isLoggable(Level.FINE)) {
+			_logger.log(Level.FINE, dsc.getServiceName() + getName() + " received touch_command for key = " + getKey() + " from " + initiator + "; version = "
+			        + getVersion() + "; " + dsc.getDataStoreEntryUpdater().getClass().getCanonicalName());
+		}
 
-        DataStoreEntry<K, V> entry = dsc.getReplicaStore().getOrCreateEntry(getKey());
-        synchronized (entry) {
-            dsc.getDataStoreEntryUpdater().executeTouch(entry, this);
-        }
+		DataStoreEntry<K, V> entry = dsc.getReplicaStore().getOrCreateEntry(getKey());
+		synchronized (entry) {
+			dsc.getDataStoreEntryUpdater().executeTouch(entry, this);
+		}
 
-        if (dsc.isDoSynchronousReplication()) {
-            _logger.log(Level.FINE, "TouchCommand Sending SIMPLE_ACK");
-            super.sendAcknowledgement();
-        }
-    }
+		if (dsc.isDoSynchronousReplication()) {
+			_logger.log(Level.FINE, "TouchCommand Sending SIMPLE_ACK");
+			super.sendAcknowledgement();
+		}
+	}
 }

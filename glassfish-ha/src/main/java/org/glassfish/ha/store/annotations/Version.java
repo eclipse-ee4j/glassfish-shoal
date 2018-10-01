@@ -22,14 +22,13 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 /**
- * An annotation that can be used to declare a String Attribute
- *  as a Version. Version attribute is a special attribute of
- *  a StoreEntry.
+ * An annotation that can be used to declare a String Attribute as a Version. Version attribute is a special attribute
+ * of a StoreEntry.
  *
  * @author Mahesh.Kannan@Sun.Com
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Version {
-    public String name() default "";
+	public String name() default "";
 }

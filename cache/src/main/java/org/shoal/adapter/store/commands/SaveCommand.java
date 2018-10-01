@@ -28,72 +28,68 @@ import java.util.logging.Logger;
 /**
  * @author Mahesh Kannan
  */
-public class SaveCommand<K, V>
-    extends AbstractSaveCommand<K, V> {
+public class SaveCommand<K, V> extends AbstractSaveCommand<K, V> {
 
-    private transient V v;
+	private transient V v;
 
-    private transient byte[] rawV;
+	private transient byte[] rawV;
 
-    public SaveCommand() {
-        super(ReplicationCommandOpcode.SAVE);
-    }
+	public SaveCommand() {
+		super(ReplicationCommandOpcode.SAVE);
+	}
 
-    public SaveCommand(K k, V v, long version, long lastAccessedAt, long maxIdleTime) {
-        super(ReplicationCommandOpcode.SAVE, k, version, lastAccessedAt, maxIdleTime);
-        this.v = v;
-    }
+	public SaveCommand(K k, V v, long version, long lastAccessedAt, long maxIdleTime) {
+		super(ReplicationCommandOpcode.SAVE, k, version, lastAccessedAt, maxIdleTime);
+		this.v = v;
+	}
 
-    @Override
-    public void execute(String initiator)
-        throws DataStoreException {
+	@Override
+	public void execute(String initiator) throws DataStoreException {
 
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, dsc.getServiceName() + getName()
-                    + " received save_command for key = " + getKey() + " from " + initiator
-                    + "; version = " + getVersion());
-        }
+		if (_logger.isLoggable(Level.FINE)) {
+			_logger.log(Level.FINE,
+			        dsc.getServiceName() + getName() + " received save_command for key = " + getKey() + " from " + initiator + "; version = " + getVersion());
+		}
 
-        DataStoreEntry<K, V> entry = dsc.getReplicaStore().getOrCreateEntry(getKey());
-        synchronized (entry) {
-            dsc.getDataStoreEntryUpdater().executeSave(entry, this);
-        }
+		DataStoreEntry<K, V> entry = dsc.getReplicaStore().getOrCreateEntry(getKey());
+		synchronized (entry) {
+			dsc.getDataStoreEntryUpdater().executeSave(entry, this);
+		}
 
-        if (dsc.isDoSynchronousReplication()) {
-            _logger.log(Level.FINE, "SaveCommand Sending SIMPLE_ACK");
-            super.sendAcknowledgement();
-        }
+		if (dsc.isDoSynchronousReplication()) {
+			_logger.log(Level.FINE, "SaveCommand Sending SIMPLE_ACK");
+			super.sendAcknowledgement();
+		}
 
-        dsc.getDataStoreMBean().incrementExecutedSaveCount();
-    }
+		dsc.getDataStoreMBean().incrementExecutedSaveCount();
+	}
 
-    public String toString() {
-        return getName() + "(" + getKey() + ")";
-    }
+	public String toString() {
+		return getName() + "(" + getKey() + ")";
+	}
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 
-        rawV = dsc.getDataStoreEntryUpdater().getState(v);
-        out.writeObject(rawV);
-        
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, dsc.getServiceName() + " sending save_command for key = " + getKey() + "; version = " + version + "; lastAccessedAt = " + lastAccessedAt + "; to " + getTargetName());
-        }
-    }
+		rawV = dsc.getDataStoreEntryUpdater().getState(v);
+		out.writeObject(rawV);
 
-    public boolean hasState() {
-        return true;
-    }
+		if (_logger.isLoggable(Level.FINE)) {
+			_logger.log(Level.FINE, dsc.getServiceName() + " sending save_command for key = " + getKey() + "; version = " + version + "; lastAccessedAt = "
+			        + lastAccessedAt + "; to " + getTargetName());
+		}
+	}
 
-    public byte[] getRawV() {
-        return rawV;
-    }
+	public boolean hasState() {
+		return true;
+	}
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+	public byte[] getRawV() {
+		return rawV;
+	}
 
-        rawV = (byte[]) in.readObject();
-    }
-    
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+
+		rawV = (byte[]) in.readObject();
+	}
+
 }

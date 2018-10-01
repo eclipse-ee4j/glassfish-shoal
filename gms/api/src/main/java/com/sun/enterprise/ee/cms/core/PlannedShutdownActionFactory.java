@@ -17,12 +17,11 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Marker interface to provide a specific type of ActionFactory
- * This factory's implementation provides a API to produce a PlannedShutdownAction
-
- * @author Shreedhar Ganapathy
- *         Date: Feb 3, 2005
+ * Marker interface to provide a specific type of ActionFactory This factory's implementation provides a API to produce
+ * a PlannedShutdownAction
+ * 
+ * @author Shreedhar Ganapathy Date: Feb 3, 2005
  * @version $Revision$
  */
-public interface PlannedShutdownActionFactory extends ActionFactory{
+public interface PlannedShutdownActionFactory extends ActionFactory {
 }

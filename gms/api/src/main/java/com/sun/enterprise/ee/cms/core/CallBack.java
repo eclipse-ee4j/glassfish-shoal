@@ -17,15 +17,12 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * This is a convenience interface that an Action implementation's
- * parent thread can implement and pass to the Action implementation
- * so that the parent thread is called back for any processing operation. 
+ * This is a convenience interface that an Action implementation's parent thread can implement and pass to the Action
+ * implementation so that the parent thread is called back for any processing operation.
  *
- * @author Shreedhar Ganapathy
- *         Date: Mar 1, 2005
+ * @author Shreedhar Ganapathy Date: Mar 1, 2005
  * @version $Revision$
  */
 public interface CallBack {
-    public void processNotification(Signal notification);
+	public void processNotification(Signal notification);
 }
-

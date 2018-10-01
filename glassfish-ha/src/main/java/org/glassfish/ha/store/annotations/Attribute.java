@@ -22,12 +22,10 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 /**
- * Annotation to declare an Attribute of a StoreEntry. Only Getter methods
- * must be annotated with @Attribute.
+ * Annotation to declare an Attribute of a StoreEntry. Only Getter methods must be annotated with @Attribute.
  *
- * The loadEagerly property of this annotation can be set to indicate if
- *  BackingStore.findByCriteria() must populate this attribute (true)
- *  or not (false).
+ * The loadEagerly property of this annotation can be set to indicate if BackingStore.findByCriteria() must populate
+ * this attribute (true) or not (false).
  *
  * @author Mahesh.Kannan@Sun.Com
  *
@@ -36,5 +34,5 @@ import java.lang.annotation.ElementType;
 @Target(ElementType.METHOD)
 public @interface Attribute {
 
-    String value() default "";
+	String value() default "";
 }

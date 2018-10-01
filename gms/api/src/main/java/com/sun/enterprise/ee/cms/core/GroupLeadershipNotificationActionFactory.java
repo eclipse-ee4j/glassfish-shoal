@@ -17,10 +17,9 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Marker interface to provide a specific type of ActionFactory  namely GroupLeadershipNotificationActionFactory.
- * The GroupManagementService module internals would expect such sub-types when a factory is added.
- * This factory's implementation provides a way to produce a GroupLeadershipNotificationAction
- * implementation
+ * Marker interface to provide a specific type of ActionFactory namely GroupLeadershipNotificationActionFactory. The
+ * GroupManagementService module internals would expect such sub-types when a factory is added. This factory's
+ * implementation provides a way to produce a GroupLeadershipNotificationAction implementation
  *
  * @author Bongjae Chang
  */
