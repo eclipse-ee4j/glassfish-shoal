@@ -16,17 +16,14 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <!-- needs maven 2.0.9 -->
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.shoal</groupId>
         <artifactId>shoal-gms</artifactId>
         <version>1.6.53-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>shoal-gms-impl</artifactId>
     <packaging>bundle</packaging>
     <name>shoal-gms-impl</name>
@@ -34,7 +31,7 @@
     <properties>
         <shoal.home>${basedir}</shoal.home>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -65,7 +62,9 @@
     </dependencies>
 
     <build>
+
         <finalName>${project.artifactId}</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -73,7 +72,8 @@
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
-                    <!--exclude the Shoal classes that internally call JXTA specific classes-->
+                    <!--exclude the Shoal classes that internally call JXTA 
+                        specific classes -->
                     <excludes>
                         <exclude>**/com/sun/enterprise/ee/cms/impl/jxta/*.java</exclude>
                         <exclude>**/com/sun/enterprise/jxtamgmt/**/*.java</exclude>
@@ -81,6 +81,7 @@
                     </excludes>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -100,10 +101,11 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
-                <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -113,12 +115,13 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-		<configuration>
-                        <doclint>none</doclint>
+                <configuration>
+                    <doclint>none</doclint>
                 </configuration>
                 <executions>
                     <execution>
@@ -129,19 +132,6 @@
                     </execution>
                 </executions>
             </plugin>
-	    <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-gpg-plugin</artifactId>
-                 <executions>
-                         <execution>
-                                 <id>sign-artifacts</id>
-                                 <phase>verify</phase>
-                                 <goals>
-                                         <goal>sign</goal>
-                                 </goals>
-                         </execution>
-                 </executions>
-             </plugin>
         </plugins>
     </build>
 </project>
