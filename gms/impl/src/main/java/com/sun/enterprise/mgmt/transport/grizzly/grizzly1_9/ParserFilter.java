@@ -16,13 +16,15 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
+import java.io.IOException;
+
 import com.sun.grizzly.Context;
 import com.sun.grizzly.ProtocolParser;
 import com.sun.grizzly.filter.ParserProtocolFilter;
-import java.io.IOException;
 
 /**
  * {@link ParserProtocolFilter}, which allows just OP_READ.
+ *
  * @author Alexey Stashok
  */
 public abstract class ParserFilter extends ParserProtocolFilter {
@@ -41,9 +43,8 @@ public abstract class ParserFilter extends ParserProtocolFilter {
         if (context.getCurrentOpType() == Context.OpType.OP_WRITE) {
             return false;
         }
-        
-        final GrizzlyMessageProtocolParser parser =
-                (GrizzlyMessageProtocolParser) context.getAttribute(ProtocolParser.PARSER);
+
+        final GrizzlyMessageProtocolParser parser = (GrizzlyMessageProtocolParser) context.getAttribute(ProtocolParser.PARSER);
 
         if (parser == null) {
             return true;
@@ -58,5 +59,4 @@ public abstract class ParserFilter extends ParserProtocolFilter {
         return super.postExecute(context);
     }
 
-
-} 
+}

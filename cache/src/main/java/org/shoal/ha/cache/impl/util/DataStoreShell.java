@@ -16,13 +16,6 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.glassfish.ha.store.api.BackingStore;
-import org.glassfish.ha.store.api.BackingStoreConfiguration;
-import org.glassfish.ha.store.api.BackingStoreException;
-import org.shoal.adapter.store.ReplicatedBackingStoreFactory;
-import org.shoal.ha.cache.api.*;
-import org.shoal.ha.mapper.DefaultKeyMapper;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,6 +28,12 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.glassfish.ha.store.api.BackingStore;
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.api.BackingStoreException;
+import org.shoal.adapter.store.ReplicatedBackingStoreFactory;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+
 /**
  * @author Mahesh Kannan
  */
@@ -43,25 +42,19 @@ public class DataStoreShell {
     BackingStore<String, Serializable> ds;
 
     int counter = 0;
-  private final Logger csc_log = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
-  private final Logger clrc_log = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_REQUEST_COMMAND);
-  private final Logger clresp_log = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_RESPONSE_COMMAND);
+    private final Logger csc_log = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
+    private final Logger clrc_log = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_REQUEST_COMMAND);
+    private final Logger clresp_log = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_RESPONSE_COMMAND);
 
-  public static void main(String[] args)
-        throws Exception {
+    public static void main(String[] args) throws Exception {
         BackingStoreConfiguration<String, Serializable> conf = new BackingStoreConfiguration<String, Serializable>();
-        conf.setStoreName(args[0])
-                .setInstanceName(args[1])
-                .setClusterName(args[2])
-                .setKeyClazz(String.class)
-                .setValueClazz(Serializable.class);
+        conf.setStoreName(args[0]).setInstanceName(args[1]).setClusterName(args[2]).setKeyClazz(String.class).setValueClazz(Serializable.class);
         Map<String, Object> map = conf.getVendorSpecificSettings();
         map.put("start.gms", true);
         map.put("max.idle.timeout.in.seconds", 90L);
-        //map.put("local.caching", true);
+        // map.put("local.caching", true);
         map.put("class.loader", ClassLoader.getSystemClassLoader());
-        BackingStore<String, Serializable> ds =
-                (new ReplicatedBackingStoreFactory()).createBackingStore(conf);
+        BackingStore<String, Serializable> ds = (new ReplicatedBackingStoreFactory()).createBackingStore(conf);
 
         DataStoreShell main = new DataStoreShell();
         main.runShell(ds);
@@ -71,7 +64,7 @@ public class DataStoreShell {
         csc_log.setLevel(Level.ALL);
         clrc_log.setLevel(Level.ALL);
         clresp_log.setLevel(Level.ALL);
-        
+
         this.ds = ds;
         String line = "";
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in, Charset.defaultCharset()));
@@ -92,7 +85,7 @@ public class DataStoreShell {
                     execute(command, params);
                     counter++;
                 }
-            } catch (IOException  ioEx) {
+            } catch (IOException ioEx) {
                 ioEx.printStackTrace();
             } catch (BackingStoreException bsEx) {
                 bsEx.printStackTrace();
@@ -106,8 +99,7 @@ public class DataStoreShell {
         System.out.flush();
     }
 
-    private void execute(String command, String[] params)
-        throws BackingStoreException {
+    private void execute(String command, String[] params) throws BackingStoreException {
 
         if ("put".equalsIgnoreCase(command)) {
             String hint = ds.save(params[0], params[1], true);

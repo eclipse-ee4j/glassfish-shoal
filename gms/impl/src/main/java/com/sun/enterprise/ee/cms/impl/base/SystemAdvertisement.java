@@ -17,156 +17,156 @@
 package com.sun.enterprise.ee.cms.impl.base;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.net.URI;
 
 /**
  * This interface provides system characteristics
  *
  * i.g. HW/SW configuration, CPU load, etc...
- * 
+ *
  * @author Bongjae Chang
  */
 public interface SystemAdvertisement extends Comparable<SystemAdvertisement>, Cloneable, Serializable {
 
-    static final long serialVersionUID = 4520670615616793233L;
+    long serialVersionUID = 4520670615616793233L;
 
-    public static final String OSNameTag = "OSName";
-    public static final String OSVersionTag = "OSVer";
-    public static final String OSarchTag = "osarch";
-    public static final String hwarchTag = "hwarch";
-    public static final String hwvendorTag = "hwvendor";
-    public static final String idTag = "ID";
-    public static final String ipTag = "ip";
-    public static final String nameTag = "name";
+    String OSNameTag = "OSName";
+    String OSVersionTag = "OSVer";
+    String OSarchTag = "osarch";
+    String hwarchTag = "hwarch";
+    String hwvendorTag = "hwvendor";
+    String idTag = "ID";
+    String ipTag = "ip";
+    String nameTag = "name";
 
     /**
      * Sets the hWArch attribute of the SystemAdvertisement object
      *
      * @param hwarch The new hWArch value
      */
-    public void setHWArch( final String hwarch );
+    void setHWArch(final String hwarch);
 
     /**
      * Sets the OSArch attribute of the SystemAdvertisement object
      *
      * @param osarch The new hWArch value
      */
-    public void setOSArch( final String osarch );
+    void setOSArch(final String osarch);
 
     /**
      * Sets the hWVendor attribute of the SystemAdvertisement object
      *
      * @param hwvendor The new hWVendor value
      */
-    public void setHWVendor( final String hwvendor );
+    void setHWVendor(final String hwvendor);
 
     /**
      * sets the unique id
      *
      * @param id The id
      */
-    public void setID( final PeerID id );
+    void setID(final PeerID id);
 
     /**
      * Sets the network interface's address in the form of a URI
      *
      * @param value new uri (tcp://host:port)
      */
-    public void addEndpointAddress( final String value );
+    void addEndpointAddress(final String value);
 
     /**
      * API for setting the IP addresses for all the network interfaces
      *
      * @param endpoints endpoint addresses
      */
-    public void setEndpointAddresses( final List<String> endpoints );
+    void setEndpointAddresses(final List<String> endpoints);
 
     /**
      * Sets the name attribute of the DeviceAdvertisement object
      *
      * @param name The new name value
      */
-    public void setName( final String name );
+    void setName(final String name);
 
     /**
      * Sets the oSName attribute of the SystemAdvertisement object
      *
      * @param osname The new oSName value
      */
-    public void setOSName( final String osname );
+    void setOSName(final String osname);
 
     /**
      * Sets the oSVersion attribute of the SystemAdvertisement object
      *
      * @param osversion The new oSVersion value
      */
-    public void setOSVersion( final String osversion );
+    void setOSVersion(final String osversion);
 
-    public void setCustomTag( final String tag, final String value );
+    void setCustomTag(final String tag, final String value);
 
-    public void setCustomTags( final Map<String, String> tags );
+    void setCustomTags(final Map<String, String> tags);
 
     /**
      * Gets the hWArch attribute of the SystemAdvertisement object
      *
      * @return The hWArch value
      */
-    public String getHWArch();
+    String getHWArch();
 
     /**
      * Gets the OSArch attribute of the SystemAdvertisement object
      *
      * @return The OSArch value
      */
-    public String getOSArch();
+    String getOSArch();
 
     /**
      * Gets the hWVendor attribute of the SystemAdvertisement object
      *
      * @return The hWVendor value
      */
-    public String getHWVendor();
+    String getHWVendor();
 
     /**
      * returns the id of the device
      *
      * @return ID the device id
      */
-    public PeerID getID();
+    PeerID getID();
 
     /**
      * Gets the address of the network interface in the form of URI
      *
      * @return the list of URIs for all the network interfaces
      */
-    public List<String> getEndpointAddresses();
+    List<String> getEndpointAddresses();
 
-    public List<URI> getURIs();
+    List<URI> getURIs();
 
     /**
      * Gets the name attribute of the SystemAdvertisement object
      *
      * @return The name value
      */
-    public String getName();
+    String getName();
 
     /**
      * Gets the OSName attribute of the SystemAdvertisement object
      *
      * @return The OSName value
      */
-    public String getOSName();
+    String getOSName();
 
     /**
      * Gets the OSVersion attribute of the SystemAdvertisement object
      *
      * @return The OSVersion value
      */
-    public String getOSVersion();
+    String getOSVersion();
 
-    public String getCustomTagValue( final String tagName ) throws NoSuchFieldException;
+    String getCustomTagValue(final String tagName) throws NoSuchFieldException;
 
-    public Map<String, String> getCustomTags();
+    Map<String, String> getCustomTags();
 }

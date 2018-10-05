@@ -20,7 +20,6 @@ package org.shoal.ha.cache.impl.command;
  * @author Mahesh Kannan
  */
 public class ReplicationCommandOpcode {
-    
 
     public static final byte REPLICATION_FRAME_PAYLOAD = 1;
 
@@ -46,7 +45,6 @@ public class ReplicationCommandOpcode {
 
     public static final byte SIZE_RESPONSE = 52;
 
-
     public static final byte STOREABLE_SAVE = 68;
 
     public static final byte STOREABLE_UNICAST_LOAD_REQUEST = 69;
@@ -59,6 +57,5 @@ public class ReplicationCommandOpcode {
 
     public static final byte STOREABLE_FULL_SAVE_COMMAND = 76;
 
-    
     public static final byte NOOP_COMMAND = 102;
 }

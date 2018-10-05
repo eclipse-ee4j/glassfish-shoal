@@ -16,12 +16,12 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.UDPConnectorHandler;
-import com.sun.grizzly.Controller;
-
-import java.nio.channels.SelectionKey;
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.util.logging.Level;
+
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.UDPConnectorHandler;
 
 /**
  * @author Bongjae Chang
@@ -29,13 +29,13 @@ import java.util.logging.Level;
 public class MulticastConnectorHandler extends UDPConnectorHandler {
 
     @Override
-    public void finishConnect( SelectionKey key) throws IOException {
-        if ( Controller.logger().isLoggable( Level.FINE)) {
+    public void finishConnect(SelectionKey key) throws IOException {
+        if (Controller.logger().isLoggable(Level.FINE)) {
             Controller.logger().log(Level.FINE, "Finish connect");
         }
         underlyingChannel = key.channel();
         isConnected = true;
-        synchronized(this) {
+        synchronized (this) {
             if (isConnectedLatch != null) {
                 isConnectedLatch.countDown();
             }

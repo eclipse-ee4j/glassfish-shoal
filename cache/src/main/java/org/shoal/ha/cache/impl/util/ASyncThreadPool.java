@@ -16,13 +16,16 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Mahesh Kannan
  */
-public class ASyncThreadPool
-    extends ThreadPoolExecutor {
+public class ASyncThreadPool extends ThreadPoolExecutor {
 
     private static final Object _lock = new Object();
 

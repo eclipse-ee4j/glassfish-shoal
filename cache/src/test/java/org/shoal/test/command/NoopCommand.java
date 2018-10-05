@@ -16,19 +16,15 @@
 
 package org.shoal.test.command;
 
-import org.shoal.ha.cache.api.DataStoreContext;
-import org.shoal.ha.cache.api.DataStoreException;
 import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.util.ReplicationInputStream;
-import org.shoal.ha.cache.impl.util.ReplicationOutputStream;
-
-import java.io.IOException;
 
 /**
  * @author Mahesh Kannan
  */
-public class NoopCommand
-    extends Command {
+public class NoopCommand extends Command {
+
+   
+    private static final long serialVersionUID = -7331429541785561201L;
 
     public NoopCommand() {
         super((byte) 123);

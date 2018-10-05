@@ -16,14 +16,15 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.enterprise.mgmt.transport.ArrayUtils;
-import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+
+import com.sun.enterprise.mgmt.transport.ArrayUtils;
+import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 
 /**
  *
@@ -44,6 +45,7 @@ public final class ByteBuffersBuffer implements Buffer {
     public ByteBuffersBuffer(ByteBuffersBuffer that) {
         copy(that);
     }
+
     private ByteOrder byteOrder = ByteOrder.nativeOrder();
 
     // absolute position
@@ -65,7 +67,6 @@ public final class ByteBuffersBuffer implements Buffer {
     private int upperBound;
     private int activeBufferLowerBound;
     private ByteBuffer activeBuffer;
-
 
     private void set(ByteBuffer[] buffers) {
         if (buffers != null || this.buffers == null) {
@@ -150,8 +151,9 @@ public final class ByteBuffersBuffer implements Buffer {
 
     @Override
     public ByteBuffersBuffer position(int newPosition) {
-        if (newPosition > limit)
+        if (newPosition > limit) {
             throw new IllegalArgumentException("Position exceeds a limit: " + newPosition + ">" + limit);
+        }
 
         position = newPosition;
         return this;
@@ -167,7 +169,7 @@ public final class ByteBuffersBuffer implements Buffer {
         limit = newLimit;
         if (position > limit) {
             position = limit;
-    }
+        }
 
         return this;
     }
@@ -203,7 +205,7 @@ public final class ByteBuffersBuffer implements Buffer {
     @Override
     public ByteBuffersBuffer rewind() {
         setPosLim(0, limit);
-	return this;
+        return this;
     }
 
     @Override
@@ -268,7 +270,7 @@ public final class ByteBuffersBuffer implements Buffer {
 
     @Override
     public byte get() {
-       return get(position++);
+        return get(position++);
     }
 
     @Override
@@ -293,7 +295,6 @@ public final class ByteBuffersBuffer implements Buffer {
         return this;
     }
 
-
     private void checkIndex(final int index) {
         if (index >= lowerBound & index < upperBound) {
             return;
@@ -303,8 +304,7 @@ public final class ByteBuffersBuffer implements Buffer {
     }
 
     private void recalcIndex(final int index) {
-        final int idx = ArrayUtils.binarySearch(bufferBounds, 0,
-                buffersSize - 1, index + 1);
+        final int idx = ArrayUtils.binarySearch(bufferBounds, 0, buffersSize - 1, index + 1);
         activeBuffer = buffers[idx];
 
         upperBound = bufferBounds[idx];
@@ -325,9 +325,13 @@ public final class ByteBuffersBuffer implements Buffer {
 
     @Override
     public ByteBuffersBuffer get(final byte[] dst, int offset, int length) {
-        if (length == 0) return this;
+        if (length == 0) {
+            return this;
+        }
 
-        if (remaining() < length) throw new BufferUnderflowException();
+        if (remaining() < length) {
+            throw new BufferUnderflowException();
+        }
 
         checkIndex(position);
 
@@ -335,8 +339,7 @@ public final class ByteBuffersBuffer implements Buffer {
         ByteBuffer buffer = activeBuffer;
         int bufferPosition = toActiveBufferPos(position);
 
-
-        while(true) {
+        while (true) {
             int oldPos = buffer.position();
             buffer.position(bufferPosition);
             final int bytesToCopy = Math.min(buffer.remaining(), length);
@@ -347,7 +350,9 @@ public final class ByteBuffersBuffer implements Buffer {
             offset += bytesToCopy;
             position += bytesToCopy;
 
-            if (length == 0) break;
+            if (length == 0) {
+                break;
+            }
 
             bufferIdx++;
             buffer = buffers[bufferIdx];
@@ -364,7 +369,9 @@ public final class ByteBuffersBuffer implements Buffer {
 
     @Override
     public ByteBuffersBuffer put(final byte[] src, int offset, int length) {
-        if (remaining() < length) throw new BufferOverflowException();
+        if (remaining() < length) {
+            throw new BufferOverflowException();
+        }
 
         checkIndex(position);
 
@@ -372,7 +379,7 @@ public final class ByteBuffersBuffer implements Buffer {
         ByteBuffer buffer = activeBuffer;
         int bufferPosition = toActiveBufferPos(position);
 
-        while(true) {
+        while (true) {
             int oldPos = buffer.position();
             buffer.position(bufferPosition);
             int bytesToCopy = Math.min(buffer.remaining(), length);
@@ -384,7 +391,9 @@ public final class ByteBuffersBuffer implements Buffer {
             offset += bytesToCopy;
             position += bytesToCopy;
 
-            if (length == 0) break;
+            if (length == 0) {
+                break;
+            }
 
             bufferIdx++;
             buffer = buffers[bufferIdx];
@@ -495,7 +504,8 @@ public final class ByteBuffersBuffer implements Buffer {
         final int value = getInt(position);
         position += 4;
 
-        return value;    }
+        return value;
+    }
 
     @Override
     public ByteBuffersBuffer putInt(final int value) {
@@ -594,14 +604,7 @@ public final class ByteBuffersBuffer implements Buffer {
             checkIndex(++index);
             final int ch8 = activeBuffer.get(toActiveBufferPos(index)) & 0xFF;
 
-            return (((long) ch1 << 56) +
-                ((long) ch2 << 48) +
-		((long) ch3 << 40) +
-                ((long) ch4 << 32) +
-                ((long) ch5 << 24) +
-                (ch6 << 16) +
-                (ch7 <<  8) +
-                (ch8));
+            return (((long) ch1 << 56) + ((long) ch2 << 48) + ((long) ch3 << 40) + ((long) ch4 << 32) + ((long) ch5 << 24) + (ch6 << 16) + (ch7 << 8) + (ch8));
         }
     }
 
@@ -681,17 +684,19 @@ public final class ByteBuffersBuffer implements Buffer {
 
     @Override
     public int compareTo(Buffer that) {
-	int n = this.position() + Math.min(this.remaining(), that.remaining());
-	for (int i = this.position(), j = that.position(); i < n; i++, j++) {
-	    byte v1 = this.get(i);
-	    byte v2 = that.get(j);
-	    if (v1 == v2)
-		continue;
-	    if (v1 < v2)
-		return -1;
-	    return +1;
-	}
-	return this.remaining() - that.remaining();
+        int n = this.position() + Math.min(this.remaining(), that.remaining());
+        for (int i = this.position(), j = that.position(); i < n; i++, j++) {
+            byte v1 = this.get(i);
+            byte v2 = that.get(j);
+            if (v1 == v2) {
+                continue;
+            }
+            if (v1 < v2) {
+                return -1;
+            }
+            return +1;
+        }
+        return this.remaining() - that.remaining();
     }
 
     @Override
@@ -717,22 +722,21 @@ public final class ByteBuffersBuffer implements Buffer {
     }
 
     @Override
-    public String toStringContent(Charset charset, final int position,
-            final int limit) {
+    public String toStringContent(Charset charset, final int position, final int limit) {
         if (charset == null) {
             charset = Charset.defaultCharset();
         }
 
         final byte[] tmpBuffer = new byte[limit - position];
 
-            int oldPosition = this.position;
-            int oldLimit = this.limit;
+        int oldPosition = this.position;
+        int oldLimit = this.limit;
 
-            setPosLim(position, limit);
-            get(tmpBuffer);
-            setPosLim(oldPosition, oldLimit);
-            return new String(tmpBuffer, charset);
-        }
+        setPosLim(position, limit);
+        get(tmpBuffer);
+        setPosLim(oldPosition, oldLimit);
+        return new String(tmpBuffer, charset);
+    }
 
     private void removeBuffers() {
         position = 0;
@@ -755,7 +759,7 @@ public final class ByteBuffersBuffer implements Buffer {
 
     public void calcCapacity() {
         int currentCapacity = 0;
-        for(int i = 0; i < buffersSize; i++) {
+        for (int i = 0; i < buffersSize; i++) {
             currentCapacity += buffers[i].remaining();
             bufferBounds[i] = currentCapacity;
         }
@@ -793,24 +797,24 @@ public final class ByteBuffersBuffer implements Buffer {
     /**
      * Returns the current hash code of this buffer.
      *
-     * <p> The hash code of a byte buffer depends only upon its remaining
-     * elements; that is, upon the elements from <tt>position()</tt> up to, and
-     * including, the element at <tt>limit()</tt>&nbsp;-&nbsp;<tt>1</tt>.
+     * <p>
+     * The hash code of a byte buffer depends only upon its remaining elements; that is, upon the elements from
+     * <tt>position()</tt> up to, and including, the element at <tt>limit()</tt>&nbsp;-&nbsp;<tt>1</tt>.
      *
-     * <p> Because buffer hash codes are content-dependent, it is inadvisable
-     * to use buffers as keys in hash maps or similar data structures unless it
-     * is known that their contents will not change.  </p>
+     * <p>
+     * Because buffer hash codes are content-dependent, it is inadvisable to use buffers as keys in hash maps or similar
+     * data structures unless it is known that their contents will not change.
+     * </p>
      *
-     * @return  The current hash code of this buffer
+     * @return The current hash code of this buffer
      */
     @Override
     public int hashCode() {
-	int h = 1;
-	int p = position();
-	for (int i = limit() - 1; i >= p; i--)
-	    h = 31 * h + (int)get(i);
-	return h;
+        int h = 1;
+        int p = position();
+        for (int i = limit() - 1; i >= p; i--) {
+            h = 31 * h + get(i);
+        }
+        return h;
     }
 }
-
-

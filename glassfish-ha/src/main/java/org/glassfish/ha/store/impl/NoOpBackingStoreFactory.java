@@ -16,24 +16,27 @@
 
 package org.glassfish.ha.store.impl;
 
-import org.glassfish.ha.store.api.*;
-
 import java.io.Serializable;
+
+import org.glassfish.ha.store.api.BackingStore;
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.api.BackingStoreException;
+import org.glassfish.ha.store.api.BackingStoreFactory;
+import org.glassfish.ha.store.api.BackingStoreTransaction;
 
 /**
  * @author Mahesh Kannan
  */
-public class NoOpBackingStoreFactory
-    implements BackingStoreFactory {
+public class NoOpBackingStoreFactory implements BackingStoreFactory {
 
     private static BackingStoreTransaction _noOpTransaction = new BackingStoreTransaction() {
-        public void commit() {}
+        public void commit() {
+        }
     };
 
-    public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(
-            BackingStoreConfiguration<K, V> conf)
-                throws BackingStoreException {
-        NoOpBackingStore<K, V> store =  new NoOpBackingStore<K, V>();
+    public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf)
+            throws BackingStoreException {
+        NoOpBackingStore<K, V> store = new NoOpBackingStore<K, V>();
         store.initialize(conf);
 
         return store;

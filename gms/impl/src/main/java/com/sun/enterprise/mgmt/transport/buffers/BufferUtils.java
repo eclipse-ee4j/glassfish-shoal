@@ -32,8 +32,8 @@ public class BufferUtils {
     public static final ByteBuffer[] EMPTY_BYTE_BUFFER_ARRAY = new ByteBuffer[0];
 
     /**
-     * Slice {@link ByteBuffer} of required size from big chunk.
-     * Passed chunk position will be changed, after the slicing (chunk.position += size).
+     * Slice {@link ByteBuffer} of required size from big chunk. Passed chunk position will be changed, after the slicing
+     * (chunk.position += size).
      *
      * @param chunk big {@link ByteBuffer} pool.
      * @param size required slice size.
@@ -49,12 +49,10 @@ public class BufferUtils {
         return view;
     }
 
-
     /**
-     * Get the {@link ByteBuffer}'s slice basing on its passed position and limit.
-     * Position and limit values of the passed {@link ByteBuffer} won't be changed.
-     * The result {@link ByteBuffer} position will be equal to 0, and limit
-     * equal to number of sliced bytes (limit - position).
+     * Get the {@link ByteBuffer}'s slice basing on its passed position and limit. Position and limit values of the passed
+     * {@link ByteBuffer} won't be changed. The result {@link ByteBuffer} position will be equal to 0, and limit equal to
+     * number of sliced bytes (limit - position).
      *
      * @param byteBuffer {@link ByteBuffer} to slice/
      * @param position the position in the passed byteBuffer, the slice will start from.
@@ -62,8 +60,7 @@ public class BufferUtils {
      *
      * @return sliced {@link ByteBuffer} of required size.
      */
-    public static ByteBuffer slice(final ByteBuffer byteBuffer,
-            final int position, final int limit) {
+    public static ByteBuffer slice(final ByteBuffer byteBuffer, final int position, final int limit) {
         final int oldPos = byteBuffer.position();
         final int oldLimit = byteBuffer.limit();
 
@@ -76,8 +73,7 @@ public class BufferUtils {
         return slice;
     }
 
-    public static String toStringContent(ByteBuffer byteBuffer, Charset charset,
-            int position, int limit) {
+    public static String toStringContent(ByteBuffer byteBuffer, Charset charset, int position, int limit) {
 
         if (charset == null) {
             charset = Charset.defaultCharset();
@@ -85,9 +81,7 @@ public class BufferUtils {
 
         if (byteBuffer.hasArray()) {
             try {
-                return new String(byteBuffer.array(),
-                        position + byteBuffer.arrayOffset(),
-                        limit - position, charset.name());
+                return new String(byteBuffer.array(), position + byteBuffer.arrayOffset(), limit - position, charset.name());
             } catch (UnsupportedEncodingException e) {
                 throw new IllegalStateException(e);
             }
@@ -117,17 +111,16 @@ public class BufferUtils {
     }
 
     public static void setPositionLimit(final ByteBuffer buffer, final int position, final int limit) {
-            buffer.limit(limit);
-            buffer.position(position);
-        }
+        buffer.limit(limit);
+        buffer.position(position);
+    }
 
     public static void setPositionLimit(final Buffer buffer, final int position, final int limit) {
-            buffer.limit(limit);
-            buffer.position(position);
-        }
+        buffer.limit(limit);
+        buffer.position(position);
+    }
 
-    public static void put(ByteBuffer srcBuffer, int srcOffset, int length,
-            ByteBuffer dstBuffer) {
+    public static void put(ByteBuffer srcBuffer, int srcOffset, int length, ByteBuffer dstBuffer) {
 
         if (dstBuffer.remaining() < length) {
             throw new BufferOverflowException();
@@ -135,11 +128,7 @@ public class BufferUtils {
 
         if (srcBuffer.hasArray() && dstBuffer.hasArray()) {
 
-            System.arraycopy(srcBuffer.array(),
-                    srcBuffer.arrayOffset() + srcOffset,
-                    dstBuffer.array(),
-                    dstBuffer.arrayOffset() + dstBuffer.position(),
-                    length);
+            System.arraycopy(srcBuffer.array(), srcBuffer.arrayOffset() + srcOffset, dstBuffer.array(), dstBuffer.arrayOffset() + dstBuffer.position(), length);
             dstBuffer.position(dstBuffer.position() + length);
         } else {
             int oldPos = srcBuffer.position();
@@ -152,33 +141,28 @@ public class BufferUtils {
             srcBuffer.limit(oldLim);
         }
     }
-   
-    public static void get(ByteBuffer srcBuffer,
-            byte[] dstBytes, int dstOffset, int length) {
+
+    public static void get(ByteBuffer srcBuffer, byte[] dstBytes, int dstOffset, int length) {
 
         if (srcBuffer.hasArray()) {
             if (length > srcBuffer.remaining()) {
                 throw new BufferUnderflowException();
             }
 
-            System.arraycopy(srcBuffer.array(),
-                    srcBuffer.arrayOffset() + srcBuffer.position(),
-                    dstBytes, dstOffset, length);
+            System.arraycopy(srcBuffer.array(), srcBuffer.arrayOffset() + srcBuffer.position(), dstBytes, dstOffset, length);
             srcBuffer.position(srcBuffer.position() + length);
         } else {
             srcBuffer.get(dstBytes, dstOffset, length);
         }
     }
 
-    public static void put(byte[] srcBytes, int srcOffset, int length,
-            ByteBuffer dstBuffer) {
+    public static void put(byte[] srcBytes, int srcOffset, int length, ByteBuffer dstBuffer) {
         if (dstBuffer.hasArray()) {
             if (length > dstBuffer.remaining()) {
                 throw new BufferOverflowException();
             }
 
-            System.arraycopy(srcBytes, srcOffset, dstBuffer.array(),
-                    dstBuffer.arrayOffset() + dstBuffer.position(), length);
+            System.arraycopy(srcBytes, srcOffset, dstBuffer.array(), dstBuffer.arrayOffset() + dstBuffer.position(), length);
             dstBuffer.position(dstBuffer.position() + length);
         } else {
             dstBuffer.put(srcBytes, srcOffset, length);

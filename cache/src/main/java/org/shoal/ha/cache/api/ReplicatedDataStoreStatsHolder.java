@@ -73,29 +73,26 @@ public class ReplicatedDataStoreStatsHolder<K, V> implements DataStoreMBean {
 
     private AtomicLong gmsSendBytesCount = new AtomicLong(0);
 
-
     public ReplicatedDataStoreStatsHolder(DataStoreContext<K, V> dsc) {
         this.dsc = dsc;
 
         this.keyClassName = (dsc.getKeyClazz() != null) ? dsc.getKeyClazz().getName() : "?";
         this.valueClassName = (dsc.getValueClazz() != null) ? dsc.getValueClazz().getName() : "?";
-        this.keyTransformerClassName = (dsc.getKeyTransformer() != null)
-                ? dsc.getKeyTransformer().getClass().getName() : "?";
-        this.entryUpdaterClassName = (dsc.getDataStoreEntryUpdater() != null)
-                ? dsc.getDataStoreEntryUpdater().getClass().getName() : "?";
+        this.keyTransformerClassName = (dsc.getKeyTransformer() != null) ? dsc.getKeyTransformer().getClass().getName() : "?";
+        this.entryUpdaterClassName = (dsc.getDataStoreEntryUpdater() != null) ? dsc.getDataStoreEntryUpdater().getClass().getName() : "?";
     }
 
-    //@Override
+    // @Override
     public String getStoreName() {
         return dsc.getStoreName();
     }
 
-    //@Override
+    // @Override
     public String getKeyClassName() {
         return keyClassName;
     }
 
-    //@Override
+    // @Override
     public String getValueClassName() {
         return valueClassName;
     }
@@ -108,67 +105,67 @@ public class ReplicatedDataStoreStatsHolder<K, V> implements DataStoreMBean {
         return keyTransformerClassName;
     }
 
-    //@Override
+    // @Override
     public int getSize() {
         return dsc.getReplicaStore().size();
     }
 
-    //@Override
+    // @Override
     public int getSentSaveCount() {
         return saveCount.get();
     }
 
-    //@Override
+    // @Override
     public int getExecutedSaveCount() {
         return executedSaveCount.get();
     }
 
-    //@Override
+    // @Override
     public int getBatchSentCount() {
         return batchSentCount.get();
     }
 
-    //@Override
+    // @Override
     public int getLoadCount() {
         return loadCount.get();
     }
 
-    //@Override
+    // @Override
     public int getLoadSuccessCount() {
         return loadSuccessCount.get();
     }
 
-    //@Override
+    // @Override
     public int getLocalLoadSuccessCount() {
         return localLoadSuccessCount.get();
     }
 
-    //@Override
+    // @Override
     public int getSimpleLoadSuccessCount() {
         return simpleLoadSuccessCount.get();
     }
 
-    //@Override
+    // @Override
     public int getBroadcastLoadSuccessCount() {
         return broadcastLoadSuccessCount.get();
     }
 
-    //@Override
+    // @Override
     public int getLoadFailureCount() {
         return loadFailureCount.get();
     }
 
-    //@Override
+    // @Override
     public int getBatchReceivedCount() {
         return batchReceivedCount.get();
     }
 
-    //@Override
+    // @Override
     public int getSentRemoveCount() {
         return removeCount.get();
     }
 
-    //@Override
+    // @Override
     public int getExecutedRemoveCount() {
         return executedRemoveCount.get();
     }
@@ -201,8 +198,7 @@ public class ReplicatedDataStoreStatsHolder<K, V> implements DataStoreMBean {
         return gmsSendBytesCount.get();
     }
 
-
-    //Mutators
+    // Mutators
 
     public int incrementBatchSentCount() {
         return batchSentCount.incrementAndGet();
@@ -252,11 +248,9 @@ public class ReplicatedDataStoreStatsHolder<K, V> implements DataStoreMBean {
         return batchReceivedCount.incrementAndGet();
     }
 
-
     public int incrementFlushThreadWakeupCount() {
         return flushThreadWakeupCount.incrementAndGet();
     }
-
 
     public int incrementFlushThreadFlushedCount() {
         return flushThreadFlushedCount.incrementAndGet();
@@ -265,7 +259,6 @@ public class ReplicatedDataStoreStatsHolder<K, V> implements DataStoreMBean {
     public int incrementSaveOnLoadCount() {
         return saveOnLoadCount.incrementAndGet();
     }
-
 
     public int incrementRemoveExpiredCallCount() {
         return removeExpiredCallCount.incrementAndGet();
@@ -283,36 +276,20 @@ public class ReplicatedDataStoreStatsHolder<K, V> implements DataStoreMBean {
         return gmsSendBytesCount.addAndGet(delta);
     }
 
-
     public int updateExecutedRemoveCount(int delta) {
         return executedRemoveCount.addAndGet(delta);
     }
 
-    //@Override
+    // @Override
     public String toString() {
-        return "ReplicatedDataStoreStatsHolder{" +
-                "name=" + getStoreName() +
-                ", keyClassName='" + getKeyClassName() + '\'' +
-                ", valueClassName='" + getValueClassName() + '\'' +
-                ", sentSaveCount=" + getSentSaveCount() +
-                ", executedSaveCount=" + getExecutedSaveCount() +
-                ", saveOnLoadCount=" + getSaveOnLoadCount() +
-                ", loadCount=" + getLoadCount() +
-                ", localLoadSuccessCount=" + getLocalLoadSuccessCount() +
-                ", simpleLoadSuccessCount=" + getSimpleLoadSuccessCount() +
-                ", broadcastLoadSuccessCount=" + getBroadcastLoadSuccessCount() +
-                ", loadSuccessCount=" + getLoadSuccessCount() +
-                ", loadFailureCount=" + getLoadFailureCount() +
-                ", sentRemoveCount=" + getSentRemoveCount() +
-                ", executedRemoveCount=" + getExecutedRemoveCount() +
-                ", batchSentCount=" + getBatchSentCount() +
-                ", batchReceivedCount=" + getBatchReceivedCount() +
-                ", flushThreadWakeupCount=" + getFlushThreadWakeupCount() +
-                ", flushThreadFlushedCount=" + getFlushThreadFlushedCount() +
-                ", removeExpiredCallCount=" + getRemoveExpiredCallCount() +
-                ", expiredEntriesCount=" + getExpiredEntriesCount() +
-                ", gmsSendCount=" + getGmsSendCount() +
-                ", gmsSendBytesCount=" + getGmsSendBytesCount() +
-                '}';
+        return "ReplicatedDataStoreStatsHolder{" + "name=" + getStoreName() + ", keyClassName='" + getKeyClassName() + '\'' + ", valueClassName='"
+                + getValueClassName() + '\'' + ", sentSaveCount=" + getSentSaveCount() + ", executedSaveCount=" + getExecutedSaveCount() + ", saveOnLoadCount="
+                + getSaveOnLoadCount() + ", loadCount=" + getLoadCount() + ", localLoadSuccessCount=" + getLocalLoadSuccessCount() + ", simpleLoadSuccessCount="
+                + getSimpleLoadSuccessCount() + ", broadcastLoadSuccessCount=" + getBroadcastLoadSuccessCount() + ", loadSuccessCount=" + getLoadSuccessCount()
+                + ", loadFailureCount=" + getLoadFailureCount() + ", sentRemoveCount=" + getSentRemoveCount() + ", executedRemoveCount="
+                + getExecutedRemoveCount() + ", batchSentCount=" + getBatchSentCount() + ", batchReceivedCount=" + getBatchReceivedCount()
+                + ", flushThreadWakeupCount=" + getFlushThreadWakeupCount() + ", flushThreadFlushedCount=" + getFlushThreadFlushedCount()
+                + ", removeExpiredCallCount=" + getRemoveExpiredCallCount() + ", expiredEntriesCount=" + getExpiredEntriesCount() + ", gmsSendCount="
+                + getGmsSendCount() + ", gmsSendBytesCount=" + getGmsSendBytesCount() + '}';
     }
 }

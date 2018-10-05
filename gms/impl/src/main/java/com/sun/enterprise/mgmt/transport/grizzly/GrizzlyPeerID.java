@@ -24,23 +24,23 @@ import java.io.Serializable;
 public class GrizzlyPeerID implements Serializable, Comparable<GrizzlyPeerID> {
 
     // TODO: rework this peerID so its serialized form is only a name based java.util.UUID and the mapping of the id
-    //       to its network protocol is managed outside this class.
+    // to its network protocol is managed outside this class.
     //
 
     static final long serialVersionUID = 9093067296675025106L;
 
-    //  For latest release, both the ip address (host) and tcpPort are not considered part of the identity of the
-    //  Grizzly peerid.
-    public final String host;  // due to Grizzly transport hack, this host is used to send a message to a member.
-                               // this value is not considered part of data structure for identity.
-    public final int tcpPort;  // due to Grizzly transport hack, this tcpport is used to send a message to a member.
-                               // so this value must stay in the datastructure BUT is not considered part of it for
-                               // comparison's sake.
+    // For latest release, both the ip address (host) and tcpPort are not considered part of the identity of the
+    // Grizzly peerid.
+    public final String host; // due to Grizzly transport hack, this host is used to send a message to a member.
+                              // this value is not considered part of data structure for identity.
+    public final int tcpPort; // due to Grizzly transport hack, this tcpport is used to send a message to a member.
+                              // so this value must stay in the datastructure BUT is not considered part of it for
+                              // comparison's sake.
     public final String multicastAddress;
     public final int multicastPort;
     transient private String toStringValue = null;
 
-    public GrizzlyPeerID( String host, int tcpPort, String multicastAddress, int multicastPort ) {
+    public GrizzlyPeerID(String host, int tcpPort, String multicastAddress, int multicastPort) {
         this.host = host;
         this.multicastAddress = multicastAddress;
         this.tcpPort = tcpPort;
@@ -64,18 +64,18 @@ public class GrizzlyPeerID implements Serializable, Comparable<GrizzlyPeerID> {
     }
 
     // NOTE: no longer include tcpport in this calculation nor the hash calculation.
-    //       instance should be able to use a port within a range and still be considered same instance.
+    // instance should be able to use a port within a range and still be considered same instance.
     @Override
-    public boolean equals( Object other ) {
-        if( other instanceof GrizzlyPeerID ) {
-            GrizzlyPeerID otherPeerID = (GrizzlyPeerID)other;
+    public boolean equals(Object other) {
+        if (other instanceof GrizzlyPeerID) {
+            GrizzlyPeerID otherPeerID = (GrizzlyPeerID) other;
             boolean multicastAddressCompare;
-            if (multicastAddress == null)  {
+            if (multicastAddress == null) {
                 multicastAddressCompare = (multicastAddress == otherPeerID.multicastAddress);
             } else {
                 multicastAddressCompare = multicastAddress.equals(otherPeerID.multicastAddress);
             }
-            return multicastPort == otherPeerID.multicastPort  && multicastAddressCompare && host.equals(otherPeerID.getHost());
+            return multicastPort == otherPeerID.multicastPort && multicastAddressCompare && host.equals(otherPeerID.getHost());
         } else {
             return false;
         }
@@ -96,7 +96,7 @@ public class GrizzlyPeerID implements Serializable, Comparable<GrizzlyPeerID> {
 
     @Override
     public String toString() {
-       if (toStringValue == null) {
+        if (toStringValue == null) {
             toStringValue = host + ":" + tcpPort + ":" + multicastAddress + ":" + multicastPort;
         }
         return toStringValue;

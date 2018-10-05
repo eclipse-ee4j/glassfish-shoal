@@ -16,7 +16,6 @@
 
 package com.sun.enterprise.ee.cms.core;
 
-
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -28,19 +27,18 @@ class StringManager {
 
     private static final StringManager instance = new StringManager();
     public static final String LOG_STRINGS = "com.sun.enterprise.ee.cms.core.LogStrings";
-    private static final ResourceBundle bundle =
-            ResourceBundle.getBundle(LOG_STRINGS, Locale.getDefault());
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(LOG_STRINGS, Locale.getDefault());
 
-    private StringManager() {}
+    private StringManager() {
+    }
 
     static StringManager getInstance() {
         return instance;
     }
 
     /*
-     * This is a utility method so that the rest of the code
-     * doesn't have to deal with resource bundles and
-     * formatting strings.
+     * This is a utility method so that the rest of the code doesn't have to deal with resource bundles and formatting
+     * strings.
      */
     String get(String key, Object... params) {
         final String message = bundle.getString(key);

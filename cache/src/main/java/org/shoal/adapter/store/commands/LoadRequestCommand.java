@@ -16,13 +16,6 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-import org.shoal.ha.cache.impl.util.*;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -31,11 +24,21 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+import org.shoal.ha.cache.impl.store.DataStoreEntry;
+import org.shoal.ha.cache.impl.util.CommandResponse;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+
 /**
  * @author Mahesh Kannan
  */
-public class LoadRequestCommand<K, V>
-        extends Command<K, V> {
+public class LoadRequestCommand<K, V> extends Command<K, V> {
+
+   
+    private static final long serialVersionUID = 3672209854011660431L;
 
     private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_REQUEST_COMMAND);
 
@@ -73,8 +76,7 @@ public class LoadRequestCommand<K, V>
         return target != null;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeLong(minVersion);
         out.writeLong(resp.getTokenId());
         out.writeUTF(originatingInstance);
@@ -83,8 +85,7 @@ public class LoadRequestCommand<K, V>
         }
     }
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         minVersion = in.readLong();
         tokenId = in.readLong();
         originatingInstance = in.readUTF();
@@ -123,7 +124,6 @@ public class LoadRequestCommand<K, V>
                 }
             }
 
-
         } catch (DataStoreException dsEx) {
             resp.setException(dsEx);
         }
@@ -133,8 +133,7 @@ public class LoadRequestCommand<K, V>
         return resp.getRespondingInstanceName();
     }
 
-    public V getResult(long waitFor, TimeUnit unit)
-            throws DataStoreException {
+    public V getResult(long waitFor, TimeUnit unit) throws DataStoreException {
         try {
             Object result = future.get(waitFor, unit);
             if (result instanceof Exception) {

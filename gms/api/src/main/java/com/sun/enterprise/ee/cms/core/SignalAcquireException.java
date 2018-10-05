@@ -17,28 +17,26 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Raises exceptions occuring while acquiring signals.
- * If such an exception is raised, a deadlock on group resources
- * through concurrent acquisition of distributed resources
- * is prevented
+ * Raises exceptions occuring while acquiring signals. If such an exception is raised, a deadlock on group resources
+ * through concurrent acquisition of distributed resources is prevented
  *
- * For example, if <code>FailureRecoverySignal</code> throws a
- * <code>SignalAcquireException</code>, it means that the failed server
- * has returned to operation or that it may not be possible to fence it
- * out of the group. This will indicate a group condition wherein
- * control of resources is atomically defined such that it may be acceptable
- * for most group communication environments for continuing operations.
- * 
- * @author Shreedhar Ganapathy
- * Date: Jan 8, 2004
+ * For example, if <code>FailureRecoverySignal</code> throws a <code>SignalAcquireException</code>, it means that the
+ * failed server has returned to operation or that it may not be possible to fence it out of the group. This will
+ * indicate a group condition wherein control of resources is atomically defined such that it may be acceptable for most
+ * group communication environments for continuing operations.
+ *
+ * @author Shreedhar Ganapathy Date: Jan 8, 2004
  * @version $Revision$
  */
-public class SignalAcquireException extends Exception{
-    public SignalAcquireException(){
+public class SignalAcquireException extends Exception {
+   
+    private static final long serialVersionUID = -1507353998630657590L;
+
+    public SignalAcquireException() {
         super();
     }
 
-    public SignalAcquireException(final String message){
+    public SignalAcquireException(final String message) {
         super(message);
     }
 

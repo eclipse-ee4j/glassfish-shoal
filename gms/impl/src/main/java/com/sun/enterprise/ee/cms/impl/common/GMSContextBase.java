@@ -16,16 +16,15 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.core.GMSMember;
-
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jan 31, 2006
+ * @author Shreedhar Ganapathy Date: Jan 31, 2006
  * @version $Revision$
  */
 public abstract class GMSContextBase implements GMSContext {
@@ -42,25 +41,23 @@ public abstract class GMSContextBase implements GMSContext {
     protected final ShutdownHelper shutdownHelper;
     protected final GroupManagementService.MemberType gmsMemberType;
 
-    protected GMSContextBase(final String serverToken, final String groupName,
-                             final GroupManagementService.MemberType memberType) {
+    protected GMSContextBase(final String serverToken, final String groupName, final GroupManagementService.MemberType memberType) {
         this.serverToken = serverToken;
         this.groupName = groupName;
         this.gmsMemberType = memberType;
         this.memberType = getMemberType(memberType);
         startTime = System.currentTimeMillis();
-        gmsMember = new GMSMember(serverToken, this.memberType, groupName,
-                startTime);
+        gmsMember = new GMSMember(serverToken, this.memberType, groupName, startTime);
         suspectList = new ArrayList<String>();
         shutdownHelper = new ShutdownHelper();
     }
 
-    protected static String getMemberType(
-            final GroupManagementService.MemberType memberType) {
-        if (memberType == null)
+    protected static String getMemberType(final GroupManagementService.MemberType memberType) {
+        if (memberType == null) {
             return GroupManagementService.MemberType.CORE.toString();
-        else
+        } else {
             return memberType.toString();
+        }
     }
 
     public GroupManagementService.MemberType getMemberType() {
@@ -68,8 +65,7 @@ public abstract class GMSContextBase implements GMSContext {
     }
 
     /**
-     * returns the serverIdentityToken pertaining to the process that
-     * owns this GMS instance
+     * returns the serverIdentityToken pertaining to the process that owns this GMS instance
      *
      * @return java.lang.String
      */
@@ -97,13 +93,14 @@ public abstract class GMSContextBase implements GMSContext {
 
     /**
      * Return <code>true</code> if shutting down
+     *
      * @return <code>true</code> if shutting down
      */
     public boolean isShuttingDown() {
         return shuttingDown;
     }
 
-    abstract public AliveAndReadyViewWindow  getAliveAndReadyViewWindow();
+    abstract public AliveAndReadyViewWindow getAliveAndReadyViewWindow();
 
     abstract public GMSMonitor getGMSMonitor();
- }
+}

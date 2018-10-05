@@ -16,34 +16,29 @@
 
 package org.shoal.ha.cache.impl.interceptor;
 
-import org.shoal.ha.cache.api.AbstractCommandInterceptor;
-import org.shoal.ha.cache.api.DataStoreContext;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.util.ReplicationOutputStream;
-import org.shoal.ha.group.GroupService;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.shoal.ha.cache.api.AbstractCommandInterceptor;
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.group.GroupService;
 
 /**
  * @author Mahesh Kannan
  *
  */
-public final class TransmitInterceptor<K, V>
-    extends AbstractCommandInterceptor<K, V> {
+public final class TransmitInterceptor<K, V> extends AbstractCommandInterceptor<K, V> {
 
-    private static final Logger _logger =
-            Logger.getLogger(ShoalCacheLoggerConstants.CACHE_TRANSMIT_INTERCEPTOR);
+    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_TRANSMIT_INTERCEPTOR);
 
     @Override
-    public void onTransmit(Command<K, V> cmd, String initiator)
-        throws DataStoreException {
+    public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
         DataStoreContext<K, V> ctx = getDataStoreContext();
         ByteArrayOutputStream bos = null;
         ObjectOutputStream oos = null;
@@ -56,26 +51,31 @@ public final class TransmitInterceptor<K, V>
             byte[] data = bos.toByteArray();
 
             GroupService gs = ctx.getGroupService();
-            gs.sendMessage(cmd.getTargetName(),
-                    ctx.getServiceName(), data);
+            gs.sendMessage(cmd.getTargetName(), ctx.getServiceName(), data);
             dsc.getDataStoreMBean().incrementGmsSendCount();
             dsc.getDataStoreMBean().incrementGmsSendBytesCount(data.length);
             if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, storeName + ": TransmitInterceptor." + ctx.getServiceName()
-                        + ":onTransmit() Sent " + cmd + " to "
-                        + (cmd.getTargetName() == null ? " ALL MEMBERS " : cmd.getTargetName())
-                        + "; size: " + data.length);
+                _logger.log(Level.FINE, storeName + ": TransmitInterceptor." + ctx.getServiceName() + ":onTransmit() Sent " + cmd + " to "
+                        + (cmd.getTargetName() == null ? " ALL MEMBERS " : cmd.getTargetName()) + "; size: " + data.length);
             }
             cmd.onSuccess();
             transmitted = true;
         } catch (IOException ioEx) {
             throw new DataStoreException("Error DURING transmit...", ioEx);
         } finally {
-            if (! transmitted) {
-                cmd.onFailure();   
+            if (!transmitted) {
+                cmd.onFailure();
             }
-            try {oos.close();} catch (Exception ex) {_logger.log(Level.FINEST, "Ignorable error while closing ObjectOutputStream");}
-            try {bos.close();} catch (Exception ex) {_logger.log(Level.FINEST, "Ignorable error while closing ByteArrayOutputStream");}
+            try {
+                oos.close();
+            } catch (Exception ex) {
+                _logger.log(Level.FINEST, "Ignorable error while closing ObjectOutputStream");
+            }
+            try {
+                bos.close();
+            } catch (Exception ex) {
+                _logger.log(Level.FINEST, "Ignorable error while closing ByteArrayOutputStream");
+            }
         }
     }
 

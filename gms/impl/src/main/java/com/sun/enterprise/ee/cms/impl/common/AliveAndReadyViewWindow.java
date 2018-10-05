@@ -16,13 +16,6 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.impl.client.FailureNotificationActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.JoinedAndReadyNotificationActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.PlannedShutdownActionFactoryImpl;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -32,10 +25,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.FailureNotificationSignal;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GroupHandle;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationSignal;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.impl.client.FailureNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.JoinedAndReadyNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.PlannedShutdownActionFactoryImpl;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+
 public class AliveAndReadyViewWindow {
     protected static final Logger LOG = Logger.getLogger(GMSLogDomain.GMS_LOGGER + ".ready");
 
-    static final long MIN_VIEW_DURATION = 1000;  // 1 second
+    static final long MIN_VIEW_DURATION = 1000; // 1 second
     private long MAX_CLUSTER_STARTTIME_DURATION_MS = 10000; // todo: revisit this constant of 10 seconds for cluster startup.
 
     static final int MAX_ALIVE_AND_READY_VIEWS = 5;
@@ -54,7 +62,7 @@ public class AliveAndReadyViewWindow {
     private final String currentInstanceName;
 
     // map from JoinedAndReady memberName to its DAS ready members
-    private ConcurrentHashMap<String, SortedSet<String>> joinedAndReadySignalReadyList= new ConcurrentHashMap<String, SortedSet<String>>();
+    private ConcurrentHashMap<String, SortedSet<String>> joinedAndReadySignalReadyList = new ConcurrentHashMap<String, SortedSet<String>>();
 
     private final GMSContext ctx;
 
@@ -83,8 +91,8 @@ public class AliveAndReadyViewWindow {
         jrcallback = new JoinedAndReadyCallBack(null, aliveAndReadyView);
         leaveCallback = new LeaveCallBack(null, aliveAndReadyView);
         currentInstanceName = null;
-        
-         // initialize with a null initial previous and current views
+
+        // initialize with a null initial previous and current views
         aliveAndReadyView.add(new AliveAndReadyViewImpl(new TreeSet<String>(), viewId++));
         aliveAndReadyView.add(new AliveAndReadyViewImpl(new TreeSet<String>(), viewId++));
     }
@@ -101,12 +109,11 @@ public class AliveAndReadyViewWindow {
         }
     }
 
-
     public AliveAndReadyView getPreviousView() {
         AliveAndReadyView result = null;
         synchronized (aliveAndReadyView) {
             int size = aliveAndReadyView.size();
-            assert(size > 2);
+            assert (size > 2);
             if (size >= 2) {
                 result = aliveAndReadyView.get(size - 2);
             } else if (size == 1) {
@@ -131,7 +138,7 @@ public class AliveAndReadyViewWindow {
             if (length > 0) {
                 result = aliveAndReadyView.get(length - 1);
             }
-        }  // return current view when previous join and ready had a short duration and looks like it was part of startup.
+        } // return current view when previous join and ready had a short duration and looks like it was part of startup.
         if (LOG.isLoggable(TRACE_LEVEL)) {
             LOG.log(TRACE_LEVEL, "getCurrentAliveAndReadyView: returning " + result);
         }
@@ -153,11 +160,11 @@ public class AliveAndReadyViewWindow {
 
         public void add(Signal signal, SortedSet<String> members) {
             // complete the current view with signal indicating transition that makes this the previous view.
-            AliveAndReadyViewImpl current = (AliveAndReadyViewImpl)getCurrentView();
+            AliveAndReadyViewImpl current = (AliveAndReadyViewImpl) getCurrentView();
             if (current != null) {
                 current.setSignal(signal);
             }
-            
+
             // create a new current view
             AliveAndReadyView arview = new AliveAndReadyViewImpl(members, viewId++);
             aliveAndReadyView.add(arview);
@@ -174,8 +181,7 @@ public class AliveAndReadyViewWindow {
         }
 
         public void processNotification(Signal signal) {
-            if (signal instanceof PlannedShutdownSignal ||
-                signal instanceof FailureNotificationSignal) {
+            if (signal instanceof PlannedShutdownSignal || signal instanceof FailureNotificationSignal) {
                 synchronized (aliveAndReadyView) {
 
                     // only consider CORE members.
@@ -186,11 +192,11 @@ public class AliveAndReadyViewWindow {
                         assert (result);
                         add(signal, currentMembers);
                         if (signal instanceof PlannedShutdownSignalImpl) {
-                            PlannedShutdownSignalImpl pssig = (PlannedShutdownSignalImpl)signal;
+                            PlannedShutdownSignalImpl pssig = (PlannedShutdownSignalImpl) signal;
                             pssig.setCurrentView(getCurrentView());
                             pssig.setPreviousView(getPreviousView());
                         } else if (signal instanceof FailureNotificationSignalImpl) {
-                            FailureNotificationSignalImpl fsig = (FailureNotificationSignalImpl)signal;
+                            FailureNotificationSignalImpl fsig = (FailureNotificationSignalImpl) signal;
                             fsig.setCurrentView(getCurrentView());
                             fsig.setPreviousView(getPreviousView());
                         }
@@ -206,8 +212,8 @@ public class AliveAndReadyViewWindow {
             super(gh, aliveAndReadyView);
         }
 
-        // todo:  currently allowing non-CORE JoinedAndReady to create a new view.
-        //        since it might have CORE members from DAS,  may need to keep doing this.
+        // todo: currently allowing non-CORE JoinedAndReady to create a new view.
+        // since it might have CORE members from DAS, may need to keep doing this.
         public void processNotification(Signal signal) {
             if (signal instanceof JoinedAndReadyNotificationSignal) {
                 final JoinedAndReadyNotificationSignal jrns = (JoinedAndReadyNotificationSignal) signal;
@@ -247,17 +253,18 @@ public class AliveAndReadyViewWindow {
 
                                 // after group starutp is complete, all clstered instances in cluser will have same previous view of empty members.
                                 AliveAndReadyView previous = getPreviousView();
-                                ((AliveAndReadyViewImpl)previous).clearMembers();
+                                ((AliveAndReadyViewImpl) previous).clearMembers();
                                 if (LOG.isLoggable(TRACE_LEVEL)) {
                                     LOG.log(TRACE_LEVEL, "start cluster has completed, resetting previous view. previous=" + previous);
                                 }
                             }
                         }
-                    } else if (isMySignal(signal)) {  //  && INSTANCE_STARTUP
+                    } else if (isMySignal(signal)) { // && INSTANCE_STARTUP
 
                         // set previous view to be all members in current view minus myself.
                         // typically previous view after a restart is empty view.
-                        // this change is so all clustered instances in cluster have same previous view after a INSTANTCE_STARTUP JoinedAnDReady.
+                        // this change is so all clustered instances in cluster have same previous view after a INSTANTCE_STARTUP
+                        // JoinedAnDReady.
                         AliveAndReadyView previous = getPreviousView();
                         SortedSet<String> previousMembers = new TreeSet<String>(currentMembers);
                         if (rejoin == null) {
@@ -266,15 +273,15 @@ public class AliveAndReadyViewWindow {
                             // this instance should not be in previous view.
                             previousMembers.remove(currentInstanceName);
                         } // else this instance is rejoining group with no failure detection.
-                        // the previous view and current view members are the same for this case.
+                          // the previous view and current view members are the same for this case.
 
-                        ((AliveAndReadyViewImpl)previous).setMembers(previousMembers);
+                        ((AliveAndReadyViewImpl) previous).setMembers(previousMembers);
                         if (LOG.isLoggable(TRACE_LEVEL)) {
                             LOG.log(TRACE_LEVEL, "JoinedAndReady INSTANCE_STARTUP current=" + getCurrentView() + " previous=" + getPreviousView());
                         }
                     }
                     if (jrns instanceof JoinedAndReadyNotificationSignalImpl) {
-                        JoinedAndReadyNotificationSignalImpl jrnsimpl = (JoinedAndReadyNotificationSignalImpl)jrns;
+                        JoinedAndReadyNotificationSignalImpl jrnsimpl = (JoinedAndReadyNotificationSignalImpl) jrns;
                         jrnsimpl.setCurrentView(getCurrentView());
                         jrnsimpl.setPreviousView(getPreviousView());
                     }

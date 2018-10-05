@@ -23,8 +23,7 @@ import com.sun.enterprise.ee.cms.core.JoinNotificationActionFactory;
 /**
  * Reference Implementation of JoinNotificationActionFactory
  *
- * @author Shreedhar Ganapathy
- *         Date: Mar 15, 2005
+ * @author Shreedhar Ganapathy Date: Mar 15, 2005
  * @version $Revision$
  */
 public class JoinNotificationActionFactoryImpl implements JoinNotificationActionFactory {

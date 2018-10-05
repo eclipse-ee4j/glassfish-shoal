@@ -21,8 +21,10 @@ import java.io.IOException;
 /**
  * @author Mahesh Kannan
  */
-public class DataStoreException
-    extends IOException {
+public class DataStoreException extends IOException {
+   
+    private static final long serialVersionUID = 212794329970352801L;
+
     public DataStoreException() {
     }
 

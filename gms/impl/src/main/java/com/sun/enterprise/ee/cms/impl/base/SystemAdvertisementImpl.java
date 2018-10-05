@@ -16,23 +16,22 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
-import java.io.Serializable;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.ArrayList;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
- * This class is a default system advertisement and implements {@link com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement}
- * 
+ * This class is a default system advertisement and implements
+ * {@link com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement}
+ *
  * @author Bongjae Chang
  */
 public class SystemAdvertisementImpl implements SystemAdvertisement {
@@ -220,7 +219,7 @@ public class SystemAdvertisementImpl implements SystemAdvertisement {
 
         for (int i = 0; i < endpoints.size(); i++) {
             try {
-                uriList.add(new URI((String) endpoints.get(i)));
+                uriList.add(new URI(endpoints.get(i)));
             } catch (java.net.URISyntaxException e) {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, "Exception occurred : ", e);
@@ -257,8 +256,7 @@ public class SystemAdvertisementImpl implements SystemAdvertisement {
         return osversion;
     }
 
-    public String getCustomTagValue(final String tagName)
-            throws NoSuchFieldException {
+    public String getCustomTagValue(final String tagName) throws NoSuchFieldException {
         if (customTags != null) {
             return customTags.get(tagName);
         } else {

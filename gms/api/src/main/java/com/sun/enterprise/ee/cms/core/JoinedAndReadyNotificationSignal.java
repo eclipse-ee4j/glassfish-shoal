@@ -19,17 +19,15 @@ package com.sun.enterprise.ee.cms.core;
 import java.util.List;
 
 /**
- * Signal corresponding to JoinedAndReadyNotificationAction. This Signal enables the
- * consumer to get specifics about a join and ready notification. This Signal type
- * will only be passed to a JoinedAndReadyNotificationAction.  This Signal
+ * Signal corresponding to JoinedAndReadyNotificationAction. This Signal enables the consumer to get specifics about a
+ * join and ready notification. This Signal type will only be passed to a JoinedAndReadyNotificationAction. This Signal
  * is delivered to registered GMS Clients on all members of the group.
  *
- * @author Sheetal Vartak
- * Date: Nov 13 2007
+ * @author Sheetal Vartak Date: Nov 13 2007
  */
-public interface JoinedAndReadyNotificationSignal extends Signal,
-    GroupStartupNotificationSignal, RejoinableEvent, AliveAndReadySignal {
-    
+public interface JoinedAndReadyNotificationSignal extends Signal, GroupStartupNotificationSignal, RejoinableEvent, AliveAndReadySignal {
+
     List<String> getCurrentCoreMembers();
+
     List<String> getAllCurrentMembers();
 }

@@ -16,8 +16,8 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-
 import junit.framework.TestCase;
+
 /**
  *
  * @author sdimilla
@@ -31,9 +31,8 @@ public class MessageImplTest extends TestCase {
     static final String key2 = "test_key2";
     static final String value2 = new String("test message2");
 
-    public MessageImplTest( String testName )
-    {
-        super( testName );
+    public MessageImplTest(String testName) {
+        super(testName);
     }
 
     private void mySetUp() {
@@ -64,37 +63,32 @@ public class MessageImplTest extends TestCase {
 
     }
 
-
     public void testGetVersionFromEmptyMessage() {
-                mySetUp();
+        mySetUp();
 
         assertEquals(emptyMessage.getVersion(), 0);
     }
 
-
     public void testGetTypeFromEmptyMessage() {
-                mySetUp();
+        mySetUp();
 
         assertEquals(emptyMessage.getType(), 0);
     }
 
-   
     public void testGetVersion() {
-                mySetUp();
+        mySetUp();
 
         assertEquals(message.getVersion(), 1);
     }
 
-    
     public void testGetType() {
-                mySetUp();
+        mySetUp();
 
         // tested in testInitialMessage() above
     }
 
- 
     public void testGetStringType() {
-                mySetUp();
+        mySetUp();
 
         assertEquals(MessageImpl.getStringType(Message.TYPE_CLUSTER_MANAGER_MESSAGE), "CLUSTER_MANAGER_MESSAGE");
         assertEquals(MessageImpl.getStringType(Message.TYPE_HEALTH_MONITOR_MESSAGE), "HEALTH_MONITOR_MESSAGE");
@@ -108,9 +102,9 @@ public class MessageImplTest extends TestCase {
     /**
      * Test of getPlainBytes()
      */
-   
+
     public void testGetPlainBytes() {
-                mySetUp();
+        mySetUp();
 
         Message message2 = new MessageImpl();
         try {
@@ -134,9 +128,9 @@ public class MessageImplTest extends TestCase {
     /**
      * Test of remove message from bytes()
      */
-    
+
     public void testRemoveFromBytes() {
-                mySetUp();
+        mySetUp();
 
         message.removeMessageElement(key2);
         assertNull(message.getMessageElement(key2));
@@ -154,9 +148,9 @@ public class MessageImplTest extends TestCase {
     /**
      * Test of remove message from bytes()
      */
-    
+
     public void testMessageFromByteBuffer() {
-                mySetUp();
+        mySetUp();
 
         try {
             byte[] plainByteBuffer = message.getPlainByteBuffer().array();
@@ -179,9 +173,9 @@ public class MessageImplTest extends TestCase {
     /**
      * Test of remove message from bytes()
      */
-   
+
     public void testRemoveFromByteBuffer() {
-                mySetUp();
+        mySetUp();
 
         message.removeMessageElement(key1);
         assertNull(message.getMessageElement(key1));
@@ -200,11 +194,11 @@ public class MessageImplTest extends TestCase {
     /**
      * Test of remove message from bytes()
      */
-   
-    public void testAddLargeAppMessage() {
-                mySetUp();
 
-        message.addMessageElement("APPMESSAGE", new byte[MessageImpl.getMaxMessageLength()+1]);
+    public void testAddLargeAppMessage() {
+        mySetUp();
+
+        message.addMessageElement("APPMESSAGE", new byte[MessageImpl.getMaxMessageLength() + 1]);
         try {
             byte[] plainByteBuffer = message.getPlainByteBuffer().array();
             Message message6 = new MessageImpl();

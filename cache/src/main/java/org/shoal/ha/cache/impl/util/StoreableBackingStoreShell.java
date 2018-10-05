@@ -16,17 +16,26 @@
 
 package org.shoal.ha.cache.impl.util;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStoreException;
 import org.glassfish.ha.store.api.Storeable;
 import org.shoal.adapter.store.ReplicatedBackingStoreFactory;
-import org.shoal.ha.mapper.DefaultKeyMapper;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Mahesh Kannan
@@ -39,19 +48,14 @@ public class StoreableBackingStoreShell {
 
     int counter = 0;
 
-    public static void main(String[] args)
-        throws Exception {
+    public static void main(String[] args) throws Exception {
 
         BackingStoreConfiguration<String, MyStoreable> conf = new BackingStoreConfiguration<String, MyStoreable>();
-        conf.setStoreName(args[0])
-                .setInstanceName(args[1])
-                .setClusterName(args[2])
-                .setKeyClazz(String.class)
-                .setValueClazz(MyStoreable.class)
+        conf.setStoreName(args[0]).setInstanceName(args[1]).setClusterName(args[2]).setKeyClazz(String.class).setValueClazz(MyStoreable.class)
                 .setClassLoader(ClassLoader.getSystemClassLoader());
         Map<String, Object> map = conf.getVendorSpecificSettings();
         map.put("start.gms", true);
-        //map.put("local.caching", true);
+        // map.put("local.caching", true);
         map.put("class.loader", ClassLoader.getSystemClassLoader());
         map.put("async.replication", true);
         BackingStore<String, MyStoreable> ds = (new ReplicatedBackingStoreFactory()).createBackingStore(conf);
@@ -81,7 +85,7 @@ public class StoreableBackingStoreShell {
                     execute(command, params);
                     counter++;
                 }
-            } catch (IOException  ioEx) {
+            } catch (IOException ioEx) {
                 ioEx.printStackTrace();
             } catch (BackingStoreException bsEx) {
                 bsEx.printStackTrace();
@@ -95,29 +99,17 @@ public class StoreableBackingStoreShell {
         System.out.flush();
     }
 
-    private void execute(String command, String[] params)
-        throws BackingStoreException {
+    private void execute(String command, String[] params) throws BackingStoreException {
 
         if ("put".equalsIgnoreCase(command)) {
             String key = params[0];
             /*
-            MyStoreable st = cache.get(key);
-                if (st == null) {
-                    st = new MyStoreable();
-                    cache.put(key, st);
-                }
-                if (params.length > 1) {
-                    st.setStr1(params[1]);
-                }
-                if (params.length > 2) {
-                    st.setStr2(params[2]);
-                }
-                st.touch();
-
-                System.out.println("PUT " + st);
-                ds.save(key, st, true);
-            */
-            for (int i=0; i<8; i++) {
+             * MyStoreable st = cache.get(key); if (st == null) { st = new MyStoreable(); cache.put(key, st); } if (params.length >
+             * 1) { st.setStr1(params[1]); } if (params.length > 2) { st.setStr2(params[2]); } st.touch();
+             *
+             * System.out.println("PUT " + st); ds.save(key, st, true);
+             */
+            for (int i = 0; i < 8; i++) {
                 String key1 = params[0] + ":" + i;
                 MyStoreable st1 = cache.get(key1);
                 if (st1 == null) {
@@ -135,7 +127,7 @@ public class StoreableBackingStoreShell {
                 String replica = ds.save(key1, st1, true);
                 System.out.println("PUT key = " + key1 + " : " + st1 + " ==> " + replica);
             }
-            
+
         } else if ("get".equalsIgnoreCase(command)) {
             MyStoreable st = ds.load(params[0], params.length > 1 ? params[1] : null);
             System.out.println("get(" + params[0] + ") => " + st);
@@ -150,35 +142,24 @@ public class StoreableBackingStoreShell {
             System.out.println("Result of touch: " + result);
         } else if ("remove".equalsIgnoreCase(command)) {
             ds.remove(params[0]);
-        } /* else if ("list-backing-store-config".equalsIgnoreCase(command)) {
-            ReplicationFramework framework = ds.getFramework();
-            ListBackingStoreConfigurationCommand cmd = new ListBackingStoreConfigurationCommand();
-            try {
-                framework.execute(cmd);
-                ArrayList<String> confs = cmd.getResult(6, TimeUnit.SECONDS);
-                for (String str : confs) {
-                    System.out.println(str);
-                }
-            } catch (DataStoreException dse) {
-                System.err.println(dse);
-            }
-        } else if ("list-entries".equalsIgnoreCase(command)) {
-            ReplicationFramework framework = ds.getFramework();
-            ListReplicaStoreEntriesCommand cmd = new ListReplicaStoreEntriesCommand(params[0]);
-            try {
-                framework.execute(cmd);
-                ArrayList<String> confs = cmd.getResult(6, TimeUnit.SECONDS);
-                for (String str : confs) {
-                    System.out.println(str);
-                }
-            } catch (DataStoreException dse) {
-                System.err.println(dse);
-            }
-        } */
+        } /*
+           * else if ("list-backing-store-config".equalsIgnoreCase(command)) { ReplicationFramework framework = ds.getFramework();
+           * ListBackingStoreConfigurationCommand cmd = new ListBackingStoreConfigurationCommand(); try { framework.execute(cmd);
+           * ArrayList<String> confs = cmd.getResult(6, TimeUnit.SECONDS); for (String str : confs) { System.out.println(str); } }
+           * catch (DataStoreException dse) { System.err.println(dse); } } else if ("list-entries".equalsIgnoreCase(command)) {
+           * ReplicationFramework framework = ds.getFramework(); ListReplicaStoreEntriesCommand cmd = new
+           * ListReplicaStoreEntriesCommand(params[0]); try { framework.execute(cmd); ArrayList<String> confs = cmd.getResult(6,
+           * TimeUnit.SECONDS); for (String str : confs) { System.out.println(str); } } catch (DataStoreException dse) {
+           * System.err.println(dse); } }
+           */
     }
 
-    public static class MyStoreable
-        implements Storeable {
+    public static class MyStoreable implements Storeable {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = 6878799840494060076L;
 
         long version;
 
@@ -208,10 +189,8 @@ public class StoreableBackingStoreShell {
         }
 
         public void setStr1(String str1) {
-            boolean same = str1 != null
-                            ? str1.equals(this.str1)
-                            : this.str1 == null;
-            if (! same) {
+            boolean same = str1 != null ? str1.equals(this.str1) : this.str1 == null;
+            if (!same) {
                 this.str1 = str1;
                 dirty[0] = true;
             }
@@ -222,10 +201,8 @@ public class StoreableBackingStoreShell {
         }
 
         public void setStr2(String str2) {
-            boolean same = str2 != null
-                            ? str2.equals(this.str2)
-                            : this.str2 == null;
-            if (! same) {
+            boolean same = str2 != null ? str2.equals(this.str2) : this.str2 == null;
+            if (!same) {
                 this.str2 = str2;
                 dirty[1] = true;
             }
@@ -258,7 +235,7 @@ public class StoreableBackingStoreShell {
 
         @Override
         public String[] _storeable_getAttributeNames() {
-            return new String[] {"str1", "str2"};
+            return new String[] { "str1", "str2" };
         }
 
         @Override
@@ -286,7 +263,11 @@ public class StoreableBackingStoreShell {
                     }
                 }
             } finally {
-                try {dos.flush(); dos.close(); } catch (IOException ex) {}
+                try {
+                    dos.flush();
+                    dos.close();
+                } catch (IOException ex) {
+                }
             }
         }
 
@@ -316,20 +297,17 @@ public class StoreableBackingStoreShell {
                     }
                 }
             } finally {
-                try {dis.close(); } catch (IOException ex) {}
+                try {
+                    dis.close();
+                } catch (IOException ex) {
+                }
             }
         }
 
         @Override
         public String toString() {
-            return "MyStoreable{" +
-                    "version=" + version +
-                    ", accessTime=" + accessTime +
-                    ", maxIdleTime=" + maxIdleTime +
-                    ", str1='" + str1 + '\'' +
-                    ", str2='" + str2 + '\'' +
-                    ", dirty=" + Arrays.toString(dirty) +
-                    '}';
+            return "MyStoreable{" + "version=" + version + ", accessTime=" + accessTime + ", maxIdleTime=" + maxIdleTime + ", str1='" + str1 + '\'' + ", str2='"
+                    + str2 + '\'' + ", dirty=" + Arrays.toString(dirty) + '}';
         }
     }
 }

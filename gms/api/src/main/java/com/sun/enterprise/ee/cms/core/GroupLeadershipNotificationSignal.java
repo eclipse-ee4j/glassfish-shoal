@@ -19,10 +19,9 @@ package com.sun.enterprise.ee.cms.core;
 import java.util.List;
 
 /**
- * Signal corresponding to GroupLeadershipNotificationAction. This Signal enables the
- * consumer to get specifics about a GroupLeadership notification. This Signal type
- * will only be passed to a GroupLeadershipNotificationAction.  This Signal
- * is delivered to registered GMS Clients on all members of the group.
+ * Signal corresponding to GroupLeadershipNotificationAction. This Signal enables the consumer to get specifics about a
+ * GroupLeadership notification. This Signal type will only be passed to a GroupLeadershipNotificationAction. This
+ * Signal is delivered to registered GMS Clients on all members of the group.
  *
  * @author Bongjae Chang
  */
@@ -40,7 +39,7 @@ public interface GroupLeadershipNotificationSignal extends Signal {
      * @return List containing the list of <code>GMSMember</code>s which are corresponding to the view
      */
     List<GMSMember> getCurrentView();
-    
+
     /**
      * provides a list of all live and current CORE designated members.
      *

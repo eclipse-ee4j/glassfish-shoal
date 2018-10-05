@@ -16,21 +16,23 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.util.CommandResponse;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-
 import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.util.CommandResponse;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+
 /**
  * @author Mahesh Kannan
  */
-public abstract class AcknowledgedCommand<K, V>
-        extends Command<K, V> {
+public abstract class AcknowledgedCommand<K, V> extends Command<K, V> {
+
+   
+    private static final long serialVersionUID = -4027862351560585449L;
 
     private transient CommandResponse resp;
 
@@ -58,15 +60,13 @@ public abstract class AcknowledgedCommand<K, V>
 
     protected void sendAcknowledgement() {
         try {
-            dsc.getCommandManager().execute(
-                    new SimpleAckCommand<K, V>(originatingInstance, tokenId));
+            dsc.getCommandManager().execute(new SimpleAckCommand<K, V>(originatingInstance, tokenId));
         } catch (DataStoreException dse) {
-            //TODO: But can safely ignore
+            // TODO: But can safely ignore
         }
     }
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeBoolean(dsc.isDoSynchronousReplication());
 
         if (dsc.isDoSynchronousReplication()) {
@@ -75,8 +75,7 @@ public abstract class AcknowledgedCommand<K, V>
         }
     }
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 
         boolean doSync = in.readBoolean();
         if (doSync) {
@@ -104,8 +103,7 @@ public abstract class AcknowledgedCommand<K, V>
         }
     }
 
-    private void waitForAck()
-        throws DataStoreException, TimeoutException {
+    private void waitForAck() throws DataStoreException, TimeoutException {
         try {
             future.get(3, TimeUnit.SECONDS);
         } catch (TimeoutException tEx) {

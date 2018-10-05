@@ -16,11 +16,10 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import com.sun.enterprise.mgmt.transport.Message;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.Grizzly;
 import org.glassfish.grizzly.attributes.Attribute;
@@ -28,19 +27,20 @@ import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 
+import com.sun.enterprise.mgmt.transport.Message;
+
 /**
  * Message dispatcher Filter.
- * 
+ *
  * @author Alexey Stashok
  */
 public class MessageDispatcherFilter extends BaseFilter {
-    private final Attribute<Map<String, Connection>> piggyBackAttribute =
-            Grizzly.DEFAULT_ATTRIBUTE_BUILDER.createAttribute(
-            MessageDispatcherFilter.class.getName() + ".piggyBack");
+    private final Attribute<Map<String, Connection>> piggyBackAttribute = Grizzly.DEFAULT_ATTRIBUTE_BUILDER
+            .createAttribute(MessageDispatcherFilter.class.getName() + ".piggyBack");
 
     private final GrizzlyNetworkManager2 networkManager;
 
-    public MessageDispatcherFilter( GrizzlyNetworkManager2 networkManager ) {
+    public MessageDispatcherFilter(GrizzlyNetworkManager2 networkManager) {
         this.networkManager = networkManager;
     }
 
@@ -55,9 +55,9 @@ public class MessageDispatcherFilter extends BaseFilter {
             piggyBack.put(GrizzlyNetworkManager2.MESSAGE_CONNECTION_TAG, connection);
             piggyBackAttribute.set(connection, piggyBack);
         }
-        
+
         networkManager.receiveMessage(message, piggyBack);
-        
+
         return ctx.getInvokeAction();
     }
 }

@@ -17,9 +17,6 @@
 package com.sun.enterprise.mgmt.transport.grizzly;
 
 import java.lang.reflect.Method;
-import java.nio.channels.DatagramChannel;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.util.logging.Logger;
 
 /**
@@ -27,9 +24,10 @@ import java.util.logging.Logger;
  */
 public class GrizzlyUtil {
 
-    private static final boolean IS_SUPPORT_NIO_MULTICAST = ( getNIOMulticastMethod() != null );
+    private static final boolean IS_SUPPORT_NIO_MULTICAST = (getNIOMulticastMethod() != null);
 
     private static Logger logger = Logger.getLogger("org.glassfish.grizzly");
+
     private GrizzlyUtil() {
     }
 
@@ -48,8 +46,8 @@ public class GrizzlyUtil {
             // See Glassfish issue 16173 for details.
 
             // uncomment next line to enable using JDK 7 NIO multicast when it is available.
-            //method = DatagramChannel.class.getMethod( "join", InetAddress.class, NetworkInterface.class );
-        } catch( Throwable t ) {
+            // method = DatagramChannel.class.getMethod( "join", InetAddress.class, NetworkInterface.class );
+        } catch (Throwable t) {
             method = null;
         }
         return method;

@@ -18,7 +18,6 @@ package org.glassfish.ha.store.api;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -218,21 +217,10 @@ public class BackingStoreConfiguration<K extends Serializable, V extends Seriali
 
     @Override
     public String toString() {
-        return "BackingStoreConfiguration{" +
-                "clusterName='" + clusterName + '\'' +
-                ", instanceName='" + instanceName + '\'' +
-                ", storeName='" + storeName + '\'' +
-                ", shortUniqueName='" + shortUniqueName + '\'' +
-                ", storeType='" + storeType + '\'' +
-                ", maxIdleTimeInSeconds=" + maxIdleTimeInSeconds +
-                ", relaxVersionCheck='" + relaxVersionCheck + '\'' +
-                ", maxLoadWaitTimeInSeconds=" + maxLoadWaitTimeInSeconds +
-                ", baseDirectoryName='" + baseDirectory + '\'' +
-                ", keyClazz=" + keyClazz +
-                ", valueClazz=" + valueClazz +
-                ", synchronousSave=" + synchronousSave +
-                ", typicalPayloadSizeInKiloBytes=" + typicalPayloadSizeInKiloBytes +
-                ", vendorSpecificSettings=" + vendorSpecificSettings +
-                '}';
+        return "BackingStoreConfiguration{" + "clusterName='" + clusterName + '\'' + ", instanceName='" + instanceName + '\'' + ", storeName='" + storeName
+                + '\'' + ", shortUniqueName='" + shortUniqueName + '\'' + ", storeType='" + storeType + '\'' + ", maxIdleTimeInSeconds=" + maxIdleTimeInSeconds
+                + ", relaxVersionCheck='" + relaxVersionCheck + '\'' + ", maxLoadWaitTimeInSeconds=" + maxLoadWaitTimeInSeconds + ", baseDirectoryName='"
+                + baseDirectory + '\'' + ", keyClazz=" + keyClazz + ", valueClazz=" + valueClazz + ", synchronousSave=" + synchronousSave
+                + ", typicalPayloadSizeInKiloBytes=" + typicalPayloadSizeInKiloBytes + ", vendorSpecificSettings=" + vendorSpecificSettings + '}';
     }
 }

@@ -16,8 +16,8 @@
 
 package com.sun.enterprise.ee.cms.impl.client;
 
-import com.sun.enterprise.ee.cms.core.CallBack;
 import com.sun.enterprise.ee.cms.core.Action;
+import com.sun.enterprise.ee.cms.core.CallBack;
 import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationActionFactory;
 
 /**
@@ -29,7 +29,7 @@ public class GroupLeadershipNotificationActionFactoryImpl implements GroupLeader
 
     private final CallBack callBack;
 
-    public GroupLeadershipNotificationActionFactoryImpl( final CallBack callBack ) {
+    public GroupLeadershipNotificationActionFactoryImpl(final CallBack callBack) {
         this.callBack = callBack;
     }
 
@@ -39,6 +39,6 @@ public class GroupLeadershipNotificationActionFactoryImpl implements GroupLeader
      * @return com.sun.enterprise.ee.cms.Action
      */
     public Action produceAction() {
-        return new GroupLeadershipNotificationActionImpl( callBack );
+        return new GroupLeadershipNotificationActionImpl(callBack);
     }
 }

@@ -16,8 +16,6 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -42,6 +40,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
  * Utility class that can be used by any calling code to do common routines about Network I/O
  *
@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  */
 public class NetworkUtility {
 
-    private static final Logger LOG = GMSLogDomain.getLogger( GMSLogDomain.GMS_LOGGER );
+    private static final Logger LOG = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
     public static final String IPV4ANYADDRESS = "0.0.0.0";
     public static final String IPV6ANYADDRESS = "::";
@@ -82,46 +82,50 @@ public class NetworkUtility {
 
         InetAddress GET_ADDRESS = null;
         try {
-            GET_ADDRESS = InetAddress.getByName( IPV4ANYADDRESS );
-        } catch( Exception ignored ) {
-            if( LOG.isLoggable( Level.FINE ) )
-                LOG.log( Level.FINE, "failed to intialize ANYADDRESSV4. Not fatal", ignored );
+            GET_ADDRESS = InetAddress.getByName(IPV4ANYADDRESS);
+        } catch (Exception ignored) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "failed to intialize ANYADDRESSV4. Not fatal", ignored);
+            }
         }
         ANYADDRESSV4 = GET_ADDRESS;
 
         GET_ADDRESS = null;
         try {
-            GET_ADDRESS = InetAddress.getByName( IPV6ANYADDRESS );
-        } catch( Exception ignored ) {
-            if( LOG.isLoggable( Level.FINE ) )
-                LOG.log( Level.FINE, "failed to intialize IPV6ANYADDRESS. Not fatal", ignored );
+            GET_ADDRESS = InetAddress.getByName(IPV6ANYADDRESS);
+        } catch (Exception ignored) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "failed to intialize IPV6ANYADDRESS. Not fatal", ignored);
+            }
         }
         ANYADDRESSV6 = GET_ADDRESS;
 
-        ANYADDRESS = ( ANYADDRESSV4 == null || preferIPv6Addresses) ? ANYADDRESSV6 : ANYADDRESSV4;
+        ANYADDRESS = (ANYADDRESSV4 == null || preferIPv6Addresses) ? ANYADDRESSV6 : ANYADDRESSV4;
 
         GET_ADDRESS = null;
         try {
-            GET_ADDRESS = InetAddress.getByName( IPV4LOOPBACK );
-        } catch( Exception ignored ) {
-            if( LOG.isLoggable( Level.FINE ) )
-                LOG.log( Level.FINE, "failed to intialize IPV4LOOPBACK. Not fatal", ignored );
+            GET_ADDRESS = InetAddress.getByName(IPV4LOOPBACK);
+        } catch (Exception ignored) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "failed to intialize IPV4LOOPBACK. Not fatal", ignored);
+            }
         }
         LOOPBACKV4 = GET_ADDRESS;
 
         GET_ADDRESS = null;
         try {
-            GET_ADDRESS = InetAddress.getByName( IPV6LOOPBACK );
-        } catch( Exception ignored ) {
-            if( LOG.isLoggable( Level.FINE ) )
-                LOG.log( Level.FINE, "failed to intialize ANYADDRESSV4. Not fatal", ignored );
+            GET_ADDRESS = InetAddress.getByName(IPV6LOOPBACK);
+        } catch (Exception ignored) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "failed to intialize ANYADDRESSV4. Not fatal", ignored);
+            }
         }
         LOOPBACKV6 = GET_ADDRESS;
 
-        LOOPBACK = ( LOOPBACKV4 == null || preferIPv6Addresses) ? LOOPBACKV6 : LOOPBACKV4;
+        LOOPBACK = (LOOPBACKV4 == null || preferIPv6Addresses) ? LOOPBACKV6 : LOOPBACKV4;
 
-        if( LOOPBACK == null || ANYADDRESS == null ) {
-            throw new IllegalStateException( "failure initializing statics. Neither IPV4 nor IPV6 seem to work" );
+        if (LOOPBACK == null || ANYADDRESS == null) {
+            throw new IllegalStateException("failure initializing statics. Neither IPV4 nor IPV6 seem to work");
         }
     }
 
@@ -132,71 +136,78 @@ public class NetworkUtility {
     static {
         // JDK 1.6
         try {
-            isLoopbackMethod = NetworkInterface.class.getMethod( "isLoopback" );
-        } catch( Throwable t ) {
+            isLoopbackMethod = NetworkInterface.class.getMethod("isLoopback");
+        } catch (Throwable t) {
             isLoopbackMethod = null;
         }
         try {
-            isUpMethod = NetworkInterface.class.getMethod( "isUp" );
-        } catch( Throwable t ) {
+            isUpMethod = NetworkInterface.class.getMethod("isUp");
+        } catch (Throwable t) {
             isUpMethod = null;
         }
         try {
-            supportsMulticastMethod = NetworkInterface.class.getMethod( "supportsMulticast" );
-        } catch( Throwable t ) {
+            supportsMulticastMethod = NetworkInterface.class.getMethod("supportsMulticast");
+        } catch (Throwable t) {
             supportsMulticastMethod = null;
         }
         String vendor = System.getProperty("java.vendor");
-        IS_AIX_JDK = vendor == null ? false  : vendor.startsWith("IBM");
+        IS_AIX_JDK = vendor == null ? false : vendor.startsWith("IBM");
     }
 
     /**
-     * Returns all local addresses except for lookback and any local address
-     * But, if any addresses were not found locally, the lookback is added to the list.
+     * Returns all local addresses except for lookback and any local address But, if any addresses were not found locally,
+     * the lookback is added to the list.
      *
      * @return List which contains available addresses locally
      */
     public static List<InetAddress> getAllLocalAddresses() {
-        if( allLocalAddresses != null )
+        if (allLocalAddresses != null) {
             return allLocalAddresses;
+        }
         List<InetAddress> allAddr = new ArrayList<InetAddress>();
         Enumeration<NetworkInterface> allInterfaces = null;
         try {
             allInterfaces = NetworkInterface.getNetworkInterfaces();
-        } catch( SocketException t ) {
-            if( LOG.isLoggable( Level.INFO ) )
-                LOG.log( Level.INFO, "Could not get local interfaces' list", t );
+        } catch (SocketException t) {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "Could not get local interfaces' list", t);
+            }
         }
 
-        if( allInterfaces == null )
-            allInterfaces = Collections.enumeration( Collections.<NetworkInterface>emptyList() );
+        if (allInterfaces == null) {
+            allInterfaces = Collections.enumeration(Collections.<NetworkInterface>emptyList());
+        }
 
-        while( allInterfaces.hasMoreElements() ) {
+        while (allInterfaces.hasMoreElements()) {
             NetworkInterface anInterface = allInterfaces.nextElement();
             try {
                 if (!isUp(anInterface)) {
                     continue;
                 }
                 Enumeration<InetAddress> allIntfAddr = anInterface.getInetAddresses();
-                while( allIntfAddr.hasMoreElements() ) {
+                while (allIntfAddr.hasMoreElements()) {
                     InetAddress anAddr = allIntfAddr.nextElement();
-                    if( anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress() )
+                    if (anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress()) {
                         continue;
-                    if( !allAddr.contains( anAddr ) ) {
-                        allAddr.add( anAddr );
+                    }
+                    if (!allAddr.contains(anAddr)) {
+                        allAddr.add(anAddr);
                     }
                 }
-            } catch( Throwable t ) {
-                if( LOG.isLoggable( Level.INFO ) )
-                    LOG.log( Level.INFO, "Could not get addresses for " + anInterface, t );
+            } catch (Throwable t) {
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.log(Level.INFO, "Could not get addresses for " + anInterface, t);
+                }
             }
         }
 
-        if( allAddr.isEmpty() ) {
-            if( LOOPBACKV4 != null )
-                allAddr.add( LOOPBACKV4 );
-            if( LOOPBACKV6 != null )
-                allAddr.add( LOOPBACKV6 );
+        if (allAddr.isEmpty()) {
+            if (LOOPBACKV4 != null) {
+                allAddr.add(LOOPBACKV4);
+            }
+            if (LOOPBACKV6 != null) {
+                allAddr.add(LOOPBACKV6);
+            }
         }
         allLocalAddresses = allAddr;
         return allLocalAddresses;
@@ -219,11 +230,11 @@ public class NetworkUtility {
     }
 
     /**
-     * Return a first network interface except for the lookback
-     * But, if any network interfaces were not found locally, the lookback interface is returned.
+     * Return a first network interface except for the lookback But, if any network interfaces were not found locally, the
+     * lookback interface is returned.
      *
      * @param preferIPv6 flag to indicate if IPV6 is preferred
-     * 
+     *
      * @return a first network interface
      * @throws IOException if an I/O error occurs or a network interface was not found
      */
@@ -232,16 +243,16 @@ public class NetworkUtility {
         NetworkInterface firstInterface = null;
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
-        // only consider network interface that supports preferred ipv address format. (either IPv4 or IPv6.  default is IPv4)
-        while( interfaces != null && interfaces.hasMoreElements() ) {
+        // only consider network interface that supports preferred ipv address format. (either IPv4 or IPv6. default is IPv4)
+        while (interfaces != null && interfaces.hasMoreElements()) {
             NetworkInterface anInterface = interfaces.nextElement();
-            if( isLoopbackNetworkInterface( anInterface ) ) {
+            if (isLoopbackNetworkInterface(anInterface)) {
                 loopback = anInterface;
                 continue;
             }
 
             // favor supports multicast the first time through.
-            if( isUp(anInterface) && supportsMulticast(anInterface) ) {
+            if (isUp(anInterface) && supportsMulticast(anInterface)) {
                 if (getNetworkInetAddress(anInterface, preferIPv6) != null) {
                     firstInterface = anInterface;
                     break;
@@ -249,17 +260,17 @@ public class NetworkUtility {
             }
         }
 
-        if (firstInterface == null ){
-            // only consider network interface that supports preferred ipv address format. (either IPv4 or IPv6.  default is IPv4)
-            while( interfaces != null && interfaces.hasMoreElements() ) {
+        if (firstInterface == null) {
+            // only consider network interface that supports preferred ipv address format. (either IPv4 or IPv6. default is IPv4)
+            while (interfaces != null && interfaces.hasMoreElements()) {
                 NetworkInterface anInterface = interfaces.nextElement();
-                if( isLoopbackNetworkInterface( anInterface ) ) {
+                if (isLoopbackNetworkInterface(anInterface)) {
                     loopback = anInterface;
                     continue;
                 }
 
                 // do not require multicast this pass through.
-                if( isUp(anInterface) ) {
+                if (isUp(anInterface)) {
                     if (getNetworkInetAddress(anInterface, preferIPv6) != null) {
                         firstInterface = anInterface;
                         break;
@@ -271,16 +282,16 @@ public class NetworkUtility {
         // loop through network interfaces one last time, just look for network interfaces with !preferIPv6 this time.
         if (firstInterface == null) {
             interfaces = NetworkInterface.getNetworkInterfaces();
-            while( interfaces != null && interfaces.hasMoreElements() ) {
+            while (interfaces != null && interfaces.hasMoreElements()) {
                 NetworkInterface anInterface = interfaces.nextElement();
-                if( isLoopbackNetworkInterface( anInterface ) ) {
+                if (isLoopbackNetworkInterface(anInterface)) {
                     loopback = anInterface;
                     continue;
                 }
 
                 // replaced isMulticast() check with just an isUp() check.
                 // Definitely not correct for non-multicast mode to not allow non-multicast network interfaces.
-                if( isUp(anInterface)) {
+                if (isUp(anInterface)) {
                     if (getNetworkInetAddress(anInterface, !preferIPv6) != null) {
                         firstInterface = anInterface;
                         break;
@@ -288,10 +299,11 @@ public class NetworkUtility {
                 }
             }
         }
-        if( firstInterface == null )
+        if (firstInterface == null) {
             firstInterface = loopback;
-        if( firstInterface == null ) {
-            throw new IOException( "failed to find a network interface" );
+        }
+        if (firstInterface == null) {
+            throw new IOException("failed to find a network interface");
         } else {
             if (LOG.isLoggable(Level.FINE)) {
                 InetAddress firstAddress = getNetworkInetAddress(firstInterface, preferIPv6);
@@ -308,7 +320,8 @@ public class NetworkUtility {
         InetAddress result = null;
         try {
             result = InetAddress.getLocalHost();
-        } catch (UnknownHostException ignore) {}
+        } catch (UnknownHostException ignore) {
+        }
         return result;
     }
 
@@ -321,7 +334,7 @@ public class NetworkUtility {
                 result = Boolean.parseBoolean(propValue);
             } catch (Throwable t) {
                 if (LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "netutil.invalidPreferIPv6Addresses", new Object[]{t.getLocalizedMessage()});
+                    LOG.log(Level.WARNING, "netutil.invalidPreferIPv6Addresses", new Object[] { t.getLocalizedMessage() });
                     LOG.log(Level.WARNING, "stack trace", t);
                 }
             } finally {
@@ -335,14 +348,15 @@ public class NetworkUtility {
     }
 
     /**
-     * Return a first <code>InetAddress</code> of the first network interface
-     * check java property java.net.preferIPv6Addresses for whether to favor IPv4 or IPv6.  (java default is to favor IPv4 addresses)
-     * If unable to find a valid network interface, then fallback to trying to get localhost address as last resort.
+     * Return a first <code>InetAddress</code> of the first network interface check java property
+     * java.net.preferIPv6Addresses for whether to favor IPv4 or IPv6. (java default is to favor IPv4 addresses) If unable
+     * to find a valid network interface, then fallback to trying to get localhost address as last resort.
      *
      * @return a first found <code>InetAddress</code>.
      * @throws IOException if an I/O error occurs or a network interface was not found
      */
-    public static InetAddress getFirstInetAddress() throws IOException {            // check JDK defined property for whether to generate IPv4 or IPv6 addresses.  Default is ipv4.celtics
+    public static InetAddress getFirstInetAddress() throws IOException { // check JDK defined property for whether to generate IPv4 or IPv6 addresses. Default
+                                                                         // is ipv4.celtics
         boolean preferIPv6Addrs = getPreferIpv6Addresses();
         InetAddress firstInetAddress = NetworkUtility.getFirstInetAddress(preferIPv6Addrs);
         if (firstInetAddress == null) {
@@ -364,45 +378,44 @@ public class NetworkUtility {
     }
 
     /**
-     * Return a first <code>InetAddress</code> of the first network interface
-     * But, if any network interfaces were not found locally, <code>null</code> could be returned.
+     * Return a first <code>InetAddress</code> of the first network interface But, if any network interfaces were not found
+     * locally, <code>null</code> could be returned.
      *
      * @param preferIPv6 if true, prefer IPv6 InetAddress. otherwise prefer IPv4 InetAddress
      * @return a first found <code>InetAddress</code>.
      * @throws IOException if an I/O error occurs or a network interface was not found
      */
-    public static InetAddress getFirstInetAddress( boolean preferIPv6 ) throws IOException {
+    public static InetAddress getFirstInetAddress(boolean preferIPv6) throws IOException {
 //        LOG.info("enter getFirstInetAddress preferIPv6=" + preferIPv6);
-        if( preferIPv6 && firstInetAddressV6 != null ) {
+        if (preferIPv6 && firstInetAddressV6 != null) {
 //            LOG.info("exit getFirstInetAddress cached ipv6 result=" + firstInetAddressV6);
             return firstInetAddressV6;
-        }
-        else if( !preferIPv6 && firstInetAddressV4 != null ) {
+        } else if (!preferIPv6 && firstInetAddressV4 != null) {
 //            LOG.info("exit getFirstInetAddress cached ipv4 result=" + firstInetAddressV4);
             return firstInetAddressV4;
         }
         NetworkInterface anInterface = getFirstNetworkInterface(preferIPv6);
 //        LOG.info("getFirstInetAddress: first network interface=" + anInterface);
         if (anInterface == null) {
-           if (preferIPv6 && firstInetAddressV6 != null ) {
-               return firstInetAddressV6;
-           } else {
-               return firstInetAddressV4;
-           }
+            if (preferIPv6 && firstInetAddressV6 != null) {
+                return firstInetAddressV6;
+            } else {
+                return firstInetAddressV4;
+            }
         } else {
             return getNetworkInetAddress(anInterface, preferIPv6);
         }
     }
 
     /**
-        * Return a first <code>InetAddress</code> of network interface
-        * But, if any network interfaces were not found locally, <code>null</code> could be returned.
-        *
-        * @param anInterface the type of network interface
-        * @param preferIPv6 if true, prefer IPv6 InetAddress. otherwise prefer IPv4 InetAddress
-        * @return a first found <code>InetAddress</code>.
-        * @throws IOException if an I/O error occurs or a network interface was not found
-        */
+     * Return a first <code>InetAddress</code> of network interface But, if any network interfaces were not found locally,
+     * <code>null</code> could be returned.
+     *
+     * @param anInterface the type of network interface
+     * @param preferIPv6 if true, prefer IPv6 InetAddress. otherwise prefer IPv4 InetAddress
+     * @return a first found <code>InetAddress</code>.
+     * @throws IOException if an I/O error occurs or a network interface was not found
+     */
     public static InetAddress getNetworkInetAddress(NetworkInterface anInterface, boolean preferIPv6) throws IOException {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("enter getNetworkInetAddress networkInterface=" + anInterface + " preferIPv6=" + preferIPv6);
@@ -417,16 +430,17 @@ public class NetworkUtility {
         while (allIntfAddr.hasMoreElements()) {
             InetAddress anAddr = allIntfAddr.nextElement();
 //            LOG.info("getNetworkInetAddress: anAddr=" + anAddr);
-            // allow loopback address.  only work on a single machine. used for development.
-            //if( anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress() )
-            //    continue;
+            // allow loopback address. only work on a single machine. used for development.
+            // if( anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress() )
+            // continue;
             if (firstInetAddressV6 == null && anAddr instanceof Inet6Address) {
                 firstInetAddressV6 = anAddr;
             } else if (firstInetAddressV4 == null && anAddr instanceof Inet4Address) {
                 firstInetAddressV4 = anAddr;
             }
-            if (firstInetAddressV6 != null && firstInetAddressV4 != null)
+            if (firstInetAddressV6 != null && firstInetAddressV4 != null) {
                 break;
+            }
         }
         if (preferIPv6 && firstInetAddressV6 != null) {
 //            LOG.info("exit getNetworkInetAddress ipv6 result=" + firstInetAddressV6);
@@ -437,22 +451,21 @@ public class NetworkUtility {
         }
     }
 
-
-
-    public static boolean isLoopbackNetworkInterface( NetworkInterface anInterface ) {
-        if( anInterface == null )
+    public static boolean isLoopbackNetworkInterface(NetworkInterface anInterface) {
+        if (anInterface == null) {
             return false;
-        if( isLoopbackMethod != null ) {
+        }
+        if (isLoopbackMethod != null) {
             try {
-                return (Boolean)isLoopbackMethod.invoke( anInterface );
-            } catch( Throwable t ) {
+                return (Boolean) isLoopbackMethod.invoke(anInterface);
+            } catch (Throwable t) {
             }
         }
         boolean hasLoopback = false;
         Enumeration<InetAddress> allIntfAddr = anInterface.getInetAddresses();
-        while( allIntfAddr.hasMoreElements() ) {
+        while (allIntfAddr.hasMoreElements()) {
             InetAddress anAddr = allIntfAddr.nextElement();
-            if( anAddr.isLoopbackAddress() ) {
+            if (anAddr.isLoopbackAddress()) {
                 hasLoopback = true;
                 break;
             }
@@ -460,14 +473,15 @@ public class NetworkUtility {
         return hasLoopback;
     }
 
-    public static boolean supportsMulticast( NetworkInterface anInterface ) {
-        if( anInterface == null )
+    public static boolean supportsMulticast(NetworkInterface anInterface) {
+        if (anInterface == null) {
             return false;
+        }
         boolean result = true;
-        if( isUpMethod != null ) {
+        if (isUpMethod != null) {
             try {
-                result = (Boolean)isUpMethod.invoke( anInterface );
-            } catch( Throwable t ) {
+                result = (Boolean) isUpMethod.invoke(anInterface);
+            } catch (Throwable t) {
                 result = false;
             }
         }
@@ -480,10 +494,10 @@ public class NetworkUtility {
                 LOG.fine("Workaround for java.net.NetworkInterface.supportsMulticast() returning false on AIX");
             }
             return true;
-        } else if( supportsMulticastMethod != null) {
+        } else if (supportsMulticastMethod != null) {
             try {
-                return (Boolean)supportsMulticastMethod.invoke( anInterface );
-            } catch( Throwable t ) {
+                return (Boolean) supportsMulticastMethod.invoke(anInterface);
+            } catch (Throwable t) {
                 // will just return false in this case
             }
         }
@@ -491,105 +505,110 @@ public class NetworkUtility {
         return false;
     }
 
-    public static boolean isUp( NetworkInterface anInterface ) {
-        if( anInterface == null )
+    public static boolean isUp(NetworkInterface anInterface) {
+        if (anInterface == null) {
             return false;
-        if( isUpMethod != null ) {
+        }
+        if (isUpMethod != null) {
             try {
-                return (Boolean)isUpMethod.invoke( anInterface );
-            } catch( Throwable t ) {
+                return (Boolean) isUpMethod.invoke(anInterface);
+            } catch (Throwable t) {
                 // will just return false in this case
             }
         }
         return false;
     }
 
-    public static void writeIntToByteArray( final byte[] bytes, final int offset, final int value ) throws IllegalArgumentException {
-        if( bytes == null )
+    public static void writeIntToByteArray(final byte[] bytes, final int offset, final int value) throws IllegalArgumentException {
+        if (bytes == null) {
             return;
-        if( bytes.length < offset + 4 )
-            throw new IllegalArgumentException( "bytes' length is too small" );
-        bytes[offset + 0] = (byte)( ( value >> 24 ) & 0xFF );
-        bytes[offset + 1] = (byte)( ( value >> 16 ) & 0xFF );
-        bytes[offset + 2] = (byte)( ( value >> 8 ) & 0xFF );
-        bytes[offset + 3] = (byte)( value & 0xFF );
+        }
+        if (bytes.length < offset + 4) {
+            throw new IllegalArgumentException("bytes' length is too small");
+        }
+        bytes[offset + 0] = (byte) ((value >> 24) & 0xFF);
+        bytes[offset + 1] = (byte) ((value >> 16) & 0xFF);
+        bytes[offset + 2] = (byte) ((value >> 8) & 0xFF);
+        bytes[offset + 3] = (byte) (value & 0xFF);
     }
 
-    public static int getIntFromByteArray( final byte[] bytes, final int offset ) throws IllegalArgumentException {
-        if( bytes == null )
+    public static int getIntFromByteArray(final byte[] bytes, final int offset) throws IllegalArgumentException {
+        if (bytes == null) {
             return 0;
-        if( bytes.length < offset + 4 )
-            throw new IllegalArgumentException( "bytes' length is too small" );
+        }
+        if (bytes.length < offset + 4) {
+            throw new IllegalArgumentException("bytes' length is too small");
+        }
         int ch1 = bytes[offset] & 0xff;
         int ch2 = bytes[offset + 1] & 0xff;
         int ch3 = bytes[offset + 2] & 0xff;
         int ch4 = bytes[offset + 3] & 0xff;
-        return (int)( ( ch1 << 24 ) + ( ch2 << 16 ) + ( ch3 << 8 ) + ch4 );
+        return (ch1 << 24) + (ch2 << 16) + (ch3 << 8) + ch4;
     }
 
-    public static int serialize( final OutputStream baos, final Map<String, Serializable> messages ) throws MessageIOException {
-        return serialize( baos, messages, false);
+    public static int serialize(final OutputStream baos, final Map<String, Serializable> messages) throws MessageIOException {
+        return serialize(baos, messages, false);
     }
 
-    public static int serialize( final OutputStream baos, final Map<String, Serializable> messages, final boolean debug ) throws MessageIOException {
+    public static int serialize(final OutputStream baos, final Map<String, Serializable> messages, final boolean debug) throws MessageIOException {
         int count = 0;
-        if( baos == null || messages == null )
+        if (baos == null || messages == null) {
             return count;
+        }
         String name = null;
         ObjectOutputStream oos = null;
         try {
-            if( debug ) {
-                oos = new DebuggingObjectOutputStream( baos );
+            if (debug) {
+                oos = new DebuggingObjectOutputStream(baos);
             } else {
-                oos = new ObjectOutputStream( baos );
+                oos = new ObjectOutputStream(baos);
             }
-            for( Map.Entry<String, Serializable> entry : messages.entrySet() ) {
+            for (Map.Entry<String, Serializable> entry : messages.entrySet()) {
                 name = entry.getKey();
                 Serializable obj = entry.getValue();
                 count++;
-                oos.writeObject( name );
-                oos.writeObject( obj );
+                oos.writeObject(name);
+                oos.writeObject(obj);
             }
             oos.flush();
-        } catch( Throwable t ) {
-            throw new MessageIOException( "failed to serialize a message : name = " + name + "." +
-                                          ( debug ? " path to bad object: " + ( (DebuggingObjectOutputStream)oos ).getStack() : "" ),
-                                          t );
+        } catch (Throwable t) {
+            throw new MessageIOException("failed to serialize a message : name = " + name + "."
+                    + (debug ? " path to bad object: " + ((DebuggingObjectOutputStream) oos).getStack() : ""), t);
         } finally {
-            if( oos != null ) {
+            if (oos != null) {
                 try {
                     oos.close();
-                } catch( IOException e ) {
+                } catch (IOException e) {
                 }
             }
         }
         return count;
     }
 
-    public static void deserialize( final InputStream is, final int count, final Map<String, Serializable> messages ) throws MessageIOException {
-        if( is == null || count <= 0 || messages == null )
+    public static void deserialize(final InputStream is, final int count, final Map<String, Serializable> messages) throws MessageIOException {
+        if (is == null || count <= 0 || messages == null) {
             return;
+        }
         String name = null;
         ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream( is );
+            ois = new ObjectInputStream(is);
             Object obj = null;
-            for( int i = 0; i < count; i++ ) {
-                name = (String)ois.readObject();
+            for (int i = 0; i < count; i++) {
+                name = (String) ois.readObject();
                 obj = ois.readObject();
-                if( obj instanceof Serializable ) {
-                    messages.put( name, (Serializable)obj );
+                if (obj instanceof Serializable) {
+                    messages.put(name, (Serializable) obj);
                 }
             }
-        } catch( Throwable t ) {
-            LOG.log(Level.WARNING,
-                    "netutil.deserialize.failure", new Object[]{messages.toString(), name, Thread.currentThread().getName()});
-            throw new MessageIOException( "failed to deserialize a message : name = " + name, t );
+        } catch (Throwable t) {
+            LOG.log(Level.WARNING, "netutil.deserialize.failure", new Object[] { messages.toString(), name, Thread.currentThread().getName() });
+            throw new MessageIOException("failed to deserialize a message : name = " + name, t);
         } finally {
-            if( ois != null ) {
+            if (ois != null) {
                 try {
                     ois.close();
-                } catch( IOException e ) {
+                } catch (IOException e) {
                 }
             }
         }
@@ -604,39 +623,24 @@ public class NetworkUtility {
      * @return an available tcp port which is not bound yet. Throws IllegalStateException if no ports exist.
      */
     /*
-    // Using grizzly tcp port selection from a range.
-    public static int getAvailableTCPPort( String host, int tcpStartPort, int tcpEndPort ) {
-        if( tcpStartPort > tcpEndPort )
-            tcpEndPort = tcpStartPort + 30;
-        for( int portInRange = tcpStartPort; portInRange <= tcpEndPort; portInRange++ ) {
-            ServerSocket testSocket = null;
-            try {
-                testSocket = new ServerSocket( portInRange, -1, host == null ? null : InetAddress.getByName( host ) );
-            } catch( IOException ie ) {
-                continue;
-            } finally {
-                if( testSocket != null ) {
-                    try {
-                        testSocket.close();
-                    } catch( IOException e ) {
-                    }
-                }
-            }
-            return portInRange;
-        }
-        LOG.log(Level.SEVERE, "netutil.no.available.ports", new Object[]{host,tcpStartPort,tcpEndPort});
-        throw new IllegalStateException("Fatal error. No available ports exist for " + host + " in range " + tcpStartPort + " to " + tcpEndPort);
-    }
-    */
+     * // Using grizzly tcp port selection from a range. public static int getAvailableTCPPort( String host, int
+     * tcpStartPort, int tcpEndPort ) { if( tcpStartPort > tcpEndPort ) tcpEndPort = tcpStartPort + 30; for( int portInRange
+     * = tcpStartPort; portInRange <= tcpEndPort; portInRange++ ) { ServerSocket testSocket = null; try { testSocket = new
+     * ServerSocket( portInRange, -1, host == null ? null : InetAddress.getByName( host ) ); } catch( IOException ie ) {
+     * continue; } finally { if( testSocket != null ) { try { testSocket.close(); } catch( IOException e ) { } } } return
+     * portInRange; } LOG.log(Level.SEVERE, "netutil.no.available.ports", new Object[]{host,tcpStartPort,tcpEndPort}); throw
+     * new IllegalStateException("Fatal error. No available ports exist for " + host + " in range " + tcpStartPort + " to "
+     * + tcpEndPort); }
+     */
 
     private static final Field DEPTH_FIELD;
 
     static {
         try {
-            DEPTH_FIELD = ObjectOutputStream.class.getDeclaredField( "depth" );
-            DEPTH_FIELD.setAccessible( true );
-        } catch( NoSuchFieldException e ) {
-            throw new AssertionError( e );
+            DEPTH_FIELD = ObjectOutputStream.class.getDeclaredField("depth");
+            DEPTH_FIELD.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new AssertionError(e);
         }
     }
 
@@ -648,38 +652,39 @@ public class NetworkUtility {
         final List<Object> stack = new ArrayList<Object>();
         boolean broken = false;
 
-        public DebuggingObjectOutputStream( OutputStream out ) throws IOException {
-            super( out );
-            enableReplaceObject( true );
+        public DebuggingObjectOutputStream(OutputStream out) throws IOException {
+            super(out);
+            enableReplaceObject(true);
         }
 
-        protected Object replaceObject( Object o ) {
+        protected Object replaceObject(Object o) {
             int currentDepth = currentDepth();
-            if( o instanceof IOException && currentDepth == 0 )
+            if (o instanceof IOException && currentDepth == 0) {
                 broken = true;
-            if( !broken ) {
-                truncate( currentDepth );
-                stack.add( o );
+            }
+            if (!broken) {
+                truncate(currentDepth);
+                stack.add(o);
             }
             return o;
         }
 
-        private void truncate( int depth ) {
-            while( stack.size() > depth ) {
+        private void truncate(int depth) {
+            while (stack.size() > depth) {
                 pop();
             }
         }
 
         private Object pop() {
-            return stack.remove( stack.size() - 1 );
+            return stack.remove(stack.size() - 1);
         }
 
         private int currentDepth() {
             try {
-                Integer oneBased = (Integer)DEPTH_FIELD.get( this );
+                Integer oneBased = (Integer) DEPTH_FIELD.get(this);
                 return oneBased - 1;
-            } catch( IllegalAccessException e ) {
-                throw new AssertionError( e );
+            } catch (IllegalAccessException e) {
+                throw new AssertionError(e);
             }
         }
 
@@ -710,15 +715,14 @@ public class NetworkUtility {
             }
             return retVal;
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "netutil.validate.bind.address.exception",new Object[]{addressString, e.toString()});
+            LOG.log(Level.WARNING, "netutil.validate.bind.address.exception", new Object[] { addressString, e.toString() });
             return false;
         } finally {
             if (socket != null) {
                 try {
                     socket.close();
                 } catch (IOException ioe) {
-                    LOG.log(Level.FINE,
-                        "Could not close socket used to validate address.");
+                    LOG.log(Level.FINE, "Could not close socket used to validate address.");
                 }
             }
         }
@@ -737,11 +741,9 @@ public class NetworkUtility {
         try {
             ni = NetworkInterface.getByName(addressString);
         } catch (Throwable ignored) {
-             if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE,
-                        "resolveBindInterfaceName: call to NetworkInterface.getByName ignoring thrown exception",
-                        ignored);
-             }
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "resolveBindInterfaceName: call to NetworkInterface.getByName ignoring thrown exception", ignored);
+            }
         }
 
         if (ni != null) {
@@ -749,18 +751,15 @@ public class NetworkUtility {
                 ia = getNetworkInetAddress(ni, getPreferIpv6Addresses());
             } catch (Throwable ignored) {
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "resolveBindInterfaceName: call to getNetworkAddress ignoring thrown exception",
-                            ignored);
+                    LOG.log(Level.FINE, "resolveBindInterfaceName: call to getNetworkAddress ignoring thrown exception", ignored);
                 }
             }
             if (ia == null) {
                 try {
-                    ia = getNetworkInetAddress(ni, ! getPreferIpv6Addresses());
-                } catch(Throwable ignored) {
+                    ia = getNetworkInetAddress(ni, !getPreferIpv6Addresses());
+                } catch (Throwable ignored) {
                     if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE,
-                        "resolveBindInterfaceName: call to NetworkUtility.getNetworkAddress ignoring thrown exception",
-                                ignored);
+                        LOG.log(Level.FINE, "resolveBindInterfaceName: call to NetworkUtility.getNetworkAddress ignoring thrown exception", ignored);
                     }
                 }
             }
@@ -770,9 +769,7 @@ public class NetworkUtility {
                 ia = InetAddress.getByName(addressString);
             } catch (Throwable ignored) {
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE,
-                            "resolveBindInterfaceName: call to InetAddress.getByName ignoring thrown exception",
-                            ignored);
+                    LOG.log(Level.FINE, "resolveBindInterfaceName: call to InetAddress.getByName ignoring thrown exception", ignored);
                 }
             }
         }
@@ -782,25 +779,24 @@ public class NetworkUtility {
         return ia;
     }
 
-    public static void main( String[] args ) throws IOException {
-        final String preferIPv6PropertyValue =  System.getProperty("java.net.preferIPv6Addresses", "false");
+    public static void main(String[] args) throws IOException {
+        final String preferIPv6PropertyValue = System.getProperty("java.net.preferIPv6Addresses", "false");
         System.out.println("Java property java.net.preferIPv6Addresses=" + preferIPv6PropertyValue);
         boolean preferIPv6Addrs = Boolean.parseBoolean(preferIPv6PropertyValue);
-        System.out.println( "AllLocalAddresses() = " + getAllLocalAddresses() );
-        System.out.println( "getFirstNetworkInterface(preferIPv6Addrs) = " +getFirstNetworkInterface(preferIPv6Addrs) );
-        System.out.println( "getFirstInetAddress(preferIPv6Addresses:" + preferIPv6Addrs + ")=" +
-                getFirstInetAddress(preferIPv6Addrs));
-        System.out.println( "getFirstInetAddress()=" + getFirstInetAddress());
-        System.out.println( "getFirstInetAddress( true ) = " + getFirstInetAddress( true ) );
+        System.out.println("AllLocalAddresses() = " + getAllLocalAddresses());
+        System.out.println("getFirstNetworkInterface(preferIPv6Addrs) = " + getFirstNetworkInterface(preferIPv6Addrs));
+        System.out.println("getFirstInetAddress(preferIPv6Addresses:" + preferIPv6Addrs + ")=" + getFirstInetAddress(preferIPv6Addrs));
+        System.out.println("getFirstInetAddress()=" + getFirstInetAddress());
+        System.out.println("getFirstInetAddress( true ) = " + getFirstInetAddress(true));
         InetAddress ia = getFirstInetAddress(false);
-        System.out.println( "getFirstInetAddress( false ) = " + getFirstInetAddress( false ) );
+        System.out.println("getFirstInetAddress( false ) = " + getFirstInetAddress(false));
         System.out.println("getLocalHostAddress = " + getLocalHostAddress());
-        System.out.println( "getFirstNetworkInteface(!preferIPv6Addrs) = " + NetworkUtility.getFirstNetworkInterface(!preferIPv6Addrs));
-        System.out.println( "getNetworkInetAddress(firstNetworkInteface, true) = " +
-               NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(true), true));
-        System.out.println( "getNetworkInetAddress(firstNetworkInteface, false) = " +
-               NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(false), false));
-               Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+        System.out.println("getFirstNetworkInteface(!preferIPv6Addrs) = " + NetworkUtility.getFirstNetworkInterface(!preferIPv6Addrs));
+        System.out.println("getNetworkInetAddress(firstNetworkInteface, true) = "
+                + NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(true), true));
+        System.out.println("getNetworkInetAddress(firstNetworkInteface, false) = "
+                + NetworkUtility.getNetworkInetAddress(NetworkUtility.getFirstNetworkInterface(false), false));
+        Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
         System.out.println("\n-------------------------------------------------------");
         System.out.println("\nAll Network Interfaces");
         for (NetworkInterface netint : Collections.list(nets)) {
@@ -824,15 +820,16 @@ public class NetworkUtility {
         System.out.printf("PointToPoint? %s\n", netint.isPointToPoint());
         System.out.printf("Supports multicast? %s\n", netint.supportsMulticast());
         System.out.printf("Virtual? %s\n", netint.isVirtual());
-        System.out.printf("Hardware address: %s\n",
-                    java.util.Arrays.toString(netint.getHardwareAddress()));
+        System.out.printf("Hardware address: %s\n", java.util.Arrays.toString(netint.getHardwareAddress()));
         System.out.printf("MTU: %s\n", netint.getMTU());
         try {
-            System.out.printf("Network Inet Address (preferIPV6=false) %s\n", getNetworkInetAddress(netint, false) );
-        } catch (IOException ignore) {}
+            System.out.printf("Network Inet Address (preferIPV6=false) %s\n", getNetworkInetAddress(netint, false));
+        } catch (IOException ignore) {
+        }
         try {
             System.out.printf("Network Inet Address (preferIPV6=true) %s\n", getNetworkInetAddress(netint, true));
-        } catch (IOException ignore) {}
+        } catch (IOException ignore) {
+        }
         InetAddress ia = resolveBindInterfaceName(netint.getName());
         String ia_string = ia != null ? ia.getHostAddress() : "<unresolved>";
         System.out.printf("resolveBindInterfaceName(%s)=%s", netint.getName(), ia_string);

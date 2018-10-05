@@ -19,11 +19,9 @@ package com.sun.enterprise.ee.cms.core;
 public interface RejoinableEvent {
 
     /*
-     * Returns RejoinSubevent if this Join or JoinedAndReady notification is
-     * for an instance that restarted quicker than GMS heartbeat failure
-     * detection was able to report the GMS notification FAILURE.
-     * Returns NULL if this instance is not restarting without gms group
-     * being notified that it had left group in past.
+     * Returns RejoinSubevent if this Join or JoinedAndReady notification is for an instance that restarted quicker than GMS
+     * heartbeat failure detection was able to report the GMS notification FAILURE. Returns NULL if this instance is not
+     * restarting without gms group being notified that it had left group in past.
      */
     RejoinSubevent getRejoinSubevent();
 

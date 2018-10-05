@@ -16,55 +16,59 @@
 
 package com.sun.enterprise.ee.cms.impl.client;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.ActionException;
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.FailureRecoveryAction;
+import com.sun.enterprise.ee.cms.core.FailureRecoverySignal;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Reference implementation of FailureRecoveryAction interface
- * @author Shreedhar Ganapathy
-  * Date: Jan 8, 2004
+ *
+ * @author Shreedhar Ganapathy Date: Jan 8, 2004
  * @version $Revision$
  */
 public class FailureRecoveryActionImpl implements FailureRecoveryAction {
     private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
     private CallBack caller;
 
-    public FailureRecoveryActionImpl (final CallBack caller) {
-        this.caller=caller;
+    public FailureRecoveryActionImpl(final CallBack caller) {
+        this.caller = caller;
     }
 
     /**
-     * processes the recovery signal. typically involves getting information
-     * from the signal, acquiring the signal and after processing, releasing
-     * the signal
+     * processes the recovery signal. typically involves getting information from the signal, acquiring the signal and after
+     * processing, releasing the signal
+     *
      * @param signal the signal
      */
     public void consumeSignal(final Signal signal) throws ActionException {
         boolean signalAcquired = false;
-        final String component = signal instanceof FailureRecoverySignal ?
-                                 ((FailureRecoverySignal)signal).getComponentName() : "";
+        final String component = signal instanceof FailureRecoverySignal ? ((FailureRecoverySignal) signal).getComponentName() : "";
         try {
-            //This is a mandatory call.
+            // This is a mandatory call.
             // Always call acquire before doing any other processing as this
             // results in Failure Fencing which protects other members from
             // doing the same recovery operation
             signal.acquire();
             signalAcquired = true;
-            logger.log(Level.FINE,component+":Failure Recovery Signal acquired");
+            logger.log(Level.FINE, component + ":Failure Recovery Signal acquired");
             notifyListeners(signal);
         } catch (SignalAcquireException e) {
             logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
         } finally {
             if (signalAcquired) {
-                //Always Release after completing any other processing.This call is
+                // Always Release after completing any other processing.This call is
                 // also mandatory.
-                try{
+                try {
                     signal.release();
-                    logger.log(Level.FINE, component+":Failure Recovery Signal released");
+                    logger.log(Level.FINE, component + ":Failure Recovery Signal released");
                 } catch (SignalReleaseException e) {
                     logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
                 }

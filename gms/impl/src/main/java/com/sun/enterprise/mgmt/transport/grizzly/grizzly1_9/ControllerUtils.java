@@ -16,14 +16,15 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.Controller;
-import com.sun.grizzly.ControllerStateListenerAdapter;
-import com.sun.grizzly.util.WorkerThreadImpl;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
+
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.ControllerStateListenerAdapter;
+import com.sun.grizzly.util.WorkerThreadImpl;
 
 /**
  * @author Alexey Stashok
@@ -31,8 +32,8 @@ import java.util.logging.Level;
 public class ControllerUtils {
 
     /**
-     *  Start controller in seperate thread
-     * 
+     * Start controller in seperate thread
+     *
      * @param controller the controller
      */
     public static void startController(final Controller controller) {
@@ -46,12 +47,10 @@ public class ControllerUtils {
             @Override
             public void onException(Throwable e) {
                 if (latch.getCount() > 0) {
-                    Controller.logger().log(Level.SEVERE, "Exception during " +
-                            "starting the controller", e);
+                    Controller.logger().log(Level.SEVERE, "Exception during " + "starting the controller", e);
                     latch.countDown();
                 } else {
-                    Controller.logger().log(Level.SEVERE, "Exception during " +
-                            "controller processing", e);
+                    Controller.logger().log(Level.SEVERE, "Exception during " + "controller processing", e);
                 }
             }
         });
@@ -69,14 +68,14 @@ public class ControllerUtils {
     }
 
     /**
-     *  Stop controller in seperate thread
-     * 
+     * Stop controller in seperate thread
+     *
      * @param controller the controller
      */
     public static void stopController(Controller controller) {
         try {
             controller.stop();
-        } catch(IOException e) {
+        } catch (IOException e) {
         }
     }
 
@@ -85,7 +84,7 @@ public class ControllerUtils {
     }
 
     public static void startControllers(Collection<Controller> controllers) {
-        for(Controller controller : controllers) {
+        for (Controller controller : controllers) {
             startController(controller);
         }
     }
@@ -95,9 +94,8 @@ public class ControllerUtils {
     }
 
     public static void stopControllers(Collection<Controller> controllers) {
-        for(Controller controller : controllers) {
+        for (Controller controller : controllers) {
             stopController(controller);
         }
     }
 }
-

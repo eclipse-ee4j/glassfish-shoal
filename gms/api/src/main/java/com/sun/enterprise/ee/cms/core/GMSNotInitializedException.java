@@ -17,22 +17,24 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * An exception class that captures exception conditions occuring while startup
- * or shutdown of the GMS layer.
- * @author Shreedhar Ganapathy
- * Date: Mar 1, 2004
+ * An exception class that captures exception conditions occuring while startup or shutdown of the GMS layer.
+ *
+ * @author Shreedhar Ganapathy Date: Mar 1, 2004
  * @version $Revision$
  */
-public class GMSNotInitializedException extends GMSException{
-    public GMSNotInitializedException(){
+public class GMSNotInitializedException extends GMSException {
+   
+    private static final long serialVersionUID = -6120235287892833517L;
+
+    public GMSNotInitializedException() {
         super();
     }
 
-    public GMSNotInitializedException(final String message){
+    public GMSNotInitializedException(final String message) {
         super(message);
     }
 
-    public GMSNotInitializedException(final Throwable e){
+    public GMSNotInitializedException(final Throwable e) {
         super(e);
     }
 

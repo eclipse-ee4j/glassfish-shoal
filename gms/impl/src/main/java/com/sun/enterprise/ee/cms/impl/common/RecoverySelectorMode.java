@@ -17,16 +17,17 @@
 package com.sun.enterprise.ee.cms.impl.common;
 
 /**
- * 
- * @author Shreedhar Ganapathy
- * Date: Jan 20, 2004
+ *
+ * @author Shreedhar Ganapathy Date: Jan 20, 2004
  * @version $Revision$
  */
 public class RecoverySelectorMode {
     private final String mode;
-    RecoverySelectorMode(final String mode){
-        this.mode=mode;
+
+    RecoverySelectorMode(final String mode) {
+        this.mode = mode;
     }
+
     static final RecoverySelectorMode SIMPLESELECT = new RecoverySelectorMode("simpleselect");
     static final RecoverySelectorMode HOSTSELECT = new RecoverySelectorMode("hostselect");
 }

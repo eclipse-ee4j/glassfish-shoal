@@ -16,19 +16,10 @@
 
 package org.shoal.ha.cache.impl.store;
 
-import org.shoal.adapter.store.commands.AbstractSaveCommand;
-import org.shoal.adapter.store.commands.SaveCommand;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ObjectInputStreamWithLoader;
-import org.shoal.ha.cache.impl.command.Command;
-
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.TreeSet;
-import java.util.logging.Level;
 
+import org.shoal.adapter.store.commands.AbstractSaveCommand;
 
 /**
  * @author Mahesh Kannan
@@ -51,7 +42,7 @@ public class DataStoreEntry<K, V> {
 
     private long maxIdleTime;
 
-    private long version = MIN_VERSION; //some negative number that is small enough to allow updates/saves to succeed
+    private long version = MIN_VERSION; // some negative number that is small enough to allow updates/saves to succeed
 
     private byte[] rawV;
 
@@ -69,7 +60,7 @@ public class DataStoreEntry<K, V> {
         return key;
     }
 
-    /*package*/ V getV() {
+    /* package */ V getV() {
         return v;
     }
 
@@ -105,7 +96,6 @@ public class DataStoreEntry<K, V> {
         return pendingUpdates;
     }
 
-
     public void clearPendingUpdates() {
         if (pendingUpdates != null) {
             pendingUpdates.clear();
@@ -114,14 +104,12 @@ public class DataStoreEntry<K, V> {
 
     public void addPendingUpdate(AbstractSaveCommand<K, V> cmd) {
         if (pendingUpdates == null) {
-            pendingUpdates = new TreeSet<AbstractSaveCommand<K, V>>(
-                    new Comparator<AbstractSaveCommand<K, V>>() {
-                        @Override
-                        public int compare(AbstractSaveCommand<K, V> cmd1, AbstractSaveCommand<K, V> cmd2) {
-                            return (int) (cmd1.getVersion() - cmd2.getVersion());
-                        }
-                    }
-            );
+            pendingUpdates = new TreeSet<AbstractSaveCommand<K, V>>(new Comparator<AbstractSaveCommand<K, V>>() {
+                @Override
+                public int compare(AbstractSaveCommand<K, V> cmd1, AbstractSaveCommand<K, V> cmd2) {
+                    return (int) (cmd1.getVersion() - cmd2.getVersion());
+                }
+            });
         }
         this.pendingUpdates.add(cmd);
     }

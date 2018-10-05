@@ -16,19 +16,18 @@
 
 package com.sun.enterprise.ee.cms.core;
 
+import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.CORE;
+import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.WATCHDOG;
+
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
-import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.WATCHDOG;
-import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.CORE;
-
 /**
  * Encapsulates the member token and the member type in a serializable
  *
- * @author Shreedhar Ganapathy
- *         Date: Mar 16, 2005
+ * @author Shreedhar Ganapathy Date: Mar 16, 2005
  * @version $Revision$
  */
 public class GMSMember implements Serializable {
@@ -43,10 +42,7 @@ public class GMSMember implements Serializable {
     /**
      * Constructor
      */
-    public GMSMember(final String memberToken,
-                     final String memberType,
-                     final String groupName,
-                     final Long startTime) {
+    public GMSMember(final String memberToken, final String memberType, final String groupName, final Long startTime) {
 
         this.memberToken = memberToken;
         this.memberType = memberType;
@@ -86,6 +82,7 @@ public class GMSMember implements Serializable {
 
     /**
      * Returns the time the member joined the group.
+     *
      * @return the time the member joined the group
      */
     public long getStartTime() {
@@ -101,8 +98,8 @@ public class GMSMember implements Serializable {
     }
 
     public String toString() {
-        String result = MessageFormat.format("GMSMember name: {0}  group: {1} memberType: {2} startTime: {3,date} {3,time,full}",
-                memberToken, groupName, memberType, new Date(startTime));
+        String result = MessageFormat.format("GMSMember name: {0}  group: {1} memberType: {2} startTime: {3,date} {3,time,full}", memberToken, groupName,
+                memberType, new Date(startTime));
         return result;
     }
 

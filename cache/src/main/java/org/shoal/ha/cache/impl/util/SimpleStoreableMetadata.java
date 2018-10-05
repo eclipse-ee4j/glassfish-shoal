@@ -16,19 +16,21 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.glassfish.ha.store.api.Storeable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+import org.glassfish.ha.store.api.Storeable;
+
 /**
  * @author Mahesh Kannan
- * 
+ *
  */
-public class SimpleStoreableMetadata
-    implements Storeable {
+public class SimpleStoreableMetadata implements Storeable {
+
+   
+    private static final long serialVersionUID = 2852227115353486022L;
 
     private long version;
 
@@ -40,16 +42,15 @@ public class SimpleStoreableMetadata
 
     private byte[] state;
 
-    private static final String[] _attrNames = new String[] {"state"};
+    private static final String[] _attrNames = new String[] { "state" };
 
-    private static final boolean[] _dirtyStates = new boolean[] {true};
+    private static final boolean[] _dirtyStates = new boolean[] { true };
 
     public SimpleStoreableMetadata() {
 
     }
 
-    public SimpleStoreableMetadata(long version, long lastAccessTime, long maxIdleTime, boolean aNew,
-                                   byte[] state) {
+    public SimpleStoreableMetadata(long version, long lastAccessTime, long maxIdleTime, boolean aNew, byte[] state) {
         this.version = version;
         this.lastAccessTime = lastAccessTime;
         this.maxIdleTime = maxIdleTime;
@@ -63,13 +64,8 @@ public class SimpleStoreableMetadata
 
     @Override
     public String toString() {
-        return "SimpleStoreableMetadata{" +
-                "version=" + version +
-                ", lastAccessTime=" + lastAccessTime +
-                ", maxIdleTime=" + maxIdleTime +
-                ", isNew=" + isNew +
-                ", state=" + Arrays.toString(state) +
-                '}';
+        return "SimpleStoreableMetadata{" + "version=" + version + ", lastAccessTime=" + lastAccessTime + ", maxIdleTime=" + maxIdleTime + ", isNew=" + isNew
+                + ", state=" + Arrays.toString(state) + '}';
     }
 
     @Override
@@ -114,11 +110,11 @@ public class SimpleStoreableMetadata
 
     @Override
     public void _storeable_writeState(OutputStream outputStream) throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void _storeable_readState(InputStream inputStream) throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 }

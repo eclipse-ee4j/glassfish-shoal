@@ -16,9 +16,8 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
 import java.io.IOException;
+
 import org.glassfish.grizzly.Buffer;
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.Grizzly;
@@ -29,22 +28,22 @@ import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 import org.glassfish.grizzly.memory.MemoryManager;
 
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+
 /**
  * Filter, responsible for {@link Buffer} to {@link Message} transformation.
- * 
+ *
  * Message protocol format is:
  *
- * Message Header is MessageImpl.HEADER_LENGTH and composed of following fields.
- *      magicNumber    integer     {@link MessageImpl#MAGIC_NUMBER}
- *      version        integer     {@link MessageImpl#VERSION}
- *      type           integer     {@link Message#getType} for possible values
- *      messageLength  integer     {@link MessageImpl#maxTotalMessageLength}
+ * Message Header is MessageImpl.HEADER_LENGTH and composed of following fields. magicNumber integer
+ * {@link MessageImpl#MAGIC_NUMBER} version integer {@link MessageImpl#VERSION} type integer {@link Message#getType} for
+ * possible values messageLength integer {@link MessageImpl#maxTotalMessageLength}
  *
- * Message Body is composed of following fields.
- *      payload        byte[messageLen]
+ * Message Body is composed of following fields. payload byte[messageLen]
  *
- * MessageHeader  {@link Message#parseHeader(com.sun.enterprise.mgmt.transport.Buffer, int)}
- * MessageBody    {@link Message#parseMessage(com.sun.enterprise.mgmt.transport.Buffer, int, int)}
+ * MessageHeader {@link Message#parseHeader(com.sun.enterprise.mgmt.transport.Buffer, int)} MessageBody
+ * {@link Message#parseMessage(com.sun.enterprise.mgmt.transport.Buffer, int, int)}
  *
  * @author Bongjae Chang
  * @author Joe Fialli
@@ -52,10 +51,8 @@ import org.glassfish.grizzly.memory.MemoryManager;
  */
 public class MessageFilter extends BaseFilter {
 
-    private final Attribute<MessageParsingState> preparsedMessageAttr =
-            Grizzly.DEFAULT_ATTRIBUTE_BUILDER.createAttribute(
-            MessageFilter.class + ".preparsedMessageAttr",
-            new NullaryFunction<MessageParsingState>() {
+    private final Attribute<MessageParsingState> preparsedMessageAttr = Grizzly.DEFAULT_ATTRIBUTE_BUILDER
+            .createAttribute(MessageFilter.class + ".preparsedMessageAttr", new NullaryFunction<MessageParsingState>() {
 
                 @Override
                 public MessageParsingState evaluate() {
@@ -68,8 +65,7 @@ public class MessageFilter extends BaseFilter {
         final Connection connection = ctx.getConnection();
         final Buffer buffer = ctx.getMessage();
 
-        final MessageParsingState parsingState =
-                preparsedMessageAttr.get(connection);
+        final MessageParsingState parsingState = preparsedMessageAttr.get(connection);
 
         if (!parsingState.isHeaderParsed) {
             // Header was not parsed yet
@@ -78,21 +74,17 @@ public class MessageFilter extends BaseFilter {
                 return ctx.getStopAction(buffer);
             }
 
-
             final MessageImpl message = new MessageImpl();
 
-            final GMSBufferWrapper gmsBuffer =
-                    parsingState.gmsBufferWrapper.wrap(buffer);
+            final GMSBufferWrapper gmsBuffer = parsingState.gmsBufferWrapper.wrap(buffer);
 
-            final int messageLength =
-                    message.parseHeader(gmsBuffer, gmsBuffer.position());
+            final int messageLength = message.parseHeader(gmsBuffer, gmsBuffer.position());
 
             gmsBuffer.recycle();
 
             if (messageLength + MessageImpl.HEADER_LENGTH > MessageImpl.getMaxMessageLength()) {
-                throw new IllegalStateException("too large message."
-                        + " request-size=" + (messageLength + MessageImpl.HEADER_LENGTH)
-                        + " max-size=" + MessageImpl.getMaxMessageLength());
+                throw new IllegalStateException("too large message." + " request-size=" + (messageLength + MessageImpl.HEADER_LENGTH) + " max-size="
+                        + MessageImpl.getMaxMessageLength());
             }
 
             parsingState.isHeaderParsed = true;
@@ -100,33 +92,28 @@ public class MessageFilter extends BaseFilter {
             parsingState.messageLength = messageLength;
         }
 
-        final int totalMsgLength = MessageImpl.HEADER_LENGTH +
-                parsingState.messageLength;
+        final int totalMsgLength = MessageImpl.HEADER_LENGTH + parsingState.messageLength;
 
-        if (buffer.remaining() <  totalMsgLength) {
+        if (buffer.remaining() < totalMsgLength) {
             // We don't have entire message
             return ctx.getStopAction(buffer);
         }
 
         final int pos = buffer.position();
 
-        final GMSBufferWrapper gmsBuffer =
-                parsingState.gmsBufferWrapper.wrap(buffer);
+        final GMSBufferWrapper gmsBuffer = parsingState.gmsBufferWrapper.wrap(buffer);
 
-        parsingState.message.parseMessage(gmsBuffer,
-                pos + MessageImpl.HEADER_LENGTH,
-                parsingState.messageLength);
+        parsingState.message.parseMessage(gmsBuffer, pos + MessageImpl.HEADER_LENGTH, parsingState.messageLength);
 
         ctx.setMessage(parsingState.message);
 
         gmsBuffer.recycle();
 
         // Go to the next message
-        final Buffer remainder =
-                buffer.split(pos + totalMsgLength);
+        final Buffer remainder = buffer.split(pos + totalMsgLength);
 
         parsingState.reset();
-        
+
         return ctx.getInvokeAction(remainder.hasRemaining() ? remainder : null);
     }
 
@@ -136,9 +123,7 @@ public class MessageFilter extends BaseFilter {
 
         final MemoryManager mm = ctx.getConnection().getTransport().getMemoryManager();
 
-        com.sun.enterprise.mgmt.transport.buffers.Buffer buffer =
-                message.getPlainBuffer(
-                Grizzly2ExpandableBufferWriter.createFactory(mm));
+        com.sun.enterprise.mgmt.transport.buffers.Buffer buffer = message.getPlainBuffer(Grizzly2ExpandableBufferWriter.createFactory(mm));
 
         ctx.setMessage(buffer.underlying());
 

@@ -16,9 +16,6 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-import com.sun.enterprise.mgmt.transport.*;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
@@ -27,19 +24,25 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+import com.sun.enterprise.mgmt.transport.MessageListener;
+import com.sun.enterprise.mgmt.transport.MessageSender;
+import com.sun.enterprise.mgmt.transport.MulticastMessageSender;
+import com.sun.enterprise.mgmt.transport.ShoalMessageSender;
+
 /**
- * The LWRMulticast class is useful for sending and receiving
- * JXTA multicast messages. A LWRMulticast is a (UDP) DatagramSocket,
- * with additional capabilities for joining "groups" of other multicast hosts
- * on the internet.
- * A multicast group is specified within the context of PeerGroup and a propagate
- * pipe advertisement.
- * One would join a multicast group by first creating a MulticastSocket
- * with the desired peer group and pipe advertisement.
+ * The LWRMulticast class is useful for sending and receiving JXTA multicast messages. A LWRMulticast is a (UDP)
+ * DatagramSocket, with additional capabilities for joining "groups" of other multicast hosts on the internet. A
+ * multicast group is specified within the context of PeerGroup and a propagate pipe advertisement. One would join a
+ * multicast group by first creating a MulticastSocket with the desired peer group and pipe advertisement.
  */
 public class LWRMulticast implements MessageListener {
     private final static Logger LOG = Logger.getLogger(LWRMulticast.class.getName());
-    
+
     /**
      * Ack message element name
      */
@@ -72,10 +75,9 @@ public class LWRMulticast implements MessageListener {
     protected transient MessageListener msgListener;
 
     /**
-     * Create a multicast channel bind it to a specific pipe within specified
-     * peer group
+     * Create a multicast channel bind it to a specific pipe within specified peer group
      *
-     * @param manager     the ClusterManger
+     * @param manager the ClusterManger
      * @param msgListener the application listener
      * @throws IOException if an io error occurs
      */
@@ -86,7 +88,7 @@ public class LWRMulticast implements MessageListener {
     /**
      * joins MutlicastSocket to specified pipe within the context of group
      *
-     * @param manager     the ClusterManger
+     * @param manager the ClusterManger
      * @param msgListener The application message listener
      * @throws IOException if an io error occurs
      */
@@ -124,7 +126,7 @@ public class LWRMulticast implements MessageListener {
     /**
      * {@inheritDoc}
      */
-    public void receiveMessageEvent( MessageEvent event) throws MessageIOException {
+    public void receiveMessageEvent(MessageEvent event) throws MessageIOException {
 
         Message message = event.getMessage();
         if (message == null) {
@@ -134,18 +136,18 @@ public class LWRMulticast implements MessageListener {
         Object element;
         PeerID id = getSource(message);
         if (id != null && id.equals(localPeerID)) {
-            //loop back
+            // loop back
             return;
         }
         element = message.getMessageElement(ACKTAG);
 
         if (element instanceof Long) {
-            processAck(id, (Long)element);
+            processAck(id, (Long) element);
         } else {
             // does the message contain any data
             element = message.getMessageElement(SEQTAG);
             if (element instanceof Long) {
-                ackMessage(id, (Long)element);
+                ackMessage(id, (Long) element);
                 try {
                     if (msgListener != null) {
                         if (LOG.isLoggable(Level.FINEST)) {
@@ -169,7 +171,7 @@ public class LWRMulticast implements MessageListener {
     /**
      * process an ack message
      *
-     * @param id  source peer ID
+     * @param id source peer ID
      * @param seq message sequence number
      */
     private void processAck(PeerID id, long seq) {
@@ -178,7 +180,7 @@ public class LWRMulticast implements MessageListener {
             ackSet.add(id);
             if (ackSet.size() >= threshold) {
                 synchronized (ackLock) {
-                    //System.out.println("Received an ack in :" + (System.currentTimeMillis() - t0));
+                    // System.out.println("Received an ack in :" + (System.currentTimeMillis() - t0));
                     ackLock.notifyAll();
                 }
             }
@@ -188,12 +190,12 @@ public class LWRMulticast implements MessageListener {
     /**
      * ack a message
      *
-     * @param id  source peer ID
+     * @param id source peer ID
      * @param seq message sequence number
      */
     private void ackMessage(PeerID id, long seq) {
         LOG.log(Level.FINEST, "Ack'ing message Sequence :" + seq);
-        Message msg = new MessageImpl( Message.TYPE_MCAST_MESSAGE );
+        Message msg = new MessageImpl(Message.TYPE_MCAST_MESSAGE);
         msg.addMessageElement(SRCIDTAG, localPeerID);
         msg.addMessageElement(ACKTAG, seq);
         try {
@@ -206,7 +208,7 @@ public class LWRMulticast implements MessageListener {
     }
 
     /**
-     * Returns a list of ack's received from nodes identified by  PeerID's
+     * Returns a list of ack's received from nodes identified by PeerID's
      *
      * @return a List of PeerID's
      */
@@ -224,9 +226,8 @@ public class LWRMulticast implements MessageListener {
     }
 
     /**
-     * Sets the Timeout attribute of the LWRMulticast
-     * a timeout of 0 blocks forever, by default this channel's
-     * timeout is set to 0
+     * Sets the Timeout attribute of the LWRMulticast a timeout of 0 blocks forever, by default this channel's timeout is
+     * set to 0
      *
      * @param timeout The new soTimeout value
      * @throws IOException if an I/O error occurs
@@ -264,10 +265,10 @@ public class LWRMulticast implements MessageListener {
      * @param msg message
      * @return The source value
      */
-    public static long getSequenceID( Message msg) {
+    public static long getSequenceID(Message msg) {
         Object value = msg.getMessageElement(SEQTAG);
         if (value instanceof Long) {
-            return (Long)value;
+            return (Long) value;
         }
         return -1;
     }
@@ -281,8 +282,8 @@ public class LWRMulticast implements MessageListener {
     public static PeerID getSource(Message msg) {
         PeerID id = null;
         Object value = msg.getMessageElement(SRCIDTAG);
-        if( value instanceof PeerID ) {
-            id = (PeerID)value;
+        if (value instanceof PeerID) {
+            id = (PeerID) value;
         }
         return id;
     }
@@ -290,14 +291,12 @@ public class LWRMulticast implements MessageListener {
     /**
      * Send a message to the predefined set of nodes, and expect a minimum of specified acks.
      * <p>
-     * This method blocks until ack's upto to the specified threshold
-     * have been received or the timeout has been reached.
-     * A call to getAckList() returns a list of ack source peer ID's
+     * This method blocks until ack's upto to the specified threshold have been received or the timeout has been reached. A
+     * call to getAckList() returns a list of ack source peer ID's
      *
-     * @param msg       the message to send
+     * @param msg the message to send
      * @param threshold the minimun of ack expected, 0 indicates none are expected
-     * @throws IOException if an i/o error occurs, or SocketTimeoutException
-     *                     if the threshold is not met within timeout
+     * @throws IOException if an i/o error occurs, or SocketTimeoutException if the threshold is not met within timeout
      */
     public void send(Message msg, int threshold) throws IOException {
         if (threshold < 0) {
@@ -341,27 +340,28 @@ public class LWRMulticast implements MessageListener {
      *
      * @param pid destination PeerID
      * @param msg the message to send
-     * @return boolean <code>true</code> if the message has been sent otherwise
-     * <code>false</code>. <code>false</code>. is commonly returned for
-     * non-error related congestion, meaning that you should be able to send
-     * the message after waiting some amount of time.
+     * @return boolean <code>true</code> if the message has been sent otherwise <code>false</code>. <code>false</code>. is
+     * commonly returned for non-error related congestion, meaning that you should be able to send the message after waiting
+     * some amount of time.
      * @throws IOException if an i/o error occurs
      */
     public boolean send(PeerID pid, Message msg) throws IOException {
         checkState();
         LOG.log(Level.FINEST, "Sending a message");
-        if( pid != null ) {
-            MessageSender sender = manager.getNetworkManager().getMessageSender( ShoalMessageSender.UDP_TRANSPORT );
-            if( sender == null )
-                throw new IOException( "message sender is null" );
-            return sender.send( pid, msg );
+        if (pid != null) {
+            MessageSender sender = manager.getNetworkManager().getMessageSender(ShoalMessageSender.UDP_TRANSPORT);
+            if (sender == null) {
+                throw new IOException("message sender is null");
+            }
+            return sender.send(pid, msg);
         } else {
             // multicast
             MulticastMessageSender sender = manager.getNetworkManager().getMulticastMessageSender();
-            if( sender == null )
-                throw new IOException( "multicast sender is null" );
-            return sender.broadcast( msg );
-            //wait for ack's
+            if (sender == null) {
+                throw new IOException("multicast sender is null");
+            }
+            return sender.broadcast(msg);
+            // wait for ack's
         }
     }
 
@@ -370,10 +370,9 @@ public class LWRMulticast implements MessageListener {
      *
      * @param ids destination PeerIDs
      * @param msg the message to send
-     * @return boolean <code>true</code> if the message has been sent otherwise
-     * <code>false</code>. <code>false</code>. is commonly returned for
-     * non-error related congestion, meaning that you should be able to send
-     * the message after waiting some amount of time.
+     * @return boolean <code>true</code> if the message has been sent otherwise <code>false</code>. <code>false</code>. is
+     * commonly returned for non-error related congestion, meaning that you should be able to send the message after waiting
+     * some amount of time.
      * @throws IOException if an i/o error occurs
      */
     public boolean send(Set<PeerID> ids, Message msg) throws IOException {
@@ -386,12 +385,14 @@ public class LWRMulticast implements MessageListener {
         LOG.log(Level.FINEST, "Sending a message");
         if (!ids.isEmpty()) {
             // Unicast datagram
-            MessageSender sender = manager.getNetworkManager().getMessageSender( ShoalMessageSender.UDP_TRANSPORT );
-            if( sender == null )
-                throw new IOException( "message sender is null" );
-            for( PeerID peerID: ids ) {
-                if( !sender.send( peerID, msg ) )
+            MessageSender sender = manager.getNetworkManager().getMessageSender(ShoalMessageSender.UDP_TRANSPORT);
+            if (sender == null) {
+                throw new IOException("message sender is null");
+            }
+            for (PeerID peerID : ids) {
+                if (!sender.send(peerID, msg)) {
                     sent = false;
+                }
             }
             if (!sent) {
                 return sent;
@@ -414,7 +415,6 @@ public class LWRMulticast implements MessageListener {
                 }
             }
         }
-         return sent;
+        return sent;
     }
 }
-

@@ -17,15 +17,12 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Provides notification of a member's suspected (unconfirmed) failure.
- * This is sent on the first detection of an unresponsive member.
- * When the failure is confirmed, the FailureNotificationSignal is sent.
- * Clients wishing to know about suspected failure can register
- * the corresponding FailureSuspectedActionFactory implementation and
- * provide a FailureSuspectedAction implementation for consuming this
- * Signal.
- * @author Shreedhar Ganapathy
- *         Date: Sep 14, 2005
+ * Provides notification of a member's suspected (unconfirmed) failure. This is sent on the first detection of an
+ * unresponsive member. When the failure is confirmed, the FailureNotificationSignal is sent. Clients wishing to know
+ * about suspected failure can register the corresponding FailureSuspectedActionFactory implementation and provide a
+ * FailureSuspectedAction implementation for consuming this Signal.
+ *
+ * @author Shreedhar Ganapathy Date: Sep 14, 2005
  * @version $Revision$
  */
 public interface FailureSuspectedSignal extends Signal {

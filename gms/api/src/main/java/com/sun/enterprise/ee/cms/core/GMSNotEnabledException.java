@@ -14,27 +14,29 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
- package com.sun.enterprise.ee.cms.core;
+package com.sun.enterprise.ee.cms.core;
 
 /**
- * @author Shreedhar Ganapathy
- *         Date: Aug 9, 2005
+ * @author Shreedhar Ganapathy Date: Aug 9, 2005
  * @version $Revision$
  */
 public class GMSNotEnabledException extends GMSException {
-    public GMSNotEnabledException(){
+   
+    private static final long serialVersionUID = -9164334926157710973L;
+
+    public GMSNotEnabledException() {
         super();
     }
 
-    public GMSNotEnabledException ( final String msg ) {
+    public GMSNotEnabledException(final String msg) {
         super(msg);
     }
 
-    public GMSNotEnabledException (final String msg, final Throwable cause){
-        super (msg, cause);
+    public GMSNotEnabledException(final String msg, final Throwable cause) {
+        super(msg, cause);
     }
 
-    public GMSNotEnabledException(final Throwable cause){
+    public GMSNotEnabledException(final Throwable cause) {
         super(cause);
     }
 }

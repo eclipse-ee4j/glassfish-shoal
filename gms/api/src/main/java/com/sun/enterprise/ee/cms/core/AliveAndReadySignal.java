@@ -21,5 +21,6 @@ package com.sun.enterprise.ee.cms.core;
  */
 public interface AliveAndReadySignal {
     AliveAndReadyView getCurrentView();
+
     AliveAndReadyView getPreviousView();
 }

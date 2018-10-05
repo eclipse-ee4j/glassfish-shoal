@@ -16,11 +16,7 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.impl.common.DSCMessage;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.impl.common.GMSContext;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import static java.util.logging.Level.FINER;
 
 import java.io.Serializable;
 import java.util.Hashtable;
@@ -31,40 +27,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
-import static java.util.logging.Level.FINER;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSCacheable;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.impl.common.DSCMessage;
+import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
- * Messaging based implementation of a shared distributed state cache(DSC).
- * Every write entry made such as adding a new entry or removing an existing
- * entry is disseminated to all group members through a message. Read-only
- * operation i.e getFromCache() is a local call. During startup of a member, a
- * singleton instance of this class is created. This instance is available to
- * GMS client components in this member through
- * GroupHandle.getDistributedStateCache() so that the client components can
- * read or write to this cache.
- * <p>When an entry is added or removed, this implementation uses underlying
- * GroupCommunicationProvider(GCP) to sends a message to the all members of the
- * group. The recipients in turn call corresponding method for adding or
- * removing the entry to/from their copy of the this DistributedStateCache
- * implementation.
- * <p> When new member joins the group, the join notification is received
- * on every member. When this happens, and if this member is a leader of the
- * group, then it uses the GCP's messaging api to sends a message to the new
- * member to pass on the current state of this DSC. The remote member updates
- * its DSC with this current state while returning its own state to this member
- * through another message. This member updates its own DSC with this new entry
- * resulting in all members getting this updated state.  This brings the
- * group-wide DSC into a synchronized state.
- * <p>This initial sync-up is a heavy weight operation particularly during
- * startup of the whole group concurrently as new members are joining the group
- * rapidly.
- * To prevent data loss during such times, each sync activity will require a
- * blocking call to ensure that rapid group view changes during group startup
- * will not result in data loss.
+ * Messaging based implementation of a shared distributed state cache(DSC). Every write entry made such as adding a new
+ * entry or removing an existing entry is disseminated to all group members through a message. Read-only operation i.e
+ * getFromCache() is a local call. During startup of a member, a singleton instance of this class is created. This
+ * instance is available to GMS client components in this member through GroupHandle.getDistributedStateCache() so that
+ * the client components can read or write to this cache.
+ * <p>
+ * When an entry is added or removed, this implementation uses underlying GroupCommunicationProvider(GCP) to sends a
+ * message to the all members of the group. The recipients in turn call corresponding method for adding or removing the
+ * entry to/from their copy of the this DistributedStateCache implementation.
+ * <p>
+ * When new member joins the group, the join notification is received on every member. When this happens, and if this
+ * member is a leader of the group, then it uses the GCP's messaging api to sends a message to the new member to pass on
+ * the current state of this DSC. The remote member updates its DSC with this current state while returning its own
+ * state to this member through another message. This member updates its own DSC with this new entry resulting in all
+ * members getting this updated state. This brings the group-wide DSC into a synchronized state.
+ * <p>
+ * This initial sync-up is a heavy weight operation particularly during startup of the whole group concurrently as new
+ * members are joining the group rapidly. To prevent data loss during such times, each sync activity will require a
+ * blocking call to ensure that rapid group view changes during group startup will not result in data loss.
  *
- * @author Shreedhar Ganapathy
- *         Date: June 20, 2006
+ * @author Shreedhar Ganapathy Date: June 20, 2006
  * @version $Revision$
  */
 public class DistributedStateCacheImpl implements DistributedStateCache {
@@ -78,7 +74,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     private final Object cacheUpdated = new Object();
     private AtomicBoolean waitingForUpdate = new AtomicBoolean(false);
 
-    //private constructor for single instantiation
+    // private constructor for single instantiation
     private DistributedStateCacheImpl(final String groupName) {
         this.groupName = groupName;
         this.cache = new ConcurrentHashMap<GMSCacheable, Object>();
@@ -88,7 +84,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
 
     private void waitForCacheUpdate(long waitTimeMs) {
         boolean setWaitingForUpdate = waitingForUpdate.compareAndSet(false, true);
-        synchronized(cacheUpdated) {
+        synchronized (cacheUpdated) {
             try {
                 cacheUpdated.wait(waitTimeMs);
             } catch (InterruptedException ie) {
@@ -102,13 +98,13 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
 
     private void notifyCacheUpdate() {
         if (waitingForUpdate.get()) {
-            synchronized(cacheUpdated) {
+            synchronized (cacheUpdated) {
                 cacheUpdated.notifyAll();
             }
         }
     }
 
-    //return the only instance we want to return
+    // return the only instance we want to return
     static DistributedStateCache getInstance(final String groupName) {
         // NOTE: assumes, that constructing an DistributedStateCacheImpl instance is light weight
         // and does not introduce any other dependencies (like registering itself somewhere, etc)
@@ -134,52 +130,39 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     }
 
     /*
-     * adds entry to local cache and calls remote members to add the entry to
-     * their cache
+     * adds entry to local cache and calls remote members to add the entry to their cache
      */
-    public void addToCache(
-            final String componentName, final String memberTokenId,
-            final Serializable key, final Serializable state)
-            throws GMSException {
+    public void addToCache(final String componentName, final String memberTokenId, final Serializable key, final Serializable state) throws GMSException {
         if (logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, "Adding to DSC by local Member:" + memberTokenId +
-                    ",Component:" + componentName + ",key:" + key +
-                    ",State:" + state);
+            logger.log(Level.FINER, "Adding to DSC by local Member:" + memberTokenId + ",Component:" + componentName + ",key:" + key + ",State:" + state);
         }
         final GMSCacheable cKey = createCompositeKey(componentName, memberTokenId, key);
         addToLocalCache(cKey, state);
         addToRemoteCache(cKey, state);
     }
 
-    public void addToCache(final String componentName,
-                           final String memberTokenId,
-                           final Serializable key,
-                           final byte[] state) throws GMSException {
+    public void addToCache(final String componentName, final String memberTokenId, final Serializable key, final byte[] state) throws GMSException {
         if (logger.isLoggable(FINER)) {
-            logger.log(FINER, new StringBuilder().append("Adding to DSC by local Member:").append(memberTokenId).append(",Component:").append(componentName).append(",key:").append(key).append(",State:").append(state).toString());
+            logger.log(FINER, new StringBuilder().append("Adding to DSC by local Member:").append(memberTokenId).append(",Component:").append(componentName)
+                    .append(",key:").append(key).append(",State:").append(state).toString());
         }
         final GMSCacheable cKey = createCompositeKey(componentName, memberTokenId, key);
         addToLocalCache(cKey, state);
         addToRemoteCache(cKey, state);
     }
-
 
     public void addToLocalCache(final String componentName, final String memberTokenId, final Serializable key, final Serializable state) {
         final GMSCacheable cKey = createCompositeKey(componentName, memberTokenId, key);
         addToLocalCache(cKey, state);
     }
 
-    public void addToLocalCache(final String componentName,
-                                final String memberTokenId,
-                                final Serializable key,
-                                final byte[] state) {
+    public void addToLocalCache(final String componentName, final String memberTokenId, final Serializable key, final byte[] state) {
         final GMSCacheable cKey = createCompositeKey(componentName, memberTokenId, key);
         addToLocalCache(cKey, state);
     }
 
     /*
-     * This is called by both addToCache() method and by the
-     * RPCInvocationHandler to handle remote sync operations.
+     * This is called by both addToCache() method and by the RPCInvocationHandler to handle remote sync operations.
      */
     public void addToLocalCache(GMSCacheable cKey, final Object state) {
         cKey = getTrueKey(cKey);
@@ -207,7 +190,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
 
             if (ctx == null) {
                 // TODO: ouch, we have received null from the factory. what to do? throwing an exception? log at least
-                logger.log(Level.WARNING, "dsc.no.ctx", new Object[]{groupName});
+                logger.log(Level.WARNING, "dsc.no.ctx", new Object[] { groupName });
             } else {
                 // set our not null ctx as the new value on ctxRef, expecting its value is still null
                 boolean oldValueWasNull = ctxRef.compareAndSet(null, ctx);
@@ -232,11 +215,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         final ConcurrentHashMap<GMSCacheable, Object> copy;
         copy = new ConcurrentHashMap<GMSCacheable, Object>(cache);
         for (Map.Entry<GMSCacheable, Object> entry : copy.entrySet()) {
-            buf.append(entry.getKey().hashCode()).append(" key=")
-                    .append(entry.getKey().toString())
-                    .append(" : value=")
-                    .append(entry.getValue())
-                    .append("\n");
+            buf.append(entry.getKey().hashCode()).append(" key=").append(entry.getKey().toString()).append(" : value=").append(entry.getValue()).append("\n");
         }
         return buf.toString();
     }
@@ -248,8 +227,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     }
 
     /*
-     * removes an entry from local cache and calls remote members to remove
-     * the entry from their cache
+     * removes an entry from local cache and calls remote members to remove the entry from their cache
      */
     public void removeFromCache(final String componentName, final String memberTokenId, final Serializable key) throws GMSException {
         final GMSCacheable cKey = createCompositeKey(componentName, memberTokenId, key);
@@ -272,20 +250,14 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     /*
      * retrieves an entry from the local cache for the given parameters
      */
-    public Object getFromCache(final String componentName, final String memberTokenId,
-                               final Serializable key) throws GMSException {
+    public Object getFromCache(final String componentName, final String memberTokenId, final Serializable key) throws GMSException {
         if (key != null && componentName != null && memberTokenId != null) {
-            GMSCacheable cKey = createCompositeKey(componentName, memberTokenId,
-                    key);
+            GMSCacheable cKey = createCompositeKey(componentName, memberTokenId, key);
             cKey = getTrueKey(cKey);
             return cache.get(cKey);
-        } else {  //TODO: Localize
-            throw new GMSException(
-                    new StringBuffer().append(
-                            "DistributedStateCache: ")
-                            .append("componentName, memberTokenId and key ")
-                            .append("are required parameters and cannot be null")
-                            .toString());
+        } else { // TODO: Localize
+            throw new GMSException(new StringBuffer().append("DistributedStateCache: ").append("componentName, memberTokenId and key ")
+                    .append("are required parameters and cannot be null").toString());
         }
     }
 
@@ -312,8 +284,8 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         final Map<Serializable, Serializable> retval = new Hashtable<Serializable, Serializable>();
         if (componentName == null || memberToken == null) {
             if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "DistributedStateCacheImpl.getFromCachePattern() parameter is null.  component=" +
-                        componentName + " member=" + memberToken);
+                logger.log(Level.FINE,
+                        "DistributedStateCacheImpl.getFromCachePattern() parameter is null.  component=" + componentName + " member=" + memberToken);
             }
             return retval;
         }
@@ -327,8 +299,8 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
             List<String> currentMembers = getGMSContext().getGroupHandle().getAllCurrentMembers();
 
             // first check if the instance that set the key value pair originally is a current group member.
-            if (currentMembers != null && ! currentMembers.contains( remoteDSCMemberToken)) {
-                
+            if (currentMembers != null && !currentMembers.contains(remoteDSCMemberToken)) {
+
                 // memberToken that originally set the key value pair has left group,
                 // so lets try to get memberTokens distributed state cache values from oldest current member.
                 // NOTE: that jts TX_LOG_DIR is the location of log directory for a failed server
@@ -336,34 +308,32 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
                 // scenario for getting an instances' key value pair when the instance is no longer around.
                 remoteDSCMemberToken = getOldestCurrentMember(thisMember);
                 if (logger.isLoggable(Level.FINE)) {
-                    logger.log(Level.FINE, "getFromCacheForPattern componentName:" + componentName + " memberToken:" + memberToken +
-                                            " missing data in local cache. look up data from oldest group member:" + remoteDSCMemberToken);
+                    logger.log(Level.FINE, "getFromCacheForPattern componentName:" + componentName + " memberToken:" + memberToken
+                            + " missing data in local cache. look up data from oldest group member:" + remoteDSCMemberToken);
                 }
             }
             if (!getGMSContext().isShuttingDown()) {
                 ConcurrentHashMap<GMSCacheable, Object> temp = new ConcurrentHashMap<GMSCacheable, Object>(cache);
                 DSCMessage msg = new DSCMessage(temp, DSCMessage.OPERATION.ADDALLLOCAL.toString(), true);
                 try {
-                    boolean sent = sendMessage( remoteDSCMemberToken, msg);
+                    boolean sent = sendMessage(remoteDSCMemberToken, msg);
                     if (sent) {
                         final long MAX_WAIT = 6000;
                         final long startTime = System.currentTimeMillis();
                         final long stopTime = startTime + MAX_WAIT;
                         final long WAIT_INTERVAL = 1500;
-                        while (retval.isEmpty() &&
-                               System.currentTimeMillis() < stopTime) {
+                        while (retval.isEmpty() && System.currentTimeMillis() < stopTime) {
                             waitForCacheUpdate(WAIT_INTERVAL);
                             retval.putAll(getEntryFromCacheForPattern(componentName, memberToken));
                         }
                         if (logger.isLoggable(Level.FINE)) {
                             final long DURATION = System.currentTimeMillis() - startTime;
-                            logger.fine("getFromCacheForPattern waited " + DURATION + " ms for result " +
-                                    retval);
+                            logger.fine("getFromCacheForPattern waited " + DURATION + " ms for result " + retval);
                         }
                     } else {
                         if (logger.isLoggable(Level.FINE)) {
-                            logger.log(Level.FINE, "DistributedStateCacheImpl.getFromCachePattern() send failed for component=" +
-                                    componentName + " member=" + memberToken);
+                            logger.log(Level.FINE,
+                                    "DistributedStateCacheImpl.getFromCachePattern() send failed for component=" + componentName + " member=" + memberToken);
                         }
                     }
                 } catch (GMSException e) {
@@ -371,10 +341,9 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
                 }
             } else {
                 logger.log(Level.FINE,
-                        "getFromCacheForPattern(" + componentName + "," + memberToken + ")" +
-                                ": returning empty map. " +
-                                "reason: isShuttingDown()=" + getGMSContext().isShuttingDown() +
-                                " isCurrentMember=" + getGMSContext().getGroupHandle().getAllCurrentMembers().contains(memberToken));
+                        "getFromCacheForPattern(" + componentName + "," + memberToken + ")" + ": returning empty map. " + "reason: isShuttingDown()="
+                                + getGMSContext().isShuttingDown() + " isCurrentMember="
+                                + getGMSContext().getGroupHandle().getAllCurrentMembers().contains(memberToken));
             }
         }
         if (retval.isEmpty()) {
@@ -388,7 +357,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         GMSMember oldestMember = null;
         if (currentMembers != null) {
             for (GMSMember member : currentMembers) {
-                if (member.getMemberToken().equals(exclude)){
+                if (member.getMemberToken().equals(exclude)) {
                     continue;
                 }
                 if (oldestMember == null) {
@@ -405,11 +374,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     public Map<GMSCacheable, Object> getFromCache(final Object key) {
         final Map<GMSCacheable, Object> retval = new Hashtable<GMSCacheable, Object>();
         for (GMSCacheable c : cache.keySet()) {
-            if (key.equals(c.getComponentName())
-                    ||
-                    key.equals(c.getMemberTokenId())
-                    ||
-                    key.equals(c.getKey())) {
+            if (key.equals(c.getComponentName()) || key.equals(c.getMemberTokenId()) || key.equals(c.getKey())) {
                 retval.put(c, cache.get(c));
             }
         }
@@ -420,8 +385,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         boolean retval = false;
         for (GMSCacheable c : cache.keySet()) {
             if (logger.isLoggable(FINER)) {
-                logger.log(FINER,
-                        new StringBuffer().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
+                logger.log(FINER, new StringBuffer().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
             }
             if (key.equals(c.getKey())) {
                 retval = true;
@@ -434,14 +398,10 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         boolean retval = false;
         for (GMSCacheable c : cache.keySet()) {
             if (logger.isLoggable(FINER)) {
-                logger.log(FINER,
-                        new StringBuffer().append("comp=").append(componentName).append(" underlying comp=").append(c.getComponentName()).toString());
-                logger.log(FINER,
-                        new StringBuffer().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
+                logger.log(FINER, new StringBuffer().append("comp=").append(componentName).append(" underlying comp=").append(c.getComponentName()).toString());
+                logger.log(FINER, new StringBuffer().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
             }
-            if (key.equals(c.getKey())
-                    &&
-                    componentName.equals(c.getComponentName())) {
+            if (key.equals(c.getKey()) && componentName.equals(c.getComponentName())) {
                 retval = true;
             }
         }
@@ -449,9 +409,9 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     }
 
     /*
-     * adds all entries from a collection to the cache. This is used
-     * to sync states with the group when this instance is joining an existing
-     * group.
+     * adds all entries from a collection to the cache. This is used to sync states with the group when this instance is
+     * joining an existing group.
+     *
      * @param map - containing a GMSCacheable as key and an Object as value.
      */
     void addAllToLocalCache(final Map<GMSCacheable, Object> map) {
@@ -464,41 +424,35 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         logger.log(FINER, "done adding all to Distributed State Cache");
     }
 
-    void addAllToRemoteCache()
-            throws GMSException {
+    void addAllToRemoteCache() throws GMSException {
         ConcurrentHashMap<GMSCacheable, Object> temp;
         temp = new ConcurrentHashMap<GMSCacheable, Object>(cache);
-        final DSCMessage msg = new DSCMessage(temp,
-                DSCMessage.OPERATION.ADDALLREMOTE.toString(),
-                false);
+        final DSCMessage msg = new DSCMessage(temp, DSCMessage.OPERATION.ADDALLREMOTE.toString(), false);
         sendMessage(null, msg);
 
     }
 
     /**
-     * removes all entries pertaining to a particular component and member
-     * token id, except those marked by special keys.
-     * <p>A null component name would indicate that all entries pertaining to a
-     * member be removed except for the ones specified by the special keys.
-     * <p> Null special keys would indicate that all entries pertaining to a
-     * member token id be removed.
-     * <p> This operation could also be used to sync states of the group when an
-     * instance has failed/left the group.
+     * removes all entries pertaining to a particular component and member token id, except those marked by special keys.
+     * <p>
+     * A null component name would indicate that all entries pertaining to a member be removed except for the ones specified
+     * by the special keys.
+     * <p>
+     * Null special keys would indicate that all entries pertaining to a member token id be removed.
+     * <p>
+     * This operation could also be used to sync states of the group when an instance has failed/left the group.
      *
      * @param componentName component name
      * @param memberTokenId member token id
-     * @param exempted      - an List of Serializable keys that are exempted from
-     *                      being removed from the cache as part of this operation.
+     * @param exempted - an List of Serializable keys that are exempted from being removed from the cache as part of this
+     * operation.
      */
-    void removeAllFromCache(final String componentName,
-                            final String memberTokenId,
-                            final List<Serializable> exempted) {
-        //TODO: Implement this for clean bookkeeping
+    void removeAllFromCache(final String componentName, final String memberTokenId, final List<Serializable> exempted) {
+        // TODO: Implement this for clean bookkeeping
     }
 
     Hashtable<GMSCacheable, Object> getAllEntries() {
-        final Hashtable<GMSCacheable, Object> temp =
-                new Hashtable<GMSCacheable, Object>();
+        final Hashtable<GMSCacheable, Object> temp = new Hashtable<GMSCacheable, Object>();
         for (GMSCacheable key : cache.keySet()) {
             temp.put(key, cache.get(key));
         }
@@ -530,8 +484,8 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
             if (logger.isLoggable(Level.FINER)) {
                 logger.log(Level.FINER, "Sending sync message from DistributedStateCache to member " + peerID);
             }
-            boolean result = ((GroupCommunicationProviderImpl)this.ctxRef.get().getGroupCommunicationProvider()).sendMessage(peerID, msg);
-            if (logger.isLoggable(Level.FINE))  {
+            boolean result = ((GroupCommunicationProviderImpl) this.ctxRef.get().getGroupCommunicationProvider()).sendMessage(peerID, msg);
+            if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "synch cache sent result:" + result + " with member:" + peerID.getInstanceName() + " id:" + peerID);
             }
         }
@@ -553,9 +507,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         return cKey;
     }
 
-    private static GMSCacheable createCompositeKey(
-            final String componentName, final String memberTokenId,
-            final Object key) {
+    private static GMSCacheable createCompositeKey(final String componentName, final String memberTokenId, final Object key) {
         return new GMSCacheable(componentName, memberTokenId, key);
     }
 
@@ -564,10 +516,9 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
      *
      * @param member if null, send <code>msg</code> to all members of the group
      * @param msg
-     * @return boolean <code>true</code> if the message has been sent otherwise
-     *         <code>false</code>. <code>false</code>. is commonly returned for
-     *         non-error related congestion, meaning that you should be able to send
-     *         the message after waiting some amount of time.
+     * @return boolean <code>true</code> if the message has been sent otherwise <code>false</code>. <code>false</code>. is
+     * commonly returned for non-error related congestion, meaning that you should be able to send the message after waiting
+     * some amount of time.
      * @throws com.sun.enterprise.ee.cms.core.GMSException
      *
      */
@@ -577,12 +528,11 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
             getGMSContext().getGroupCommunicationProvider().sendMessage(member, msg, true);
             sent = true;
         } catch (MemberNotInViewException e) {
-            if (logger.isLoggable(Level.FINE)){
-                logger.log(Level.FINE, "Member " + member +
-                        " is not in the view anymore. Hence not performing sendMessage operation", e);
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Member " + member + " is not in the view anymore. Hence not performing sendMessage operation", e);
             }
         } catch (GMSException ge) {
-            logger.log(Level.WARNING, "dsc.send.failed", new Object[]{member, msg});
+            logger.log(Level.WARNING, "dsc.send.failed", new Object[] { member, msg });
         }
         return sent;
     }
@@ -601,9 +551,8 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     }
 
     /**
-     * Empties the DistributedStateCache. This is typically called in a group
-     * shutdown context so that the group's stale data is not retained for any
-     * later lives of the group.
+     * Empties the DistributedStateCache. This is typically called in a group shutdown context so that the group's stale
+     * data is not retained for any later lives of the group.
      */
     public void removeAll() {
         cache.clear();

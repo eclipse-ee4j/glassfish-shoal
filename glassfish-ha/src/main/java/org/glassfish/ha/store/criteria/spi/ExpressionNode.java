@@ -25,8 +25,7 @@ import org.glassfish.ha.store.criteria.Expression;
  *
  * @author Mahesh.Kannan@Sun.Com
  */
-public abstract class ExpressionNode<T>
-    implements Expression<T> {
+public abstract class ExpressionNode<T> implements Expression<T> {
 
     private Opcode opcode;
 
@@ -44,5 +43,5 @@ public abstract class ExpressionNode<T>
     public Class<T> getReturnType() {
         return returnType;
     }
-    
+
 }

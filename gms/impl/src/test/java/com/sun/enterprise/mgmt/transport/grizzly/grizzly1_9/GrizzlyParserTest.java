@@ -16,19 +16,6 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly1_9;
 
-import com.sun.grizzly.Context;
-import com.sun.grizzly.Controller;
-import com.sun.grizzly.DefaultProtocolChain;
-import com.sun.grizzly.DefaultProtocolChainInstanceHandler;
-import com.sun.grizzly.ProtocolChain;
-import com.sun.grizzly.ProtocolFilter;
-import com.sun.grizzly.ProtocolParser;
-import com.sun.grizzly.TCPSelectorHandler;
-import com.sun.grizzly.filter.ParserProtocolFilter;
-import com.sun.grizzly.util.OutputWriter;
-import com.sun.grizzly.util.WorkerThreadImpl;
-import junit.framework.TestCase;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -40,6 +27,20 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
 import java.util.Arrays;
 import java.util.logging.Level;
+
+import com.sun.grizzly.Context;
+import com.sun.grizzly.Controller;
+import com.sun.grizzly.DefaultProtocolChain;
+import com.sun.grizzly.DefaultProtocolChainInstanceHandler;
+import com.sun.grizzly.ProtocolChain;
+import com.sun.grizzly.ProtocolFilter;
+import com.sun.grizzly.ProtocolParser;
+import com.sun.grizzly.TCPSelectorHandler;
+import com.sun.grizzly.filter.ParserProtocolFilter;
+import com.sun.grizzly.util.OutputWriter;
+import com.sun.grizzly.util.WorkerThreadImpl;
+
+import junit.framework.TestCase;
 
 /**
  * Set of Grizzly tests
@@ -63,7 +64,7 @@ public class GrizzlyParserTest extends TestCase {
         enableDebug(false);
 
         controller = initializeServer();
-        }
+    }
 
     @Override
     protected void tearDown() throws Exception {
@@ -86,7 +87,7 @@ public class GrizzlyParserTest extends TestCase {
 
         s.close();
         assertEquals(1, result);
-        }
+    }
 
     public void testChunkedMessage() throws IOException {
         Socket s = new Socket("localhost", PORT);
@@ -95,26 +96,26 @@ public class GrizzlyParserTest extends TestCase {
 
         byte[] message = createMessage(3);
 
-        os.write(message, 0, 4);  // MAGIC
+        os.write(message, 0, 4); // MAGIC
         sleep(os, 1000);
 
-        os.write(message, 4, 4);  // VERSION
+        os.write(message, 4, 4); // VERSION
         sleep(os, 1000);
 
-        os.write(message, 8, 4);  // TYPE
+        os.write(message, 8, 4); // TYPE
         sleep(os, 1000);
 
-        os.write(message, 12, 4);  // BODY-SIZE
+        os.write(message, 12, 4); // BODY-SIZE
         sleep(os, 2000);
 
-        os.write(message, 16, 4);  // PARAMS-COUNT
+        os.write(message, 16, 4); // PARAMS-COUNT
         sleep(os, 1000);
 
         int messageHalf = (message.length - 20) / 2;
-        os.write(message, 20, messageHalf);  // BODY#1
+        os.write(message, 20, messageHalf); // BODY#1
         sleep(os, 2000);
 
-        os.write(message, 20 + messageHalf, message.length - messageHalf - 20);  // BODY #2
+        os.write(message, 20 + messageHalf, message.length - messageHalf - 20); // BODY #2
         os.flush();
 
         InputStream is = s.getInputStream();
@@ -122,7 +123,7 @@ public class GrizzlyParserTest extends TestCase {
 
         s.close();
         assertEquals(1, result);
-        }
+    }
 
     public void testOneAndHalfMessage() throws IOException {
         Socket s = new Socket("localhost", PORT);
@@ -137,10 +138,10 @@ public class GrizzlyParserTest extends TestCase {
 
         int oneAndHalf = message1.length + message2.length / 2;
 
-        os.write(totalMessage, 0, oneAndHalf);  // 2/3 MESSAGE
+        os.write(totalMessage, 0, oneAndHalf); // 2/3 MESSAGE
         sleep(os, 4000);
 
-        os.write(totalMessage, oneAndHalf, totalMessage.length - oneAndHalf);  // 1/3 MESSAGE
+        os.write(totalMessage, oneAndHalf, totalMessage.length - oneAndHalf); // 1/3 MESSAGE
 
         os.flush();
 
@@ -152,7 +153,7 @@ public class GrizzlyParserTest extends TestCase {
 
         assertEquals(1, result1);
         assertEquals(1, result2);
-        }
+    }
 
     public void testBigMessage() throws IOException {
         Socket s = new Socket("localhost", PORT);
@@ -170,7 +171,7 @@ public class GrizzlyParserTest extends TestCase {
         s.close();
 
         assertEquals(1, result);
-        }
+    }
 
     public void testOneAndHalfBigMessage() throws IOException {
         Socket s = new Socket("localhost", PORT);
@@ -185,10 +186,10 @@ public class GrizzlyParserTest extends TestCase {
 
         int oneAndHalf = message1.length + message2.length / 2;
 
-        os.write(totalMessage, 0, oneAndHalf);  // 2/3 MESSAGE
+        os.write(totalMessage, 0, oneAndHalf); // 2/3 MESSAGE
         sleep(os, 4000);
 
-        os.write(totalMessage, oneAndHalf, totalMessage.length - oneAndHalf);  // 1/3 MESSAGE
+        os.write(totalMessage, oneAndHalf, totalMessage.length - oneAndHalf); // 1/3 MESSAGE
 
         os.flush();
 
@@ -200,7 +201,7 @@ public class GrizzlyParserTest extends TestCase {
 
         assertEquals(1, result1);
         assertEquals(1, result2);
-        }
+    }
 
     public void testTinyRemainder() throws IOException {
         Socket s = new Socket("localhost", PORT);
@@ -231,7 +232,7 @@ public class GrizzlyParserTest extends TestCase {
 
         assertEquals(1, result1);
         assertEquals(1, result2);
-        }
+    }
 
     public void test100KMessages() throws IOException {
         Socket s = new Socket("localhost", PORT);
@@ -246,10 +247,10 @@ public class GrizzlyParserTest extends TestCase {
 
         int oneAndHalf = message1.length + message2.length / 2;
 
-        os.write(totalMessage, 0, oneAndHalf);  // 2/3 MESSAGE
+        os.write(totalMessage, 0, oneAndHalf); // 2/3 MESSAGE
         sleep(os, 4000);
 
-        os.write(totalMessage, oneAndHalf, totalMessage.length - oneAndHalf);  // 1/3 MESSAGE
+        os.write(totalMessage, oneAndHalf, totalMessage.length - oneAndHalf); // 1/3 MESSAGE
 
         os.flush();
 
@@ -346,7 +347,6 @@ public class GrizzlyParserTest extends TestCase {
         }
     }
 
-
     private static Controller initializeServer() {
         final ProtocolFilter resultFilter = new ResultFilter();
         final ParserProtocolFilter parserProtocolFilter = createParserProtocolFilter();
@@ -357,20 +357,19 @@ public class GrizzlyParserTest extends TestCase {
 
         controller.setSelectorHandler(selectorHandler);
 
-        controller.setProtocolChainInstanceHandler(
-                new DefaultProtocolChainInstanceHandler() {
+        controller.setProtocolChainInstanceHandler(new DefaultProtocolChainInstanceHandler() {
 
-                    @Override
-                    public ProtocolChain poll() {
-                        ProtocolChain protocolChain = protocolChains.poll();
-                        if (protocolChain == null) {
-                            protocolChain = new DefaultProtocolChain();
-                            protocolChain.addFilter(parserProtocolFilter);
-                            protocolChain.addFilter(resultFilter);
-}
-                        return protocolChain;
-                    }
-                });
+            @Override
+            public ProtocolChain poll() {
+                ProtocolChain protocolChain = protocolChains.poll();
+                if (protocolChain == null) {
+                    protocolChain = new DefaultProtocolChain();
+                    protocolChain.addFilter(parserProtocolFilter);
+                    protocolChain.addFilter(resultFilter);
+                }
+                return protocolChain;
+            }
+        });
 
         ControllerUtils.startController(controller);
 

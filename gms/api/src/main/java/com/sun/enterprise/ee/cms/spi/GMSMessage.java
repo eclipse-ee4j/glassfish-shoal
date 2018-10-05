@@ -20,10 +20,10 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 
 /**
- * This is a wrapper Serializable so that a message sent to a remote member can 
- * be further filtered to a target component in that remote member.
- * @author Shreedhar Ganapathy
- *         Date: Mar 14, 2005
+ * This is a wrapper Serializable so that a message sent to a remote member can be further filtered to a target
+ * component in that remote member.
+ *
+ * @author Shreedhar Ganapathy Date: Mar 14, 2005
  * @version $Revision$
  */
 
@@ -35,12 +35,9 @@ public class GMSMessage implements Serializable {
     private final String groupName;
     private final Long startTime;
 
-    public GMSMessage(final String componentName,
-                      final byte[] message,
-                      final String groupName, 
-                      final Long startTime){
+    public GMSMessage(final String componentName, final byte[] message, final String groupName, final Long startTime) {
         if (componentName == null) {
-            throw new IllegalArgumentException("parameter componentName must be non-null");    
+            throw new IllegalArgumentException("parameter componentName must be non-null");
         }
         if (groupName == null) {
             throw new IllegalArgumentException("parameter groupName must be non-null");
@@ -48,25 +45,25 @@ public class GMSMessage implements Serializable {
 
         // a componentName of null acts as a wildcard and the message is delivered to all
         // target components. see GroupHandle.sendMessage javadoc for details.
-        this.componentName=componentName;
-        this.message=message;
+        this.componentName = componentName;
+        this.message = message;
         this.groupName = groupName;
         this.startTime = startTime;
     }
 
-    public String getComponentName(){
+    public String getComponentName() {
         return componentName;
     }
 
-    public byte[] getMessage(){
+    public byte[] getMessage() {
         return message;
     }
 
-    public String getGroupName(){
+    public String getGroupName() {
         return groupName;
     }
 
-    public long getStartTime () {
+    public long getStartTime() {
         if (startTime == null) {
             return 0;
         }
@@ -81,7 +78,7 @@ public class GMSMessage implements Serializable {
         if (message.length < 30) {
             sb.append(new String(message, Charset.defaultCharset()));
         } else {
-            sb.append(new String(message, Charset.defaultCharset()).substring(0,15));
+            sb.append(new String(message, Charset.defaultCharset()).substring(0, 15));
         }
         sb.append(" group:").append(groupName);
         return sb.toString();

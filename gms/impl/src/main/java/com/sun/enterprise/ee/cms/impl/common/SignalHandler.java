@@ -16,6 +16,11 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.FailureNotificationSignal;
 import com.sun.enterprise.ee.cms.core.FailureRecoverySignal;
 import com.sun.enterprise.ee.cms.core.FailureSuspectedSignal;
@@ -27,17 +32,11 @@ import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
 import com.sun.enterprise.ee.cms.core.Signal;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
- * On a separate thread, analyses and handles the Signals delivered to it.
- * Picks up signals from a BlockingQueue and processes them.
+ * On a separate thread, analyses and handles the Signals delivered to it. Picks up signals from a BlockingQueue and
+ * processes them.
  *
- * @author Shreedhar Ganapathy
- *         Date: Jan 22, 2004
+ * @author Shreedhar Ganapathy Date: Jan 22, 2004
  * @version $Revision$
  */
 public class SignalHandler implements Runnable {
@@ -74,12 +73,12 @@ public class SignalHandler implements Runnable {
                 } catch (InterruptedException e) {
                     stopped.set(true);
                 } catch (Throwable e) {
-                    logger.log(Level.SEVERE, "sig.handler.unhandled", new Object[]{Thread.currentThread().getName()});
+                    logger.log(Level.SEVERE, "sig.handler.unhandled", new Object[] { Thread.currentThread().getName() });
                     logger.log(Level.WARNING, "stack trace", e);
                 }
             }
         } finally {
-            logger.log(Level.INFO, "sig.handler.thread.terminated", new Object[]{Thread.currentThread().getName()});
+            logger.log(Level.INFO, "sig.handler.thread.terminated", new Object[] { Thread.currentThread().getName() });
         }
     }
 
@@ -97,7 +96,7 @@ public class SignalHandler implements Runnable {
         if (signal == null) {
             throw new IllegalArgumentException("Signal is null. Cannot analyze.");
         }
-        if (logger.isLoggable(Level.FINEST)){
+        if (logger.isLoggable(Level.FINEST)) {
             logger.log(Level.FINEST, "SignalHandler : processing a received signal " + signal.getClass().getName());
         }
         try {
@@ -105,8 +104,7 @@ public class SignalHandler implements Runnable {
                 router.notifyFailureRecoveryAction((FailureRecoverySignal) signal);
             } else if (signal instanceof FailureNotificationSignal) {
                 router.aliveAndReadyView.processNotification(signal);
-                router.notifyFailureNotificationAction(
-                        (FailureNotificationSignal) signal);
+                router.notifyFailureNotificationAction((FailureNotificationSignal) signal);
             } else if (signal instanceof MessageSignal) {
                 router.notifyMessageAction((MessageSignal) signal);
             } else if (signal instanceof JoinNotificationSignal) {
@@ -123,7 +121,7 @@ public class SignalHandler implements Runnable {
                 router.notifyGroupLeadershipNotificationAction((GroupLeadershipNotificationSignal) signal);
             }
         } catch (Throwable t) {
-            logger.log(Level.WARNING, "sig.handler.ignoring.exception", new Object[]{t.getLocalizedMessage()});
+            logger.log(Level.WARNING, "sig.handler.ignoring.exception", new Object[] { t.getLocalizedMessage() });
             logger.log(Level.WARNING, t.getLocalizedMessage(), t);
         }
     }

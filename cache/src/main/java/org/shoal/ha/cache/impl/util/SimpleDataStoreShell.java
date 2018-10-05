@@ -16,11 +16,13 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.glassfish.ha.store.api.Storeable;
-import org.shoal.ha.cache.api.*;
-import org.shoal.ha.mapper.DefaultKeyMapper;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,12 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.glassfish.ha.store.api.Storeable;
+import org.shoal.ha.cache.api.DataStore;
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreFactory;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 
 /**
  * @author Mahesh Kannan
@@ -41,18 +49,11 @@ public class SimpleDataStoreShell {
 
     int counter = 0;
 
-    public static void main(String[] args)
-        throws Exception {
+    public static void main(String[] args) throws Exception {
 
         DataStoreContext<String, String> conf = new DataStoreContext<String, String>();
-        conf.setStoreName(args[0])
-                .setInstanceName(args[1])
-                .setGroupName(args[2])
-                .setKeyClazz(String.class)
-                .setValueClazz(String.class)
-                .setClassLoader(ClassLoader.getSystemClassLoader())
-                .setStartGMS(true)
-                .setDoAddCommands();
+        conf.setStoreName(args[0]).setInstanceName(args[1]).setGroupName(args[2]).setKeyClazz(String.class).setValueClazz(String.class)
+                .setClassLoader(ClassLoader.getSystemClassLoader()).setStartGMS(true).setDoAddCommands();
         DataStore<String, String> rds = (new DataStoreFactory()).createDataStore(conf);
 
         SimpleDataStoreShell main = new SimpleDataStoreShell();
@@ -80,7 +81,7 @@ public class SimpleDataStoreShell {
                     execute(command, params);
                     counter++;
                 }
-            } catch (IOException  ioEx) {
+            } catch (IOException ioEx) {
                 ioEx.printStackTrace();
             }
         } while (!"quit".equalsIgnoreCase(line));
@@ -94,47 +95,38 @@ public class SimpleDataStoreShell {
     private void execute(String command, String[] params) {
 
         try {
-        if ("put".equalsIgnoreCase(command)) {
-            String key = params[0];
-            ds.put(key, params[1]);
+            if ("put".equalsIgnoreCase(command)) {
+                String key = params[0];
+                ds.put(key, params[1]);
                 System.out.println("PUT " + key);
                 ds.put(key, params[1]);
-            /*
-            for (int i=1; i<8; i++) {
-                String key1 = params[0] + ":" + i;
-                MyStoreable st1 = cache.get(key1);
-                if (st1 == null) {
-                    st1 = new MyStoreable();
-                    cache.put(key1, st1);
+                /*
+                 * for (int i=1; i<8; i++) { String key1 = params[0] + ":" + i; MyStoreable st1 = cache.get(key1); if (st1 == null) {
+                 * st1 = new MyStoreable(); cache.put(key1, st1); }
+                 *
+                 * if (params.length > 1) { st.setStr1(params[1] + ":" + i); } if (params.length > 2) { st.setStr2(params[2] + ":" + i);
+                 * } st.touch(); System.out.println("PUT " + st); ds.save(key1, st1, true); }
+                 */
+            } else if ("get".equalsIgnoreCase(command)) {
+                String value = ds.get(params[0]);
+                System.out.println("get(" + params[0] + ") => " + value);
+                if (value != null) {
+                    cache.put(params[0], value);
                 }
-
-                if (params.length > 1) {
-                    st.setStr1(params[1] + ":" + i);
-                }
-                if (params.length > 2) {
-                    st.setStr2(params[2] + ":" + i);
-                }
-                st.touch();
-                System.out.println("PUT " + st);
-                ds.save(key1, st1, true);
+            } else if ("remove".equalsIgnoreCase(command)) {
+                ds.remove(params[0]);
             }
-            */
-        } else if ("get".equalsIgnoreCase(command)) {
-            String value = ds.get(params[0]);
-            System.out.println("get(" + params[0] + ") => " + value);
-            if (value != null) {
-                cache.put(params[0], value);
-            }
-        } else if ("remove".equalsIgnoreCase(command)) {
-            ds.remove(params[0]);
-        }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public static class MyStoreable
-        implements Storeable {
+    public static class MyStoreable implements Storeable {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = 3735728171574889879L;
 
         long version;
 
@@ -164,10 +156,8 @@ public class SimpleDataStoreShell {
         }
 
         public void setStr1(String str1) {
-            boolean same = str1 != null
-                            ? str1.equals(this.str1)
-                            : this.str1 == null;
-            if (! same) {
+            boolean same = str1 != null ? str1.equals(this.str1) : this.str1 == null;
+            if (!same) {
                 this.str1 = str1;
                 dirty[0] = true;
             }
@@ -178,10 +168,8 @@ public class SimpleDataStoreShell {
         }
 
         public void setStr2(String str2) {
-            boolean same = str2 != null
-                            ? str2.equals(this.str2)
-                            : this.str2 == null;
-            if (! same) {
+            boolean same = str2 != null ? str2.equals(this.str2) : this.str2 == null;
+            if (!same) {
                 this.str2 = str2;
                 dirty[1] = true;
             }
@@ -214,7 +202,7 @@ public class SimpleDataStoreShell {
 
         @Override
         public String[] _storeable_getAttributeNames() {
-            return new String[] {"str1", "str2"};
+            return new String[] { "str1", "str2" };
         }
 
         @Override
@@ -242,7 +230,11 @@ public class SimpleDataStoreShell {
                     }
                 }
             } finally {
-                try {dos.flush(); dos.close(); } catch (IOException ex) {}
+                try {
+                    dos.flush();
+                    dos.close();
+                } catch (IOException ex) {
+                }
             }
         }
 
@@ -271,7 +263,9 @@ public class SimpleDataStoreShell {
                     }
                 }
             } finally {
-                try {dis.close(); } catch (IOException ex) {
+                try {
+                    dis.close();
+                } catch (IOException ex) {
                     Logger.getLogger(ShoalCacheLoggerConstants.CACHE).log(Level.FINEST, "Ignorable error while closing DataInputStream");
                 }
             }
@@ -279,14 +273,8 @@ public class SimpleDataStoreShell {
 
         @Override
         public String toString() {
-            return "MyStoreable{" +
-                    "version=" + version +
-                    ", accessTime=" + accessTime +
-                    ", maxIdleTime=" + maxIdleTime +
-                    ", str1='" + str1 + '\'' +
-                    ", str2='" + str2 + '\'' +
-                    ", dirty=" + Arrays.toString(dirty) +
-                    '}';
+            return "MyStoreable{" + "version=" + version + ", accessTime=" + accessTime + ", maxIdleTime=" + maxIdleTime + ", str1='" + str1 + '\'' + ", str2='"
+                    + str2 + '\'' + ", dirty=" + Arrays.toString(dirty) + '}';
         }
     }
 }

@@ -16,15 +16,12 @@
 
 package org.shoal.adapter.store;
 
-import org.glassfish.ha.store.api.BackingStore;
-import org.glassfish.ha.store.api.BackingStoreConfiguration;
-import org.shoal.ha.cache.api.DataStoreContext;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.shoal.ha.cache.api.DataStoreContext;
 
 /**
  * @author Mahesh Kannan
@@ -32,15 +29,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RepliatedBackingStoreRegistry {
 
+    private static Map<String, DataStoreContext> _contexts = new ConcurrentHashMap<String, DataStoreContext>();
 
-    private static Map<String, DataStoreContext> _contexts
-            = new ConcurrentHashMap<String, DataStoreContext>();
+    private static Map<String, BackingStoreConfiguration> _confs = new ConcurrentHashMap<String, BackingStoreConfiguration>();
 
-    private static Map<String, BackingStoreConfiguration> _confs
-            = new ConcurrentHashMap<String, BackingStoreConfiguration>();
-
-    public static synchronized final void registerStore(String name, BackingStoreConfiguration conf,
-                                                        DataStoreContext ctx) {
+    public static synchronized final void registerStore(String name, BackingStoreConfiguration conf, DataStoreContext ctx) {
         _contexts.put(name, ctx);
         _confs.put(name, conf);
     }

@@ -16,24 +16,6 @@
 
 package org.shoal.ha.cache.impl.store;
 
-import org.glassfish.ha.store.api.Storeable;
-import org.glassfish.ha.store.util.KeyTransformer;
-import org.glassfish.ha.store.util.SimpleMetadata;
-import org.shoal.adapter.store.commands.*;
-import org.shoal.ha.cache.impl.interceptor.ReplicationCommandTransmitterManager;
-import org.shoal.ha.cache.impl.interceptor.ReplicationFramePayloadCommand;
-import org.shoal.ha.cache.impl.util.CommandResponse;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-import org.shoal.ha.cache.impl.util.StringKeyTransformer;
-import org.shoal.ha.group.GroupMemberEventListener;
-import org.shoal.ha.mapper.DefaultKeyMapper;
-import org.shoal.ha.group.GroupService;
-import org.shoal.ha.mapper.KeyMapper;
-import org.shoal.ha.cache.api.*;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.CommandManager;
-
-import javax.management.*;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.Future;
@@ -42,11 +24,49 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+import javax.management.StandardMBean;
+
+import org.glassfish.ha.store.api.Storeable;
+import org.glassfish.ha.store.util.KeyTransformer;
+import org.glassfish.ha.store.util.SimpleMetadata;
+import org.shoal.adapter.store.commands.LoadRequestCommand;
+import org.shoal.adapter.store.commands.RemoveCommand;
+import org.shoal.adapter.store.commands.RemoveExpiredCommand;
+import org.shoal.adapter.store.commands.SaveCommand;
+import org.shoal.adapter.store.commands.SizeRequestCommand;
+import org.shoal.adapter.store.commands.StaleCopyRemoveCommand;
+import org.shoal.adapter.store.commands.TouchCommand;
+import org.shoal.ha.cache.api.DataStore;
+import org.shoal.ha.cache.api.DataStoreAlreadyClosedException;
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.DataStoreMBean;
+import org.shoal.ha.cache.api.IdleEntryDetector;
+import org.shoal.ha.cache.api.ReplicatedDataStoreStatsHolder;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.CommandManager;
+import org.shoal.ha.cache.impl.interceptor.ReplicationCommandTransmitterManager;
+import org.shoal.ha.cache.impl.interceptor.ReplicationFramePayloadCommand;
+import org.shoal.ha.cache.impl.util.CommandResponse;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+import org.shoal.ha.cache.impl.util.StringKeyTransformer;
+import org.shoal.ha.group.GroupMemberEventListener;
+import org.shoal.ha.group.GroupService;
+import org.shoal.ha.mapper.DefaultKeyMapper;
+import org.shoal.ha.mapper.KeyMapper;
+
 /**
  * @author Mahesh Kannan
  */
-public class ReplicatedDataStore<K, V extends Serializable>
-        implements DataStore<K, V> {
+public class ReplicatedDataStore<K, V extends Serializable> implements DataStore<K, V> {
 
     private static final int MAX_REPLICA_TRIES = 1;
 
@@ -78,7 +98,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
 
     private MBeanServer mbs;
     private ObjectName mbeanObjectName;
-    
+
     private AtomicBoolean closed = new AtomicBoolean(false);
 
     public ReplicatedDataStore(DataStoreContext<K, V> conf, GroupService gs) {
@@ -124,7 +144,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
             if (dsc.getKeyClazz() == String.class) {
                 kt = new StringKeyTransformer();
             } else {
-                //kt = new DefaultKeyTransformer(dsc.getClassLoader());
+                // kt = new DefaultKeyTransformer(dsc.getClassLoader());
             }
             dsc.setKeyTransformer(kt);
         }
@@ -148,13 +168,12 @@ public class ReplicatedDataStore<K, V extends Serializable>
 
         if (_logger.isLoggable(Level.FINE)) {
             _logger.log(Level.FINE, "ReplicatedDataStore For {" + dsc.getStoreName() + "} using DataStoreEntryUpdater = "
-                + dsc.getDataStoreEntryUpdater().getClass().getName());
+                    + dsc.getDataStoreEntryUpdater().getClass().getName());
         }
 
         this.cm = new CommandManager<K, V>();
         dsc.setCommandManager(cm);
         cm.initialize(dsc);
-
 
         if (dsc.getCommands() != null) {
             for (Command<K, ? super V> cmd : dsc.getCommands()) {
@@ -165,7 +184,6 @@ public class ReplicatedDataStore<K, V extends Serializable>
         cm.registerExecutionInterceptor(new ReplicationCommandTransmitterManager<K, V>());
         cm.registerCommand(new ReplicationFramePayloadCommand<K, V>());
 
-
         KeyMapper keyMapper = dsc.getKeyMapper();
         if ((keyMapper != null) && (keyMapper instanceof DefaultKeyMapper)) {
             gs.registerGroupMemberEventListener((DefaultKeyMapper) keyMapper);
@@ -174,13 +192,12 @@ public class ReplicatedDataStore<K, V extends Serializable>
         dsc.setResponseMediator(new ResponseMediator());
         replicaStore = new ReplicaStore<K, V>(dsc);
         dsc.setReplicaStore(replicaStore);
-        
+
         gs.registerGroupMessageReceiver(storeName, cm);
 
         initIdleEntryProcessor();
         replicaStore = dsc.getReplicaStore();
         replicaStore.setIdleEntryDetector(dsc.getIdleEntryDetector());
-        
 
         if (_logger.isLoggable(Level.FINE)) {
             _logger.log(Level.FINE, "Created ReplicatedDataStore with configuration = " + dsc);
@@ -189,65 +206,56 @@ public class ReplicatedDataStore<K, V extends Serializable>
         dscMBean = new ReplicatedDataStoreStatsHolder<K, V>(dsc);
         dsc.setDataStoreMBean(dscMBean);
 
-
         boolean registerInMBeanServer = Boolean.getBoolean("org.shoal.ha.cache.mbean.register");
         if (registerInMBeanServer) {
             try {
-                mbeanObjectName = new ObjectName("org.shoal.ha.cache.jmx.ReplicatedDataStore"
-                    + ":name="+dsc.getStoreName() + "_" + dsc.getInstanceName());
+                mbeanObjectName = new ObjectName("org.shoal.ha.cache.jmx.ReplicatedDataStore" + ":name=" + dsc.getStoreName() + "_" + dsc.getInstanceName());
 
                 mbs = ManagementFactory.getPlatformMBeanServer();
                 mbs.registerMBean(new StandardMBean(dscMBean, DataStoreMBean.class), mbeanObjectName);
-            } catch(MalformedObjectNameException malEx) {
+            } catch (MalformedObjectNameException malEx) {
                 _logger.log(Level.INFO, "Couldn't register MBean for " + dscMBean.getStoreName() + " : " + malEx);
-            } catch(InstanceAlreadyExistsException malEx) {
+            } catch (InstanceAlreadyExistsException malEx) {
                 _logger.log(Level.INFO, "Couldn't register MBean for " + dscMBean.getStoreName() + " : " + malEx);
-            } catch(MBeanRegistrationException malEx) {
+            } catch (MBeanRegistrationException malEx) {
                 _logger.log(Level.INFO, "Couldn't register MBean for " + dscMBean.getStoreName() + " : " + malEx);
-            } catch(NotCompliantMBeanException malEx) {
+            } catch (NotCompliantMBeanException malEx) {
                 _logger.log(Level.INFO, "Couldn't register MBean for " + dscMBean.getStoreName() + " : " + malEx);
             }
         }
     }
 
     private void initIdleEntryProcessor() {
-                try {
+        try {
             if (Storeable.class.isAssignableFrom(dsc.getValueClazz())) {
-                dsc.setIdleEntryDetector(
-                        new IdleEntryDetector<K, V>() {
-                            @Override
-                            public boolean isIdle(DataStoreEntry<K, V> entry, long nowInMillis) {
-                                _logger.log(Level.FINE, "AccessTimeInfo: getLastAccessedAt=" + entry.getLastAccessedAt()
-                                        + "; maxIdleTimeInMillis=" + entry.getMaxIdleTime()
-                                        + " < now=" +nowInMillis);
-                                return (entry.getMaxIdleTime() > 0) && entry.getLastAccessedAt() + entry.getMaxIdleTime() < nowInMillis;
-                            }
-                        }
-                    );
+                dsc.setIdleEntryDetector(new IdleEntryDetector<K, V>() {
+                    @Override
+                    public boolean isIdle(DataStoreEntry<K, V> entry, long nowInMillis) {
+                        _logger.log(Level.FINE, "AccessTimeInfo: getLastAccessedAt=" + entry.getLastAccessedAt() + "; maxIdleTimeInMillis="
+                                + entry.getMaxIdleTime() + " < now=" + nowInMillis);
+                        return (entry.getMaxIdleTime() > 0) && entry.getLastAccessedAt() + entry.getMaxIdleTime() < nowInMillis;
+                    }
+                });
             } else {
                 if (dsc.getDefaultMaxIdleTimeInMillis() > 0) {
                     final long defaultMaxIdleTimeInMillis = dsc.getDefaultMaxIdleTimeInMillis();
-                    dsc.setIdleEntryDetector(
-                        new IdleEntryDetector<K, V>() {
-                            @Override
-                            public boolean isIdle(DataStoreEntry<K, V> entry, long nowInMillis) {
-                                _logger.log(Level.FINE, "AccessTimeInfo: getLastAccessedAt=" + entry.getLastAccessedAt()
-                                        + "; defaultMaxIdleTimeInMillis=" + defaultMaxIdleTimeInMillis
-                                        + " < now=" +nowInMillis);
-                                return (defaultMaxIdleTimeInMillis > 0) && entry.getLastAccessedAt() + defaultMaxIdleTimeInMillis < nowInMillis;
-                            }
+                    dsc.setIdleEntryDetector(new IdleEntryDetector<K, V>() {
+                        @Override
+                        public boolean isIdle(DataStoreEntry<K, V> entry, long nowInMillis) {
+                            _logger.log(Level.FINE, "AccessTimeInfo: getLastAccessedAt=" + entry.getLastAccessedAt() + "; defaultMaxIdleTimeInMillis="
+                                    + defaultMaxIdleTimeInMillis + " < now=" + nowInMillis);
+                            return (defaultMaxIdleTimeInMillis > 0) && entry.getLastAccessedAt() + defaultMaxIdleTimeInMillis < nowInMillis;
                         }
-                    );
+                    });
                 }
             }
         } catch (Exception ex) {
-            //TODO
+            // TODO
         }
     }
 
     @Override
-    public String put(K k, V v)
-        throws DataStoreException {
+    public String put(K k, V v) throws DataStoreException {
         String result = "";
 
         try {
@@ -279,7 +287,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
 
                     result = cmd.getKeyMappingInfo();
 
-                    if ((staleLocation != null) && (! staleLocation.equals(cmd.getTargetName()))) {
+                    if ((staleLocation != null) && (!staleLocation.equals(cmd.getTargetName()))) {
                         StaleCopyRemoveCommand<K, V> staleCmd = new StaleCopyRemoveCommand<K, V>(k);
                         staleCmd.setStaleTargetName(staleLocation);
                         cm.execute(staleCmd);
@@ -300,8 +308,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
     }
 
     @Override
-    public V get(K key)
-        throws DataStoreException {
+    public V get(K key) throws DataStoreException {
         dscMBean.incrementLoadCount();
         V v = null;
 
@@ -321,12 +328,11 @@ public class ReplicatedDataStore<K, V extends Serializable>
                         foundLocally = true;
                         dscMBean.incrementLocalLoadSuccessCount();
                         if (_loadLogger.isLoggable(Level.FINE)) {
-                            _loadLogger.log(Level.FINE, debugName + "load(" + key
-                                + "); FOUND IN LOCAL CACHE!!");
+                            _loadLogger.log(Level.FINE, debugName + "load(" + key + "); FOUND IN LOCAL CACHE!!");
                         }
                     }
                 } else {
-                    return null; //Because it is already removed
+                    return null; // Because it is already removed
                 }
             }
 
@@ -335,14 +341,13 @@ public class ReplicatedDataStore<K, V extends Serializable>
                 String replicachoices = keyMapper.getReplicaChoices(dsc.getGroupName(), key);
                 String[] replicaHint = replicachoices.split(":");
                 if (_loadLogger.isLoggable(Level.FINE)) {
-                    _loadLogger.log(Level.FINE, debugName + "load(" + key
-                        + "); ReplicaChoices: " + replicachoices);
+                    _loadLogger.log(Level.FINE, debugName + "load(" + key + "); ReplicaChoices: " + replicachoices);
                 }
 
                 // fix for GLASSFISH-18085
                 String[] members = keyMapper.getCurrentMembers();
                 if (members.length == 0) {
-                _loadLogger.log(Level.FINE, "Skipped replication of " + key + " since there is only one instance running in the cluster.");
+                    _loadLogger.log(Level.FINE, "Skipped replication of " + key + " since there is only one instance running in the cluster.");
                     return null;
                 }
                 String respondingInstance = null;
@@ -351,11 +356,11 @@ public class ReplicatedDataStore<K, V extends Serializable>
                     if (target == null || target.trim().length() == 0 || target.equals(dsc.getInstanceName())) {
                         continue;
                     }
-                    LoadRequestCommand<K, V> command= new LoadRequestCommand<K, V>(key,
-                        entry == null ? DataStoreEntry.MIN_VERSION : entry.getVersion(), target);
+                    LoadRequestCommand<K, V> command = new LoadRequestCommand<K, V>(key, entry == null ? DataStoreEntry.MIN_VERSION : entry.getVersion(),
+                            target);
                     if (_loadLogger.isLoggable(Level.FINE)) {
-                        _loadLogger.log(Level.FINE, debugName + "load(" + key
-                            + ") Trying to load from Replica[" + replicaIndex + "]: " + replicaHint[replicaIndex]);
+                        _loadLogger.log(Level.FINE,
+                                debugName + "load(" + key + ") Trying to load from Replica[" + replicaIndex + "]: " + replicaHint[replicaIndex]);
                     }
 
                     cm.execute(command);
@@ -369,19 +374,17 @@ public class ReplicatedDataStore<K, V extends Serializable>
 
                 if (v == null) {
                     if (_loadLogger.isLoggable(Level.FINE)) {
-                        _loadLogger.log(Level.FINE, debugName + "*load(" + key
-                            + ") Performing broadcast load");
+                        _loadLogger.log(Level.FINE, debugName + "*load(" + key + ") Performing broadcast load");
                     }
                     String[] targetInstances = dsc.getKeyMapper().getCurrentMembers();
                     for (String targetInstance : targetInstances) {
                         if (targetInstance.equals(dsc.getInstanceName())) {
                             continue;
                         }
-                        LoadRequestCommand<K, V> lrCmd = new LoadRequestCommand<K, V>(key,
-                            entry == null ? DataStoreEntry.MIN_VERSION : entry.getVersion(), targetInstance);
+                        LoadRequestCommand<K, V> lrCmd = new LoadRequestCommand<K, V>(key, entry == null ? DataStoreEntry.MIN_VERSION : entry.getVersion(),
+                                targetInstance);
                         if (_loadLogger.isLoggable(Level.FINE)) {
-                            _loadLogger.log(Level.FINE, debugName + "*load(" + key
-                                + ") Trying to load from " + targetInstance);
+                            _loadLogger.log(Level.FINE, debugName + "*load(" + key + ") Trying to load from " + targetInstance);
                         }
 
                         cm.execute(lrCmd);
@@ -405,18 +408,17 @@ public class ReplicatedDataStore<K, V extends Serializable>
 
                                 entry.setLastAccessedAt(System.currentTimeMillis());
                                 entry.setReplicaInstanceName(respondingInstance);
-                                //Note: Do not remove the stale replica now. We will
-                                //  do that in save
+                                // Note: Do not remove the stale replica now. We will
+                                // do that in save
                                 if (_loadLogger.isLoggable(Level.FINE)) {
-                                    _loadLogger.log(Level.FINE, debugName + "load(" + key
-                                        + "; Successfully loaded data from " + respondingInstance);
+                                    _loadLogger.log(Level.FINE, debugName + "load(" + key + "; Successfully loaded data from " + respondingInstance);
                                 }
 
                                 dscMBean.incrementLoadSuccessCount();
                             } else {
                                 if (_loadLogger.isLoggable(Level.FINE)) {
-                                    _loadLogger.log(Level.FINE, debugName + "load(" + key
-                                        + "; Got data from " + respondingInstance + ", but another concurrent thread removed the entry");
+                                    _loadLogger.log(Level.FINE, debugName + "load(" + key + "; Got data from " + respondingInstance
+                                            + ", but another concurrent thread removed the entry");
                                 }
                                 dscMBean.incrementLoadFailureCount();
                             }
@@ -432,13 +434,13 @@ public class ReplicatedDataStore<K, V extends Serializable>
             }
 
             if ((v != null) && foundLocally) {
-                //Because we did a successful load, to ensure that the data lives in another instance
-                //  lets do a save
+                // Because we did a successful load, to ensure that the data lives in another instance
+                // lets do a save
 
                 try {
                     String secondaryReplica = put(key, v);
                     if (_logger.isLoggable(Level.FINE)) {
-                        _saveLogger.log(Level.FINE, "(SaveOnLoad) Saved the data to replica: "  + secondaryReplica);
+                        _saveLogger.log(Level.FINE, "(SaveOnLoad) Saved the data to replica: " + secondaryReplica);
                     }
                 } catch (DataStoreException dsEx) {
                     _saveLogger.log(Level.WARNING, "(SaveOnLoad) Failed to save data after a load", dsEx);
@@ -452,8 +454,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
     }
 
     @Override
-    public void remove(K k)
-        throws DataStoreException {
+    public void remove(K k) throws DataStoreException {
 
         try {
             dsc.acquireReadLock();
@@ -483,8 +484,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
     }
 
     @Override
-    public String touch(K k, long version, long ts, long ttl)
-        throws DataStoreException {
+    public String touch(K k, long version, long ts, long ttl) throws DataStoreException {
         String location = "";
         try {
             dsc.acquireReadLock();
@@ -509,7 +509,6 @@ public class ReplicatedDataStore<K, V extends Serializable>
         }
         return location;
     }
-
 
     @Override
     public int removeIdleEntries(long idleFor) {
@@ -536,7 +535,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
                     try {
                         cm.execute(cmd);
                     } catch (DataStoreException dse) {
-                        _logger.log(Level.INFO, "Exception during removeIdleEntries...",dse);
+                        _logger.log(Level.INFO, "Exception during removeIdleEntries...", dse);
                     }
                 }
             }
@@ -552,7 +551,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
 
             finalResult = future.get(6, TimeUnit.SECONDS);
         } catch (Exception ex) {
-            //TODO
+            // TODO
         } finally {
             respMed.removeCommandResponse(tokenId);
             dsc.releaseReadLock();
@@ -560,7 +559,7 @@ public class ReplicatedDataStore<K, V extends Serializable>
 
         return finalResult;
 
-        //return replicaStore.removeExpired();
+        // return replicaStore.removeExpired();
     }
 
     @Override
@@ -573,9 +572,9 @@ public class ReplicatedDataStore<K, V extends Serializable>
                 mbs.unregisterMBean(mbeanObjectName);
             }
         } catch (InstanceNotFoundException inNoEx) {
-            //TODO
+            // TODO
         } catch (MBeanRegistrationException mbRegEx) {
-            //TODO
+            // TODO
         } finally {
             dsc.releaseWriteLock();
         }
@@ -592,26 +591,26 @@ public class ReplicatedDataStore<K, V extends Serializable>
         try {
             dsc.acquireReadLock();
             if (closed.get()) {
-                //Since we cannot throw an Exception and since the store is already closed
+                // Since we cannot throw an Exception and since the store is already closed
                 // we return 0
                 return 0;
             }
 
             KeyMapper km = dsc.getKeyMapper();
             String[] targets = km.getCurrentMembers();
-    
+
             int targetCount = targets.length;
             SizeRequestCommand[] commands = new SizeRequestCommand[targetCount];
-    
+
             for (int i = 0; i < targetCount; i++) {
                 commands[i] = new SizeRequestCommand(targets[i]);
                 try {
                     dsc.getCommandManager().execute(commands[i]);
                 } catch (DataStoreException dse) {
-                    //TODO:
+                    // TODO:
                 }
             }
-    
+
             for (int i = 0; i < targetCount; i++) {
                 result += commands[i].getResult();
             }

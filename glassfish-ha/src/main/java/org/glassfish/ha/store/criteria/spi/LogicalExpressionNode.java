@@ -19,14 +19,13 @@ package org.glassfish.ha.store.criteria.spi;
 import java.util.Collection;
 
 /**
- * An ExpressionNode that denotes a logical operation. The type of the
- *  expression is same as the Attribute's type itself.
+ * An ExpressionNode that denotes a logical operation. The type of the expression is same as the Attribute's type
+ * itself.
  *
  *
  * @author Mahesh.Kannan@Sun.Com
  */
-public class LogicalExpressionNode
-    extends BinaryExpressionNode<Boolean> {
+public class LogicalExpressionNode extends BinaryExpressionNode<Boolean> {
 
     Collection entries;
 

@@ -16,19 +16,18 @@
 
 package org.shoal.ha.group.gms;
 
-import com.sun.enterprise.ee.cms.core.Signal;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.shoal.ha.cache.impl.util.MessageReceiver;
-
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.shoal.ha.cache.impl.util.MessageReceiver;
+
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Unit test for simple App.
@@ -59,8 +58,7 @@ public class GroupServiceProviderTest extends TestCase {
                 @Override
                 protected void handleMessage(String senderName, String messageToken, byte[] data) {
                     called++;
-                    System.out.println("received message from member:" + senderName + " to component:" + messageToken +
-                                "data:" + new String(data));
+                    System.out.println("received message from member:" + senderName + " to component:" + messageToken + "data:" + new String(data));
                 }
             };
             gsp.registerGroupMessageReceiver(COMPONENT, msgReceiver);
@@ -80,33 +78,34 @@ public class GroupServiceProviderTest extends TestCase {
         assertEquals("sendMessage to self", true, result);
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException ie) {}
+        } catch (InterruptedException ie) {
+        }
         assertEquals("verify received msg", true, called == 1);
     }
 
     public void testFailToSendMessage() {
-       init();
-       logger.setLevel(Level.FINE);
-       boolean result = gsp.sendMessage("nonExistentInstance", COMPONENT, new String("hello").getBytes());
-       assertEquals("sendMessage to nonExistentInstance", false, result);
+        init();
+        logger.setLevel(Level.FINE);
+        boolean result = gsp.sendMessage("nonExistentInstance", COMPONENT, new String("hello").getBytes());
+        assertEquals("sendMessage to nonExistentInstance", false, result);
 
-       // double checked that second failure does not come out in server log until 12 hours pass.
-       result = gsp.sendMessage("nonExistentInstance", COMPONENT, new String("hello").getBytes());
-       assertEquals("sendMessage to nonExistentInstance", false, result);
-       logger.setLevel(Level.INFO);
+        // double checked that second failure does not come out in server log until 12 hours pass.
+        result = gsp.sendMessage("nonExistentInstance", COMPONENT, new String("hello").getBytes());
+        assertEquals("sendMessage to nonExistentInstance", false, result);
+        logger.setLevel(Level.INFO);
     }
 
     public void testFailToBroadcastBigMessage() {
-       init();
-       logger.setLevel(Level.FINE);
-       byte[] bigPayload = new byte[70 * 1024];
-       Arrays.fill(bigPayload, (byte)'e');
-       boolean result = gsp.sendMessage(null, COMPONENT, bigPayload);
-       assertEquals("broadcast too large a payload", false, result);
-       result = gsp.sendMessage("", COMPONENT, bigPayload);
-       assertEquals("sendMessage to empty destination", false, result);
+        init();
+        logger.setLevel(Level.FINE);
+        byte[] bigPayload = new byte[70 * 1024];
+        Arrays.fill(bigPayload, (byte) 'e');
+        boolean result = gsp.sendMessage(null, COMPONENT, bigPayload);
+        assertEquals("broadcast too large a payload", false, result);
+        result = gsp.sendMessage("", COMPONENT, bigPayload);
+        assertEquals("sendMessage to empty destination", false, result);
 
-       logger.setLevel(Level.INFO);
+        logger.setLevel(Level.INFO);
     }
 
     public void testShutdown() {

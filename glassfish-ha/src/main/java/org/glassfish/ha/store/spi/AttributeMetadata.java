@@ -19,10 +19,9 @@ package org.glassfish.ha.store.spi;
 import java.lang.reflect.Method;
 
 /**
- * For each attribute A of type T in a.b.X, a.b.X_ contains a (static) field whose
- *  type is AttributeMetadata<X, T>. AttributeMetadata describes the attribute
- *  by giving its (java) type, name etc.
- * 
+ * For each attribute A of type T in a.b.X, a.b.X_ contains a (static) field whose type is AttributeMetadata<X, T>.
+ * AttributeMetadata describes the attribute by giving its (java) type, name etc.
+ *
  * @param <S> The StoreEntry that this AttributeMetadata belongs to
  * @param <T> The Java type of the Attribute that this Metadata represents
  *
@@ -31,22 +30,22 @@ import java.lang.reflect.Method;
  */
 public interface AttributeMetadata<S, T> {
 
-    public String getName();
+    String getName();
 
     /**
      * Get the java type of this attribute
      *
      * @return
      */
-    public Class<T> getAttributeType();
+    Class<T> getAttributeType();
 
-    //The getter method to access the value
-    public Method getGetterMethod();
+    // The getter method to access the value
+    Method getGetterMethod();
 
-    //The setter method to set the value
-    public Method getSetterMethod();
+    // The setter method to set the value
+    Method getSetterMethod();
 
-    public boolean isVersionAttribute();
+    boolean isVersionAttribute();
 
-    public boolean isHashKeyAttribute();
+    boolean isHashKeyAttribute();
 }

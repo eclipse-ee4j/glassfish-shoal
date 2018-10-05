@@ -16,24 +16,25 @@
 
 package org.shoal.adapter.store.commands;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 import org.shoal.ha.cache.impl.command.Command;
 import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
 import org.shoal.ha.cache.impl.util.CommandResponse;
 import org.shoal.ha.cache.impl.util.ResponseMediator;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * @author Mahesh Kannan
  */
-public class RemoveExpiredResultCommand<K, V>
-    extends Command<String, V> {
+public class RemoveExpiredResultCommand<K, V> extends Command<String, V> {
+
+   
+    private static final long serialVersionUID = -6402834139071754486L;
 
     protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
 
@@ -62,8 +63,7 @@ public class RemoveExpiredResultCommand<K, V>
         ros.writeInt(result);
     }
 
-    private void readObject(ObjectInputStream ris)
-        throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream ris) throws IOException, ClassNotFoundException {
         tokenId = ris.readLong();
         result = ris.readInt();
     }

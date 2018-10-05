@@ -16,9 +16,6 @@
 
 package org.shoal.ha.cache.impl.store;
 
-import org.shoal.ha.cache.api.*;
-
-import java.io.ByteArrayInputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +23,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.IdleEntryDetector;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 
 /**
  * @author Mahesh Kannan
@@ -36,8 +38,7 @@ public class ReplicaStore<K, V> {
 
     private DataStoreContext<K, V> ctx;
 
-    private ConcurrentHashMap<K, DataStoreEntry<K, V>> map =
-            new ConcurrentHashMap<K, DataStoreEntry<K, V>>();
+    private ConcurrentHashMap<K, DataStoreEntry<K, V>> map = new ConcurrentHashMap<K, DataStoreEntry<K, V>>();
 
     private AtomicInteger replicaEntries = new AtomicInteger(0);
 
@@ -53,8 +54,8 @@ public class ReplicaStore<K, V> {
         this.idleEntryDetector = idleEntryDetector;
     }
 
-    //This is called during loadRequest. We do not want LoadRequests
-    //  to call getOrCreateEntry()
+    // This is called during loadRequest. We do not want LoadRequests
+    // to call getOrCreateEntry()
     public DataStoreEntry<K, V> getEntry(K k) {
         return map.get(k);
 
@@ -76,15 +77,14 @@ public class ReplicaStore<K, V> {
         return entry;
     }
 
-    public V getV(K k, ClassLoader cl)
-        throws DataStoreException {
+    public V getV(K k, ClassLoader cl) throws DataStoreException {
 
         V result = null;
         DataStoreEntry<K, V> entry = map.get(k);
         synchronized (entry) {
             result = ctx.getDataStoreEntryUpdater().getV(entry);
         }
-        
+
         return result;
 
     }
@@ -124,7 +124,7 @@ public class ReplicaStore<K, V> {
                         }
                     }
                 } else {
-                    //System.out.println("ReplicaStore.removeExpired idleEntryDetector is EMPTY");
+                    // System.out.println("ReplicaStore.removeExpired idleEntryDetector is EMPTY");
                 }
             } finally {
                 expiredEntryRemovalInProgress.set(false);
