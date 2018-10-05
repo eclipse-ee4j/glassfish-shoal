@@ -35,9 +35,7 @@ import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
  */
 public abstract class Command<K, V> implements Serializable {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = 6608726132108978791L;
 
     private transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);

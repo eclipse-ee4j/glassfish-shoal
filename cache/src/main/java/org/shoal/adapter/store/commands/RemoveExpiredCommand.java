@@ -31,9 +31,7 @@ import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
  */
 public class RemoveExpiredCommand<K, V> extends Command {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = 5377972855354679059L;
 
     protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);

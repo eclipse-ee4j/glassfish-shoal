@@ -28,9 +28,7 @@ import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
  */
 public class StaleCopyRemoveCommand<K, V> extends Command<K, V> {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = -5823823481273689103L;
 
     protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_STALE_REMOVE_COMMAND);

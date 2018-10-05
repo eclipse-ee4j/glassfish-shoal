@@ -29,9 +29,7 @@ package com.sun.enterprise.ee.cms.core;
  * @version $Revision$
  */
 public class SignalAcquireException extends Exception {
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = -1507353998630657590L;
 
     public SignalAcquireException() {

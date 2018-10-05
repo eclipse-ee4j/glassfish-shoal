@@ -23,9 +23,7 @@ import org.shoal.ha.cache.impl.command.Command;
  */
 public class NoopCommand extends Command {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = -7331429541785561201L;
 
     public NoopCommand() {

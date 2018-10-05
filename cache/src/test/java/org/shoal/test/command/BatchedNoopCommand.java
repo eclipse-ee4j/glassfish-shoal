@@ -23,9 +23,7 @@ import org.shoal.ha.cache.impl.command.Command;
  */
 public class BatchedNoopCommand extends Command {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = 4048003960462018415L;
 
     public BatchedNoopCommand() {

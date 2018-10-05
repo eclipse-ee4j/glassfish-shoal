@@ -26,9 +26,7 @@ package org.glassfish.ha.store.api;
  */
 public class BackingStoreException extends Exception {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = -1622774190637486715L;
 
     /**

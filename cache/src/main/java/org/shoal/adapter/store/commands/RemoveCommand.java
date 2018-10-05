@@ -26,9 +26,7 @@ import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
  */
 public class RemoveCommand<K, V> extends AcknowledgedCommand<K, V> {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = -8067458552974086794L;
 
     protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);

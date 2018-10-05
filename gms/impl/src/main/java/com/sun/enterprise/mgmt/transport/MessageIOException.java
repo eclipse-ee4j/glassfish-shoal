@@ -25,9 +25,7 @@ import java.io.IOException;
  */
 public class MessageIOException extends IOException {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = -3243045948393446810L;
 
     public MessageIOException(String msg) {

@@ -22,9 +22,7 @@ package org.glassfish.ha.store.spi;
 
 public class DuplicateFactoryRegistrationException extends RuntimeException {
 
-    /**
-     *
-     */
+   
     private static final long serialVersionUID = -4474100352534398829L;
 
     /**

@@ -113,9 +113,7 @@ public class ClusterManagerTest extends TestCase {
         }
     }
 
-    /**
-     *
-     */
+   
 
     public void testStartRunStopClusterManager() throws GMSException {
         mySetUp();
@@ -180,9 +178,7 @@ public class ClusterManagerTest extends TestCase {
         manager.isGroupStartup();
     }
 
-    /**
-     *
-     */
+   
 
     public void testisWatchdogFalse() throws GMSException {
         mySetUp();
@@ -190,9 +186,7 @@ public class ClusterManagerTest extends TestCase {
         assertFalse(manager.isWatchdog());
     }
 
-    /**
-     *
-     */
+   
 
     public void testisWatchdogTrue() throws GMSException {
         mySetUp();
