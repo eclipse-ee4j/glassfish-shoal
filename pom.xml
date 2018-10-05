@@ -18,187 +18,187 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.eclipse.ee4j</groupId>
-		<artifactId>project</artifactId>
-		<version>1.0</version>
-	</parent>
+    <parent>
+        <groupId>org.eclipse.ee4j</groupId>
+        <artifactId>project</artifactId>
+        <version>1.0</version>
+    </parent>
 
-	<groupId>org.shoal</groupId>
-	<artifactId>shoal</artifactId>
-	<version>1.6.53-SNAPSHOT</version>
+    <groupId>org.shoal</groupId>
+    <artifactId>shoal</artifactId>
+    <version>1.6.53-SNAPSHOT</version>
 
-	<packaging>pom</packaging>
+    <packaging>pom</packaging>
 
-	<name>shoal</name>
-	<description>GlassFish project for scalable dynamic clustering infrastructure to for fault tolerance, reliability and availability.</description>
-	<url>http://java.net/projects/shoal</url>
+    <name>shoal</name>
+    <description>GlassFish project for scalable dynamic clustering infrastructure to for fault tolerance, reliability and availability.</description>
+    <url>http://java.net/projects/shoal</url>
 
-	<scm>
-		<connection>scm:git:https://github.com/eclipse-ee4j/glassfish-shoal.git</connection>
-		<developerConnection>scm:git:https://github.com/eclipse-ee4j/glassfish-shoal.git</developerConnection>
-		<url>https://github.com/eclipse-ee4j/glassfish-shoal</url>
-	</scm>
+    <scm>
+        <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-shoal.git</connection>
+        <developerConnection>scm:git:https://github.com/eclipse-ee4j/glassfish-shoal.git</developerConnection>
+        <url>https://github.com/eclipse-ee4j/glassfish-shoal</url>
+    </scm>
 
-	<issueManagement>
-		<system>IssueTracker</system>
-		<url>https://github.com/eclipse-ee4j/glassfish-shoal/issues</url>
-	</issueManagement>
-	
-	<mailingLists>
-		<mailingList>
-			<name>Glassfish mailing list</name>
-			<post>glassfish-dev@eclipse.org</post>
-			<subscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-dev</subscribe>
-			<unsubscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-dev</unsubscribe>
-			<archive>https://dev.eclipse.org/mhonarc/lists/glassfish-dev</archive>
-		</mailingList>
-	</mailingLists>
+    <issueManagement>
+        <system>IssueTracker</system>
+        <url>https://github.com/eclipse-ee4j/glassfish-shoal/issues</url>
+    </issueManagement>
 
-	<developers>
-		<developer>
-			<id>yaminikb</id>
-			<name>Yamini K B</name>
-			<organization>Oracle Corporation</organization>
-			<organizationUrl>http://www.oracle.com/</organizationUrl>
-		</developer>
-	</developers>
+    <mailingLists>
+        <mailingList>
+            <name>Glassfish mailing list</name>
+            <post>glassfish-dev@eclipse.org</post>
+            <subscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-dev</subscribe>
+            <unsubscribe>https://dev.eclipse.org/mailman/listinfo/glassfish-dev</unsubscribe>
+            <archive>https://dev.eclipse.org/mhonarc/lists/glassfish-dev</archive>
+        </mailingList>
+    </mailingLists>
 
-	<contributors>
-		<contributor>
-			<name>Mahesh Kannan</name>
-			<organization>Oracle Corporation</organization>
-			<organizationUrl>http://www.oracle.com/</organizationUrl>
-		</contributor>
-		<contributor>
-			<name>Joe Fialli</name>
-			<organization>Oracle Corporation</organization>
-			<organizationUrl>http://www.oracle.com/</organizationUrl>
-		</contributor>
-	</contributors>
+    <developers>
+        <developer>
+            <id>yaminikb</id>
+            <name>Yamini K B</name>
+            <organization>Oracle Corporation</organization>
+            <organizationUrl>http://www.oracle.com/</organizationUrl>
+        </developer>
+    </developers>
 
-	<licenses>
-		<license>
-			<name>EPL 2.0</name>
-			<url>http://www.eclipse.org/legal/epl-2.0</url>
-			<distribution>repo</distribution>
-		</license>
-		<license>
-			<name>GPL2 w/ CPE</name>
-			<url>https://www.gnu.org/software/classpath/license.html</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <contributors>
+        <contributor>
+            <name>Mahesh Kannan</name>
+            <organization>Oracle Corporation</organization>
+            <organizationUrl>http://www.oracle.com/</organizationUrl>
+        </contributor>
+        <contributor>
+            <name>Joe Fialli</name>
+            <organization>Oracle Corporation</organization>
+            <organizationUrl>http://www.oracle.com/</organizationUrl>
+        </contributor>
+    </contributors>
 
-	<properties>
-		<grizzly.group.id>com.sun.grizzly</grizzly.group.id>
-		<grizzly.version>1.9.36</grizzly.version>
+    <licenses>
+        <license>
+            <name>EPL 2.0</name>
+            <url>http://www.eclipse.org/legal/epl-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>GPL2 w/ CPE</name>
+            <url>https://www.gnu.org/software/classpath/license.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-		<grizzly2.group.id>org.glassfish.grizzly</grizzly2.group.id>
-		<grizzly2.version>2.4.0-beta9</grizzly2.version>
+    <properties>
+        <grizzly.group.id>com.sun.grizzly</grizzly.group.id>
+        <grizzly.version>1.9.36</grizzly.version>
 
-		<junit.group.id>junit</junit.group.id>
-		<junit.version>4.12</junit.version>
+        <grizzly2.group.id>org.glassfish.grizzly</grizzly2.group.id>
+        <grizzly2.version>2.4.0-beta9</grizzly2.version>
 
-		<ha.api.version>3.1.8</ha.api.version>
+        <junit.group.id>junit</junit.group.id>
+        <junit.version>4.12</junit.version>
 
-		<findbugs.exclude />
-		<findbugs.version>2.5.2</findbugs.version>
-		<findbugs.threshold>Low</findbugs.threshold>
-	</properties>
+        <ha.api.version>3.1.8</ha.api.version>
 
-	<modules>
-		<module>gms</module>
-		<module>cache</module>
-	</modules>
+        <findbugs.exclude />
+        <findbugs.version>2.5.2</findbugs.version>
+        <findbugs.threshold>Low</findbugs.threshold>
+    </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>${findbugs.version}</version>
-				<configuration>
-					<skip>${findbugs.skip}</skip>
-					<threshold>${findbugs.threshold}</threshold>
-					<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-					<excludeFilterFile>
-						exclude-common.xml,${findbugs.exclude}
-					</excludeFilterFile>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.glassfish.findbugs</groupId>
-						<artifactId>findbugs</artifactId>
-						<version>1.0</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<configuration>
-					<mavenExecutorId>forked-path</mavenExecutorId>
-					<useReleaseProfile>false</useReleaseProfile>
-					<arguments>${release.arguments}</arguments>
-				</configuration>
-			</plugin>
-		</plugins>
-		
-		<!-- explicitly define this extension to resolve invalid checksums -->
-		<!-- See: http://jira.codehaus.org/browse/MNG-4301 -->
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-webdav</artifactId>
-				<version>1.0-beta-2</version>
-			</extension>
-		</extensions>
-	</build>
+    <modules>
+        <module>gms</module>
+        <module>cache</module>
+    </modules>
 
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>${findbugs.version}</version>
-				<configuration>
-					<threshold>${findbugs.threshold}</threshold>
-					<excludeFilterFile>${findbugs.exclude}</excludeFilterFile>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>${grizzly.group.id}</groupId>
-				<version>${grizzly.version}</version>
-				<artifactId>grizzly-http</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>${junit.group.id}</groupId>
-				<artifactId>junit</artifactId>
-				<version>${junit.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.glassfish.ha</groupId>
-				<artifactId>ha-api</artifactId>
-				<version>${ha.api.version}</version>
-				<scope>provided</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.version}</version>
+                <configuration>
+                    <skip>${findbugs.skip}</skip>
+                    <threshold>${findbugs.threshold}</threshold>
+                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+                    <excludeFilterFile>
+                        exclude-common.xml,${findbugs.exclude}
+                    </excludeFilterFile>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.glassfish.findbugs</groupId>
+                        <artifactId>findbugs</artifactId>
+                        <version>1.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <mavenExecutorId>forked-path</mavenExecutorId>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <arguments>${release.arguments}</arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <!-- explicitly define this extension to resolve invalid checksums -->
+        <!-- See: http://jira.codehaus.org/browse/MNG-4301 -->
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav</artifactId>
+                <version>1.0-beta-2</version>
+            </extension>
+        </extensions>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.version}</version>
+                <configuration>
+                    <threshold>${findbugs.threshold}</threshold>
+                    <excludeFilterFile>${findbugs.exclude}</excludeFilterFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${grizzly.group.id}</groupId>
+                <version>${grizzly.version}</version>
+                <artifactId>grizzly-http</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>${junit.group.id}</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.ha</groupId>
+                <artifactId>ha-api</artifactId>
+                <version>${ha.api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
