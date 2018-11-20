@@ -91,8 +91,8 @@
     </licenses>
 
     <properties>
-        <grizzly.group.id>com.sun.grizzly</grizzly.group.id>
-        <grizzly.version>1.9.36</grizzly.version>
+        <!--<grizzly.group.id>com.sun.grizzly</grizzly.group.id>
+        <grizzly.version>1.9.36</grizzly.version>-->
 
         <grizzly2.group.id>org.glassfish.grizzly</grizzly2.group.id>
         <grizzly2.version>2.4.0-beta9</grizzly2.version>
@@ -182,11 +182,11 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
+            <!--<dependency>
                 <groupId>${grizzly.group.id}</groupId>
                 <version>${grizzly.version}</version>
                 <artifactId>grizzly-http</artifactId>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>${junit.group.id}</groupId>
                 <artifactId>junit</artifactId>

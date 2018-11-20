@@ -43,12 +43,12 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>${grizzly.group.id}</groupId>
             <artifactId>grizzly-http</artifactId>
             <scope>provided</scope>
             <optional>true</optional>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>${grizzly2.group.id}</groupId>
             <artifactId>grizzly-config</artifactId>
