@@ -26,7 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     
-    <groupId>org.shoal</groupId>
+    <groupId>org.glassfish.shoal</groupId>
     <artifactId>shoal</artifactId>
     <packaging>pom</packaging>
     <version>1.6.53-SNAPSHOT</version>
