@@ -206,8 +206,6 @@ public abstract class AbstractNetworkManager implements NetworkManager {
             final String GRIZZLY_TRANSPORT_BASE_DIR = "com.sun.enterprise.mgmt.transport.grizzly.";
             if (transport.startsWith("grizzly2")) {
                 classname = GRIZZLY_TRANSPORT_BASE_DIR + transport + ".GrizzlyNetworkManager2";
-            } else if (transport.startsWith("grizzly1_9")) {
-                classname = GRIZZLY_TRANSPORT_BASE_DIR + transport + ".GrizzlyNetworkManager1_9";
             } else {
                 classname = "com.sun.enterprise.mgmt.transport.jxta.JxtaNetworkManager";
             }
