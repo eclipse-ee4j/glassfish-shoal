@@ -29,7 +29,7 @@
     <groupId>org.glassfish.shoal</groupId>
     <artifactId>shoal</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.53-SNAPSHOT</version>
+    <version>1.6.53</version>
     <name>shoal</name>
     <url>http://java.net/projects/shoal</url>
     <description>GlassFish project for scalable dynamic clustering infrastructure to for fault tolerance, reliability and availability.</description>
