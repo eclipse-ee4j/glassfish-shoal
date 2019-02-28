@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.glassfish.shoal</groupId>
         <artifactId>shoal-gms</artifactId>
-        <version>1.6.53-SNAPSHOT</version>
+        <version>1.6.54-SNAPSHOT</version>
     </parent>
 
     <artifactId>shoal-gms-impl</artifactId>
