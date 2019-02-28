@@ -16,29 +16,27 @@
 
 package org.shoal.ha.cache.impl.interceptor;
 
-import org.shoal.adapter.store.commands.NoOpCommand;
-import org.shoal.ha.cache.api.DataStoreContext;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.api.AbstractCommandInterceptor;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.shoal.adapter.store.commands.NoOpCommand;
+import org.shoal.ha.cache.api.AbstractCommandInterceptor;
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
 
 /**
  * @author Mahesh Kannan
  *
  */
-public class ReplicationCommandTransmitterManager<K, V>
-        extends AbstractCommandInterceptor<K, V> {
+public class ReplicationCommandTransmitterManager<K, V> extends AbstractCommandInterceptor<K, V> {
 
     private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
 
-    private ConcurrentHashMap<String, CommandCollector<K, V>> transmitters
-            = new ConcurrentHashMap<String, CommandCollector<K, V>>();
+    private ConcurrentHashMap<String, CommandCollector<K, V>> transmitters = new ConcurrentHashMap<String, CommandCollector<K, V>>();
 
     private CommandCollector<K, V> broadcastTransmitter;
 
@@ -51,41 +49,38 @@ public class ReplicationCommandTransmitterManager<K, V>
         broadcastTransmitter = new ReplicationCommandTransmitterWithList<K, V>();
         broadcastTransmitter.initialize(null, dsc);
 
-        _logger.log(Level.FINE, "ReplicationCommandTransmitterManager(" + dsc.getServiceName() + ") instantiated with: "
-            + dsc.isUseMapToCacheCommands() + " : " + dsc.isSafeToDelayCaptureState());
+        _logger.log(Level.FINE, "ReplicationCommandTransmitterManager(" + dsc.getServiceName() + ") instantiated with: " + dsc.isUseMapToCacheCommands() + " : "
+                + dsc.isSafeToDelayCaptureState());
     }
 
     @Override
-    public void onTransmit(Command<K, V> cmd, String initiator)
-        throws DataStoreException {
+    public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
         switch (cmd.getOpcode()) {
-            case ReplicationCommandOpcode.REPLICATION_FRAME_PAYLOAD:
-                super.onTransmit(cmd, initiator);
-                break;
+        case ReplicationCommandOpcode.REPLICATION_FRAME_PAYLOAD:
+            super.onTransmit(cmd, initiator);
+            break;
 
-            default:
-                String target = cmd.getTargetName();
-                if (target != null) {
-                    CommandCollector<K, V> rft = transmitters.get(target);
-                    if (rft == null) {
-                        rft = dsc.isUseMapToCacheCommands()
-                                ? new ReplicationCommandTransmitterWithMap<K, V>()
-                                : new ReplicationCommandTransmitterWithList<K, V>();
-                        rft.initialize(target, getDataStoreContext());
-                        CommandCollector oldRCT = transmitters.putIfAbsent(target, rft);
-                        if (oldRCT != null) {
-                            rft = oldRCT;
-                        }
+        default:
+            String target = cmd.getTargetName();
+            if (target != null) {
+                CommandCollector<K, V> rft = transmitters.get(target);
+                if (rft == null) {
+                    rft = dsc.isUseMapToCacheCommands() ? new ReplicationCommandTransmitterWithMap<K, V>() : new ReplicationCommandTransmitterWithList<K, V>();
+                    rft.initialize(target, getDataStoreContext());
+                    CommandCollector oldRCT = transmitters.putIfAbsent(target, rft);
+                    if (oldRCT != null) {
+                        rft = oldRCT;
                     }
-                    if (cmd.getOpcode() == ReplicationCommandOpcode.REMOVE) {
-                        rft.removeCommand(cmd);
-                    } else {
-                        rft.addCommand(cmd);
-                    }
-                } else {
-                    broadcastTransmitter.addCommand(cmd);
                 }
-                break;
+                if (cmd.getOpcode() == ReplicationCommandOpcode.REMOVE) {
+                    rft.removeCommand(cmd);
+                } else {
+                    rft.addCommand(cmd);
+                }
+            } else {
+                broadcastTransmitter.addCommand(cmd);
+            }
+            break;
         }
     }
 
@@ -94,8 +89,11 @@ public class ReplicationCommandTransmitterManager<K, V>
             cc.close();
         }
 
-       try { broadcastTransmitter.addCommand(new NoOpCommand()); } catch (DataStoreException dsEx) {}
-       broadcastTransmitter.close();
+        try {
+            broadcastTransmitter.addCommand(new NoOpCommand());
+        } catch (DataStoreException dsEx) {
+        }
+        broadcastTransmitter.close();
     }
 
 }

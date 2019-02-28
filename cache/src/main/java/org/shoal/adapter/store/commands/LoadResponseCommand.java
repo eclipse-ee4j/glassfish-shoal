@@ -16,23 +16,23 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-import org.shoal.ha.cache.impl.util.*;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+import org.shoal.ha.cache.impl.util.CommandResponse;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+
 /**
  * @author Mahesh Kannan
  */
-public class LoadResponseCommand<K, V>
-        extends Command<K, V> {
+public class LoadResponseCommand<K, V> extends Command<K, V> {
 
     private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_RESPONSE_COMMAND);
 
@@ -78,8 +78,7 @@ public class LoadResponseCommand<K, V>
         return originatingInstance != null;
     }
 
-    private void writeObject(ObjectOutputStream out)
-        throws IOException {
+    private void writeObject(ObjectOutputStream out) throws IOException {
 
         out.writeLong(version);
         out.writeLong(tokenId);
@@ -92,14 +91,12 @@ public class LoadResponseCommand<K, V>
             out.write(rawV);
         }
         if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, dsc.getInstanceName() + getName() + " sending load_response command for "
-                    + getKey() + " to " + originatingInstance + "; version = " + version + "; state = "
-                    + (rawV == null ? "NOT_FOUND" : rawV.length));
+            _logger.log(Level.FINE, dsc.getInstanceName() + getName() + " sending load_response command for " + getKey() + " to " + originatingInstance
+                    + "; version = " + version + "; state = " + (rawV == null ? "NOT_FOUND" : rawV.length));
         }
     }
 
-    private void readObject(ObjectInputStream ris)
-        throws IOException {
+    private void readObject(ObjectInputStream ris) throws IOException {
         version = ris.readLong();
         tokenId = ris.readLong();
         originatingInstance = ris.readUTF();
@@ -113,15 +110,14 @@ public class LoadResponseCommand<K, V>
     }
 
     @Override
-    public void execute(String initiator)
-        throws DataStoreException {
+    public void execute(String initiator) throws DataStoreException {
 
         ResponseMediator respMed = getDataStoreContext().getResponseMediator();
         CommandResponse resp = respMed.getCommandResponse(tokenId);
         if (resp != null) {
             if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, dsc.getInstanceName() + " received load_response key=" + getKey() + "; version=" + version
-                + "; from " + respondingInstanceName);
+                _logger.log(Level.FINE,
+                        dsc.getInstanceName() + " received load_response key=" + getKey() + "; version=" + version + "; from " + respondingInstanceName);
             }
 
             resp.setRespondingInstanceName(respondingInstanceName);

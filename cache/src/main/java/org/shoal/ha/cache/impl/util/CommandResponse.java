@@ -16,19 +16,15 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
-
 
 /**
  * @author Mahesh Kannan
  *
  */
-public class CommandResponse
-    implements Callable {
+public class CommandResponse implements Callable {
 
     private static final AtomicLong tokenCounter = new AtomicLong(0);
 
@@ -73,7 +69,7 @@ public class CommandResponse
     public void setResult(Object v) {
         this.result = v;
         mediator.removeCommandResponse(tokenId);
-        future.run(); //Which calls our call()
+        future.run(); // Which calls our call()
     }
 
     public Object getTransientResult() {

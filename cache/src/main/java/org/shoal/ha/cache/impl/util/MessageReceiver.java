@@ -16,16 +16,16 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import com.sun.enterprise.ee.cms.core.*;
-
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.MessageSignal;
+import com.sun.enterprise.ee.cms.core.Signal;
 
 /**
  * @author Mahesh Kannan
  */
-public abstract class MessageReceiver
-        implements CallBack {
+public abstract class MessageReceiver implements CallBack {
 
     private final static Logger logger = Logger.getLogger("ReplicationLogger");
 
@@ -43,8 +43,7 @@ public abstract class MessageReceiver
 //                        + ((MessageSignal) signal).getMemberToken());
 
             if (messageSignal != null) {
-                handleMessage(messageSignal.getMemberToken(), messageSignal.getTargetComponent(),
-                        (byte[]) message);
+                handleMessage(messageSignal.getMemberToken(), messageSignal.getTargetComponent(), (byte[]) message);
             }
         }
     }

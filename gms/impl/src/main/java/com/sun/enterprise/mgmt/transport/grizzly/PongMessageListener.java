@@ -16,14 +16,14 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly;
 
-import com.sun.enterprise.mgmt.transport.MessageListener;
-import com.sun.enterprise.mgmt.transport.MessageEvent;
-import com.sun.enterprise.mgmt.transport.MessageIOException;
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageListener;
 
 /**
  * @author Bongjae Chang
@@ -33,22 +33,27 @@ public class PongMessageListener implements MessageListener {
     private final static Logger LOG = GrizzlyNetworkManager.getLogger();
 
     @Override
-    public void receiveMessageEvent( final MessageEvent event ) throws MessageIOException {
-        if( event == null )
+    public void receiveMessageEvent(final MessageEvent event) throws MessageIOException {
+        if (event == null) {
             return;
+        }
         final Message msg = event.getMessage();
-        if( msg == null )
+        if (msg == null) {
             return;
+        }
         Object obj = event.getSource();
-        if( !( obj instanceof GrizzlyNetworkManager ) )
+        if (!(obj instanceof GrizzlyNetworkManager)) {
             return;
-        GrizzlyNetworkManager networkManager = (GrizzlyNetworkManager)obj;
+        }
+        GrizzlyNetworkManager networkManager = (GrizzlyNetworkManager) obj;
         PeerID sourcePeerId = event.getSourcePeerID();
-        if( sourcePeerId == null )
+        if (sourcePeerId == null) {
             return;
-        CountDownLatch pingMessageLock = networkManager.getPingMessageLock( sourcePeerId );
-        if( pingMessageLock != null )
+        }
+        CountDownLatch pingMessageLock = networkManager.getPingMessageLock(sourcePeerId);
+        if (pingMessageLock != null) {
             pingMessageLock.countDown();
+        }
     }
 
     @Override

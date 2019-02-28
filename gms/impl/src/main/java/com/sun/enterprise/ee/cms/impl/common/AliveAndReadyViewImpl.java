@@ -16,13 +16,13 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
-import com.sun.enterprise.ee.cms.core.Signal;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.Signal;
 
 public class AliveAndReadyViewImpl implements AliveAndReadyView {
     private Signal signal;
@@ -40,11 +40,11 @@ public class AliveAndReadyViewImpl implements AliveAndReadyView {
         this.signalTime = -1L;
     }
 
-
     // NOTE: specifically did not want to expose method setSignal(Signal) in AliveAndReadyView interface for end users.
-    //       This method exists for implementation to use only and thus only occurs here to enforce that desire.
+    // This method exists for implementation to use only and thus only occurs here to enforce that desire.
     /**
      * Terminates this view as being the current view.
+     *
      * @param signal the signal
      * @throws NullPointerException if closeViewSignal is null.
      */
@@ -64,7 +64,6 @@ public class AliveAndReadyViewImpl implements AliveAndReadyView {
         return signal;
     }
 
-
     /**
      *
      * @return an unmodifiable list of members who were alive and ready.
@@ -73,7 +72,7 @@ public class AliveAndReadyViewImpl implements AliveAndReadyView {
         return Collections.unmodifiableSortedSet(members);
     }
 
-    // Do not make public.  Implementation only use.
+    // Do not make public. Implementation only use.
     // only to enable setting previous view to EMPTY list when start-cluster has completed.
     synchronized void clearMembers() {
         this.members = new TreeSet<String>();
@@ -87,7 +86,7 @@ public class AliveAndReadyViewImpl implements AliveAndReadyView {
 
     /**
      *
-     * @return time that this signal notification first occurred. 
+     * @return time that this signal notification first occurred.
      */
     public long getSignalTime() {
         return signalTime;

@@ -17,24 +17,23 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Created by IntelliJ IDEA.
- * User: sheetal
- * Date: Apr 4, 2008
- * Time: 1:54:34 PM
- * This Exception class has been created to report that the particular
- * member is not in the View
+ * Created by IntelliJ IDEA. User: sheetal Date: Apr 4, 2008 Time: 1:54:34 PM This Exception class has been created to
+ * report that the particular member is not in the View
  */
 public class MemberNotInViewException extends GMSException {
 
-    public MemberNotInViewException(){
+   
+    private static final long serialVersionUID = -8581553671167071724L;
+
+    public MemberNotInViewException() {
         super();
     }
 
-    public MemberNotInViewException(String message){
+    public MemberNotInViewException(String message) {
         super(message);
     }
 
-    public MemberNotInViewException(Throwable e){
+    public MemberNotInViewException(Throwable e) {
         super(e);
     }
 
@@ -42,4 +41,3 @@ public class MemberNotInViewException extends GMSException {
         super(s, e);
     }
 }
-

@@ -18,12 +18,12 @@ package org.glassfish.ha.store.criteria.spi;
 
 /**
  * A node that represents a Literal
+ *
  * @param <T> The type of the Literal
  *
  * @author Mahesh.Kannan@Sun.Com
  */
-public class LiteralNode<T>
-    extends ExpressionNode<T> {
+public class LiteralNode<T> extends ExpressionNode<T> {
 
     private T value;
 

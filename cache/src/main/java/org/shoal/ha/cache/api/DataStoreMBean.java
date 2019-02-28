@@ -21,53 +21,53 @@ package org.shoal.ha.cache.api;
  */
 public interface DataStoreMBean {
 
-    public String getStoreName();
+    String getStoreName();
 
-    public String getKeyClassName();
+    String getKeyClassName();
 
-    public String getValueClassName();
+    String getValueClassName();
 
-    public String getEntryUpdaterClassName();
+    String getEntryUpdaterClassName();
 
-    public String getKeyTransformerClassName();
+    String getKeyTransformerClassName();
 
-    public int getSize();
+    int getSize();
 
-    public int getSentSaveCount();
+    int getSentSaveCount();
 
-    public int getExecutedSaveCount();
+    int getExecutedSaveCount();
 
-    public int getBatchSentCount();
+    int getBatchSentCount();
 
-    public int getLoadCount();
+    int getLoadCount();
 
-    public int getLoadSuccessCount();
+    int getLoadSuccessCount();
 
-    public int getLocalLoadSuccessCount();
+    int getLocalLoadSuccessCount();
 
-    public int getSimpleLoadSuccessCount();
+    int getSimpleLoadSuccessCount();
 
-    public int getBroadcastLoadSuccessCount();
+    int getBroadcastLoadSuccessCount();
 
-    public int getSaveOnLoadCount();
+    int getSaveOnLoadCount();
 
-    public int getLoadFailureCount();
+    int getLoadFailureCount();
 
-    public int getBatchReceivedCount();
+    int getBatchReceivedCount();
 
-    public int getSentRemoveCount();
+    int getSentRemoveCount();
 
-    public int getExecutedRemoveCount();
-    
-    public int getFlushThreadFlushedCount();
+    int getExecutedRemoveCount();
 
-    public int getFlushThreadWakeupCount();
+    int getFlushThreadFlushedCount();
 
-    public int getRemoveExpiredCallCount();
+    int getFlushThreadWakeupCount();
 
-    public int getExpiredEntriesCount();
+    int getRemoveExpiredCallCount();
 
-    public int getGmsSendCount();
+    int getExpiredEntriesCount();
 
-    public long getGmsSendBytesCount();
+    int getGmsSendCount();
+
+    long getGmsSendBytesCount();
 }

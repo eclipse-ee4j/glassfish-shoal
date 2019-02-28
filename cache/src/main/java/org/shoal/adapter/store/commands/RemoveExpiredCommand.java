@@ -16,23 +16,23 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-import org.shoal.ha.cache.impl.util.CommandResponse;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
 
 /**
  * @author Mahesh Kannan
  */
-public class RemoveExpiredCommand<K, V>
-    extends Command {
+public class RemoveExpiredCommand<K, V> extends Command {
+
+   
+    private static final long serialVersionUID = 5377972855354679059L;
 
     protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);
 
@@ -62,15 +62,14 @@ public class RemoveExpiredCommand<K, V>
     public Object getCommandKey() {
         return "RemExpired" + System.identityHashCode(this);
     }
-    
+
     private void writeObject(ObjectOutputStream ros) throws IOException {
         ros.writeLong(maxIdleInMillis);
         ros.writeLong(tokenId);
         ros.writeUTF(dsc.getInstanceName());
     }
 
-    private void readObject(ObjectInputStream ris)
-        throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream ris) throws IOException, ClassNotFoundException {
         maxIdleInMillis = ris.readLong();
         tokenId = ris.readLong();
         target = ris.readUTF();

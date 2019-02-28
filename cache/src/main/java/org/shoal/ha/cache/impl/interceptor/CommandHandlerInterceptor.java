@@ -16,27 +16,23 @@
 
 package org.shoal.ha.cache.impl.interceptor;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.shoal.ha.cache.api.AbstractCommandInterceptor;
 import org.shoal.ha.cache.api.DataStoreException;
 import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
 import org.shoal.ha.cache.impl.command.Command;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
 /**
  * @author Mahesh Kannan
  */
-public final class CommandHandlerInterceptor<K, V>
-        extends AbstractCommandInterceptor<K, V> {
+public final class CommandHandlerInterceptor<K, V> extends AbstractCommandInterceptor<K, V> {
 
-    private static final Logger _logger =
-            Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
+    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_COMMAND);
 
     @Override
-    public void onTransmit(Command<K, V> cmd, String initiator)
-            throws DataStoreException {
+    public void onTransmit(Command<K, V> cmd, String initiator) throws DataStoreException {
         try {
             cmd.prepareTransmit(dsc);
         } catch (Exception ex) {
@@ -52,13 +48,11 @@ public final class CommandHandlerInterceptor<K, V>
     }
 
     @Override
-    public void onReceive(Command<K, V> cmd, String initiator)
-            throws DataStoreException {
+    public void onReceive(Command<K, V> cmd, String initiator) throws DataStoreException {
         if (_logger.isLoggable(Level.FINE)) {
             _logger.log(Level.FINE, storeName + ": Received " + cmd + " from " + initiator);
         }
-        
-        
+
         try {
             cmd.execute(initiator);
         } catch (Exception ex) {

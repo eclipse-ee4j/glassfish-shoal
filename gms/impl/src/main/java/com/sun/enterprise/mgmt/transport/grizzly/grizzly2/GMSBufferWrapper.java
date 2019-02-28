@@ -16,8 +16,9 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 import java.nio.charset.Charset;
+
+import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 
 /**
  * Shoal GMS {@link Buffer} wrapper over Grizzly 2.0 {@link org.glassfish.grizzly.Buffer}.
@@ -36,7 +37,7 @@ final class GMSBufferWrapper implements Buffer {
         this.grizzlyBuffer = grizzlyBuffer;
         return this;
     }
-    
+
     @Override
     public void shrink() {
         grizzlyBuffer.shrink();
@@ -314,17 +315,19 @@ final class GMSBufferWrapper implements Buffer {
 
     @Override
     public int compareTo(final Buffer that) {
-	int n = this.position() + Math.min(this.remaining(), that.remaining());
-	for (int i = this.position(), j = that.position(); i < n; i++, j++) {
-	    byte v1 = this.get(i);
-	    byte v2 = that.get(j);
-	    if (v1 == v2)
-		continue;
-	    if (v1 < v2)
-		return -1;
-	    return +1;
-	}
-	return this.remaining() - that.remaining();
+        int n = this.position() + Math.min(this.remaining(), that.remaining());
+        for (int i = this.position(), j = that.position(); i < n; i++, j++) {
+            byte v1 = this.get(i);
+            byte v2 = that.get(j);
+            if (v1 == v2) {
+                continue;
+            }
+            if (v1 < v2) {
+                return -1;
+            }
+            return +1;
+        }
+        return this.remaining() - that.remaining();
     }
 
     @Override

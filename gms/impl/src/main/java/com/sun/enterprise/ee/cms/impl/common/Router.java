@@ -16,48 +16,75 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.impl.base.GMSThreadFactory;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.Action;
+import com.sun.enterprise.ee.cms.core.ActionException;
+import com.sun.enterprise.ee.cms.core.FailureNotificationAction;
+import com.sun.enterprise.ee.cms.core.FailureNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.FailureNotificationSignal;
+import com.sun.enterprise.ee.cms.core.FailureRecoveryAction;
+import com.sun.enterprise.ee.cms.core.FailureRecoveryActionFactory;
+import com.sun.enterprise.ee.cms.core.FailureRecoverySignal;
+import com.sun.enterprise.ee.cms.core.FailureSuspectedAction;
+import com.sun.enterprise.ee.cms.core.FailureSuspectedActionFactory;
+import com.sun.enterprise.ee.cms.core.FailureSuspectedSignal;
+import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationAction;
+import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationSignal;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.JoinNotificationAction;
+import com.sun.enterprise.ee.cms.core.JoinNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.JoinNotificationSignal;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationAction;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationActionFactory;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationSignal;
+import com.sun.enterprise.ee.cms.core.MessageAction;
+import com.sun.enterprise.ee.cms.core.MessageActionFactory;
+import com.sun.enterprise.ee.cms.core.MessageSignal;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownAction;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownActionFactory;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.impl.base.GMSThreadFactory;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
  * Routes signals to appropriate destinations
  *
- * @author Shreedhar Ganapathy
- *         Date: Jan 16, 2004
+ * @author Shreedhar Ganapathy Date: Jan 16, 2004
  * @version $Revision$
  */
 public class Router {
-    private final CopyOnWriteArrayList<FailureNotificationActionFactory>
-            failureNotificationAF = new CopyOnWriteArrayList<FailureNotificationActionFactory>();
+    private final CopyOnWriteArrayList<FailureNotificationActionFactory> failureNotificationAF = new CopyOnWriteArrayList<FailureNotificationActionFactory>();
 
-    private final ConcurrentHashMap<String, FailureRecoveryActionFactory> failureRecoveryAF =
-            new ConcurrentHashMap<String, FailureRecoveryActionFactory>();
+    private final ConcurrentHashMap<String, FailureRecoveryActionFactory> failureRecoveryAF = new ConcurrentHashMap<String, FailureRecoveryActionFactory>();
 
-    private final ConcurrentHashMap<String, MessageActionFactory> messageAF =
-            new ConcurrentHashMap<String, MessageActionFactory>();
+    private final ConcurrentHashMap<String, MessageActionFactory> messageAF = new ConcurrentHashMap<String, MessageActionFactory>();
 
-    private final CopyOnWriteArrayList<PlannedShutdownActionFactory> plannedShutdownAF =
-            new CopyOnWriteArrayList<PlannedShutdownActionFactory>();
+    private final CopyOnWriteArrayList<PlannedShutdownActionFactory> plannedShutdownAF = new CopyOnWriteArrayList<PlannedShutdownActionFactory>();
 
-    private final CopyOnWriteArrayList<JoinNotificationActionFactory> joinNotificationAF =
-            new CopyOnWriteArrayList<JoinNotificationActionFactory>();
+    private final CopyOnWriteArrayList<JoinNotificationActionFactory> joinNotificationAF = new CopyOnWriteArrayList<JoinNotificationActionFactory>();
 
-    private final CopyOnWriteArrayList<JoinedAndReadyNotificationActionFactory> joinedAndReadyNotificationAF =
-            new CopyOnWriteArrayList<JoinedAndReadyNotificationActionFactory>();
+    private final CopyOnWriteArrayList<JoinedAndReadyNotificationActionFactory> joinedAndReadyNotificationAF = new CopyOnWriteArrayList<JoinedAndReadyNotificationActionFactory>();
 
-    private final CopyOnWriteArrayList<FailureSuspectedActionFactory> failureSuspectedAF =
-            new CopyOnWriteArrayList<FailureSuspectedActionFactory>();
+    private final CopyOnWriteArrayList<FailureSuspectedActionFactory> failureSuspectedAF = new CopyOnWriteArrayList<FailureSuspectedActionFactory>();
 
-    private final CopyOnWriteArrayList<GroupLeadershipNotificationActionFactory> groupLeadershipNotificationAFs =
-            new CopyOnWriteArrayList<GroupLeadershipNotificationActionFactory>();
+    private final CopyOnWriteArrayList<GroupLeadershipNotificationActionFactory> groupLeadershipNotificationAFs = new CopyOnWriteArrayList<GroupLeadershipNotificationActionFactory>();
 
     private final BlockingQueue<SignalPacket> queue;
     private AtomicInteger queueHighWaterMark = new AtomicInteger(0);
@@ -67,8 +94,9 @@ public class Router {
     private final ExecutorService actionPool;
     private final ExecutorService messageActionPool;
     private long startupTime;
-    private static final int GROUP_WARMUP_TIME = 30000;    // join notification remains in queue for this amount of time when there is no Join handler registered yet.
-    private final int MAX_QUEUE_SIZE;                      // used to be 100, now it is set relative to size of msg queue.
+    private static final int GROUP_WARMUP_TIME = 30000; // join notification remains in queue for this amount of time when there is no Join handler registered
+                                                        // yet.
+    private final int MAX_QUEUE_SIZE; // used to be 100, now it is set relative to size of msg queue.
     final private Thread signalHandlerThread;
     private SignalHandler signalHandler;
     public final AliveAndReadyViewWindow aliveAndReadyView;
@@ -82,12 +110,13 @@ public class Router {
         MAX_QUEUE_SIZE = queueSize;
         queue = new ArrayBlockingQueue<SignalPacket>(MAX_QUEUE_SIZE);
         signalHandler = new SignalHandler(queue, this);
-        signalHandlerThread = new Thread(signalHandler, "GMS SignalHandler for Group-" + groupName +  " thread");
+        signalHandlerThread = new Thread(signalHandler, "GMS SignalHandler for Group-" + groupName + " thread");
         signalHandlerThread.setDaemon(true);
         signalHandlerThread.start();
         GMSThreadFactory tf = new GMSThreadFactory("GMS-processNotify-Group-" + groupName + "-thread");
         actionPool = Executors.newFixedThreadPool(5, tf);
-        tf = new GMSThreadFactory("GMS-processInboundMsg-Group-" + groupName + "-thread");;
+        tf = new GMSThreadFactory("GMS-processInboundMsg-Group-" + groupName + "-thread");
+
         messageActionPool = Executors.newFixedThreadPool(incomingMsgThreadPoolSize, tf);
         startupTime = System.currentTimeMillis();
         this.gmsMonitor = gmsMonitor;
@@ -103,8 +132,7 @@ public class Router {
     }
 
     /**
-     * adds a FailureNotificationActionFactory as a destination.
-     * Collects this actionfactory in a Collection of same type.
+     * adds a FailureNotificationActionFactory as a destination. Collects this actionfactory in a Collection of same type.
      *
      * @param failureNotificationActionFactory the FailureNotificationActionFactory
      *
@@ -115,8 +143,7 @@ public class Router {
     }
 
     /**
-     * adds a FailureRecoveryActionFactory as a destination.
-     * Collects this actionfactory in a Collection of same type.
+     * adds a FailureRecoveryActionFactory as a destination. Collects this actionfactory in a Collection of same type.
      *
      * @param componentName the component name
      * @param failureRecoveryActionFactory the FailureRecoveryActionFactory
@@ -127,8 +154,7 @@ public class Router {
     }
 
     /**
-     * adds a JoinNotificationActionFactory as a destination.
-     * Collects this actionfactory in a Collection of same type.
+     * adds a JoinNotificationActionFactory as a destination. Collects this actionfactory in a Collection of same type.
      *
      * @param joinNotificationActionFactory the JoinNotificationActionFactory
      */
@@ -137,9 +163,9 @@ public class Router {
         logActionRegistration("JoinNotification");
     }
 
-     /**
-     * adds a JoinedAndReadyNotificationActionFactory as a destination.
-     * Collects this actionfactory in a Collection of same type.
+    /**
+     * adds a JoinedAndReadyNotificationActionFactory as a destination. Collects this actionfactory in a Collection of same
+     * type.
      *
      * @param joinedAndReadyNotificationActionFactory the JoinedAndReadyNotificationActionFactory
      */
@@ -149,8 +175,7 @@ public class Router {
     }
 
     /**
-     * adds a PlannedShutdownActionFactory as a destination.
-     * Collects this actionfactory in a Collection of same type.
+     * adds a PlannedShutdownActionFactory as a destination. Collects this actionfactory in a Collection of same type.
      *
      * @param plannedShutdownActionFactory the PlannedShutdownActionFactory
      */
@@ -160,8 +185,7 @@ public class Router {
     }
 
     /**
-     * adds a FailureSuspectedActionFactory as a destination.
-     * Collects this actionfactory in a Collection of same type.
+     * adds a FailureSuspectedActionFactory as a destination. Collects this actionfactory in a Collection of same type.
      *
      * @param failureSuspectedActionFactory the FailureSuspectedActionFactory
      */
@@ -176,19 +200,19 @@ public class Router {
      * @param messageActionFactory the MessageActionFactory
      * @param componentName the component name
      */
-    void addDestination(final MessageActionFactory messageActionFactory,final String componentName) {
+    void addDestination(final MessageActionFactory messageActionFactory, final String componentName) {
         messageAF.put(componentName, messageActionFactory);
         logActionRegistration("GMS Message", componentName);
     }
 
     /**
-     * adds a GroupLeadershipNotificationActionFactory as a destination.
-     * Collects this actionfactory in a Collection of same type.
+     * adds a GroupLeadershipNotificationActionFactory as a destination. Collects this actionfactory in a Collection of same
+     * type.
      *
      * @param groupLeadershipNotificationActionFactory the GroupLeadershipNotificationActionFactory
      */
-    void addDestination(final GroupLeadershipNotificationActionFactory groupLeadershipNotificationActionFactory ) {
-        groupLeadershipNotificationAFs.add( groupLeadershipNotificationActionFactory );
+    void addDestination(final GroupLeadershipNotificationActionFactory groupLeadershipNotificationActionFactory) {
+        groupLeadershipNotificationAFs.add(groupLeadershipNotificationActionFactory);
         logActionRegistration("GroupLeadershipNotification");
     }
 
@@ -228,7 +252,7 @@ public class Router {
         joinNotificationAF.remove(joinNotificationActionFactory);
     }
 
-       /**
+    /**
      * removes a JoinedAndReadyNotificationActionFactory destination.
      *
      * @param joinedAndReadyNotificationActionFactory the JoinedAndReadyNotificationActionFactory
@@ -236,6 +260,7 @@ public class Router {
     void removeDestination(final JoinedAndReadyNotificationActionFactory joinedAndReadyNotificationActionFactory) {
         joinedAndReadyNotificationAF.remove(joinedAndReadyNotificationActionFactory);
     }
+
     /**
      * removes a PlannedShutdownActionFactory destination.
      *
@@ -255,8 +280,7 @@ public class Router {
     }
 
     /**
-     * removes a MessageActionFactory instance belonging to a specified
-     * component
+     * removes a MessageActionFactory instance belonging to a specified component
      *
      * @param componentName the component name
      */
@@ -265,8 +289,7 @@ public class Router {
     }
 
     /**
-     * removes a FailureRecoveryActionFactory instance belonging to a specified
-     * component
+     * removes a FailureRecoveryActionFactory instance belonging to a specified component
      *
      * @param componentName the component name
      */
@@ -279,14 +302,13 @@ public class Router {
      *
      * @param groupLeadershipNotificationActionFactory the GroupLeadershipNotificationActionFactory
      */
-    void removeDestination(final GroupLeadershipNotificationActionFactory groupLeadershipNotificationActionFactory ) {
-        groupLeadershipNotificationAFs.remove( groupLeadershipNotificationActionFactory );
+    void removeDestination(final GroupLeadershipNotificationActionFactory groupLeadershipNotificationActionFactory) {
+        groupLeadershipNotificationAFs.remove(groupLeadershipNotificationActionFactory);
     }
 
     /**
-     * Queues signals.  Expects an array of signals which are handed off
-     * to working threads that will determine their corresponding actions
-     * to call their consumeSignal method.
+     * Queues signals. Expects an array of signals which are handed off to working threads that will determine their
+     * corresponding actions to call their consumeSignal method.
      *
      * @param signalPacket the signal packet
      */
@@ -305,7 +327,7 @@ public class Router {
     }
 
     private long lastReported = 0L;
-    static final private long NEXT_REPORT_DURATION = 1000 * 60 * 30;  // 30 minutes
+    static final private long NEXT_REPORT_DURATION = 1000 * 60 * 30; // 30 minutes
 
     /**
      * Adds a single signal to the queue.
@@ -317,7 +339,7 @@ public class Router {
             boolean result = queue.offer(signalPacket);
             if (result == false) {
 
-                // blocking queue is full.  log how long we were blocked.
+                // blocking queue is full. log how long we were blocked.
                 int fullcapacity = queue.size();
                 long starttime = System.currentTimeMillis();
                 try {
@@ -326,15 +348,14 @@ public class Router {
                     long duration = System.currentTimeMillis() - starttime;
                     if (duration > 2000) {
                         if (lastReported + NEXT_REPORT_DURATION < System.currentTimeMillis()) {
-                            monitorLogger.log(Level.WARNING, "router.signal.queue.blocking",
-                                              new Object[]{duration ,fullcapacity});
+                            monitorLogger.log(Level.WARNING, "router.signal.queue.blocking", new Object[] { duration, fullcapacity });
                             lastReported = System.currentTimeMillis();
                         }
                     } else if (duration > 20) {
                         if (lastReported + NEXT_REPORT_DURATION < System.currentTimeMillis()) {
                             if (monitorLogger.isLoggable(Level.FINE)) {
-                                monitorLogger.fine("signal processing blocked due to signal queue being full for " +
-                                                   duration + " ms. Router signal queue capacity: " + fullcapacity);
+                                monitorLogger.fine("signal processing blocked due to signal queue being full for " + duration
+                                        + " ms. Router signal queue capacity: " + fullcapacity);
                                 lastReported = System.currentTimeMillis();
                             }
                         }
@@ -358,7 +379,7 @@ public class Router {
 
     void notifyFailureNotificationAction(final FailureNotificationSignal signal) {
         FailureNotificationAction a;
-        logger.log(Level.INFO, "failurenotificationsignals.send.member", new Object[]{signal.getMemberToken()});
+        logger.log(Level.INFO, "failurenotificationsignals.send.member", new Object[] { signal.getMemberToken() });
         for (FailureNotificationActionFactory fnaf : failureNotificationAF) {
             a = (FailureNotificationAction) fnaf.produceAction();
             callAction(a, new FailureNotificationSignalImpl(signal));
@@ -368,8 +389,7 @@ public class Router {
     void notifyFailureRecoveryAction(final FailureRecoverySignal signal) {
         final FailureRecoveryAction a;
         final FailureRecoverySignal frs;
-        logger.log(Level.INFO, "failurerecoverysignals.send.component",
-                new Object[]{signal.getComponentName(), signal.getMemberToken()});
+        logger.log(Level.INFO, "failurerecoverysignals.send.component", new Object[] { signal.getComponentName(), signal.getMemberToken() });
         final FailureRecoveryActionFactory fraf = failureRecoveryAF.get(signal.getComponentName());
         a = (FailureRecoveryAction) fraf.produceAction();
         frs = new FailureRecoverySignalImpl(signal);
@@ -379,8 +399,7 @@ public class Router {
     void notifyFailureSuspectedAction(final FailureSuspectedSignal signal) {
         FailureSuspectedAction a;
         FailureSuspectedSignal fss;
-        logger.log(Level.INFO, "failuresuspectedsignals.send.member",
-                new Object[]{signal.getMemberToken()});
+        logger.log(Level.INFO, "failuresuspectedsignals.send.member", new Object[] { signal.getMemberToken() });
         for (FailureSuspectedActionFactory fsaf : failureSuspectedAF) {
             a = (FailureSuspectedAction) fsaf.produceAction();
             fss = new FailureSuspectedSignalImpl(signal);
@@ -400,7 +419,7 @@ public class Router {
             }
             // Introduce a mechanism in future to
             // register a MessageActionFactory for messages to non-existent targetComponent.
-            // (.i.e  register a MessageActionFactory for "null" targetComponent.)
+            // (.i.e register a MessageActionFactory for "null" targetComponent.)
             // this action factory could do something like the following to register that message was not handled.
 
             // following commented out code did report messages that were not delivered to any target component.
@@ -412,13 +431,13 @@ public class Router {
                     missedMessagesInt = 1;
                     AtomicInteger alreadyPresent = undeliveredMessages.putIfAbsent(targetComponent, missedMessages);
                     if (alreadyPresent != null) {
-                      alreadyPresent.incrementAndGet();
+                        alreadyPresent.incrementAndGet();
                     }
                 } else {
                     missedMessagesInt = missedMessages.incrementAndGet();
                 }
                 if (missedMessagesInt == 1) {
-                    logger.log(Level.INFO, "router.no.msghandler.for.targetcomponent",new Object[]{targetComponent, groupName});
+                    logger.log(Level.INFO, "router.no.msghandler.for.targetcomponent", new Object[] { targetComponent, groupName });
                 }
             }
         } else {
@@ -446,17 +465,15 @@ public class Router {
         }
     }
 
-
     void notifyJoinNotificationAction(final JoinNotificationSignal signal) {
         JoinNotificationAction a;
         JoinNotificationSignal jns;
-        //todo: NEED to be able to predetermine the number of GMS clients
-        //that would register for join notifications.
+        // todo: NEED to be able to predetermine the number of GMS clients
+        // that would register for join notifications.
         if (isJoinNotificationAFRegistered()) {
-            if (logger.isLoggable(Level.FINE)){
+            if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,
-                        MessageFormat.format("Sending JoinNotificationSignals to " +
-                                "registered Actions, Member {0}...", signal.getMemberToken()));
+                        MessageFormat.format("Sending JoinNotificationSignals to " + "registered Actions, Member {0}...", signal.getMemberToken()));
             }
             for (JoinNotificationActionFactory jnaf : joinNotificationAF) {
                 a = (JoinNotificationAction) jnaf.produceAction();
@@ -476,10 +493,9 @@ public class Router {
         JoinedAndReadyNotificationAction a;
         JoinedAndReadyNotificationSignal jns;
         if (isJoinedAndReadyNotificationAFRegistered()) {
-            if (logger.isLoggable(Level.FINE)){
+            if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,
-                        MessageFormat.format("Sending JoinedAndReadyNotificationSignals to " +
-                                "registered Actions, Member {0}...", signal.getMemberToken()));
+                        MessageFormat.format("Sending JoinedAndReadyNotificationSignals to " + "registered Actions, Member {0}...", signal.getMemberToken()));
             }
             for (JoinedAndReadyNotificationActionFactory jnaf : joinedAndReadyNotificationAF) {
                 a = (JoinedAndReadyNotificationAction) jnaf.produceAction();
@@ -492,8 +508,7 @@ public class Router {
     void notifyPlannedShutdownAction(final PlannedShutdownSignal signal) {
         PlannedShutdownAction a;
         PlannedShutdownSignal pss;
-        logger.log(Level.INFO, "plannedshutdownsignals.send.member",
-                new Object[]{signal.getEventSubType(), signal.getMemberToken()});
+        logger.log(Level.INFO, "plannedshutdownsignals.send.member", new Object[] { signal.getEventSubType(), signal.getMemberToken() });
         for (PlannedShutdownActionFactory psaf : plannedShutdownAF) {
             a = (PlannedShutdownAction) psaf.produceAction();
             pss = new PlannedShutdownSignalImpl(signal);
@@ -505,10 +520,9 @@ public class Router {
         GroupLeadershipNotificationAction a;
         GroupLeadershipNotificationSignal glsns;
         if (isGroupLeadershipNotificationAFRegistered()) {
-            if (logger.isLoggable(Level.FINE)){
+            if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,
-                        MessageFormat.format("Sending GroupLeadershipNotificationSignals to " +
-                                "registered Actions, Member {0}...", signal.getMemberToken()));
+                        MessageFormat.format("Sending GroupLeadershipNotificationSignals to " + "registered Actions, Member {0}...", signal.getMemberToken()));
             }
             for (GroupLeadershipNotificationActionFactory glsnaf : groupLeadershipNotificationAFs) {
                 a = (GroupLeadershipNotificationAction) glsnaf.produceAction();
@@ -538,7 +552,7 @@ public class Router {
 
     public boolean isFailureNotificationAFRegistered() {
         boolean retval = true;
-        if (failureNotificationAF.isEmpty()){
+        if (failureNotificationAF.isEmpty()) {
             retval = false;
         }
         return retval;
@@ -554,7 +568,7 @@ public class Router {
 
     public boolean isMessageAFRegistered() {
         boolean retval = true;
-        if (messageAF.isEmpty()){
+        if (messageAF.isEmpty()) {
             retval = false;
         }
         return retval;
@@ -570,7 +584,7 @@ public class Router {
 
     public boolean isJoinNotificationAFRegistered() {
         boolean retval = true;
-        if (joinNotificationAF.isEmpty()){
+        if (joinNotificationAF.isEmpty()) {
             retval = false;
         }
         return retval;
@@ -600,57 +614,53 @@ public class Router {
         return retval;
     }
 
-    Hashtable<String, FailureRecoveryActionFactory>
-    getFailureRecoveryAFRegistrations() {
-        return
-                new Hashtable<String, FailureRecoveryActionFactory>(failureRecoveryAF);
+    Hashtable<String, FailureRecoveryActionFactory> getFailureRecoveryAFRegistrations() {
+        return new Hashtable<String, FailureRecoveryActionFactory>(failureRecoveryAF);
     }
 
     public Set<String> getFailureRecoveryComponents() {
-        if (logger.isLoggable(Level.FINEST)){
-            logger.log(Level.FINEST, MessageFormat.format("Router Returning failure " +
-                    "recovery components={0}", failureRecoveryAF.keySet()));
+        if (logger.isLoggable(Level.FINEST)) {
+            logger.log(Level.FINEST, MessageFormat.format("Router Returning failure " + "recovery components={0}", failureRecoveryAF.keySet()));
         }
         return failureRecoveryAF.keySet();
     }
 
     public void shutdown() {
         undocketAllDestinations();
-        if( signalHandlerThread != null ) {
+        if (signalHandlerThread != null) {
             signalHandler.stop(signalHandlerThread);
         }
         // consider WARNING to tell user to increase size of INCOMING_MSG_QUEUE_SIZE for their application's messaging load.
         if (monitorLogger.isLoggable(Level.INFO)) {
-            monitorLogger.log(Level.INFO, "router.stats.monitor.msgqueue.high.water",
-                              new Object[]{ queueHighWaterMark.get(), MAX_QUEUE_SIZE});
+            monitorLogger.log(Level.INFO, "router.stats.monitor.msgqueue.high.water", new Object[] { queueHighWaterMark.get(), MAX_QUEUE_SIZE });
         }
-        if( queue != null ) {
+        if (queue != null) {
             int unprocessedEventSize = queue.size();
             if (unprocessedEventSize > 0) {
-                logger.log(Level.WARNING, "router.shutdown.unprocessed", new Object[]{queue.size()});
-                // TBD.  If shutdown has unprocessed events outstanding.
+                logger.log(Level.WARNING, "router.shutdown.unprocessed", new Object[] { queue.size() });
+                // TBD. If shutdown has unprocessed events outstanding.
                 try {
                     LinkedList<SignalPacket> unprocessedEvents = new LinkedList<SignalPacket>();
                     queue.drainTo(unprocessedEvents);
-                    for (SignalPacket sp :  unprocessedEvents) {
-                        logger.log(Level.INFO, "router.shutdown.unprocessed.signal", new Object[]{sp.toString()});
+                    for (SignalPacket sp : unprocessedEvents) {
+                        logger.log(Level.INFO, "router.shutdown.unprocessed.signal", new Object[] { sp.toString() });
                     }
-                } catch (Throwable t) {}
+                } catch (Throwable t) {
+                }
             }
 
             queue.clear();
         }
-        if( actionPool != null ) {
+        if (actionPool != null) {
             actionPool.shutdownNow();
         }
         if (messageActionPool != null) {
             messageActionPool.shutdown();
-        }                                   
+        }
     }
 
     /**
-     * implements Callable. Used for handing off the job of calling the Action's
-     * consumeSignal() method to a ThreadPool.
+     * implements Callable. Used for handing off the job of calling the Action's consumeSignal() method to a ThreadPool.
      */
     private static class CallableAction implements Callable<Object> {
         private Action action;

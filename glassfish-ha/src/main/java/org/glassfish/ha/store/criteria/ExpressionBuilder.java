@@ -16,7 +16,11 @@
 
 package org.glassfish.ha.store.criteria;
 
-import org.glassfish.ha.store.criteria.spi.*;
+import org.glassfish.ha.store.criteria.spi.AttributeAccessNode;
+import org.glassfish.ha.store.criteria.spi.ExpressionNode;
+import org.glassfish.ha.store.criteria.spi.LiteralNode;
+import org.glassfish.ha.store.criteria.spi.LogicalExpressionNode;
+import org.glassfish.ha.store.criteria.spi.Opcode;
 import org.glassfish.ha.store.spi.AttributeMetadata;
 
 /**
@@ -49,22 +53,15 @@ public class ExpressionBuilder<V> {
     }
 
     public <T> LogicalExpressionNode eq(T value, AttributeMetadata<V, T> meta) {
-        return new LogicalExpressionNode(Opcode.EQ,
-                new LiteralNode<T>(meta.getAttributeType(), value),
-                new AttributeAccessNode<V, T>(meta));
+        return new LogicalExpressionNode(Opcode.EQ, new LiteralNode<T>(meta.getAttributeType(), value), new AttributeAccessNode<V, T>(meta));
     }
 
     public <T> LogicalExpressionNode eq(AttributeMetadata<V, T> meta, T value) {
-        return new LogicalExpressionNode(Opcode.EQ,
-                new AttributeAccessNode<V, T>(meta),
-                new LiteralNode<T>(meta.getAttributeType(), value));
+        return new LogicalExpressionNode(Opcode.EQ, new AttributeAccessNode<V, T>(meta), new LiteralNode<T>(meta.getAttributeType(), value));
     }
 
-    public <T> LogicalExpressionNode eq(AttributeMetadata<V, T> meta1,
-                                           AttributeMetadata<V, T> meta2) {
-        return new LogicalExpressionNode(Opcode.EQ,
-                new AttributeAccessNode<V, T>(meta1),
-                new AttributeAccessNode<V, T>(meta2));
+    public <T> LogicalExpressionNode eq(AttributeMetadata<V, T> meta1, AttributeMetadata<V, T> meta2) {
+        return new LogicalExpressionNode(Opcode.EQ, new AttributeAccessNode<V, T>(meta1), new AttributeAccessNode<V, T>(meta2));
     }
 
     public <T> LogicalExpressionNode eq(ExpressionNode<T> expr1, ExpressionNode<T> expr2) {
@@ -72,13 +69,11 @@ public class ExpressionBuilder<V> {
     }
 
     public <T extends Number> LogicalExpressionNode eq(LiteralNode<T> value, AttributeMetadata<V, T> meta) {
-        return new LogicalExpressionNode(Opcode.EQ,
-                value, new AttributeAccessNode<V, T>(meta));
+        return new LogicalExpressionNode(Opcode.EQ, value, new AttributeAccessNode<V, T>(meta));
     }
 
     public <T extends Number> LogicalExpressionNode eq(AttributeMetadata<V, T> meta, LiteralNode<T> value) {
-        return new LogicalExpressionNode(Opcode.EQ,
-                new AttributeAccessNode<V, T>(meta), value);
+        return new LogicalExpressionNode(Opcode.EQ, new AttributeAccessNode<V, T>(meta), value);
     }
 
 }

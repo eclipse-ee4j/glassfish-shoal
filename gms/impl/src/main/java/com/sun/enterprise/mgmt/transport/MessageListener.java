@@ -21,10 +21,10 @@ import java.util.EventListener;
 /**
  * Message listener interface
  *
- * For receiving and processing inbound messages, this listener should be registered on {@link NetworkManager}
- * with corresponding to the appropriate message type
- * i.g. For adding the listener, use {@link NetworkManager#addMessageListener(MessageListener)}} 
- * and for removing the listener, use {@link com.sun.enterprise.mgmt.transport.NetworkManager#removeMessageListener(MessageListener)}
+ * For receiving and processing inbound messages, this listener should be registered on {@link NetworkManager} with
+ * corresponding to the appropriate message type i.g. For adding the listener, use
+ * {@link NetworkManager#addMessageListener(MessageListener)}} and for removing the listener, use
+ * {@link com.sun.enterprise.mgmt.transport.NetworkManager#removeMessageListener(MessageListener)}
  *
  * @author Bongjae Chang
  */
@@ -36,13 +36,13 @@ public interface MessageListener extends EventListener {
      * @param event a received message event
      * @throws MessageIOException if I/O error occurs
      */
-    public void receiveMessageEvent( final MessageEvent event ) throws MessageIOException;
+    void receiveMessageEvent(final MessageEvent event) throws MessageIOException;
 
     /**
-     * Returns the message type which {@link Message} is supporting
-     * i.g. {@link Message#TYPE_CLUSTER_MANAGER_MESSAGE} or {@link Message#TYPE_HEALTH_MONITOR_MESSAGE}'s integer value or etc...
+     * Returns the message type which {@link Message} is supporting i.g. {@link Message#TYPE_CLUSTER_MANAGER_MESSAGE} or
+     * {@link Message#TYPE_HEALTH_MONITOR_MESSAGE}'s integer value or etc...
      *
      * @return the message type about which this listener is concerned
      */
-    public int getType();
+    int getType();
 }

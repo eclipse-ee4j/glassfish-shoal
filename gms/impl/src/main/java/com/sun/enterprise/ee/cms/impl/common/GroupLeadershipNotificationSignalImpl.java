@@ -16,16 +16,19 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.core.GMSMember;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
-import java.util.Map;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.Map;
 import java.util.logging.Level;
-import java.io.Serializable;
+import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationSignal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Implements GroupLeadershipNotificationSignal
@@ -34,7 +37,7 @@ import java.io.Serializable;
  */
 public class GroupLeadershipNotificationSignalImpl implements GroupLeadershipNotificationSignal {
 
-    protected static final Logger logger = GMSLogDomain.getLogger( GMSLogDomain.GMS_LOGGER );
+    protected static final Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
     private static final String MEMBER_DETAILS = "MEMBERDETAILS";
     private GMSContext ctx;
@@ -47,13 +50,8 @@ public class GroupLeadershipNotificationSignalImpl implements GroupLeadershipNot
     private final List<String> currentCoreMembers;
     private final List<String> allCurrentMembers;
 
-    public GroupLeadershipNotificationSignalImpl( final String memberToken,
-                                                  final List<GMSMember> previousView,
-                                                  final List<GMSMember> currentView,
-                                                  final List<String> currentCoreMembers,
-                                                  final List<String> allCurrentMembers,
-                                                  final String groupName,
-                                                  final long startTime ) {
+    public GroupLeadershipNotificationSignalImpl(final String memberToken, final List<GMSMember> previousView, final List<GMSMember> currentView,
+            final List<String> currentCoreMembers, final List<String> allCurrentMembers, final String groupName, final long startTime) {
         this.memberToken = memberToken;
         this.previousView = previousView;
         this.currentView = currentView;
@@ -61,17 +59,12 @@ public class GroupLeadershipNotificationSignalImpl implements GroupLeadershipNot
         this.allCurrentMembers = allCurrentMembers;
         this.groupName = groupName;
         this.startTime = startTime;
-        ctx = GMSContextFactory.getGMSContext( groupName );
+        ctx = GMSContextFactory.getGMSContext(groupName);
     }
 
-    GroupLeadershipNotificationSignalImpl( final GroupLeadershipNotificationSignal signal ) {
-        this( signal.getMemberToken(),
-              signal.getPreviousView(),
-              signal.getCurrentView(),
-              signal.getCurrentCoreMembers(),
-              signal.getAllCurrentMembers(),
-              signal.getGroupName(),
-              signal.getStartTime() );
+    GroupLeadershipNotificationSignalImpl(final GroupLeadershipNotificationSignal signal) {
+        this(signal.getMemberToken(), signal.getPreviousView(), signal.getCurrentView(), signal.getCurrentCoreMembers(), signal.getAllCurrentMembers(),
+                signal.getGroupName(), signal.getStartTime());
     }
 
     /**
@@ -98,14 +91,14 @@ public class GroupLeadershipNotificationSignalImpl implements GroupLeadershipNot
      */
     public Map<Serializable, Serializable> getMemberDetails() {
         Map<Serializable, Serializable> ret = new HashMap<Serializable, Serializable>();
-        if( ctx == null ) {
-            ctx = GMSContextFactory.getGMSContext( groupName );
+        if (ctx == null) {
+            ctx = GMSContextFactory.getGMSContext(groupName);
         }
         DistributedStateCache dsc = ctx.getDistributedStateCache();
-        if( dsc != null ) {
-            ret = dsc.getFromCacheForPattern( MEMBER_DETAILS, memberToken );
+        if (dsc != null) {
+            ret = dsc.getFromCacheForPattern(MEMBER_DETAILS, memberToken);
         } else {
-            logger.log( Level.WARNING, "no.instance.dsc", new Object[]{ memberToken } );
+            logger.log(Level.WARNING, "no.instance.dsc", new Object[] { memberToken });
         }
         return ret;
     }

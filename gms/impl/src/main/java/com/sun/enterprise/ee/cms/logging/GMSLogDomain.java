@@ -16,24 +16,20 @@
 
 package com.sun.enterprise.ee.cms.logging;
 
-
 import java.util.logging.Logger;
 
 /**
- * GMS logger that abstracts out application specific loggers. One can
- * plug in any logger here - even potentially set custom log handlers through
- * this abstraction.
+ * GMS logger that abstracts out application specific loggers. One can plug in any logger here - even potentially set
+ * custom log handlers through this abstraction.
  *
- * @author Shreedhar Ganapathy
- *         Date: Apr 1, 2004
+ * @author Shreedhar Ganapathy Date: Apr 1, 2004
  * @version $Revision$
  */
-public class GMSLogDomain  {
+public class GMSLogDomain {
 
     public static final String GMS_LOGGER = "ShoalLogger";
 
-    private static final String LOG_STRINGS =
-        "com.sun.enterprise.ee.cms.logging.LogStrings";
+    private static final String LOG_STRINGS = "com.sun.enterprise.ee.cms.logging.LogStrings";
 
     private static final String GMS_MONITOR_LOGGER = GMS_LOGGER + ".monitor";
     private static final String GMS_HANDLER_LOGGER = GMS_LOGGER + ".handler";
@@ -43,10 +39,11 @@ public class GMSLogDomain  {
     private static final String GMS_DSC = GMS_LOGGER + ".dsc";
     private static final String GMS_NOMCAST = GMS_LOGGER + ".nomcast";
 
-    private GMSLogDomain() { /* you can't have me */}
+    private GMSLogDomain() {
+        /* you can't have me */}
 
-    public static Logger getLogger(final String loggerName){
-        return Logger.getLogger(loggerName,  LOG_STRINGS);
+    public static Logger getLogger(final String loggerName) {
+        return Logger.getLogger(loggerName, LOG_STRINGS);
     }
 
     public static Logger getMonitorLogger() {
@@ -60,7 +57,7 @@ public class GMSLogDomain  {
     public static Logger getMasterNodeLogger() {
         return Logger.getLogger(MASTER_LOGGER_NAME, LOG_STRINGS);
     }
-    
+
     public static Logger getSendLogger() {
         return Logger.getLogger(GMS_SEND, LOG_STRINGS);
     }

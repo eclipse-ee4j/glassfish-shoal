@@ -16,7 +16,10 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 
 /**
@@ -24,8 +27,7 @@ import java.nio.charset.Charset;
  */
 public class SimpleSerializer {
 
-    public static void serializeString(ReplicationOutputStream ros, String str)
-            throws IOException {
+    public static void serializeString(ReplicationOutputStream ros, String str) throws IOException {
         int len = str == null ? 0 : str.length();
         ros.write(Utility.intToBytes(len));
         if (len > 0) {
@@ -33,8 +35,7 @@ public class SimpleSerializer {
         }
     }
 
-    public static void serialize(ReplicationOutputStream ros, Object obj)
-            throws IOException {
+    public static void serialize(ReplicationOutputStream ros, Object obj) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos);
         try {
@@ -57,11 +58,10 @@ public class SimpleSerializer {
 
     public static String deserializeString(byte[] data, int offset) {
         int len = Utility.bytesToInt(data, offset);
-        return new String(data, offset+4, len, Charset.defaultCharset());
+        return new String(data, offset + 4, len, Charset.defaultCharset());
     }
 
-    public static Object deserialize(ClassLoader loader, byte[] data, int offset)
-            throws ClassNotFoundException, IOException {
+    public static Object deserialize(ClassLoader loader, byte[] data, int offset) throws ClassNotFoundException, IOException {
         int len = Utility.bytesToInt(data, offset);
         ByteArrayInputStream bis = new ByteArrayInputStream(data, offset + 4, len);
         ObjectInputStreamWithLoader ois = new ObjectInputStreamWithLoader(bis, loader);

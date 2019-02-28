@@ -22,19 +22,20 @@ import com.sun.enterprise.ee.cms.core.FailureSuspectedActionFactory;
 
 /**
  * Reference implementation of FailureSuspectedActionFactory
- * @author Shreedhar Ganapathy
- *         Date: Sep 21, 2005
+ *
+ * @author Shreedhar Ganapathy Date: Sep 21, 2005
  * @version $Revision$
  */
-public class FailureSuspectedActionFactoryImpl implements
-                                               FailureSuspectedActionFactory
- {
+public class FailureSuspectedActionFactoryImpl implements FailureSuspectedActionFactory {
     private final CallBack cb;
-    public FailureSuspectedActionFactoryImpl(final CallBack cb){
+
+    public FailureSuspectedActionFactoryImpl(final CallBack cb) {
         this.cb = cb;
     }
+
     /**
      * Produces an Action instance.
+     *
      * @return com.sun.enterprise.ee.cms.Action
      */
     public Action produceAction() {

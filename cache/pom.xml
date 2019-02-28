@@ -16,14 +16,12 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.glassfish.shoal</groupId>
         <artifactId>shoal</artifactId>
         <version>1.6.54-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>shoal-cache</artifactId>
@@ -57,6 +55,7 @@
 
     <build>
         <finalName>${project.artifactId}</finalName>
+        
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -65,26 +64,10 @@
                 <configuration>
                     <instructions>
                         <Export-Package>org.shoal.adapter.store,org.shoal.ha.mapper</Export-Package>
-                        <!--
-                        <Include-Resource>{maven-resources}</Include-Resource>
-                        -->
+                        <!-- <Include-Resource>{maven-resources}</Include-Resource> -->
                     </instructions>
                 </configuration>
             </plugin>
-	    <plugin>
-		 <groupId>org.apache.maven.plugins</groupId>
-		 <artifactId>maven-gpg-plugin</artifactId>
-		 <executions>
-			 <execution>
-				 <id>sign-artifacts</id>
-				 <phase>verify</phase>
-				 <goals>
-					 <goal>sign</goal>
-				 </goals>
-			 </execution>
-		 </executions>
-	     </plugin>
         </plugins>
-
     </build>
 </project>

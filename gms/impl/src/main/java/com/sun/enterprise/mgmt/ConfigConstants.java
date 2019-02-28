@@ -17,11 +17,10 @@
 package com.sun.enterprise.mgmt;
 
 /**
- * Specifies constants that are allowed to be used as keys for configuration
- * elements that are sought to be set or retrieved for/from transport configuration
+ * Specifies constants that are allowed to be used as keys for configuration elements that are sought to be set or
+ * retrieved for/from transport configuration
  *
- * @author Shreedhar Ganapathy
- *         Date: Jun 22, 2006
+ * @author Shreedhar Ganapathy Date: Jun 22, 2006
  * @version $Revision$
  */
 public enum ConfigConstants {
@@ -41,14 +40,14 @@ public enum ConfigConstants {
 
     LOOPBACK,
 
-    //used for specifying which interface to use for group communication
+    // used for specifying which interface to use for group communication
     // This is the address which Shoal should bind to for communication.
     BIND_INTERFACE_ADDRESS,
 
-    //admin can specify the timeout after which the HealthMonitor.isConnected() thread can
-    //quit checking if the peer's machine is up or not.
+    // admin can specify the timeout after which the HealthMonitor.isConnected() thread can
+    // quit checking if the peer's machine is up or not.
     FAILURE_DETECTION_TCP_RETRANSMIT_TIMEOUT,
 
-    //port where a socket can be created to see if the instance's machine is up or down
+    // port where a socket can be created to see if the instance's machine is up or down
     FAILURE_DETECTION_TCP_RETRANSMIT_PORT
 }

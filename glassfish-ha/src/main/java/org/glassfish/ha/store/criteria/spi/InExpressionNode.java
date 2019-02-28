@@ -21,12 +21,11 @@ import java.util.Collection;
 /**
  * A node that represnt the "in" operation
  *
- * @param <T>  The type of operands involved
+ * @param <T> The type of operands involved
  *
  * @author Mahesh.Kannan@Sun.Com
  */
-public class InExpressionNode<T>
-    extends LogicalExpressionNode {
+public class InExpressionNode<T> extends LogicalExpressionNode {
 
     Collection<? extends T> entries;
 

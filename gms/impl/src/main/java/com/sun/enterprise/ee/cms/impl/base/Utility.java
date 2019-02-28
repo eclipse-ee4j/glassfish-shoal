@@ -16,13 +16,16 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
+import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSMember;
 import com.sun.enterprise.ee.cms.core.GroupManagementService;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.ee.cms.logging.NiceLogFormatter;
-
-import java.util.logging.*;
-import java.util.Map;
 
 /**
  * Utility class that can be used by any calling code to do common routines
@@ -31,8 +34,7 @@ import java.util.Map;
  */
 public class Utility {
 
-    private static Logger logger =
-        GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+    private static Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
     public static final long NO_SUCH_TIME = -1L;
 
@@ -40,12 +42,12 @@ public class Utility {
         logger = theLogger;
     }
 
-    public static GMSMember getGMSMember( final SystemAdvertisement systemAdvertisement ) {
+    public static GMSMember getGMSMember(final SystemAdvertisement systemAdvertisement) {
         GMSMember member;
         String memberType = getCustomTagValue(systemAdvertisement, CustomTagNames.MEMBER_TYPE.toString());
         String groupName = getGroupName(systemAdvertisement);
         long startTime = getStartTime(systemAdvertisement);
-        member = new GMSMember( systemAdvertisement.getName(), memberType, groupName, startTime);
+        member = new GMSMember(systemAdvertisement.getName(), memberType, groupName, startTime);
         return member;
     }
 
@@ -54,101 +56,108 @@ public class Utility {
         try {
             result = sa.getCustomTagValue(tagName);
         } catch (NoSuchFieldException e) {
-            logger.log( Level.WARNING,"util.sysadv.missing.custom.tag", new Object[]{tagName, sa.getName()});
+            logger.log(Level.WARNING, "util.sysadv.missing.custom.tag", new Object[] { tagName, sa.getName() });
         }
         return result;
     }
 
-    public static boolean isWatchDog( SystemAdvertisement sysAdv ) {
-        GMSMember member = getGMSMember( sysAdv );
-        return GroupManagementService.MemberType.WATCHDOG.toString().equalsIgnoreCase( member.getMemberType() );
+    public static boolean isWatchDog(SystemAdvertisement sysAdv) {
+        GMSMember member = getGMSMember(sysAdv);
+        return GroupManagementService.MemberType.WATCHDOG.toString().equalsIgnoreCase(member.getMemberType());
     }
 
-    public static String getStringProperty( String propertyName, String defaultValue, Map props ) {
+    public static String getStringProperty(String propertyName, String defaultValue, Map props) {
         try {
             String value = null;
-            if( props != null ) {
-                Object obj = props.get( propertyName );
-                if( obj instanceof String )
-                    value = (String)obj;
-            }
-            if( value == null )
-                value = System.getProperty( propertyName );
-            if( value == null )
-                return defaultValue;
-            else
-                return value;
-        }
-        catch( Exception e ) {
-            return defaultValue;
-        }
-    }
-
-    public static int getIntProperty( String propertyName, int defaultValue, Map props ) {
-        try {
-            String value = null;
-            if( props != null ) {
-                Object obj = props.get( propertyName );
-                if( obj instanceof String )
-                    value = (String)obj;
-                else if( obj instanceof Integer )
-                    return (Integer)obj;
-            }
-            if( value == null )
-                value = System.getProperty( propertyName );
-            if( value == null )
-                return defaultValue;
-            else
-                return Integer.parseInt( value );
-        }
-        catch( Exception e ) {
-            return defaultValue;
-        }
-    }
-
-    public static long getLongProperty( String propertyName, long defaultValue, Map props ) {
-        try {
-            String value = null;
-            if( props != null ) {
-                Object obj = props.get( propertyName );
-                if( obj instanceof String ) {
-                    value = (String)obj;
-                } else if( obj instanceof Long ) {
-                    return (Long)obj;
-                } else if (obj instanceof Integer) {
-                    return ((Integer)obj).longValue();
+            if (props != null) {
+                Object obj = props.get(propertyName);
+                if (obj instanceof String) {
+                    value = (String) obj;
                 }
             }
-            if( value == null )
-                value = System.getProperty( propertyName );
-            if( value == null )
+            if (value == null) {
+                value = System.getProperty(propertyName);
+            }
+            if (value == null) {
                 return defaultValue;
-            else
-                return Long.parseLong( value );
-        }
-        catch( Exception ex ) {
+            } else {
+                return value;
+            }
+        } catch (Exception e) {
             return defaultValue;
         }
     }
 
-    public static boolean getBooleanProperty( String propertyName, boolean defaultValue, Map props ) {
+    public static int getIntProperty(String propertyName, int defaultValue, Map props) {
         try {
             String value = null;
-            if( props != null ) {
-                Object obj = props.get( propertyName );
-                if( obj instanceof String )
-                    value = (String)obj;
-                else if( obj instanceof Boolean )
-                    return (Boolean)obj;
+            if (props != null) {
+                Object obj = props.get(propertyName);
+                if (obj instanceof String) {
+                    value = (String) obj;
+                } else if (obj instanceof Integer) {
+                    return (Integer) obj;
+                }
             }
-            if( value == null )
-                value = System.getProperty( propertyName );
-            if( value == null )
+            if (value == null) {
+                value = System.getProperty(propertyName);
+            }
+            if (value == null) {
                 return defaultValue;
-            else
-                return Boolean.parseBoolean( value );
+            } else {
+                return Integer.parseInt(value);
+            }
+        } catch (Exception e) {
+            return defaultValue;
         }
-        catch( Exception e ) {
+    }
+
+    public static long getLongProperty(String propertyName, long defaultValue, Map props) {
+        try {
+            String value = null;
+            if (props != null) {
+                Object obj = props.get(propertyName);
+                if (obj instanceof String) {
+                    value = (String) obj;
+                } else if (obj instanceof Long) {
+                    return (Long) obj;
+                } else if (obj instanceof Integer) {
+                    return ((Integer) obj).longValue();
+                }
+            }
+            if (value == null) {
+                value = System.getProperty(propertyName);
+            }
+            if (value == null) {
+                return defaultValue;
+            } else {
+                return Long.parseLong(value);
+            }
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+
+    public static boolean getBooleanProperty(String propertyName, boolean defaultValue, Map props) {
+        try {
+            String value = null;
+            if (props != null) {
+                Object obj = props.get(propertyName);
+                if (obj instanceof String) {
+                    value = (String) obj;
+                } else if (obj instanceof Boolean) {
+                    return (Boolean) obj;
+                }
+            }
+            if (value == null) {
+                value = System.getProperty(propertyName);
+            }
+            if (value == null) {
+                return defaultValue;
+            } else {
+                return Boolean.parseBoolean(value);
+            }
+        } catch (Exception e) {
             return defaultValue;
         }
     }
@@ -158,37 +167,33 @@ public class Utility {
         try {
             consoleHandler.setLevel(Level.ALL);
             consoleHandler.setFormatter(new NiceLogFormatter());
-            //SelectiveLogFilter filter = new SelectiveLogFilter();
-            //filter.add(HealthMonitor.class.getName());
-            //filter.add(MasterNode.class.getName());
-            //filter.add(ClusterView.class.getName());
-            //filter.add(NetworkManager.class.getName());
-            //filter.add(net.jxta.impl.rendezvous.RendezVousServiceImpl.class.getName());
-            //consoleHandler.setFilter(filter);
+            // SelectiveLogFilter filter = new SelectiveLogFilter();
+            // filter.add(HealthMonitor.class.getName());
+            // filter.add(MasterNode.class.getName());
+            // filter.add(ClusterView.class.getName());
+            // filter.add(NetworkManager.class.getName());
+            // filter.add(net.jxta.impl.rendezvous.RendezVousServiceImpl.class.getName());
+            // consoleHandler.setFilter(filter);
         } catch (SecurityException e) {
-            new ErrorManager().error(
-                    "Exception caught in setting up ConsoleHandler ",
-                    e, ErrorManager.GENERIC_FAILURE);
+            new ErrorManager().error("Exception caught in setting up ConsoleHandler ", e, ErrorManager.GENERIC_FAILURE);
         }
         logger.addHandler(consoleHandler);
         logger.setUseParentHandlers(false);
         final String level = System.getProperty("LOG_LEVEL", "INFO");
         try {
             logger.setLevel(Level.parse(level));
-        } catch (IllegalArgumentException iae) {}
+        } catch (IllegalArgumentException iae) {
+        }
     }
 
     public static long getStartTime(SystemAdvertisement advert) {
         try {
-            return Long.valueOf(advert.getCustomTagValue(
-                CustomTagNames.START_TIME.toString()));
+            return Long.valueOf(advert.getCustomTagValue(CustomTagNames.START_TIME.toString()));
         } catch (NoSuchFieldException nsfe) {
             // logged at FINER since most calling methods already
             // log result at FINE or higher
             if (logger.isLoggable(Level.FINER)) {
-                logger.finer(String.format(
-                    "NoSuchFieldException caught in Utility#getStartTime. Returning %s",
-                    NO_SUCH_TIME));
+                logger.finer(String.format("NoSuchFieldException caught in Utility#getStartTime. Returning %s", NO_SUCH_TIME));
             }
             return NO_SUCH_TIME;
         }
@@ -199,8 +204,7 @@ public class Utility {
             return advert.getCustomTagValue(CustomTagNames.GROUP_NAME.toString());
         } catch (NoSuchFieldException nsfe) {
             if (logger.isLoggable(Level.FINER)) {
-                logger.finer(
-                    "NoSuchFieldException caught in Utility#getGroupName. Returning null");
+                logger.finer("NoSuchFieldException caught in Utility#getGroupName. Returning null");
             }
             return null;
         }

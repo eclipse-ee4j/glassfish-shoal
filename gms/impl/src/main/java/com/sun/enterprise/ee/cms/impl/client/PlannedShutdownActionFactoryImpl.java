@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
- package com.sun.enterprise.ee.cms.impl.client;
+package com.sun.enterprise.ee.cms.impl.client;
 
 import com.sun.enterprise.ee.cms.core.Action;
 import com.sun.enterprise.ee.cms.core.CallBack;
@@ -22,14 +22,15 @@ import com.sun.enterprise.ee.cms.core.PlannedShutdownActionFactory;
 
 /**
  * Reference implementation of PlannedShutdownActionFactory.
- * @author Shreedhar Ganapathy
- *         Date: Mar 15, 2005
+ *
+ * @author Shreedhar Ganapathy Date: Mar 15, 2005
  * @version $Revision$
  */
-public class PlannedShutdownActionFactoryImpl implements PlannedShutdownActionFactory{
+public class PlannedShutdownActionFactoryImpl implements PlannedShutdownActionFactory {
     private final CallBack callBack;
-    public PlannedShutdownActionFactoryImpl(final CallBack callBack){
-        this.callBack=callBack;
+
+    public PlannedShutdownActionFactoryImpl(final CallBack callBack) {
+        this.callBack = callBack;
     }
 
     /**

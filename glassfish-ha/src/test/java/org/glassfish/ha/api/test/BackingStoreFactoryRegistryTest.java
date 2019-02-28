@@ -16,22 +16,25 @@
 
 package org.glassfish.ha.api.test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.glassfish.ha.store.api.*;
-import org.glassfish.ha.store.spi.BackingStoreFactoryRegistry;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
+
+import org.glassfish.ha.store.api.BackingStore;
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.api.BackingStoreException;
+import org.glassfish.ha.store.api.BackingStoreFactory;
+import org.glassfish.ha.store.api.Storeable;
+import org.glassfish.ha.store.spi.BackingStoreFactoryRegistry;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Unit test for simple App.
  */
-public class BackingStoreFactoryRegistryTest
-        extends TestCase {
+public class BackingStoreFactoryRegistryTest extends TestCase {
     /**
      * Create the test case
      *
@@ -48,7 +51,6 @@ public class BackingStoreFactoryRegistryTest
         return new TestSuite(BackingStoreFactoryRegistryTest.class);
     }
 
-
     public void testBackingStoreFactoryRegistry() {
         boolean result = false;
         try {
@@ -58,7 +60,7 @@ public class BackingStoreFactoryRegistryTest
 
         }
 
-        assert(result);
+        assert (result);
     }
 
     public void testBackingStore() {
@@ -86,19 +88,16 @@ public class BackingStoreFactoryRegistryTest
             bs.save("k1", null, false);
             bs.save("k1", null, true);
 
-            bs.load(null,null);
+            bs.load(null, null);
             bs.load(null, "6");
             bs.load("k1", null);
             bs.load("k1", "6");
 
-
             bs.remove(null);
             bs.remove("k1");
 
-
             bs.updateTimestamp(null, 6);
             bs.updateTimestamp("k1", 6);
-
 
             bs.removeExpired(6);
 
@@ -107,7 +106,7 @@ public class BackingStoreFactoryRegistryTest
 
         }
 
-        assert(result);
+        assert (result);
     }
 
     public void testBackingStoreLoad() {
@@ -117,7 +116,7 @@ public class BackingStoreFactoryRegistryTest
             BackingStoreConfiguration<String, NoopData> conf = null;
             BackingStore<String, NoopData> bs = nbsf.createBackingStore(conf);
 
-            bs.load(null,null);
+            bs.load(null, null);
             bs.load(null, "6");
             bs.load("k1", null);
             bs.load("k1", "6");
@@ -127,8 +126,9 @@ public class BackingStoreFactoryRegistryTest
 
         }
 
-        assert(result);
+        assert (result);
     }
+
     public void testBackingStoreRemove() {
         boolean result = false;
         try {
@@ -144,8 +144,9 @@ public class BackingStoreFactoryRegistryTest
 
         }
 
-        assert(result);
+        assert (result);
     }
+
     public void testBackingStoreUpdateTimestamp() {
         boolean result = false;
         try {
@@ -161,8 +162,9 @@ public class BackingStoreFactoryRegistryTest
 
         }
 
-        assert(result);
+        assert (result);
     }
+
     public void testBackingStoreRemoveExpired() {
         boolean result = false;
         try {
@@ -177,11 +179,15 @@ public class BackingStoreFactoryRegistryTest
 
         }
 
-        assert(result);
+        assert (result);
     }
 
-    private static final class NoopData
-        implements Storeable {
+    private static final class NoopData implements Storeable {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = -1175597158953493010L;
 
         @Override
         public long _storeable_getVersion() {
@@ -228,6 +234,5 @@ public class BackingStoreFactoryRegistryTest
         public void _storeable_readState(InputStream is) throws IOException {
         }
     }
-
 
 }

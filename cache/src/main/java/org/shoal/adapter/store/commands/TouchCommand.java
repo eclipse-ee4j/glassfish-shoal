@@ -16,23 +16,19 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+import org.shoal.ha.cache.impl.store.DataStoreEntry;
 
 /**
  * @author Mahesh Kannan
  */
-public class TouchCommand<K, V>
-    extends AbstractSaveCommand<K, V> {
+public class TouchCommand<K, V> extends AbstractSaveCommand<K, V> {
+
+   
+    private static final long serialVersionUID = -7824388716058350739L;
 
     public TouchCommand() {
         super(ReplicationCommandOpcode.TOUCH);
@@ -43,17 +39,15 @@ public class TouchCommand<K, V>
     }
 
     @Override
-    public void execute(String initiator)
-        throws DataStoreException {
+    public void execute(String initiator) throws DataStoreException {
 
         if (_logger.isLoggable(Level.FINE)) {
             _logger.log(Level.FINE, dsc.getServiceName() + getName() + " received touch_command for key = " + getKey() + " from " + initiator);
         }
 
         if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE,  dsc.getServiceName() + getName()
-                    + " received touch_command for key = " + getKey() + " from " + initiator
-                    + "; version = " + getVersion() + "; " + dsc.getDataStoreEntryUpdater().getClass().getCanonicalName());
+            _logger.log(Level.FINE, dsc.getServiceName() + getName() + " received touch_command for key = " + getKey() + " from " + initiator + "; version = "
+                    + getVersion() + "; " + dsc.getDataStoreEntryUpdater().getClass().getCanonicalName());
         }
 
         DataStoreEntry<K, V> entry = dsc.getReplicaStore().getOrCreateEntry(getKey());

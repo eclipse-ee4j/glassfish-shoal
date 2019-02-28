@@ -16,32 +16,38 @@
 
 package com.sun.enterprise.ee.cms.impl.client;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.core.ActionException;
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.MessageAction;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Reference implementation of MessageAction interface.
  *
- * @author Shreedhar Ganapathy
- * Date: Jan 21, 2004
+ * @author Shreedhar Ganapathy Date: Jan 21, 2004
  * @version $Revision$
  */
 public class MessageActionImpl implements MessageAction {
     private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
     private CallBack callback;
-    public MessageActionImpl(final CallBack callback){
+
+    public MessageActionImpl(final CallBack callback) {
         this.callback = callback;
     }
+
     /**
-     * Implementations of consumeSignal should strive to return control
-     * promptly back to the thread that has delivered the Signal.
+     * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
+     * Signal.
      */
     public void consumeSignal(final Signal signal) throws ActionException {
         boolean signalAcquired = false;
-        //Always Acquire before doing any other processing
+        // Always Acquire before doing any other processing
         try {
             signal.acquire();
             signalAcquired = true;
@@ -49,7 +55,7 @@ public class MessageActionImpl implements MessageAction {
         } catch (SignalAcquireException e) {
             logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
         } finally {
-            //Always Release after completing any other processing.
+            // Always Release after completing any other processing.
             if (signalAcquired) {
                 try {
                     signal.release();
@@ -65,8 +71,7 @@ public class MessageActionImpl implements MessageAction {
             callback.processNotification(signal);
         } catch (Throwable t) {
             final String callbackClassName = callback == null ? "<null>" : callback.getClass().getName();
-            logger.log(Level.WARNING, "msg.action.unhandled.exception",
-                        new Object[]{t.getClass().getName(), callbackClassName});
+            logger.log(Level.WARNING, "msg.action.unhandled.exception", new Object[] { t.getClass().getName(), callbackClassName });
             ActionException ae = new ActionException("unhandled exception processing signal " + signal.toString());
             ae.initCause(t);
             throw ae;

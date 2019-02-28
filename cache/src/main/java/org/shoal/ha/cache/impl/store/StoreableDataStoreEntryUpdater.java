@@ -16,29 +16,27 @@
 
 package org.shoal.ha.cache.impl.store;
 
-import org.glassfish.ha.store.api.Storeable;
-import org.shoal.adapter.store.commands.AbstractSaveCommand;
-import org.shoal.adapter.store.commands.LoadResponseCommand;
-import org.shoal.adapter.store.commands.SaveCommand;
-import org.shoal.adapter.store.commands.TouchCommand;
-import org.shoal.ha.cache.api.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.logging.Level;
 
+import org.glassfish.ha.store.api.Storeable;
+import org.shoal.adapter.store.commands.AbstractSaveCommand;
+import org.shoal.adapter.store.commands.LoadResponseCommand;
+import org.shoal.adapter.store.commands.SaveCommand;
+import org.shoal.adapter.store.commands.TouchCommand;
+import org.shoal.ha.cache.api.DataStoreException;
+
 /**
  * @author Mahesh Kannan
  */
-public class StoreableDataStoreEntryUpdater<K, V extends Storeable>
-        extends DataStoreEntryUpdater<K, V> {
+public class StoreableDataStoreEntryUpdater<K, V extends Storeable> extends DataStoreEntryUpdater<K, V> {
 
     @Override
     public SaveCommand<K, V> createSaveCommand(DataStoreEntry<K, V> entry, K k, V v) {
-        SaveCommand<K, V> cmd = new SaveCommand<K, V>(k, v, v._storeable_getVersion(),
-                v._storeable_getLastAccessTime(), v._storeable_getMaxIdleTime());
+        SaveCommand<K, V> cmd = new SaveCommand<K, V>(k, v, v._storeable_getVersion(), v._storeable_getLastAccessTime(), v._storeable_getMaxIdleTime());
 
         super.updateMetaInfoInDataStoreEntry(entry, cmd);
         entry.setIsReplicaNode(false);
@@ -47,22 +45,20 @@ public class StoreableDataStoreEntryUpdater<K, V extends Storeable>
     }
 
     @Override
-    public LoadResponseCommand<K, V> createLoadResponseCommand(DataStoreEntry<K, V> entry, K k, long minVersion)
-            throws DataStoreException {
+    public LoadResponseCommand<K, V> createLoadResponseCommand(DataStoreEntry<K, V> entry, K k, long minVersion) throws DataStoreException {
         LoadResponseCommand<K, V> cmd = null;
         if (entry != null && entry.isReplicaNode() && entry.getVersion() >= minVersion) {
             byte[] rawV = super.captureState(entry.getV());
             cmd = new LoadResponseCommand<K, V>(k, entry.getVersion(), rawV);
             if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, "StoreableDataStoreEntryUpdater Sending valid load response for key: " + k
-                    + "; minVersion = " + minVersion + "; myVersion = " + entry.getVersion());
+                _logger.log(Level.FINE, "StoreableDataStoreEntryUpdater Sending valid load response for key: " + k + "; minVersion = " + minVersion
+                        + "; myVersion = " + entry.getVersion());
             }
         } else {
             if (_logger.isLoggable(Level.FINE)) {
-                String entryMsg = (entry == null) ? "NULL ENTRY"
-                        : (entry.getVersion() + " >= " + minVersion);
-                _logger.log(Level.FINE, "StoreableDataStoreEntryUpdater.createLoadResp " + entryMsg
-                   + "; rawV.length = " + (entry == null ? " null " : "" + entry.getRawV()));
+                String entryMsg = (entry == null) ? "NULL ENTRY" : (entry.getVersion() + " >= " + minVersion);
+                _logger.log(Level.FINE,
+                        "StoreableDataStoreEntryUpdater.createLoadResp " + entryMsg + "; rawV.length = " + (entry == null ? " null " : "" + entry.getRawV()));
             }
             cmd = new LoadResponseCommand<K, V>(k, Long.MIN_VALUE, null);
         }
@@ -70,24 +66,20 @@ public class StoreableDataStoreEntryUpdater<K, V extends Storeable>
     }
 
     @Override
-    public V extractVFrom(LoadResponseCommand<K, V> cmd)
-            throws DataStoreException {
+    public V extractVFrom(LoadResponseCommand<K, V> cmd) throws DataStoreException {
         return cmd.getRawV() == null ? null : super.deserializeV(cmd.getRawV());
     }
 
     @Override
-    public void executeSave(DataStoreEntry<K, V> entry, SaveCommand<K, V> saveCmd)
-            throws DataStoreException {
+    public void executeSave(DataStoreEntry<K, V> entry, SaveCommand<K, V> saveCmd) throws DataStoreException {
 
         if (entry.getV() == null) {
-            //This is the only data that we have
+            // This is the only data that we have
             // So just deserialize and merge with subsequent data
 
             if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, "StoreableEntryUpdater.executeSave received (first copy) of key = "
-                    + saveCmd.getKey()
-                    + "; entry.version" + entry.getVersion()
-                    + "; cmd.version" + saveCmd.getVersion());
+                _logger.log(Level.FINE, "StoreableEntryUpdater.executeSave received (first copy) of key = " + saveCmd.getKey() + "; entry.version"
+                        + entry.getVersion() + "; cmd.version" + saveCmd.getVersion());
             }
             V v = null;
             try {
@@ -102,26 +94,22 @@ public class StoreableDataStoreEntryUpdater<K, V extends Storeable>
             entry.setIsReplicaNode(true);
         } else {
             if (_logger.isLoggable(Level.FINE)) {
-                _logger.log(Level.FINE, "StoreableEntryUpdater received: key = " + saveCmd.getKey()
-                    + "; entry.version" + entry.getVersion()
-                    + "; cmd.version" + saveCmd.getVersion());
+                _logger.log(Level.FINE, "StoreableEntryUpdater received: key = " + saveCmd.getKey() + "; entry.version" + entry.getVersion() + "; cmd.version"
+                        + saveCmd.getVersion());
             }
             entry.addPendingUpdate(saveCmd);
             updateFromPendingUpdates(entry);
         }
     }
 
-
     @Override
-    public void executeTouch(DataStoreEntry<K, V> entry, TouchCommand<K, V> touchCmd)
-            throws DataStoreException {
+    public void executeTouch(DataStoreEntry<K, V> entry, TouchCommand<K, V> touchCmd) throws DataStoreException {
 
         entry.addPendingUpdate(touchCmd);
         updateFromPendingUpdates(entry);
     }
 
-    private void updateFromPendingUpdates(DataStoreEntry<K, V> entry)
-        throws DataStoreException {
+    private void updateFromPendingUpdates(DataStoreEntry<K, V> entry) throws DataStoreException {
         Iterator<AbstractSaveCommand<K, V>> iter = entry.getPendingUpdates().iterator();
         while (iter.hasNext()) {
             AbstractSaveCommand<K, V> cmd = iter.next();
@@ -135,8 +123,7 @@ public class StoreableDataStoreEntryUpdater<K, V extends Storeable>
         entry.setIsReplicaNode(true);
     }
 
-    private void mergeIntoV(DataStoreEntry<K, V> entry, V v, AbstractSaveCommand<K, V> cmd)
-            throws DataStoreException {
+    private void mergeIntoV(DataStoreEntry<K, V> entry, V v, AbstractSaveCommand<K, V> cmd) throws DataStoreException {
         v._storeable_setVersion(cmd.getVersion());
         v._storeable_setLastAccessTime(cmd.getLastAccessedAt());
         v._storeable_setMaxIdleTime(cmd.getMaxIdleTime());
@@ -152,13 +139,12 @@ public class StoreableDataStoreEntryUpdater<K, V extends Storeable>
             }
         }
 
-        //Now that we have...
+        // Now that we have...
 //        super.printEntryInfo("Merged entry from pending updates", entry, cmd.getKey());
     }
 
     @Override
-    public byte[] getState(V v)
-            throws DataStoreException {
+    public byte[] getState(V v) throws DataStoreException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             v._storeable_writeState(bos);
@@ -173,8 +159,7 @@ public class StoreableDataStoreEntryUpdater<K, V extends Storeable>
     }
 
     @Override
-    public V getV(DataStoreEntry<K, V> entry)
-            throws DataStoreException {
+    public V getV(DataStoreEntry<K, V> entry) throws DataStoreException {
         return entry.getV();
     }
 

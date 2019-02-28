@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
- package com.sun.enterprise.ee.cms.impl.client;
+package com.sun.enterprise.ee.cms.impl.client;
 
 import com.sun.enterprise.ee.cms.core.Action;
 import com.sun.enterprise.ee.cms.core.CallBack;
@@ -22,13 +22,16 @@ import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationActionFactory;
 
 /**
  * Reference Implementation of JoinedAndReadyNotificationActionFactory
+ *
  * @author Sheetal Vartak
  */
-public class JoinedAndReadyNotificationActionFactoryImpl implements JoinedAndReadyNotificationActionFactory{
+public class JoinedAndReadyNotificationActionFactoryImpl implements JoinedAndReadyNotificationActionFactory {
     private final CallBack callBack;
-    public JoinedAndReadyNotificationActionFactoryImpl(final CallBack callBack){
-        this.callBack=callBack;
+
+    public JoinedAndReadyNotificationActionFactoryImpl(final CallBack callBack) {
+        this.callBack = callBack;
     }
+
     /**
      * Produces an Action instance.
      *

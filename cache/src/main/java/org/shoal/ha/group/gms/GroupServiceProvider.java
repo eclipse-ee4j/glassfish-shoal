@@ -16,24 +16,43 @@
 
 package org.shoal.ha.group.gms;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.impl.client.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.shoal.ha.cache.impl.util.MessageReceiver;
 import org.shoal.ha.group.GroupMemberEventListener;
 import org.shoal.ha.group.GroupService;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.concurrent.ConcurrentHashMap;
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.FailureNotificationSignal;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GMSFactory;
+import com.sun.enterprise.ee.cms.core.GroupHandle;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationSignal;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
+import com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.impl.client.FailureNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.JoinNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.JoinedAndReadyNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.MessageActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.PlannedShutdownActionFactoryImpl;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * @author Mahesh Kannan
  */
-public class GroupServiceProvider
-        implements GroupService, CallBack {
+public class GroupServiceProvider implements GroupService, CallBack {
 
     private static final Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
@@ -65,9 +84,8 @@ public class GroupServiceProvider
 
     public void processNotification(Signal notification) {
         boolean isJoin = true;
-        if ((notification instanceof JoinedAndReadyNotificationSignal)
-            || (notification instanceof FailureNotificationSignal)
-            || (notification instanceof PlannedShutdownSignal)) {
+        if ((notification instanceof JoinedAndReadyNotificationSignal) || (notification instanceof FailureNotificationSignal)
+                || (notification instanceof PlannedShutdownSignal)) {
 
             isJoin = notification instanceof JoinedAndReadyNotificationSignal;
 
@@ -81,10 +99,9 @@ public class GroupServiceProvider
         AliveAndReadyView aView = gms.getGroupHandle().getPreviousAliveAndReadyCoreView();
         SortedSet<String> previousAliveAndReadyMembers = new TreeSet<String>();
 
-        if (aView == null) { //Possible during unit tests when listeners are registered before GMS is started
+        if (aView == null) { // Possible during unit tests when listeners are registered before GMS is started
             return;
         }
-
 
         long arViewId = aView.getViewId();
         long knownId = previousViewId.get();
@@ -106,18 +123,16 @@ public class GroupServiceProvider
 //            System.out.println("**GroupServiceProvider:checkAndNotifyAboutCurrentAndPreviousMembers.  Entered ELSE 2");
         }
 
-        //Listeners must be notified even if view has not changed.
-        //This is because this method is called when a listener
-        //  is registered
+        // Listeners must be notified even if view has not changed.
+        // This is because this method is called when a listener
+        // is registered
         for (GroupMemberEventListener listener : listeners) {
-            listener.onViewChange(memberName, currentAliveAndReadyMembers,
-                    previousAliveAndReadyMembers, isJoinEvent);
+            listener.onViewChange(memberName, currentAliveAndReadyMembers, previousAliveAndReadyMembers, isJoinEvent);
         }
 
         if (triggeredByGMS) {
             StringBuilder sb = new StringBuilder("**VIEW: ");
-            sb.append("prevViewId: " + knownId).append("; curViewID: ").append(arViewId)
-                    .append("; signal: ").append(sig).append(" ");
+            sb.append("prevViewId: " + knownId).append("; curViewID: ").append(arViewId).append("; signal: ").append(sig).append(" ");
             sb.append("[current: ");
             String delim = "";
             for (String member : currentAliveAndReadyMembers) {
@@ -148,24 +163,18 @@ public class GroupServiceProvider
         if (gms == null) {
             if (startGMS) {
                 logger.info("GroupServiceProvider *CREATING* gms module for group " + groupName);
-                GroupManagementService.MemberType memberType = myName.startsWith("monitor-")
-                        ? GroupManagementService.MemberType.SPECTATOR
+                GroupManagementService.MemberType memberType = myName.startsWith("monitor-") ? GroupManagementService.MemberType.SPECTATOR
                         : GroupManagementService.MemberType.CORE;
 
-                configProps.put(ServiceProviderConfigurationKeys.MULTICASTADDRESS.toString(),
-                        System.getProperty("MULTICASTADDRESS", "229.9.1.1"));
+                configProps.put(ServiceProviderConfigurationKeys.MULTICASTADDRESS.toString(), System.getProperty("MULTICASTADDRESS", "229.9.1.1"));
                 configProps.put(ServiceProviderConfigurationKeys.MULTICASTPORT.toString(), 2299);
                 logger.info("Is initial host=" + System.getProperty("IS_INITIAL_HOST"));
-                configProps.put(ServiceProviderConfigurationKeys.IS_BOOTSTRAPPING_NODE.toString(),
-                        System.getProperty("IS_INITIAL_HOST", "false"));
+                configProps.put(ServiceProviderConfigurationKeys.IS_BOOTSTRAPPING_NODE.toString(), System.getProperty("IS_INITIAL_HOST", "false"));
                 if (System.getProperty("INITIAL_HOST_LIST") != null) {
-                    configProps.put(ServiceProviderConfigurationKeys.VIRTUAL_MULTICAST_URI_LIST.toString(),
-                            myName.equals("DAS"));
+                    configProps.put(ServiceProviderConfigurationKeys.VIRTUAL_MULTICAST_URI_LIST.toString(), myName.equals("DAS"));
                 }
-                configProps.put(ServiceProviderConfigurationKeys.FAILURE_DETECTION_RETRIES.toString(),
-                        System.getProperty("MAX_MISSED_HEARTBEATS", "3"));
-                configProps.put(ServiceProviderConfigurationKeys.FAILURE_DETECTION_TIMEOUT.toString(),
-                        System.getProperty("HEARTBEAT_FREQUENCY", "2000"));
+                configProps.put(ServiceProviderConfigurationKeys.FAILURE_DETECTION_RETRIES.toString(), System.getProperty("MAX_MISSED_HEARTBEATS", "3"));
+                configProps.put(ServiceProviderConfigurationKeys.FAILURE_DETECTION_TIMEOUT.toString(), System.getProperty("HEARTBEAT_FREQUENCY", "2000"));
                 // added for junit testing of send and receive to self.
                 // these settings are not used in glassfish config of gms anyways.
                 configProps.put(ServiceProviderConfigurationKeys.LOOPBACK.toString(), "true");
@@ -174,12 +183,12 @@ public class GroupServiceProvider
                     configProps.put(ServiceProviderConfigurationKeys.BIND_INTERFACE_ADDRESS.toString(), bindInterfaceAddress);
                 }
 
-                gms = (GroupManagementService) GMSFactory.startGMSModule(
-                        myName, groupName, memberType, configProps);
+                gms = (GroupManagementService) GMSFactory.startGMSModule(myName, groupName, memberType, configProps);
 
                 createdAndJoinedGMSGroup = true;
             } else {
-                logger.fine("**GroupServiceProvider:: Will not start GMS module for group " + groupName + ". It should have been started by now. But GMS: " + gms);
+                logger.fine(
+                        "**GroupServiceProvider:: Will not start GMS module for group " + groupName + ". It should have been started by now. But GMS: " + gms);
             }
         } else {
             logger.fine("**GroupServiceProvider:: GMS module for group " + groupName + " should have been started by now GMS: " + gms);
@@ -217,7 +226,7 @@ public class GroupServiceProvider
     }
 
     public void shutdown() {
-        //gms.shutdown();
+        // gms.shutdown();
     }
 
     @Override
@@ -236,16 +245,16 @@ public class GroupServiceProvider
             groupHandle.sendMessage(targetMemberName, token, data);
             return true;
         } catch (MemberNotInViewException memEx) {
-            final String msg = "Error during groupHandle.sendMessage(" + targetMemberName + "," +
-                                token + ") failed because " + targetMemberName + " is not alive?";
+            final String msg = "Error during groupHandle.sendMessage(" + targetMemberName + "," + token + ") failed because " + targetMemberName
+                    + " is not alive?";
             logSendMsgFailure(memEx, targetMemberName, msg);
         } catch (GMSException gmsEx) {
             try {
                 groupHandle.sendMessage(targetMemberName, token, data);
                 return true;
             } catch (GMSException gmsEx2) {
-                final String msg = "Error during groupHandle.sendMessage(" + targetMemberName + ", " +
-                                   token + "; size=" + (data == null ? -1 : data.length) + ")";
+                final String msg = "Error during groupHandle.sendMessage(" + targetMemberName + ", " + token + "; size=" + (data == null ? -1 : data.length)
+                        + ")";
                 logSendMsgFailure(gmsEx2, targetMemberName, msg);
             }
         }
@@ -256,7 +265,7 @@ public class GroupServiceProvider
     // ensure that log is not spammed with these messages.
     // package private so can call from junit test
     void logSendMsgFailure(GMSException t, String targetMemberName, String message) {
-        final long SEND_FAILED_NOTIFICATION_PERIOD = 1000 * 60 * 60 * 12 ;  // within a 12 hour period,only notify once.
+        final long SEND_FAILED_NOTIFICATION_PERIOD = 1000 * 60 * 60 * 12; // within a 12 hour period,only notify once.
 
         if (targetMemberName == null) {
             targetMemberName = "";
@@ -278,8 +287,7 @@ public class GroupServiceProvider
 
     @Override
     public void registerGroupMessageReceiver(String messageToken, MessageReceiver receiver) {
-        logger.fine("[GroupServiceProvider]:  REGISTERED A MESSAGE LISTENER: "
-                + receiver + "; for token: " + messageToken);
+        logger.fine("[GroupServiceProvider]:  REGISTERED A MESSAGE LISTENER: " + receiver + "; for token: " + messageToken);
         gms.addActionFactory(new MessageActionFactoryImpl(receiver), messageToken);
     }
 

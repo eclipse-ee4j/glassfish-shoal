@@ -16,29 +16,26 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager;
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.glassfish.grizzly.Connection;
+import org.glassfish.grizzly.WriteResult;
+import org.glassfish.grizzly.impl.FutureImpl;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+import org.glassfish.grizzly.utils.Futures;
+
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
 import com.sun.enterprise.mgmt.transport.AbstractMessageSender;
 import com.sun.enterprise.mgmt.transport.Message;
 import com.sun.enterprise.mgmt.transport.MessageIOException;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.SocketAddress;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import org.glassfish.grizzly.CompletionHandler;
-import org.glassfish.grizzly.Connection;
-import org.glassfish.grizzly.WriteResult;
-import org.glassfish.grizzly.impl.FutureImpl;
-import org.glassfish.grizzly.impl.SafeFutureImpl;
-import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
-import org.glassfish.grizzly.utils.Futures;
+import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyNetworkManager;
+import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyPeerID;
 
 /**
  * @author Bongjae Chang
@@ -51,9 +48,7 @@ public class GrizzlyTCPMessageSender extends AbstractMessageSender {
     private final ConnectionCache connectionCache;
     private final long writeTimeoutMillis;
 
-    public GrizzlyTCPMessageSender(final TCPNIOTransport tcpNioTransport,
-            final ConnectionCache connectionCache,
-            final PeerID<GrizzlyPeerID> localPeerID,
+    public GrizzlyTCPMessageSender(final TCPNIOTransport tcpNioTransport, final ConnectionCache connectionCache, final PeerID<GrizzlyPeerID> localPeerID,
             final long writeTimeoutMillis) {
         this.tcpNioTransport = tcpNioTransport;
         this.localPeerID = localPeerID;
@@ -62,8 +57,7 @@ public class GrizzlyTCPMessageSender extends AbstractMessageSender {
     }
 
     @Override
-    protected boolean doSend(final PeerID peerID, final Message message)
-            throws IOException {
+    protected boolean doSend(final PeerID peerID, final Message message) throws IOException {
 
         if (peerID == null) {
             throw new IOException("peer ID can not be null");
@@ -72,8 +66,7 @@ public class GrizzlyTCPMessageSender extends AbstractMessageSender {
         SocketAddress remoteSocketAddress;
         if (uniqueID instanceof GrizzlyPeerID) {
             GrizzlyPeerID grizzlyPeerID = (GrizzlyPeerID) uniqueID;
-            remoteSocketAddress = new InetSocketAddress(grizzlyPeerID.getHost(),
-                    grizzlyPeerID.getTcpPort());
+            remoteSocketAddress = new InetSocketAddress(grizzlyPeerID.getHost(), grizzlyPeerID.getTcpPort());
         } else {
             throw new IOException("peer ID must be GrizzlyPeerID type");
         }
@@ -82,10 +75,8 @@ public class GrizzlyTCPMessageSender extends AbstractMessageSender {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean send(final SocketAddress localAddress,
-            final SocketAddress remoteAddress,
-            final Message message, final PeerID target) throws IOException {
-        
+    private boolean send(final SocketAddress localAddress, final SocketAddress remoteAddress, final Message message, final PeerID target) throws IOException {
+
         final int MAX_RESEND_ATTEMPTS = 4;
         if (tcpNioTransport == null) {
             throw new IOException("grizzly controller must be initialized");
@@ -104,26 +95,25 @@ public class GrizzlyTCPMessageSender extends AbstractMessageSender {
             try {
                 connection = connectionCache.poll(localAddress, remoteAddress);
                 if (connection == null) {
-                    LOG.log(Level.WARNING, "failed to get a connection from connectionCache in attempt# " +
-                                          attemptNo + ". GrizzlyTCPMessageSender.send(localAddr=" + localAddress +
-                                          " , remoteAddr=" + remoteAddress + " sendTo=" + target +
-                                           " msg=" + message + ". Retrying send", new Exception("stack trace"));
+                    LOG.log(Level.WARNING,
+                            "failed to get a connection from connectionCache in attempt# " + attemptNo + ". GrizzlyTCPMessageSender.send(localAddr="
+                                    + localAddress + " , remoteAddr=" + remoteAddress + " sendTo=" + target + " msg=" + message + ". Retrying send",
+                            new Exception("stack trace"));
                     // try again.
                     continue;
                 }
             } catch (Throwable t) {
                 // include local call stack.
                 final IOException localIOE = new IOException("failed to connect to " + target.toString(), t);
-                 //AbstractNetworkManager.getLogger().log(Level.WARNING, "failed to connect to target " + target.toString(), localIOE);
+                // AbstractNetworkManager.getLogger().log(Level.WARNING, "failed to connect to target " + target.toString(), localIOE);
                 throw localIOE;
             }
 
             try {
-                final FutureImpl<WriteResult> syncWriteFuture =
-                                Futures.createSafeFuture();
+                final FutureImpl<WriteResult> syncWriteFuture = Futures.createSafeFuture();
                 connection.write(remoteAddress, message, Futures.toCompletionHandler(syncWriteFuture), null);
                 syncWriteFuture.get(writeTimeoutMillis, TimeUnit.MILLISECONDS);
-                
+
                 connectionCache.offer(connection);
                 return true;
             } catch (Exception e) {
@@ -135,8 +125,9 @@ public class GrizzlyTCPMessageSender extends AbstractMessageSender {
                 if (cause instanceof MessageIOException) {
                     try {
                         connection.close();
-                    } catch (Throwable t) {}
-                    throw (MessageIOException)cause;
+                    } catch (Throwable t) {
+                    }
+                    throw (MessageIOException) cause;
                 }
 
                 // TODO: Turn this back to FINE in future. Need to track these for the time being.

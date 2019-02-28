@@ -17,7 +17,6 @@
 package org.shoal.ha.group;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Mahesh Kannan
@@ -25,6 +24,5 @@ import java.util.List;
  */
 public interface GroupMemberEventListener {
 
-    public void onViewChange(String memberName, Collection<String> currentAliveAndReadyMembers,
-                                    Collection<String> previousView, boolean isJoinEvent);
+    void onViewChange(String memberName, Collection<String> currentAliveAndReadyMembers, Collection<String> previousView, boolean isJoinEvent);
 }

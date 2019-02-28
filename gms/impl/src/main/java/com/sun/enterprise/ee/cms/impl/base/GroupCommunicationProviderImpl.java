@@ -16,43 +16,41 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.GMSMessage;
-import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-import com.sun.enterprise.mgmt.*;
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.MessageIOException;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.GMSMessage;
+import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+import com.sun.enterprise.mgmt.ClusterManager;
+import com.sun.enterprise.mgmt.ClusterMessageListener;
+import com.sun.enterprise.mgmt.ClusterView;
+import com.sun.enterprise.mgmt.ClusterViewEvent;
+import com.sun.enterprise.mgmt.ClusterViewEventListener;
+import com.sun.enterprise.mgmt.HealthMonitor;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+
 /**
- * Implements the GroupCommunicationProvider interface to plug in
- * JxtaClusterManagement layer as a Group Communication Provider for GMS.
+ * Implements the GroupCommunicationProvider interface to plug in JxtaClusterManagement layer as a Group Communication
+ * Provider for GMS.
  *
- * @author Shreedhar Ganapathy
- *         Date: Jun 26, 2006
+ * @author Shreedhar Ganapathy Date: Jun 26, 2006
  * @version $Revision$
  */
-public class GroupCommunicationProviderImpl implements
-        GroupCommunicationProvider,
-        ClusterViewEventListener,
-        ClusterMessageListener {
+public class GroupCommunicationProviderImpl implements GroupCommunicationProvider, ClusterViewEventListener, ClusterMessageListener {
     private ClusterManager clusterManager;
     private final String groupName;
     private GMSContextImpl ctx;
@@ -60,14 +58,14 @@ public class GroupCommunicationProviderImpl implements
     private final Logger monitorLogger = GMSLogDomain.getMonitorLogger();
     private GMSMonitor gmsMonitor = null;
 
-    // TBD:  Reintroduce this in future. Comment out unused field for now.
+    // TBD: Reintroduce this in future. Comment out unused field for now.
     // private final ExecutorService msgSendPool;
-    //private Map<PeerID, CallableMessageSend> instanceCache = new Hashtable<PeerID, CallableMessageSend>();
+    // private Map<PeerID, CallableMessageSend> instanceCache = new Hashtable<PeerID, CallableMessageSend>();
 
     public GroupCommunicationProviderImpl(final String groupName) {
         this.groupName = groupName;
         System.setProperty("JXTA_MGMT_LOGGER", logger.getName());
-        // TBD: Reintroduce this in future.  Comment unused field for now.
+        // TBD: Reintroduce this in future. Comment unused field for now.
         // msgSendPool = Executors.newCachedThreadPool();
     }
 
@@ -79,70 +77,56 @@ public class GroupCommunicationProviderImpl implements
         return ctx;
     }
 
-    public void clusterViewEvent(final ClusterViewEvent clusterViewEvent,
-                                 final ClusterView clusterView) {
+    public void clusterViewEvent(final ClusterViewEvent clusterViewEvent, final ClusterView clusterView) {
         // TBD: verify okay to delete
         if (!getGMSContext().isShuttingDown()) {
             if (logger.isLoggable(Level.FINER)) {
-                logger.log(Level.FINER, "Received Cluster View Event..." + clusterViewEvent.getEvent().toString() +
-                        " from " + clusterViewEvent.getAdvertisement().getName() +
-                        " view:" + clusterView.getView().toString());
+                logger.log(Level.FINER, "Received Cluster View Event..." + clusterViewEvent.getEvent().toString() + " from "
+                        + clusterViewEvent.getAdvertisement().getName() + " view:" + clusterView.getView().toString());
             }
-            final EventPacket ePacket = new EventPacket(clusterViewEvent.getEvent(),
-                    clusterViewEvent.getAdvertisement(),
-                    clusterView);
+            final EventPacket ePacket = new EventPacket(clusterViewEvent.getEvent(), clusterViewEvent.getAdvertisement(), clusterView);
             final ArrayBlockingQueue<EventPacket> viewQueue = getGMSContext().getViewQueue();
             try {
                 final int remainingCapacity = viewQueue.remainingCapacity();
                 if (logger.isLoggable(Level.FINER)) {
-                    logger.log(Level.FINER, "Adding " + clusterViewEvent.getEvent() + " to viewQueue[size:" + viewQueue.size() + " remaining:" + viewQueue.remainingCapacity() + " ]" +
-                            "  for group:" + groupName);
+                    logger.log(Level.FINER, "Adding " + clusterViewEvent.getEvent() + " to viewQueue[size:" + viewQueue.size() + " remaining:"
+                            + viewQueue.remainingCapacity() + " ]" + "  for group:" + groupName);
                 }
                 if (remainingCapacity < 2) {
                     logger.warning("viewQueue for group: " + groupName + " near capacity, remaining capacity is" + remainingCapacity);
                 }
                 viewQueue.put(ePacket);
-                logger.log(Level.FINER,  "Added " + clusterViewEvent.getEvent() + " to viewQueue for group: " + groupName);
+                logger.log(Level.FINER, "Added " + clusterViewEvent.getEvent() + " to viewQueue for group: " + groupName);
 
             } catch (InterruptedException e) {
-                //TODO: Examine all InterruptedException and thread.interrupt cases for better logging.
-                logger.log(Level.WARNING, "interruptedexception.occurred",
-                        new Object[]{e.getLocalizedMessage()});
+                // TODO: Examine all InterruptedException and thread.interrupt cases for better logging.
+                logger.log(Level.WARNING, "interruptedexception.occurred", new Object[] { e.getLocalizedMessage() });
             }
         }
     }
 
     /**
-     * Initializes the Group Communication Service Provider with the requisite
-     * values of group identity, member(self) identity, and a Map containing
-     * recognized and valid configuration properties that can be set/overriden
-     * by the employing application. The valid property keys must be specified
-     * in a datastructure that is available to the implementation and to GMS.
+     * Initializes the Group Communication Service Provider with the requisite values of group identity, member(self)
+     * identity, and a Map containing recognized and valid configuration properties that can be set/overriden by the
+     * employing application. The valid property keys must be specified in a datastructure that is available to the
+     * implementation and to GMS.
      *
-     * @param memberName       member name
-     * @param groupName        group name
-     * @param identityMap      valid configuration properties
+     * @param memberName member name
+     * @param groupName group name
+     * @param identityMap valid configuration properties
      * @param configProperties configuration properties
      */
-    public void initializeGroupCommunicationProvider(final String memberName,
-                                                     final String groupName,
-                                                     final Map<String, String> identityMap,
-                                                     final Map configProperties) throws GMSException {
-        final List<ClusterViewEventListener> cvListeners =
-                new ArrayList<ClusterViewEventListener>();
-        if (! getGMSContext().isWatchdog()) {
+    public void initializeGroupCommunicationProvider(final String memberName, final String groupName, final Map<String, String> identityMap,
+            final Map configProperties) throws GMSException {
+        final List<ClusterViewEventListener> cvListeners = new ArrayList<ClusterViewEventListener>();
+        if (!getGMSContext().isWatchdog()) {
             // don't process cluster view events for WATCHDOG member.
             cvListeners.add(this);
         }
-        final List<ClusterMessageListener> cmListeners =
-                new ArrayList<ClusterMessageListener>();
+        final List<ClusterMessageListener> cmListeners = new ArrayList<ClusterMessageListener>();
         cmListeners.add(this);
-        clusterManager = new ClusterManager(groupName,
-                memberName,
-                identityMap,
-                configProperties,
-                cvListeners,//View Listener
-                cmListeners);//MessageListener
+        clusterManager = new ClusterManager(groupName, memberName, identityMap, configProperties, cvListeners, // View Listener
+                cmListeners);// MessageListener
 
     }
 
@@ -157,13 +141,13 @@ public class GroupCommunicationProviderImpl implements
     public void announceClusterShutdown(final GMSMessage gmsMessage) {
         try {
             boolean sent = clusterManager.send(null, gmsMessage);
-             if (!sent) {
+            if (!sent) {
                 logger.warning("failed to send announceClusterShutdown to group.  gmsMessage=" + gmsMessage);
-             }
+            }
         } catch (IOException e) {
-            logger.log(Level.WARNING, "ioexception.occurred.cluster.shutdown", new Object[]{e});
+            logger.log(Level.WARNING, "ioexception.occurred.cluster.shutdown", new Object[] { e });
         } catch (MemberNotInViewException e) {
-            //ignore since this is a broadcast
+            // ignore since this is a broadcast
         }
     }
 
@@ -174,19 +158,16 @@ public class GroupCommunicationProviderImpl implements
      * This API allows for an optimization by GMS clients to know whether GMS Join and JoinedAndReady events are happening
      * as part of group startup or individual instance startups.
      *
-     * @param groupName     name of group
-     * @param startupState  INITATED, COMPLETED_SUCCESS or COMPLETED_FAILED
-     * @param memberTokens  static list of members associated with startupState.  Failed members if state is COMPLETED_FAILED
+     * @param groupName name of group
+     * @param startupState INITATED, COMPLETED_SUCCESS or COMPLETED_FAILED
+     * @param memberTokens static list of members associated with startupState. Failed members if state is COMPLETED_FAILED
      */
-    public void announceGroupStartup(String groupName,
-                                     GMSConstants.groupStartupState startupState,
-                                     List<String> memberTokens) {
-       clusterManager.groupStartup(startupState, memberTokens);
+    public void announceGroupStartup(String groupName, GMSConstants.groupStartupState startupState, List<String> memberTokens) {
+        clusterManager.groupStartup(startupState, memberTokens);
     }
 
     /**
-     * Leaves the group as a result of a planned administrative action to
-     * shutdown.
+     * Leaves the group as a result of a planned administrative action to shutdown.
      */
     public void leave(final boolean isClusterShutdown) {
         clusterManager.stop(isClusterShutdown);
@@ -204,49 +185,40 @@ public class GroupCommunicationProviderImpl implements
         return sent;
     }
 
-
     /**
-     * Sends a message using the underlying group communication
-     * providers'(GCP's) APIs. Requires the users' message to be wrapped into a
-     * GMSMessage object.
+     * Sends a message using the underlying group communication providers'(GCP's) APIs. Requires the users' message to be
+     * wrapped into a GMSMessage object.
      *
-     * @param targetMemberIdentityToken The member token string that identifies
-     *                                  the target member to which this message is addressed.
-     *                                  The implementation is expected to provide a mapping
-     *                                  the member token to the GCP's addressing semantics.
-     *                                  If null, the entire group would receive this message.
-     * @param message                   a Serializable object that wraps the user specified
-     *                                  message in order to allow remote GMS instances to
-     *                                  unpack this message appropriately.
-     * @param synchronous               setting true here will call the underlying GCP's api
-     *                                  that corresponds to a synchronous message, if
-     *                                  available.
+     * @param targetMemberIdentityToken The member token string that identifies the target member to which this message is
+     * addressed. The implementation is expected to provide a mapping the member token to the GCP's addressing semantics. If
+     * null, the entire group would receive this message.
+     * @param message a Serializable object that wraps the user specified message in order to allow remote GMS instances to
+     * unpack this message appropriately.
+     * @param synchronous setting true here will call the underlying GCP's api that corresponds to a synchronous message, if
+     * available.
      * @throws com.sun.enterprise.ee.cms.core.GMSException the GMS generic expection
      *
      */
-    public void sendMessage(final String targetMemberIdentityToken,
-                            final Serializable message,
-                            final boolean synchronous) throws GMSException, MemberNotInViewException {
+    public void sendMessage(final String targetMemberIdentityToken, final Serializable message, final boolean synchronous)
+            throws GMSException, MemberNotInViewException {
         boolean sent = false;
         long duration;
         long startTime = System.currentTimeMillis();
         GMSMessage gmsMessage = null;
         if (gmsMonitor != null && gmsMonitor.ENABLED) {
             if (message instanceof GMSMessage) {
-                gmsMessage = (GMSMessage)message;
+                gmsMessage = (GMSMessage) message;
             }
         }
         try {
             if (targetMemberIdentityToken == null) {
                 if (synchronous) {
                     /*
-                    Use point-to-point communication with all instances instead of the group-wide (udp) based message.
-                    Since we don't have reliable multicast yet, this approach will ensure reliability.
-                    Ideally, when a message is sent to the group via point-to-point,
-                    the message to each member should be on a separate thread to get concurrency.
+                     * Use point-to-point communication with all instances instead of the group-wide (udp) based message. Since we don't
+                     * have reliable multicast yet, this approach will ensure reliability. Ideally, when a message is sent to the group via
+                     * point-to-point, the message to each member should be on a separate thread to get concurrency.
                      */
-                    List<SystemAdvertisement> currentMemberAdvs = clusterManager.getClusterViewManager().
-                            getLocalView().getView();
+                    List<SystemAdvertisement> currentMemberAdvs = clusterManager.getClusterViewManager().getLocalView().getView();
 
                     for (SystemAdvertisement currentMemberAdv : currentMemberAdvs) {
                         final PeerID id = currentMemberAdv.getID();
@@ -256,7 +228,7 @@ public class GroupCommunicationProviderImpl implements
                         if (memberState == MemberStates.PEERSTOPPING ||
 //                          TBD  - should we send message to INDOUBT member? error on side that member is not failed but just busy for now.
 //                          memberState == MemberStates.INDOUBT ||
-                            memberState == MemberStates.STOPPED || memberState == MemberStates.CLUSTERSTOPPING) {
+                                memberState == MemberStates.STOPPED || memberState == MemberStates.CLUSTERSTOPPING) {
                             // don't broadcast to departing members
                             if (logger.isLoggable(Level.FINE)) {
                                 logger.fine("skipping broadcast message " + message + " to member:" + member + " with state" + memberState);
@@ -264,12 +236,11 @@ public class GroupCommunicationProviderImpl implements
                             continue;
                         }
 
-                        //TODO : make this multi-threaded via Callable
-                        /* final CallableMessageSend task = getInstanceOfCallableMessageSend(id);
-                        logger.fine("Message is = " + message.toString());
-                        task.setMessage(message);
-                        msgSendPool.submit(task);
-                        */
+                        // TODO : make this multi-threaded via Callable
+                        /*
+                         * final CallableMessageSend task = getInstanceOfCallableMessageSend(id); logger.fine("Message is = " +
+                         * message.toString()); task.setMessage(message); msgSendPool.submit(task);
+                         */
                         logger.log(Level.FINER, "sending message to member: " + currentMemberAdv.getName());
                         try {
                             boolean localSent = clusterManager.send(id, message);
@@ -283,33 +254,29 @@ public class GroupCommunicationProviderImpl implements
                                 logger.fine("MemberNotInViewException during synchronous broadcast: " + e.toString());
                             }
                         } catch (MessageIOException mioe) {
-                            // this exception is thrown when message size is too big,  discontinue trying to send message and throw this exception to provide feedback to sender.
+                            // this exception is thrown when message size is too big, discontinue trying to send message and throw this exception to
+                            // provide feedback to sender.
                             throw new GMSException("message not sent", mioe);
                         } catch (IOException ioe) {
                             // don't allow an exception sending to one instance of the cluster to prevent ptp multicast to all other instances of
-                            // of the cluster.  Catch this exception, record it and continue sending to rest of instances in the cluster.
+                            // of the cluster. Catch this exception, record it and continue sending to rest of instances in the cluster.
                             if (logger.isLoggable(Level.FINE)) {
-                                logger.log(Level.FINE,
-                                        "IOException in reliable synchronous ptp multicast sending to instance " + currentMemberAdv.getName() +
-                                        ". Perhaps this instance has failed but that has not been detected yet. Peer id=" +
-                                        id.toString(),
-                                        ioe);
+                                logger.log(Level.FINE, "IOException in reliable synchronous ptp multicast sending to instance " + currentMemberAdv.getName()
+                                        + ". Perhaps this instance has failed but that has not been detected yet. Peer id=" + id.toString(), ioe);
                             }
                         } catch (Throwable t) {
-                           // don't allow an exception sending to one instance of the cluster prevent ptp broadcast to all other instances of
-                           // of the cluster.  Catch this exception, record it and continue sending to rest of instances in the cluster.
-                           if (logger.isLoggable(Level.FINE)) {
-                                logger.log(Level.FINE,
-                                        "Exception in reliable synchronous ptp multicast sending to instance " + currentMemberAdv.getName() +
-                                        ", peer id=" + id.toString(),
-                                        t);
+                            // don't allow an exception sending to one instance of the cluster prevent ptp broadcast to all other instances of
+                            // of the cluster. Catch this exception, record it and continue sending to rest of instances in the cluster.
+                            if (logger.isLoggable(Level.FINE)) {
+                                logger.log(Level.FINE, "Exception in reliable synchronous ptp multicast sending to instance " + currentMemberAdv.getName()
+                                        + ", peer id=" + id.toString(), t);
                             }
                         }
                     }
                     duration = System.currentTimeMillis() - startTime;
                     monitorDoSend(gmsMessage, duration, true, null);
                 } else {
-                    sent = clusterManager.send(null, message);//sends to whole group
+                    sent = clusterManager.send(null, message);// sends to whole group
                     duration = System.currentTimeMillis() - startTime;
                     if (!sent) {
                         GMSException ge = new GMSException("message " + message + " not sent to group, send returned false");
@@ -321,13 +288,14 @@ public class GroupCommunicationProviderImpl implements
             } else {
                 final PeerID id = clusterManager.getID(targetMemberIdentityToken);
                 if (id.equals(PeerID.NULL_PEER_ID)) {
-                    logger.log(Level.FINE, "GroupCommunicationProvider.sendMessage(target=" + targetMemberIdentityToken + "): unable to send message: missing mapping from member identifier to network peerid");
+                    logger.log(Level.FINE, "GroupCommunicationProvider.sendMessage(target=" + targetMemberIdentityToken
+                            + "): unable to send message: missing mapping from member identifier to network peerid");
                     throw new MemberNotInViewException("No mapping from member identifier:" + targetMemberIdentityToken + " to a network peerid.");
                 }
                 if (clusterManager.getClusterViewManager().containsKey(id)) {
                     logger.log(Level.FINE, "sending message to PeerID: " + id);
                     sent = clusterManager.send(id, message);
-                    duration =  System.currentTimeMillis() - startTime;
+                    duration = System.currentTimeMillis() - startTime;
                     if (sent) {
                         monitorDoSend(gmsMessage, duration, sent, null);
                     } else {
@@ -336,10 +304,9 @@ public class GroupCommunicationProviderImpl implements
                         throw ge;
                     }
                 } else {
-                    logger.log(Level.FINE, "message not sent to  " + targetMemberIdentityToken +
-                            " since it is not in the View");
-                    throw new MemberNotInViewException("Member " + targetMemberIdentityToken + " with network peerid:" + id + 
-                            " is not in the View anymore. Hence not performing sendMessage operation");
+                    logger.log(Level.FINE, "message not sent to  " + targetMemberIdentityToken + " since it is not in the View");
+                    throw new MemberNotInViewException("Member " + targetMemberIdentityToken + " with network peerid:" + id
+                            + " is not in the View anymore. Hence not performing sendMessage operation");
                 }
             }
         } catch (IOException e) {
@@ -358,22 +325,21 @@ public class GroupCommunicationProviderImpl implements
     }
 
     protected void monitorDoSend(final GMSMessage msg, final long sendDuration, final boolean sendSucceeded, final Exception e) {
-        if (gmsMonitor != null && gmsMonitor.ENABLED  && msg != null) {
-                String targetComponent = msg.getComponentName();
-                GMSMonitor.MessageStats stats = gmsMonitor.getGMSMessageMonitorStats(targetComponent);
-                if (sendSucceeded) {
-                    stats.incrementNumMsgsSent();
-                    stats.addBytesSent(msg.getMessage().length);
-                } else {
-                    stats.incrementNumFailMsgSend();
-                }
-                stats.addSendDuration(sendDuration);
-                if (sendDuration > gmsMonitor.getSendWriteTimeout()) {
-                    stats.incrementSendWriteTimeout();
-                }
+        if (gmsMonitor != null && gmsMonitor.ENABLED && msg != null) {
+            String targetComponent = msg.getComponentName();
+            GMSMonitor.MessageStats stats = gmsMonitor.getGMSMessageMonitorStats(targetComponent);
+            if (sendSucceeded) {
+                stats.incrementNumMsgsSent();
+                stats.addBytesSent(msg.getMessage().length);
+            } else {
+                stats.incrementNumFailMsgSend();
+            }
+            stats.addSendDuration(sendDuration);
+            if (sendDuration > gmsMonitor.getSendWriteTimeout()) {
+                stats.incrementSendWriteTimeout();
+            }
         }
     }
-
 
     public void sendMessage(Serializable message) throws GMSException, MemberNotInViewException {
         sendMessage(null, message, false);
@@ -391,9 +357,8 @@ public class GroupCommunicationProviderImpl implements
     }
 
     /**
-     * Returns the address representing the peer identified by this process. The
-     * address object is of the type corresponding to the underlying GCP. In
-     * this case, the jxta ID of this peer is returned.
+     * Returns the address representing the peer identified by this process. The address object is of the type corresponding
+     * to the underlying GCP. In this case, the jxta ID of this peer is returned.
      *
      * @return Object - representing this peer's address.
      */
@@ -406,11 +371,8 @@ public class GroupCommunicationProviderImpl implements
      *
      * @return list of current live members
      */
-    public List<String> getMembers() {//TODO: BUG. This will result in viewID increment.
-        return clusterManager.
-                getClusterViewManager().
-                getLocalView().
-                getPeerNamesInView();
+    public List<String> getMembers() {// TODO: BUG. This will result in viewID increment.
+        return clusterManager.getClusterViewManager().getLocalView().getPeerNamesInView();
     }
 
     public boolean isGroupLeader() {
@@ -421,7 +383,7 @@ public class GroupCommunicationProviderImpl implements
         MemberStates result = MemberStates.UNKNOWN;
         if (clusterManager != null) {
             PeerID id = clusterManager.getID(member);
-            if (! id.equals(PeerID.NULL_PEER_ID)) {
+            if (!id.equals(PeerID.NULL_PEER_ID)) {
                 String state = clusterManager.getNodeState(id, threshold, timeout).toUpperCase();
                 result = MemberStates.valueOf(state);
             }
@@ -432,7 +394,7 @@ public class GroupCommunicationProviderImpl implements
     public MemberStates getMemberState(final String memberIdentityToken) {
         String result = "UNKNOWN";
         if (clusterManager != null) {
-            result =  (clusterManager.getNodeState(clusterManager.getID(memberIdentityToken), 0, 0)).toUpperCase();
+            result = (clusterManager.getNodeState(clusterManager.getID(memberIdentityToken), 0, 0)).toUpperCase();
         }
         return MemberStates.valueOf(result);
     }
@@ -457,15 +419,15 @@ public class GroupCommunicationProviderImpl implements
         return msgQueue;
     }
 
-    public void handleClusterMessage(final SystemAdvertisement adv,
-                                     final Object message) {
+    public void handleClusterMessage(final SystemAdvertisement adv, final Object message) {
         MessagePacket msgPkt = new MessagePacket(adv, message);
         try {
-            //logger.log(Level.FINE, "Received AppMessage Notification, placing in message queue = " + new String(((GMSMessage)message).getMessage()));
+            // logger.log(Level.FINE, "Received AppMessage Notification, placing in message queue = " + new
+            // String(((GMSMessage)message).getMessage()));
             boolean result = getMsgQueue().offer(msgPkt);
             if (result == false) {
 
-                // blocking queue is full.  log how long we were blocked.
+                // blocking queue is full. log how long we were blocked.
                 int fullcapacity = getMsgQueue().size();
                 long starttime = System.currentTimeMillis();
                 try {
@@ -473,14 +435,14 @@ public class GroupCommunicationProviderImpl implements
                 } finally {
                     long duration = System.currentTimeMillis() - starttime;
                     if (duration > 0) {
-                        monitorLogger.info("remote message reception blocked due to incoming message queue being full for " + duration + " ms. Message queue capacity: " + fullcapacity);
+                        monitorLogger.info("remote message reception blocked due to incoming message queue being full for " + duration
+                                + " ms. Message queue capacity: " + fullcapacity);
                     }
                 }
             }
         } catch (InterruptedException e) {
             logger.log(Level.WARNING,
-                    MessageFormat.format("Interrupted Exception occured while adding message to Shoal MessageQueue :{0}",
-                            e.getLocalizedMessage()));
+                    MessageFormat.format("Interrupted Exception occured while adding message to Shoal MessageQueue :{0}", e.getLocalizedMessage()));
         }
     }
 
@@ -500,47 +462,25 @@ public class GroupCommunicationProviderImpl implements
     }
 
     /*
-    private CallableMessageSend getInstanceOfCallableMessageSend(ID id) {
-        if (instanceCache.get(id) == null) {
-            CallableMessageSend c = new CallableMessageSend(id);
-            instanceCache.put(id, c);
-            return c;
-        } else {
-            return instanceCache.get(id);
-        }
-    }
-    */
+     * private CallableMessageSend getInstanceOfCallableMessageSend(ID id) { if (instanceCache.get(id) == null) {
+     * CallableMessageSend c = new CallableMessageSend(id); instanceCache.put(id, c); return c; } else { return
+     * instanceCache.get(id); } }
+     */
 
     /**
-     * implements Callable.
-     * Used for handing off the job of calling sendMessage() method to a ThreadPool.
-     * REVISIT
+     * implements Callable. Used for handing off the job of calling sendMessage() method to a ThreadPool. REVISIT
      */
     /*
-    private class CallableMessageSend implements Callable<Object> {
-        private PeerID member;
-        private Serializable msg;
-
-        private CallableMessageSend(final PeerID member) {
-            this.member = member;
-        }
-
-        public void setMessage(Serializable msg) {
-            this.msg = null;
-            this.msg = msg;
-        }
-
-        public Object call() throws Exception {
-            boolean sent = clusterManager.send(member, msg);
-            if (!sent) {
-                if (logger.isLoggable(Level.FINE)) {
-                    logger.fine("CallableMessageSend failed to send msg " + msg + " to member " + member);
-                }
-            }
-            return null;
-        }
-    }
-    */
+     * private class CallableMessageSend implements Callable<Object> { private PeerID member; private Serializable msg;
+     *
+     * private CallableMessageSend(final PeerID member) { this.member = member; }
+     *
+     * public void setMessage(Serializable msg) { this.msg = null; this.msg = msg; }
+     *
+     * public Object call() throws Exception { boolean sent = clusterManager.send(member, msg); if (!sent) { if
+     * (logger.isLoggable(Level.FINE)) { logger.fine("CallableMessageSend failed to send msg " + msg + " to member " +
+     * member); } } return null; } }
+     */
 
     public void announceWatchdogObservedFailure(String serverToken) throws GMSException {
         if (clusterManager == null) {
@@ -560,4 +500,3 @@ public class GroupCommunicationProviderImpl implements
     }
 
 }
-

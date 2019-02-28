@@ -21,19 +21,21 @@ import com.sun.enterprise.ee.cms.core.CallBack;
 import com.sun.enterprise.ee.cms.core.MessageActionFactory;
 
 /**
- * Reference implementation of MessageActionFactory interface. 
- * @author Shreedhar Ganapathy
- * Date: Jan 21, 2004
+ * Reference implementation of MessageActionFactory interface.
+ *
+ * @author Shreedhar Ganapathy Date: Jan 21, 2004
  * @version $Revision$
  */
 public class MessageActionFactoryImpl implements MessageActionFactory {
     private final CallBack cb;
-    public MessageActionFactoryImpl(final CallBack cb){
+
+    public MessageActionFactoryImpl(final CallBack cb) {
         this.cb = cb;
     }
 
     /**
      * Produces an Action instance.
+     *
      * @return com.sun.enterprise.ee.cms.Action
      */
     public Action produceAction() {

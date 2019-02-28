@@ -16,18 +16,16 @@
 
 package org.glassfish.ha.store.annotations;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 
 /**
- * Annotation to declare an Attribute of a StoreEntry. Only Getter methods
- * must be annotated with @Attribute.
+ * Annotation to declare an Attribute of a StoreEntry. Only Getter methods must be annotated with @Attribute.
  *
- * The loadEagerly property of this annotation can be set to indicate if
- *  BackingStore.findByCriteria() must populate this attribute (true)
- *  or not (false).
+ * The loadEagerly property of this annotation can be set to indicate if BackingStore.findByCriteria() must populate
+ * this attribute (true) or not (false).
  *
  * @author Mahesh.Kannan@Sun.Com
  *

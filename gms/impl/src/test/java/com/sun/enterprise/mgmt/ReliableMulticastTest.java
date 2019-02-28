@@ -18,34 +18,30 @@ package com.sun.enterprise.mgmt;
 
 import java.text.SimpleDateFormat;
 import java.util.logging.Level;
-import java.util.Date;
 
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.mgmt.transport.Message;
 import com.sun.enterprise.mgmt.transport.MessageImpl;
+
 import junit.framework.TestCase;
 
-public class ReliableMulticastTest extends TestCase  {
+public class ReliableMulticastTest extends TestCase {
 
-    static final long TEST_EXPIRATION_DURATION_MS = 500;  // 1/2 second.
+    static final long TEST_EXPIRATION_DURATION_MS = 500; // 1/2 second.
     private ReliableMulticast rm;
-    private static final String RFC_3339_DATE_FORMAT =
-            "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-    private static final SimpleDateFormat dateFormatter =
-            new SimpleDateFormat( RFC_3339_DATE_FORMAT );
+    private static final String RFC_3339_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(RFC_3339_DATE_FORMAT);
 
-    public ReliableMulticastTest( String testName ) {
-        super( testName );
+    public ReliableMulticastTest(String testName) {
+        super(testName);
         GMSLogDomain.getMcastLogger().setLevel(Level.FINEST);
     }
-
 
     private Message createMessage(long seqId) {
         Message msg = new MessageImpl();
         msg.addMessageElement(MasterNode.MASTERVIEWSEQ, seqId);
         return msg;
     }
-
 
     private void mySetup() {
         rm = new ReliableMulticast(TEST_EXPIRATION_DURATION_MS);
@@ -71,7 +67,6 @@ public class ReliableMulticastTest extends TestCase  {
         rm.stop();
     }
 
-
     public void testAdd() {
         mySetup();
         rm.stop();
@@ -81,14 +76,14 @@ public class ReliableMulticastTest extends TestCase  {
         testAdd();
         rm.processExpired();
         assertTrue(rm.sendHistorySize() == 4);
-         try {
+        try {
             Thread.sleep(TEST_EXPIRATION_DURATION_MS * 3);
-        } catch (InterruptedException ie) {}
+        } catch (InterruptedException ie) {
+        }
         rm.processExpired();
         GMSLogDomain.getMcastLogger().info("sendHistorySize=" + rm.sendHistorySize());
         assertTrue(rm.sendHistorySize() == 0);
         rm.stop();
     }
-
 
 }

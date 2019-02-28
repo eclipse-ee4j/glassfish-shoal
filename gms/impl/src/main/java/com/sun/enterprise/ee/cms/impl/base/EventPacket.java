@@ -20,8 +20,7 @@ import com.sun.enterprise.mgmt.ClusterView;
 import com.sun.enterprise.mgmt.ClusterViewEvents;
 
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jun 27, 2006
+ * @author Shreedhar Ganapathy Date: Jun 27, 2006
  * @version $Revision$
  */
 public class EventPacket {
@@ -29,10 +28,7 @@ public class EventPacket {
     private final SystemAdvertisement systemAdvertisement;
     private final ClusterView clusterView;
 
-    public EventPacket(
-            final ClusterViewEvents clusterViewEvent,
-            final SystemAdvertisement systemAdvertisement,
-            final ClusterView clusterView) {
+    public EventPacket(final ClusterViewEvents clusterViewEvent, final SystemAdvertisement systemAdvertisement, final ClusterView clusterView) {
         this.clusterViewEvent = clusterViewEvent;
         this.systemAdvertisement = systemAdvertisement;
         this.clusterView = clusterView;

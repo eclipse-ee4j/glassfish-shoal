@@ -16,16 +16,15 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
-import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-import com.sun.enterprise.ee.cms.impl.base.Utility;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
+import com.sun.enterprise.ee.cms.impl.base.Utility;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * This class contains health states of members
@@ -98,7 +97,7 @@ public class HealthMessage implements Serializable {
     /**
      * Entries class
      */
-    public static final class Entry implements Serializable, Cloneable{
+    public static final class Entry implements Serializable, Cloneable {
 
         static final long serialVersionUID = 7485962183100651020L;
         /**
@@ -128,15 +127,15 @@ public class HealthMessage implements Serializable {
         /**
          * Creates a Entry with id and state
          *
-         * @param adv   SystemAdvertisement
+         * @param adv SystemAdvertisement
          * @param state state value
          * @param seqID health message sequence ID
          */
         public Entry(final SystemAdvertisement adv, final String state, long seqID) {
             this.state = state;
             this.adv = adv;
-            this.id = (PeerID) adv.getID();
-            this.timestamp =System.currentTimeMillis();
+            this.id = adv.getID();
+            this.timestamp = System.currentTimeMillis();
             this.seqID = seqID;
         }
 
@@ -156,8 +155,8 @@ public class HealthMessage implements Serializable {
         }
 
         /**
-         * Since MasterNode reports on other peers that they are DEAD or INDOUBT, be sure not to compare sequence ids between
-         * a peer and a MasterNode health message report on that peer.
+         * Since MasterNode reports on other peers that they are DEAD or INDOUBT, be sure not to compare sequence ids between a
+         * peer and a MasterNode health message report on that peer.
          *
          * @param other the entry of other peer
          * @return true if this HM.entry and other are from same member.
@@ -168,6 +167,7 @@ public class HealthMessage implements Serializable {
 
         /**
          * Detect when one hm is from a failed member and the new hm is from the restart of that member.
+         *
          * @param other the entry of other peer
          * @return true if same instantiation of member sent this health message.
          */
@@ -183,7 +183,7 @@ public class HealthMessage implements Serializable {
          * {@inheritDoc}
          */
         public boolean equals(final Object obj) {
-            return obj instanceof Entry && this == obj || obj != null && id.equals(((HealthMessage.Entry)obj).id);
+            return obj instanceof Entry && this == obj || obj != null && id.equals(((HealthMessage.Entry) obj).id);
         }
 
         /**
@@ -201,8 +201,7 @@ public class HealthMessage implements Serializable {
         }
 
         public Object clone() throws CloneNotSupportedException {
-            return (HealthMessage.Entry)super.clone();
+            return super.clone();
         }
     }
 }
-

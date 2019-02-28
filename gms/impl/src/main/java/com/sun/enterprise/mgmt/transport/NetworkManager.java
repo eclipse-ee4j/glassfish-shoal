@@ -16,17 +16,18 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
-import java.util.Map;
 import java.io.IOException;
+import java.util.Map;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
 
 /**
  * This interface has common APIs for network managements
  *
- * According to a kind of transport layers, this interface will be implemented adequately.
- * Currently, {@link com.sun.enterprise.mgmt.ClusterManager} initializes this with calling {@link NetworkManager#initialize(String, String, java.util.Map)}.
- * After initialization, {@link com.sun.enterprise.mgmt.transport.NetworkManager#start()} ) will be called.
+ * According to a kind of transport layers, this interface will be implemented adequately. Currently,
+ * {@link com.sun.enterprise.mgmt.ClusterManager} initializes this with calling
+ * {@link NetworkManager#initialize(String, String, java.util.Map)}. After initialization,
+ * {@link com.sun.enterprise.mgmt.transport.NetworkManager#start()} ) will be called.
  *
  * @author Bongjae Chang
  */
@@ -40,56 +41,58 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
      * @param properties specific properties
      * @throws IOException if an unexpected error occurs
      */
-    public void initialize( final String groupName, final String instanceName, final Map properties ) throws IOException;
+    void initialize(final String groupName, final String instanceName, final Map properties) throws IOException;
 
     /**
      * Starts this network manager
      *
-     * This method will be called after {@link com.sun.enterprise.mgmt.transport.NetworkManager#initialize(String, String, java.util.Map)} internally
+     * This method will be called after
+     * {@link com.sun.enterprise.mgmt.transport.NetworkManager#initialize(String, String, java.util.Map)} internally
      *
      * @throws IOException if an I/O error occurs
      */
-    public void start() throws IOException;
+    void start() throws IOException;
 
     /**
      * Stops this network manager
      *
-     * For cleaning up remaining values and finishing I/O operation, this method could be used 
+     * For cleaning up remaining values and finishing I/O operation, this method could be used
      *
      * @throws IOException if an I/O error occurs
      */
-    public void stop() throws IOException;
+    void stop() throws IOException;
 
     /**
      * Adds the {@link com.sun.enterprise.mgmt.transport.MessageListener}
      *
      * @param messageListener a message listener which should be registered on this network manager
      */
-    public void addMessageListener( final MessageListener messageListener );
+    void addMessageListener(final MessageListener messageListener);
 
     /**
      * Removes the {@link com.sun.enterprise.mgmt.transport.MessageListener}
      *
      * @param messageListener a message listener which should be removed
      */
-    public void removeMessageListener( final MessageListener messageListener );
+    void removeMessageListener(final MessageListener messageListener);
 
     /**
      * Processes a received {@link Message}
      *
-     * In this process, inbound {@link Message} will be wrapped into {@link MessageEvent}
-     * and be delivered to registered {@link MessageListener} with corresponding to the message type
+     * In this process, inbound {@link Message} will be wrapped into {@link MessageEvent} and be delivered to registered
+     * {@link MessageListener} with corresponding to the message type
      *
      * @param message inbound message
      * @param piggyback piggyback
      */
-    public void receiveMessage( Message message, Map piggyback );
+    void receiveMessage(Message message, Map piggyback);
 
     /**
      * Returns local {@link PeerID}
+     *
      * @return peer id
      */
-    public PeerID getLocalPeerID();
+    PeerID getLocalPeerID();
 
     /**
      * Returns the proper {@link PeerID} corresponding with a given instance name
@@ -97,19 +100,21 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
      * @param instanceName instance name
      * @return peer id
      */
-    public PeerID getPeerID( final String instanceName );
+    PeerID getPeerID(final String instanceName);
 
     /**
      * Add the <code>peerID</code> to this network manager
+     *
      * @param peerID the peer Id
      */
-    public void addRemotePeer( final PeerID peerID );
+    void addRemotePeer(final PeerID peerID);
 
     /**
      * Removes the <code>peerID</code> from this network manager
+     *
      * @param peerID the peer Id
      */
-    public void removePeerID( final PeerID peerID );
+    void removePeerID(final PeerID peerID);
 
     /**
      * Check whether the suspicious peer is alive or not
@@ -119,19 +124,21 @@ public interface NetworkManager extends MulticastMessageSender, MessageSender {
      * @param peerID peer id
      * @return true if the peer is still alive, otherwise false
      */
-    public boolean isConnected( final PeerID peerID );
+    boolean isConnected(final PeerID peerID);
 
     /**
      * Returns a {@link MessageSender} corresponding with transport type
      *
-     * @param transport transport type. {@link ShoalMessageSender#TCP_TRANSPORT} or {@link ShoalMessageSender#UDP_TRANSPORT}'s integer value
+     * @param transport transport type. {@link ShoalMessageSender#TCP_TRANSPORT} or
+     * {@link ShoalMessageSender#UDP_TRANSPORT}'s integer value
      * @return a {@link MessageSender}'s instance which this network manager contains
      */
-    public MessageSender getMessageSender( int transport );
+    MessageSender getMessageSender(int transport);
 
     /**
      * Returns a {@link MulticastMessageSender}
+     *
      * @return a {@link MulticastMessageSender}'s instance which this network manager contains
      */
-    public MulticastMessageSender getMulticastMessageSender();
+    MulticastMessageSender getMulticastMessageSender();
 }

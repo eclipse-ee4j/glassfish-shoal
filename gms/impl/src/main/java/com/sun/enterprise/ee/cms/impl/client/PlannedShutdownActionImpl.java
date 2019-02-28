@@ -14,48 +14,54 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-   package com.sun.enterprise.ee.cms.impl.client;
+package com.sun.enterprise.ee.cms.impl.client;
 
-   import com.sun.enterprise.ee.cms.core.*;
-   import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-   import java.util.logging.Level;
-   import java.util.logging.Logger;
+import com.sun.enterprise.ee.cms.core.ActionException;
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownAction;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
-   /**
-* Reference Implementation of PlannedShutdownAction
-* @author Shreedhar Ganapathy
-*         Date: Mar 15, 2005
-* @version $Revision$
-*/
-   public class PlannedShutdownActionImpl implements PlannedShutdownAction {
-   private CallBack callBack;
-   private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
-   public PlannedShutdownActionImpl(final CallBack callBack) {
-       this.callBack=callBack;
-   }
+/**
+ * Reference Implementation of PlannedShutdownAction
+ *
+ * @author Shreedhar Ganapathy Date: Mar 15, 2005
+ * @version $Revision$
+ */
+public class PlannedShutdownActionImpl implements PlannedShutdownAction {
+    private CallBack callBack;
+    private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
-   /**
-    * Implementations of consumeSignal should strive to return control
-    * promptly back to the thread that has delivered the Signal.
-    */
-   public void consumeSignal(final Signal s) throws ActionException {
-       boolean signalAcquired = false;
-       try {
-           s.acquire();
-           signalAcquired = true;
-           callBack.processNotification(s);
+    public PlannedShutdownActionImpl(final CallBack callBack) {
+        this.callBack = callBack;
+    }
 
-       } catch (SignalAcquireException e) {
-           logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-       } finally {
-           if (signalAcquired) {
-               try {
-                   s.release();
-               } catch (SignalReleaseException e) {
-                   logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-               }
-           }
-       }
-   }
+    /**
+     * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
+     * Signal.
+     */
+    public void consumeSignal(final Signal s) throws ActionException {
+        boolean signalAcquired = false;
+        try {
+            s.acquire();
+            signalAcquired = true;
+            callBack.processNotification(s);
+
+        } catch (SignalAcquireException e) {
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        } finally {
+            if (signalAcquired) {
+                try {
+                    s.release();
+                } catch (SignalReleaseException e) {
+                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                }
+            }
+        }
+    }
 }

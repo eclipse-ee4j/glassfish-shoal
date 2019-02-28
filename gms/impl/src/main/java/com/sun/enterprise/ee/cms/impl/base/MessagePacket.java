@@ -17,8 +17,7 @@
 package com.sun.enterprise.ee.cms.impl.base;
 
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jul 11, 2006
+ * @author Shreedhar Ganapathy Date: Jul 11, 2006
  * @version $Revision$
  */
 public class MessagePacket {

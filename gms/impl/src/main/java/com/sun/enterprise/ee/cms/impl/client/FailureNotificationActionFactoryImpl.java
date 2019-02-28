@@ -22,17 +22,20 @@ import com.sun.enterprise.ee.cms.core.FailureNotificationActionFactory;
 
 /**
  * Reference implementation of FailureNotificationActionFactory
- * @author Shreedhar Ganapathy
- * Date: Jan 21, 2004
+ *
+ * @author Shreedhar Ganapathy Date: Jan 21, 2004
  * @version $Revision$
  */
-public class FailureNotificationActionFactoryImpl implements FailureNotificationActionFactory{
+public class FailureNotificationActionFactoryImpl implements FailureNotificationActionFactory {
     private final CallBack cb;
-    public FailureNotificationActionFactoryImpl(final CallBack cb){
+
+    public FailureNotificationActionFactoryImpl(final CallBack cb) {
         this.cb = cb;
     }
+
     /**
      * Produces an Action instance.
+     *
      * @return com.sun.enterprise.ee.cms.Action
      */
     public Action produceAction() {

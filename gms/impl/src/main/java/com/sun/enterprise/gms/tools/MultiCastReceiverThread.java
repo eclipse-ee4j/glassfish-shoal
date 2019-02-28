@@ -16,6 +16,8 @@
 
 package com.sun.enterprise.gms.tools;
 
+import static com.sun.enterprise.gms.tools.MulticastTester.SEP;
+
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -25,8 +27,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.sun.enterprise.gms.tools.MulticastTester.SEP;
 
 /**
  * Used to listen for multicast messages.
@@ -46,8 +46,7 @@ public class MultiCastReceiverThread extends Thread {
     MulticastSocket ms;
     String expectedPrefix;
 
-    public MultiCastReceiverThread(int mcPort, String mcAddress,
-        boolean debug, String targetData) {
+    public MultiCastReceiverThread(int mcPort, String mcAddress, boolean debug, String targetData) {
         super("McastReceiver");
         this.mcPort = mcPort;
         this.mcAddress = mcAddress;
@@ -71,15 +70,12 @@ public class MultiCastReceiverThread extends Thread {
             Set<String> uniqueData = new HashSet<String>();
 
             /*
-             * 'done' will almost never be read as true here unless
-             * there is some unusual timing. But we have leaveGroup
-             * and socket closing code here anyway to be polite. Maybe
-             * the thread interrupt call will interrupt the receive call
-             * in a different JDK impl/version.
+             * 'done' will almost never be read as true here unless there is some unusual timing. But we have leaveGroup and socket
+             * closing code here anyway to be polite. Maybe the thread interrupt call will interrupt the receive call in a different
+             * JDK impl/version.
              */
             while (!done) {
-                DatagramPacket dp = new DatagramPacket(new byte[bufferSize],
-                    bufferSize);
+                DatagramPacket dp = new DatagramPacket(new byte[bufferSize], bufferSize);
                 ms.receive(dp);
                 String newData = new String(dp.getData(), Charset.defaultCharset()).trim();
                 log(String.format("received '%s'", newData));
@@ -92,12 +88,10 @@ public class MultiCastReceiverThread extends Thread {
 
                 if (uniqueData.add(newData)) {
                     if (targetData.equals(newData)) {
-                        System.out.println(sm.get("loopback.from",
-                            MulticastTester.trimDataString(newData)));
+                        System.out.println(sm.get("loopback.from", MulticastTester.trimDataString(newData)));
                         receivedAnything.set(true);
                     } else {
-                        System.out.println(sm.get("received.from",
-                            MulticastTester.trimDataString(newData)));
+                        System.out.println(sm.get("received.from", MulticastTester.trimDataString(newData)));
                         receivedAnything.set(true);
                     }
                 }
@@ -128,8 +122,7 @@ public class MultiCastReceiverThread extends Thread {
 
     private void log(String msg) {
         if (debug) {
-            System.err.println(String.format("%s: %s",
-                getName(), msg));
+            System.err.println(String.format("%s: %s", getName(), msg));
         }
     }
 }

@@ -16,51 +16,57 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
 import java.io.IOException;
 
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+
 /**
- * This class implements both a common {@link MulticastMessageSender} and {@link MessageSender} logic simply
- * in order to help the specific transport layer to be implemented easily
+ * This class implements both a common {@link MulticastMessageSender} and {@link MessageSender} logic simply in order to
+ * help the specific transport layer to be implemented easily
  *
- * Mainly, this stores both source's {@link PeerID} and target's {@link PeerID}
- * before sending the message to the peer or broadcasting the message to all members
+ * Mainly, this stores both source's {@link PeerID} and target's {@link PeerID} before sending the message to the peer
+ * or broadcasting the message to all members
  *
  * @author Bongjae Chang
  */
 public abstract class AbstractMultiMessageSender implements MulticastMessageSender, MessageSender {
 
     /**
-     * Represents local {@link PeerID}.
-     * This value should be assigned in real {@link MessageSender}'s implementation correspoinding to the specific transport layer
+     * Represents local {@link PeerID}. This value should be assigned in real {@link MessageSender}'s implementation
+     * correspoinding to the specific transport layer
      */
     protected PeerID localPeerID;
 
     /**
      * {@inheritDoc}
      */
-    public boolean broadcast( final Message message ) throws IOException {
-        if( message == null )
-            throw new IOException( "message is null" );
-        if( localPeerID != null )
-            message.addMessageElement( Message.SOURCE_PEER_ID_TAG, localPeerID );
-        return doBroadcast( message );
+    public boolean broadcast(final Message message) throws IOException {
+        if (message == null) {
+            throw new IOException("message is null");
+        }
+        if (localPeerID != null) {
+            message.addMessageElement(Message.SOURCE_PEER_ID_TAG, localPeerID);
+        }
+        return doBroadcast(message);
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean send( final PeerID peerID, final Message message ) throws IOException {
-        if( peerID == null )
-            throw new IOException( "peer ID can not be null" );
-        if( message == null )
-            throw new IOException( "message is null" );
-        if( localPeerID != null )
-            message.addMessageElement( Message.SOURCE_PEER_ID_TAG, localPeerID );
-        if( peerID != null )
-            message.addMessageElement( Message.TARGET_PEER_ID_TAG, peerID );
-        return doSend( peerID, message );
+    public boolean send(final PeerID peerID, final Message message) throws IOException {
+        if (peerID == null) {
+            throw new IOException("peer ID can not be null");
+        }
+        if (message == null) {
+            throw new IOException("message is null");
+        }
+        if (localPeerID != null) {
+            message.addMessageElement(Message.SOURCE_PEER_ID_TAG, localPeerID);
+        }
+        if (peerID != null) {
+            message.addMessageElement(Message.TARGET_PEER_ID_TAG, peerID);
+        }
+        return doSend(peerID, message);
     }
 
     /**
@@ -82,7 +88,7 @@ public abstract class AbstractMultiMessageSender implements MulticastMessageSend
      * @return true if the message is sent to all members successfully, otherwise false
      * @throws IOException if I/O error occurs or given parameters are not valid
      */
-    protected abstract boolean doBroadcast( final Message message ) throws IOException;
+    protected abstract boolean doBroadcast(final Message message) throws IOException;
 
     /**
      * Sends the given {@link Message} to the destination
@@ -92,5 +98,5 @@ public abstract class AbstractMultiMessageSender implements MulticastMessageSend
      * @return true if the message is sent to the destination successfully, otherwise false
      * @throws IOException if I/O error occurs or given parameters are not valid
      */
-    protected abstract boolean doSend( final PeerID peerID, final Message message ) throws IOException;
+    protected abstract boolean doSend(final PeerID peerID, final Message message) throws IOException;
 }

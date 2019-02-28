@@ -16,25 +16,27 @@
 
 package org.shoal.ha.cache.impl.command;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.glassfish.ha.store.util.KeyTransformer;
 import org.shoal.ha.cache.api.DataStoreContext;
 import org.shoal.ha.cache.api.DataStoreException;
 import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.api.TooManyRetriesException;
-import org.shoal.ha.cache.impl.util.ReplicationInputStream;
-import org.shoal.ha.cache.impl.util.ReplicationOutputStream;
-
-import java.io.*;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Mahesh Kannan
- * 
+ *
  */
-public abstract class Command<K, V>
-    implements Serializable {
+public abstract class Command<K, V> implements Serializable {
+
+   
+    private static final long serialVersionUID = 6608726132108978791L;
 
     private transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
 
@@ -42,7 +44,6 @@ public abstract class Command<K, V>
 
     private byte[] rawKey;
 
-    
     private transient K key;
 
     protected transient DataStoreContext<K, V> dsc;
@@ -60,10 +61,10 @@ public abstract class Command<K, V>
     public final void initialize(DataStoreContext<K, V> rs) {
         this.dsc = rs;
         this.cm = rs.getCommandManager();
-        
+
         this.commandName = this.getClass().getName();
         int index = commandName.lastIndexOf('.');
-        commandName = commandName.substring(index+1);
+        commandName = commandName.substring(index + 1);
     }
 
     protected final void setKey(K k) {
@@ -92,7 +93,7 @@ public abstract class Command<K, V>
     public String getTargetName() {
         return targetInstanceName;
     }
-    
+
     public final byte getOpcode() {
         return opcode;
     }
@@ -101,16 +102,14 @@ public abstract class Command<K, V>
         this.targetInstanceName = val;
     }
 
-    public void prepareTransmit(DataStoreContext<K, V> ctx)
-            throws IOException {
+    public void prepareTransmit(DataStoreContext<K, V> ctx) throws IOException {
 
-        if (! beforeTransmit()) {
+        if (!beforeTransmit()) {
             _logger.log(Level.FINE, "Aborting command transmission for " + getName() + " because beforeTransmit returned false");
         }
     }
 
-    protected static byte[] captureState(Object obj)
-        throws DataStoreException {
+    protected static byte[] captureState(Object obj) throws DataStoreException {
         byte[] result = null;
         ByteArrayOutputStream bos = null;
         ObjectOutputStream oos = null;
@@ -124,8 +123,14 @@ public abstract class Command<K, V>
         } catch (Exception ex) {
             throw new DataStoreException("Error during prepareToTransmit()", ex);
         } finally {
-            try { oos.close(); } catch (Exception ex) {}
-            try { bos.close(); } catch (Exception ex) {}
+            try {
+                oos.close();
+            } catch (Exception ex) {
+            }
+            try {
+                bos.close();
+            } catch (Exception ex) {
+            }
         }
 
         return result;
@@ -139,17 +144,14 @@ public abstract class Command<K, V>
         return commandName + ":" + opcode;
     }
 
-    public abstract void execute(String initiator)
-            throws DataStoreException;
+    public abstract void execute(String initiator) throws DataStoreException;
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeByte(opcode);
         writeKey(out);
     }
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         opcode = in.readByte();
         readKey(in);
     }
@@ -159,14 +161,14 @@ public abstract class Command<K, V>
     }
 
     public void onFailure() {
-        
+
     }
+
     public String toString() {
         return getName() + "(" + getKey() + ")";
     }
 
-    private void writeKey(ObjectOutputStream out)
-            throws IOException {
+    private void writeKey(ObjectOutputStream out) throws IOException {
         if (isArtificialKey()) {
             out.writeObject(key);
         } else {
@@ -174,19 +176,18 @@ public abstract class Command<K, V>
             out.writeBoolean(kt != null);
             if (kt != null) {
                 out.writeObject(kt.keyToByteArray(key));
-            }  else {
+            } else {
                 out.writeObject(key);
             }
         }
     }
 
-    private void readKey(ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+    private void readKey(ObjectInputStream in) throws IOException, ClassNotFoundException {
         if (isArtificialKey()) {
             key = (K) in.readObject();
         } else {
             boolean needToTransformKey = in.readBoolean();
-            if (! needToTransformKey) {
+            if (!needToTransformKey) {
                 key = (K) in.readObject();
             } else {
                 rawKey = (byte[]) in.readObject();
@@ -198,7 +199,6 @@ public abstract class Command<K, V>
         return false;
     }
 
-    protected abstract boolean beforeTransmit()
-            throws IOException;
+    protected abstract boolean beforeTransmit() throws IOException;
 
 }

@@ -25,14 +25,14 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.SocketConnectorHandler;
 import org.glassfish.grizzly.utils.Exceptions;
 
-
 /**
  * Connection cache implementation.
- * 
+ *
  * @author Alexey Stashok
  */
 public class ConnectionCache {
@@ -45,18 +45,15 @@ public class ConnectionCache {
     private final AtomicBoolean isClosed = new AtomicBoolean();
 
     private final AtomicInteger totalCachedConnectionsCount = new AtomicInteger();
-    
-    private final ConcurrentHashMap<SocketAddress, CacheRecord> cache =
-            new ConcurrentHashMap<SocketAddress, CacheRecord>();
+
+    private final ConcurrentHashMap<SocketAddress, CacheRecord> cache = new ConcurrentHashMap<SocketAddress, CacheRecord>();
 
     // Connect timeout 5 seconds
     static private final long connectTimeoutMillis = 5000;
 
-    private final Connection.CloseListener removeCachedConnectionOnCloseListener =
-            new RemoveCachedConnectionOnCloseListener();
-    
-    public ConnectionCache(SocketConnectorHandler socketConnectorHandler,
-            int highWaterMark, int maxParallelConnections, int numberToReclaim) {
+    private final Connection.CloseListener removeCachedConnectionOnCloseListener = new RemoveCachedConnectionOnCloseListener();
+
+    public ConnectionCache(SocketConnectorHandler socketConnectorHandler, int highWaterMark, int maxParallelConnections, int numberToReclaim) {
         this.socketConnectorHandler = socketConnectorHandler;
 
         this.highWaterMark = highWaterMark;
@@ -64,8 +61,7 @@ public class ConnectionCache {
         this.numberToReclaim = numberToReclaim;
     }
 
-    public Connection poll(final SocketAddress localAddress,
-            final SocketAddress remoteAddress) throws IOException {
+    public Connection poll(final SocketAddress localAddress, final SocketAddress remoteAddress) throws IOException {
 
         final CacheRecord cacheRecord = obtainCacheRecord(remoteAddress);
 
@@ -85,8 +81,7 @@ public class ConnectionCache {
             return connection;
         }
 
-        final Future<Connection> connectFuture =
-                socketConnectorHandler.connect(remoteAddress, localAddress);
+        final Future<Connection> connectFuture = socketConnectorHandler.connect(remoteAddress, localAddress);
 
         try {
             connection = connectFuture.get(connectTimeoutMillis, TimeUnit.MILLISECONDS);
@@ -96,7 +91,7 @@ public class ConnectionCache {
 
         return connection;
     }
-    
+
     public void offer(final Connection connection) {
         final SocketAddress remoteAddress = (SocketAddress) connection.getPeerAddress();
 
@@ -105,8 +100,7 @@ public class ConnectionCache {
         final int totalConnectionsN = totalCachedConnectionsCount.incrementAndGet();
         final int parallelConnectionN = cacheRecord.idleConnectionsCount.incrementAndGet();
 
-        if (totalConnectionsN > highWaterMark ||
-                parallelConnectionN > maxParallelConnections) {
+        if (totalConnectionsN > highWaterMark || parallelConnectionN > maxParallelConnections) {
             totalCachedConnectionsCount.decrementAndGet();
             cacheRecord.idleConnectionsCount.decrementAndGet();
         }
@@ -114,7 +108,7 @@ public class ConnectionCache {
         connection.addCloseListener(removeCachedConnectionOnCloseListener);
 
         cacheRecord.connections.offer(connection);
-        
+
         if (isClosed.get()) {
             // remove cache entry associated with the remoteAddress (only if we have the actual value)
             cache.remove(remoteAddress, cacheRecord);
@@ -132,7 +126,9 @@ public class ConnectionCache {
     }
 
     private void closeCacheRecord(final CacheRecord cacheRecord) {
-        if (cacheRecord == null) return;
+        if (cacheRecord == null) {
+            return;
+        }
         Connection connection;
         while ((connection = cacheRecord.connections.poll()) != null) {
             cacheRecord.idleConnectionsCount.decrementAndGet();
@@ -155,24 +151,19 @@ public class ConnectionCache {
     }
 
     private static final class CacheRecord {
-        final AtomicInteger idleConnectionsCount =
-                new AtomicInteger();
+        final AtomicInteger idleConnectionsCount = new AtomicInteger();
 
-        final Queue<Connection> connections =
-                new LinkedTransferQueue<Connection>();
-        
+        final Queue<Connection> connections = new LinkedTransferQueue<Connection>();
+
     }
 
-    private final class RemoveCachedConnectionOnCloseListener implements
-            Connection.CloseListener {
+    private final class RemoveCachedConnectionOnCloseListener implements Connection.CloseListener {
 
         @Override
         public void onClosed(Connection connection, Connection.CloseType type) throws IOException {
-            final SocketAddress remoteAddress =
-                    (SocketAddress) connection.getPeerAddress();
+            final SocketAddress remoteAddress = (SocketAddress) connection.getPeerAddress();
             final CacheRecord cacheRecord = cache.get(remoteAddress);
-            if (cacheRecord != null &&
-                    cacheRecord.connections.remove(connection)) {
+            if (cacheRecord != null && cacheRecord.connections.remove(connection)) {
                 cacheRecord.idleConnectionsCount.decrementAndGet();
             }
         }

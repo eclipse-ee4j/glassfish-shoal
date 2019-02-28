@@ -16,38 +16,35 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.FailureSuspectedSignal;
-import com.sun.enterprise.ee.cms.core.SignalAcquireException;
-import com.sun.enterprise.ee.cms.core.SignalReleaseException;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.FailureSuspectedSignal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
- * @author Shreedhar Ganapathy
- *         Date: Sep 14, 2005
+ * @author Shreedhar Ganapathy Date: Sep 14, 2005
  * @version $Revision$
  */
 public class FailureSuspectedSignalImpl implements FailureSuspectedSignal {
-    protected String failedMember = null ;
+    protected String failedMember = null;
     protected String groupName = null;
-    protected  static final String MEMBER_DETAILS = "MEMBERDETAILS";
+    protected static final String MEMBER_DETAILS = "MEMBERDETAILS";
     protected GMSContext ctx;
 
-   //Logging related stuff
+    // Logging related stuff
     protected static final Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
     protected long startTime;
 
-    FailureSuspectedSignalImpl(){
+    FailureSuspectedSignalImpl() {
 
     }
 
-    public FailureSuspectedSignalImpl(final String  failedMember,
-                                         final String groupName,
-                                         final long startTime){
+    public FailureSuspectedSignalImpl(final String failedMember, final String groupName, final long startTime) {
         this.failedMember = failedMember;
         this.groupName = groupName;
         this.startTime = startTime;
@@ -61,57 +58,47 @@ public class FailureSuspectedSignalImpl implements FailureSuspectedSignal {
         ctx = GMSContextFactory.getGMSContext(groupName);
     }
 
-
     /**
-     * Signal is acquired prior to processing of the signal to protect group
-     * resources being acquired from being affected by a race condition Signal
-     * must be mandatorily acquired before any processing for recovery
-     * operations.
+     * Signal is acquired prior to processing of the signal to protect group resources being acquired from being affected by
+     * a race condition Signal must be mandatorily acquired before any processing for recovery operations.
      *
-     * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException
-     *         Exception when unable to acquire the signal
+     * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException Exception when unable to acquire the signal
      *
      */
-    public void acquire () throws SignalAcquireException {
+    public void acquire() throws SignalAcquireException {
         logger.log(Level.FINE, "FailureSuspectedSignal Acquired...");
     }
 
     /**
-     * Signal is released after processing of the signal to bring the group
-     * resources to a state of availability Signal should be madatorily released
-     * after recovery process is completed.
+     * Signal is released after processing of the signal to bring the group resources to a state of availability Signal
+     * should be madatorily released after recovery process is completed.
      *
-     * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException
-     *         Exception when unable to release the signal
+     * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException Exception when unable to release the signal
      *
      */
-    public void release () throws SignalReleaseException {
-        failedMember=null;
+    public void release() throws SignalReleaseException {
+        failedMember = null;
         logger.log(Level.FINE, "FailureSuspectedSignal Released...");
     }
 
     /**
-     * returns the identity token of the member that caused this signal to be
-     * generated. For instance, in the case of a MessageSignal, this member
-     * token would be the sender. In the case of a FailureNotificationSignal,
-     * this member token would be the failed member. In the case of a
-     * JoinNotificationSignal or GracefulShutdownSignal, the member token would
+     * returns the identity token of the member that caused this signal to be generated. For instance, in the case of a
+     * MessageSignal, this member token would be the sender. In the case of a FailureNotificationSignal, this member token
+     * would be the failed member. In the case of a JoinNotificationSignal or GracefulShutdownSignal, the member token would
      * be the member who joined or is being gracefully shutdown, respectively.
      */
-    public String getMemberToken () {
-        return  this.failedMember;
+    public String getMemberToken() {
+        return this.failedMember;
     }
 
     /**
-     * returns the details of the member who caused this Signal to be generated
-     * returns a Map containing key-value pairs constituting data pertaining to
-     * the member's details
+     * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
+     * constituting data pertaining to the member's details
      *
-     * @return Map  &lt;Serializable, Serializable&gt;
+     * @return Map &lt;Serializable, Serializable&gt;
      */
-    public Map<Serializable, Serializable> getMemberDetails () {
-        return ctx.getDistributedStateCache()
-                .getFromCacheForPattern(MEMBER_DETAILS, failedMember );
+    public Map<Serializable, Serializable> getMemberDetails() {
+        return ctx.getDistributedStateCache().getFromCacheForPattern(MEMBER_DETAILS, failedMember);
     }
 
     /**
@@ -119,7 +106,7 @@ public class FailureSuspectedSignalImpl implements FailureSuspectedSignal {
      *
      * @return String
      */
-    public String getGroupName () {
+    public String getGroupName() {
         return groupName;
     }
 
@@ -128,7 +115,7 @@ public class FailureSuspectedSignalImpl implements FailureSuspectedSignal {
      *
      * @return long - time stamp of when this member started
      */
-    public long getStartTime () {
+    public long getStartTime() {
         return startTime;
     }
 }

@@ -17,12 +17,12 @@
 package com.sun.enterprise.ee.cms.impl.base;
 
 import java.io.Serializable;
-                           
+
 /**
  * This class is representative of the identifier of a member
  *
- * <code>uniqueID</code> is used in order to identify a unique member.
- * According to a kind of transport layers, <code>uniqueID</code> type will be determined.
+ * <code>uniqueID</code> is used in order to identify a unique member. According to a kind of transport layers,
+ * <code>uniqueID</code> type will be determined.
  *
  * @author Bongjae Chang
  */
@@ -30,13 +30,13 @@ public class PeerID<T extends Serializable> implements Serializable, Comparable<
 
     static final long serialVersionUID = 2618091647571033721L;
 
-    public static final PeerID<Serializable> NULL_PEER_ID = new PeerID<Serializable>( null, null, null );
+    public static final PeerID<Serializable> NULL_PEER_ID = new PeerID<Serializable>(null, null, null);
 
     private final T uniqueID;
     private final String groupName;
     private final String instanceName;
 
-    public PeerID( T uniqueID, String groupName, String instanceName ) {
+    public PeerID(T uniqueID, String groupName, String instanceName) {
         this.uniqueID = uniqueID;
         this.groupName = groupName;
         this.instanceName = instanceName;
@@ -54,22 +54,26 @@ public class PeerID<T extends Serializable> implements Serializable, Comparable<
         return instanceName;
     }
 
-    public boolean equals( Object other ) {
+    public boolean equals(Object other) {
         if (this == other) {
-            // check if this and other are both same Peerid.  Works if both are NULL_PEER_ID.
+            // check if this and other are both same Peerid. Works if both are NULL_PEER_ID.
             return true;
-        } else if( other instanceof PeerID ) {
+        } else if (other instanceof PeerID) {
             boolean equal = true;
-            PeerID otherPeerID = (PeerID)other;
-            if( uniqueID != null && uniqueID.equals( otherPeerID.getUniqueID() ) ) {
-                if( groupName != null )
-                    equal = groupName.equals( otherPeerID.getGroupName() );
-                if( !equal )
+            PeerID otherPeerID = (PeerID) other;
+            if (uniqueID != null && uniqueID.equals(otherPeerID.getUniqueID())) {
+                if (groupName != null) {
+                    equal = groupName.equals(otherPeerID.getGroupName());
+                }
+                if (!equal) {
                     return false;
-                if( instanceName != null )
-                    equal = instanceName.equals( otherPeerID.getInstanceName() );
-                if( !equal )
+                }
+                if (instanceName != null) {
+                    equal = instanceName.equals(otherPeerID.getInstanceName());
+                }
+                if (!equal) {
                     return false;
+                }
             } else {
                 return false;
             }
@@ -81,27 +85,32 @@ public class PeerID<T extends Serializable> implements Serializable, Comparable<
 
     public int hashCode() {
         int result = 17;
-        if( uniqueID != null )
+        if (uniqueID != null) {
             result = 37 * result + uniqueID.hashCode();
-        if( groupName != null )
+        }
+        if (groupName != null) {
             result = 37 * result + groupName.hashCode();
-        if( instanceName != null )
+        }
+        if (instanceName != null) {
             result = 37 * result + instanceName.hashCode();
+        }
         return result;
     }
 
     public String toString() {
-        String uniqueIDString = ( ( uniqueID == null ) ? "null" : uniqueID.toString() );
+        String uniqueIDString = ((uniqueID == null) ? "null" : uniqueID.toString());
         return uniqueIDString + ":" + groupName + ":" + instanceName;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public int compareTo( PeerID other ) {
-        if( this == other )
+    public int compareTo(PeerID other) {
+        if (this == other) {
             return 0;
-        if( other == null )
+        }
+        if (other == null) {
             return 1;
+        }
         if (this == NULL_PEER_ID) {
             return -1;
         }
@@ -115,8 +124,7 @@ public class PeerID<T extends Serializable> implements Serializable, Comparable<
         }
 
         final Class<T> uniqueIDClass = (Class<T>) uniqueID.getClass();
-        if (Comparable.class.isAssignableFrom(uniqueIDClass) &&
-                uniqueIDClass.isAssignableFrom(other.getUniqueID().getClass())) {
+        if (Comparable.class.isAssignableFrom(uniqueIDClass) && uniqueIDClass.isAssignableFrom(other.getUniqueID().getClass())) {
             return ((Comparable<T>) uniqueID).compareTo((T) other.getUniqueID());
         } else {
             return uniqueID.toString().compareTo(other.getUniqueID().toString());

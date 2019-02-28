@@ -20,12 +20,10 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * Support class for DistributedStateCacheImpl. This class provides an
- * encapsulation for the details that represent a composite key for the
- * cache.
+ * Support class for DistributedStateCacheImpl. This class provides an encapsulation for the details that represent a
+ * composite key for the cache.
  *
- * @author Shreedhar Ganapathy
- *         Date: May 9, 2005
+ * @author Shreedhar Ganapathy Date: May 9, 2005
  * @version $Revision$
  */
 public class GMSCacheable implements Serializable, Comparator {
@@ -37,7 +35,7 @@ public class GMSCacheable implements Serializable, Comparator {
     private int hashCode = 0;
 
     public GMSCacheable(final String componentName, final String memberTokenId, final Serializable key) {
-        this(componentName, memberTokenId, (Object)key);
+        this(componentName, memberTokenId, (Object) key);
     }
 
     public GMSCacheable(final String componentName, final String memberTokenId, final Object key) {
@@ -72,8 +70,8 @@ public class GMSCacheable implements Serializable, Comparator {
     /**
      * {@inheritDoc}
      * <p/>
-     * We compare the contents of the GMSCacheable argument passed in with
-     * the contents of this instance and determine if they are the same.
+     * We compare the contents of the GMSCacheable argument passed in with the contents of this instance and determine if
+     * they are the same.
      *
      */
     @Override

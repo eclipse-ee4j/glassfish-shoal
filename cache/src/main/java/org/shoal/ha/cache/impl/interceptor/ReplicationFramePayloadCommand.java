@@ -16,12 +16,6 @@
 
 package org.shoal.ha.cache.impl.interceptor;
 
-import org.glassfish.ha.store.util.KeyTransformer;
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,14 +25,21 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.glassfish.ha.store.util.KeyTransformer;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+
 /**
  * @author Mahesh Kannan
  */
-public class ReplicationFramePayloadCommand<K, V>
-        extends Command {
+public class ReplicationFramePayloadCommand<K, V> extends Command {
 
-    private transient static final Logger _logger =
-            Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REPLICATION_FRAME_COMMAND);
+   
+    private static final long serialVersionUID = -7673740871785789916L;
+
+    private transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REPLICATION_FRAME_COMMAND);
 
     private String targetInstanceName;
 
@@ -65,14 +66,12 @@ public class ReplicationFramePayloadCommand<K, V>
         this.removedKeys = removedKeys;
     }
 
-    protected boolean beforeTransmit()
-        throws DataStoreException {
+    protected boolean beforeTransmit() throws DataStoreException {
         setTargetName(targetInstanceName);
         return targetInstanceName != null;
     }
 
-    private void writeObject(ObjectOutputStream ros)
-            throws IOException {
+    private void writeObject(ObjectOutputStream ros) throws IOException {
         try {
             ros.writeObject(commands);
             ros.writeBoolean(dsc.getKeyTransformer() == null);
@@ -94,8 +93,7 @@ public class ReplicationFramePayloadCommand<K, V>
         }
     }
 
-    private void readObject(ObjectInputStream ris)
-            throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream ris) throws IOException, ClassNotFoundException {
         try {
             commands = (List<Command<K, V>>) ris.readObject();
             boolean ktAbsent = ris.readBoolean();
@@ -112,29 +110,15 @@ public class ReplicationFramePayloadCommand<K, V>
     }
 
     @Override
-    public void execute(String initiator)
-            throws DataStoreException {
+    public void execute(String initiator) throws DataStoreException {
         /*
-        int sz = list.size();
-        commands = new ArrayList<Command<K, V>>();
-        for (int i = 0; i < sz; i++) {
-            ByteArrayInputStream bis = null;
-            ObjectInputStreamWithLoader ois = null;
-            try {
-                bis = new ByteArrayInputStream(list.get(i));
-                ois = new ObjectInputStreamWithLoader(bis, dsc.getClassLoader());
-                Command<K, V> cmd = (Command<K, V>) ois.readObject();
-
-                commands.add(cmd);
-                cmd.initialize(dsc);
-            } catch (Exception ex) {
-                _logger.log(Level.WARNING, "Error during execute ", ex);
-            } finally {
-                try { ois.close(); } catch (Exception ex) {}
-                try { bis.close(); } catch (Exception ex) {}
-            }
-        }
-        */
+         * int sz = list.size(); commands = new ArrayList<Command<K, V>>(); for (int i = 0; i < sz; i++) { ByteArrayInputStream
+         * bis = null; ObjectInputStreamWithLoader ois = null; try { bis = new ByteArrayInputStream(list.get(i)); ois = new
+         * ObjectInputStreamWithLoader(bis, dsc.getClassLoader()); Command<K, V> cmd = (Command<K, V>) ois.readObject();
+         *
+         * commands.add(cmd); cmd.initialize(dsc); } catch (Exception ex) { _logger.log(Level.WARNING, "Error during execute ",
+         * ex); } finally { try { ois.close(); } catch (Exception ex) {} try { bis.close(); } catch (Exception ex) {} } }
+         */
 
         if (rawRemovedKeys != null) {
             KeyTransformer<K> kt = dsc.getKeyTransformer();
@@ -144,7 +128,7 @@ public class ReplicationFramePayloadCommand<K, V>
                 removedKeys.add(k);
             }
         }
-        
+
         for (Command<K, V> cmd : commands) {
             cmd.initialize(dsc);
             getCommandManager().executeCommand(cmd, false, initiator);

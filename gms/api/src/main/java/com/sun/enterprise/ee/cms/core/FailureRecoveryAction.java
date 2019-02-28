@@ -17,20 +17,15 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
-  * Action type corresponding to a recovery oriented action.Implementations
- * consume a FailureRecoverySignal.
-  * The acquisition of Signal corresponding to this Action ensures failure 
-  * fencing, i.e. the failed server will not be allowed to join the group
-  * once the Signal's <code>acquire</code> has been called and as long as this
-  * Action has not called release on the Signal delivered
-  * to it. The FailureRecoverySignal is delivered to the FailureRecoveryAction
-  * instance on only one server that is selected by its GMS instance in a
-  * distributed-consistent algorithm. 
-  *
-  *
-  * @author Shreedhar Ganapathy
-  * Date: ${DATE}
-  * @version $Revision$
+ * Action type corresponding to a recovery oriented action.Implementations consume a FailureRecoverySignal. The
+ * acquisition of Signal corresponding to this Action ensures failure fencing, i.e. the failed server will not be
+ * allowed to join the group once the Signal's <code>acquire</code> has been called and as long as this Action has not
+ * called release on the Signal delivered to it. The FailureRecoverySignal is delivered to the FailureRecoveryAction
+ * instance on only one server that is selected by its GMS instance in a distributed-consistent algorithm.
+ *
+ *
+ * @author Shreedhar Ganapathy Date: ${DATE}
+ * @version $Revision$
  */
 public interface FailureRecoveryAction extends Action {
 
