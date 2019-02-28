@@ -16,16 +16,18 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.mgmt.transport.*;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MulticastMessageSender;
 
 public class ReliableMulticast {
     private static final Logger logger = GMSLogDomain.getMcastLogger();
@@ -39,12 +41,11 @@ public class ReliableMulticast {
     private final ConcurrentHashMap<Long, ReliableBroadcast> sendHistory = new ConcurrentHashMap<Long, ReliableBroadcast>();
     private ClusterManager manager = null;
 
-
     private static class ReliableBroadcast {
         final private Message msg;
-        final private long    startTime;
-        final private long    expirationTime_ms;
-        private       int     resends;
+        final private long startTime;
+        final private long expirationTime_ms;
+        private int resends;
 
         public ReliableBroadcast(Message msg, long expireDuration_ms) {
             this.msg = msg;
@@ -58,7 +59,6 @@ public class ReliableMulticast {
         }
     }
 
-
     // added for junit testing verification of expiration.
     public int sendHistorySize() {
         return sendHistory.size();
@@ -66,7 +66,7 @@ public class ReliableMulticast {
 
     void add(Message msg, long expireDuration_ms) {
         long seqId = MasterNode.getMasterViewSequenceID(msg);
-        if (seqId != -1 ) {
+        if (seqId != -1) {
             ReliableBroadcast rb = new ReliableBroadcast(msg, expireDuration_ms);
             sendHistory.put(seqId, rb);
             if (logger.isLoggable(Level.FINER)) {
@@ -78,21 +78,21 @@ public class ReliableMulticast {
     static private String clusterViewEventMsgToString(Message msg) {
         StringBuffer sb = new StringBuffer(40);
         try {
-        long seqId =  MasterNode.getMasterViewSequenceID(msg);
-        Object element = msg.getMessageElement(MasterNode.VIEW_CHANGE_EVENT);
-        ClusterViewEvents type = null;
-        String cveType = null;
-        String memberName = null;
-        PeerID peerId = null;
-        if (element != null && element instanceof ClusterViewEvent) {
-            ClusterViewEvent cve = (ClusterViewEvent)element;
-            type = cve.getEvent();
-            memberName = cve.getAdvertisement().getName();
-            peerId = cve.getAdvertisement().getID();
-            cveType = type.toString();
-            sb.append("broadcast seq id:").append(seqId).append(" viewChangeEvent:").append(cveType).
-               append(" member:").append(memberName).append(" peerId:" + peerId);
-        }
+            long seqId = MasterNode.getMasterViewSequenceID(msg);
+            Object element = msg.getMessageElement(MasterNode.VIEW_CHANGE_EVENT);
+            ClusterViewEvents type = null;
+            String cveType = null;
+            String memberName = null;
+            PeerID peerId = null;
+            if (element != null && element instanceof ClusterViewEvent) {
+                ClusterViewEvent cve = (ClusterViewEvent) element;
+                type = cve.getEvent();
+                memberName = cve.getAdvertisement().getName();
+                peerId = cve.getAdvertisement().getID();
+                cveType = type.toString();
+                sb.append("broadcast seq id:").append(seqId).append(" viewChangeEvent:").append(cveType).append(" member:").append(memberName)
+                        .append(" peerId:" + peerId);
+            }
         } catch (Error e) {
             e.printStackTrace();
         }
@@ -120,8 +120,8 @@ public class ReliableMulticast {
         }
     }
 
-    // TODO:  possible optimization: consider only resending certain ClusterViewEvents.
-    //        given the late arrival of the event, its view will almost always be stale. especially add_events.
+    // TODO: possible optimization: consider only resending certain ClusterViewEvents.
+    // given the late arrival of the event, its view will almost always be stale. especially add_events.
     public boolean resend(PeerID to, Long seqId) throws IOException {
         boolean result = false;
         ReliableBroadcast rb = sendHistory.get(seqId);
@@ -132,16 +132,13 @@ public class ReliableMulticast {
             rb.resends++;
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "mgmt.reliable.mcast.resend",
-                                        new Object[]{seqId, to.getInstanceName(),to.getGroupName(), rb.resends,
-                                                     clusterViewEventMsgToString(msg)});
+                        new Object[] { seqId, to.getInstanceName(), to.getGroupName(), rb.resends, clusterViewEventMsgToString(msg) });
             }
         } else if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "mgmt.reliable.mcast.resend.failed",
-                                    new Object[]{seqId, to.getInstanceName(),to.getGroupName()});
+            logger.log(Level.FINE, "mgmt.reliable.mcast.resend.failed", new Object[] { seqId, to.getInstanceName(), to.getGroupName() });
         }
         return result;
     }
-
 
     public ReliableMulticast(ClusterManager manager) {
         DEFAULT_EXPIRE_DURATION_MS = 12 * 1000; // 12 seconds.
@@ -149,8 +146,8 @@ public class ReliableMulticast {
         this.manager = manager;
         this.sender = manager.getNetworkManager().getMulticastMessageSender();
         TimerTask reaper = new Reaper(this);
-        time = new Timer();                                    
-        time.schedule(reaper, DEFAULT_EXPIRE_REAPING_FREQUENCY , DEFAULT_EXPIRE_REAPING_FREQUENCY);
+        time = new Timer();
+        time.schedule(reaper, DEFAULT_EXPIRE_REAPING_FREQUENCY, DEFAULT_EXPIRE_REAPING_FREQUENCY);
     }
 
     // junit testing.
@@ -159,7 +156,7 @@ public class ReliableMulticast {
         DEFAULT_EXPIRE_REAPING_FREQUENCY = DEFAULT_EXPIRE_DURATION_MS + (DEFAULT_EXPIRE_DURATION_MS / 2);
         TimerTask reaper = new Reaper(this);
         time = new Timer();
-        time.schedule(reaper, DEFAULT_EXPIRE_REAPING_FREQUENCY , DEFAULT_EXPIRE_REAPING_FREQUENCY);
+        time.schedule(reaper, DEFAULT_EXPIRE_REAPING_FREQUENCY, DEFAULT_EXPIRE_REAPING_FREQUENCY);
     }
 
     public void stop() {
@@ -169,8 +166,8 @@ public class ReliableMulticast {
     public boolean broadcast(Message msg) throws IOException {
         boolean result = false;
 
-        if( sender == null ){
-            throw new IOException( "multicast sender is null" );
+        if (sender == null) {
+            throw new IOException("multicast sender is null");
         }
         result = sender.broadcast(msg);
         if (result) {
@@ -181,6 +178,7 @@ public class ReliableMulticast {
 
     static class Reaper extends TimerTask {
         final private ReliableMulticast rb;
+
         public Reaper(ReliableMulticast rb) {
             this.rb = rb;
         }

@@ -22,34 +22,33 @@ package org.glassfish.ha.store.spi;
 
 public class DuplicateFactoryRegistrationException extends RuntimeException {
 
+   
+    private static final long serialVersionUID = -4474100352534398829L;
+
     /**
-     * Creates a DuplicateFactoryRegistrationException with null as its detail
-     * message. The cause is not initialized, and may subsequently be
-     * initialized by a call to
-     * <code>Throwable.initCause(java.lang.Throwable)</code>.
+     * Creates a DuplicateFactoryRegistrationException with null as its detail message. The cause is not initialized, and
+     * may subsequently be initialized by a call to <code>Throwable.initCause(java.lang.Throwable)</code>.
      */
     public DuplicateFactoryRegistrationException() {
 
     }
 
     /**
-     * constructs a DuplicateFactoryRegistrationException with the specified
-     * detail message
+     * constructs a DuplicateFactoryRegistrationException with the specified detail message
      *
-     * @param message the detail message. The detail message is saved for later
-     *                retrieval by <code>Throwable.getMessage()</code> method.
+     * @param message the detail message. The detail message is saved for later retrieval by
+     * <code>Throwable.getMessage()</code> method.
      */
     public DuplicateFactoryRegistrationException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new DuplicateFactoryRegistrationException exception with the
-     * specified cause and a detail message of (cause==null ? null :
-     * cause.toString())
+     * Constructs a new DuplicateFactoryRegistrationException exception with the specified cause and a detail message of
+     * (cause==null ? null : cause.toString())
      *
      * @param message the detail message. The detail message is saved for
-     * @param t       the cause
+     * @param t the cause
      */
     public DuplicateFactoryRegistrationException(String message, Throwable t) {
         super(message, t);

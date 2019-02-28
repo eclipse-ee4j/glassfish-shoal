@@ -16,20 +16,20 @@
 
 package com.sun.enterprise.mgmt.transport.grizzly.grizzly2;
 
+import org.glassfish.grizzly.memory.MemoryManager;
+
 import com.sun.enterprise.mgmt.transport.buffers.Buffer;
 import com.sun.enterprise.mgmt.transport.buffers.ExpandableBufferWriter;
 import com.sun.enterprise.mgmt.transport.buffers.ExpandableBufferWriterFactory;
-import org.glassfish.grizzly.memory.MemoryManager;
 
 /**
  * Grizzly 2.0 based expandable Buffer writer.
- * 
+ *
  * @author Alexey Stashok
  */
 public final class Grizzly2ExpandableBufferWriter extends ExpandableBufferWriter {
-    
-    public static ExpandableBufferWriterFactory createFactory(
-            final MemoryManager memoryManager) {
+
+    public static ExpandableBufferWriterFactory createFactory(final MemoryManager memoryManager) {
         return new ExpandableBufferWriterFactory() {
 
             @Override
@@ -41,9 +41,9 @@ public final class Grizzly2ExpandableBufferWriter extends ExpandableBufferWriter
 
     private final MemoryManager memoryManager;
 
-    private final GMSBufferWrapper wrapper = new GMSBufferWrapper();    
+    private final GMSBufferWrapper wrapper = new GMSBufferWrapper();
     private org.glassfish.grizzly.Buffer grizzlyBuffer;
-    
+
     private Grizzly2ExpandableBufferWriter(final MemoryManager memoryManager) {
         this.memoryManager = memoryManager;
         grizzlyBuffer = memoryManager.allocate(4096);
@@ -77,11 +77,11 @@ public final class Grizzly2ExpandableBufferWriter extends ExpandableBufferWriter
     @Override
     @SuppressWarnings("unchecked")
     protected void ensureCapacity(final int delta) {
-        if (delta <= 0 || grizzlyBuffer.remaining() >= delta) return;
+        if (delta <= 0 || grizzlyBuffer.remaining() >= delta) {
+            return;
+        }
 
-        grizzlyBuffer = memoryManager.reallocate(grizzlyBuffer,
-                Math.max(grizzlyBuffer.capacity() * 2,
-                grizzlyBuffer.capacity() + delta));
+        grizzlyBuffer = memoryManager.reallocate(grizzlyBuffer, Math.max(grizzlyBuffer.capacity() * 2, grizzlyBuffer.capacity() + delta));
         wrapper.wrap(grizzlyBuffer);
     }
 }

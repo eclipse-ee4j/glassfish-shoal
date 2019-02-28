@@ -16,21 +16,20 @@
 
 package org.glassfish.ha.store.criteria.spi;
 
-import org.glassfish.ha.store.spi.AttributeMetadata;
-
 import java.util.Collection;
 
+import org.glassfish.ha.store.spi.AttributeMetadata;
+
 /**
- * An ExpressionNode that denotes an Attribute access. The type of the
- *  expression is same as the Attribute's type itself.
+ * An ExpressionNode that denotes an Attribute access. The type of the expression is same as the Attribute's type
+ * itself.
  *
  * @param <V> The enclosing StoreEntry type
  * @param <T> The Attribute's type
  *
  * @author Mahesh.Kannan@Sun.Com
  */
-public final class AttributeAccessNode<V, T>
-    extends ExpressionNode<T> {
+public final class AttributeAccessNode<V, T> extends ExpressionNode<T> {
 
     private AttributeMetadata<V, T> attr;
 
@@ -57,5 +56,5 @@ public final class AttributeAccessNode<V, T>
     public LogicalExpressionNode in(Collection<? extends T> entries) {
         return new InExpressionNode(this, entries);
     }
-    
+
 }

@@ -16,14 +16,18 @@
 
 package com.sun.enterprise.gms.tools;
 
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.mgmt.transport.NetworkUtility;
-
 import static com.sun.enterprise.ee.cms.core.GMSConstants.MINIMUM_MULTICAST_TIME_TO_LIVE;
+
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
+
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.mgmt.transport.NetworkUtility;
 
 /**
  * Used to periodically send multicast messages.
@@ -42,9 +46,7 @@ public class MulticastSenderThread extends Thread {
     boolean debug;
     String dataString;
 
-    public MulticastSenderThread(int mcPort, String mcAddress,
-        String bindInterface, int ttl, long msgPeriodInMillis,
-        boolean debug, String dataString) {
+    public MulticastSenderThread(int mcPort, String mcAddress, String bindInterface, int ttl, long msgPeriodInMillis, boolean debug, String dataString) {
         super("McastSender");
         this.mcPort = mcPort;
         this.mcAddress = mcAddress;
@@ -60,10 +62,9 @@ public class MulticastSenderThread extends Thread {
         InetAddress group = null;
         MulticastSocket socket = null;
         try {
-            byte [] data = dataString.getBytes(Charset.defaultCharset());
+            byte[] data = dataString.getBytes(Charset.defaultCharset());
             group = InetAddress.getByName(mcAddress);
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                data.length, group, mcPort);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, group, mcPort);
             socket = new MulticastSocket(mcPort);
 
             if (bindInterface != null) {
@@ -74,17 +75,14 @@ public class MulticastSenderThread extends Thread {
                 NetworkInterface ni = NetworkInterface.getByInetAddress(iaddr);
                 if (ni != null && NetworkUtility.isUp(ni)) {
                     socket.setInterface(iaddr);
-                    System.out.println(String.format(sm.get("configured.bindinterface", bindInterface,
-                        ni.getName(), ni.getDisplayName(), NetworkUtility.isUp(ni),
-                        ni.isLoopback())));
+                    System.out.println(String.format(
+                            sm.get("configured.bindinterface", bindInterface, ni.getName(), ni.getDisplayName(), NetworkUtility.isUp(ni), ni.isLoopback())));
                 } else {
                     if (ni != null) {
-                        System.out.println(String.format(sm.get("invalid.bindinterface", bindInterface,
-                            ni.getName(), ni.getDisplayName(), NetworkUtility.isUp(ni),
-                            ni.isLoopback())));
+                        System.out.println(String.format(
+                                sm.get("invalid.bindinterface", bindInterface, ni.getName(), ni.getDisplayName(), NetworkUtility.isUp(ni), ni.isLoopback())));
                     } else {
-                        System.err.println(sm.get("nonexistent.bindinterface",
-                            bindInterface));
+                        System.err.println(sm.get("nonexistent.bindinterface", bindInterface));
                     }
                     iaddr = getFirstAddress();
                     log("setting socket to: " + iaddr + " instead");
@@ -100,17 +98,14 @@ public class MulticastSenderThread extends Thread {
                 try {
                     socket.setTimeToLive(ttl);
                 } catch (Exception e) {
-                    System.err.println(sm.get("could.not.set.ttl",
-                        e.getLocalizedMessage()));
+                    System.err.println(sm.get("could.not.set.ttl", e.getLocalizedMessage()));
                 }
             } else {
                 try {
                     int defaultTTL = socket.getTimeToLive();
                     if (defaultTTL < MINIMUM_MULTICAST_TIME_TO_LIVE) {
-                        log(String.format(
-                            "The default TTL for the socket is %d. " +
-                            "Setting it to minimum %d instead.",
-                            defaultTTL, MINIMUM_MULTICAST_TIME_TO_LIVE));
+                        log(String.format("The default TTL for the socket is %d. " + "Setting it to minimum %d instead.", defaultTTL,
+                                MINIMUM_MULTICAST_TIME_TO_LIVE));
                         socket.setTimeToLive(MINIMUM_MULTICAST_TIME_TO_LIVE);
                     }
                 } catch (IOException ioe) {
@@ -123,19 +118,17 @@ public class MulticastSenderThread extends Thread {
             socket.setLoopbackMode(false);
 
             try {
-                log(String.format("socket time to live set to %s",
-                    socket.getTimeToLive()));
+                log(String.format("socket time to live set to %s", socket.getTimeToLive()));
             } catch (IOException ioe) {
                 log(ioe.getLocalizedMessage());
             }
-            
+
             log(String.format("joining group: %s", group.toString()));
             socket.joinGroup(group);
             if (!debug) {
                 dataString = MulticastTester.trimDataString(dataString);
             }
-            System.out.println(sm.get("sending.message",
-                dataString, msgPeriodInMillis));
+            System.out.println(sm.get("sending.message", dataString, msgPeriodInMillis));
 
             while (!done) {
                 socket.send(datagramPacket);
@@ -145,7 +138,7 @@ public class MulticastSenderThread extends Thread {
                     log("interrupted");
                     break;
                 }
-            }            
+            }
         } catch (Exception e) {
             System.err.println(sm.get("whoops", e.toString()));
         } finally {
@@ -155,8 +148,7 @@ public class MulticastSenderThread extends Thread {
                     try {
                         socket.leaveGroup(group);
                     } catch (IOException ioe) {
-                        System.err.println(sm.get("ignoring.exception.leaving",
-                            getName(), ioe.toString()));
+                        System.err.println(sm.get("ignoring.exception.leaving", getName(), ioe.toString()));
                     }
                 }
                 log("closing socket");
@@ -168,16 +160,14 @@ public class MulticastSenderThread extends Thread {
     // utility so we can silence the shoal logger
     private InetAddress getFirstAddress() throws IOException {
         if (!debug) {
-            GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER).setLevel(
-                Level.SEVERE);
+            GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER).setLevel(Level.SEVERE);
         }
         return NetworkUtility.getFirstInetAddress(false);
     }
 
     private void log(String msg) {
         if (debug) {
-            System.err.println(String.format("%s: %s",
-                getName(), msg));
+            System.err.println(String.format("%s: %s", getName(), msg));
         }
     }
 }

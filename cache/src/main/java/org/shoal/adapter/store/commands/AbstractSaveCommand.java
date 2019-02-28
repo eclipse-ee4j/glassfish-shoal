@@ -16,20 +16,20 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+
 /**
  * @author Mahesh Kannan
  */
-public abstract class AbstractSaveCommand<K, V>
-    extends AcknowledgedCommand<K, V> {
+public abstract class AbstractSaveCommand<K, V> extends AcknowledgedCommand<K, V> {
+
+   
+    private static final long serialVersionUID = 241699054955846907L;
 
     protected transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
 
@@ -60,8 +60,7 @@ public abstract class AbstractSaveCommand<K, V>
         return getTargetName() != null;
     }
 
-    public abstract void execute(String initiator)
-        throws DataStoreException;
+    public abstract void execute(String initiator) throws DataStoreException;
 
     public String toString() {
         return getName() + "(" + getKey() + ")";
@@ -72,14 +71,14 @@ public abstract class AbstractSaveCommand<K, V>
         return targetInstanceName;
     }
 
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException {
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeLong(version);
         out.writeLong(lastAccessedAt);
         out.writeLong(maxIdleTime);
-        
+
         if (_logger.isLoggable(Level.FINE)) {
-            _logger.log(Level.FINE, dsc.getServiceName() + " sending state for key = " + getKey() + "; version = " + version + "; lastAccessedAt = " + lastAccessedAt + "; to " + getTargetName());
+            _logger.log(Level.FINE, dsc.getServiceName() + " sending state for key = " + getKey() + "; version = " + version + "; lastAccessedAt = "
+                    + lastAccessedAt + "; to " + getTargetName());
         }
     }
 
@@ -95,8 +94,7 @@ public abstract class AbstractSaveCommand<K, V>
         return maxIdleTime;
     }
 
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         version = in.readLong();
         lastAccessedAt = in.readLong();
         maxIdleTime = in.readLong();
@@ -105,5 +103,5 @@ public abstract class AbstractSaveCommand<K, V>
     public boolean hasState() {
         return false;
     }
-    
+
 }

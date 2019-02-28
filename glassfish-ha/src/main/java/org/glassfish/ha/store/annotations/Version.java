@@ -16,15 +16,14 @@
 
 package org.glassfish.ha.store.annotations;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 
 /**
- * An annotation that can be used to declare a String Attribute
- *  as a Version. Version attribute is a special attribute of
- *  a StoreEntry.
+ * An annotation that can be used to declare a String Attribute as a Version. Version attribute is a special attribute
+ * of a StoreEntry.
  *
  * @author Mahesh.Kannan@Sun.Com
  */

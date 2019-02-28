@@ -19,16 +19,15 @@ package com.sun.enterprise.mgmt;
 import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jul 10, 2006
+ * @author Shreedhar Ganapathy Date: Jul 10, 2006
  * @version $Revision$
  */
 public interface ClusterMessageListener {
     /**
      * Called when a message is received from another member.
      *
-     * @param system  source system advertisement
+     * @param system source system advertisement
      * @param message the message
      */
-    void handleClusterMessage( SystemAdvertisement system, Object message);
+    void handleClusterMessage(SystemAdvertisement system, Object message);
 }

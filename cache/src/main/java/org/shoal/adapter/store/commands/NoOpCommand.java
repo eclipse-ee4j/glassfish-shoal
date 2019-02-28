@@ -20,19 +20,15 @@ import org.shoal.ha.cache.api.DataStoreException;
 import org.shoal.ha.cache.impl.command.Command;
 import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 /**
  * @author Mahesh Kannan
  */
-public class NoOpCommand<K, V>
-    extends Command {
+public class NoOpCommand<K, V> extends Command {
 
-    private transient static final byte[] rawReadState = new byte[] {
-            (byte) ReplicationCommandOpcode.NOOP_COMMAND,
-            (byte) 123};
+   
+    private static final long serialVersionUID = 3353080048287174569L;
+
+    private transient static final byte[] rawReadState = new byte[] { ReplicationCommandOpcode.NOOP_COMMAND, (byte) 123 };
 
     private transient static final NoOpCommand _noopCommand = new NoOpCommand();
 
@@ -48,10 +44,9 @@ public class NoOpCommand<K, V>
     public Object getCommandKey() {
         return "Noop" + System.identityHashCode(this);
     }
-    
+
     @Override
-    public void execute(String initiator)
-        throws DataStoreException {
+    public void execute(String initiator) throws DataStoreException {
     }
 
     public String toString() {

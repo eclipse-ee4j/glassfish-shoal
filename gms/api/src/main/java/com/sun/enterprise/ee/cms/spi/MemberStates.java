@@ -14,26 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
- package com.sun.enterprise.ee.cms.spi;
+package com.sun.enterprise.ee.cms.spi;
 
 /**
- * Represents the set of states that members in the group can be
- * as part of their existence in the group. These are states that are
- * relevant to GMS.
+ * Represents the set of states that members in the group can be as part of their existence in the group. These are
+ * states that are relevant to GMS.
  *
- * @author Shreedhar Ganapathy
- *         Date: Oct 4, 2006
+ * @author Shreedhar Ganapathy Date: Oct 4, 2006
  * @version $Revision$
  */
 public enum MemberStates {
-    STARTING,
-    READY,
-    ALIVE,
-    ALIVEANDREADY,
-    INDOUBT,
-    DEAD,
-    CLUSTERSTOPPING,
-    PEERSTOPPING,
-    STOPPED, 
-    UNKNOWN
+    STARTING, READY, ALIVE, ALIVEANDREADY, INDOUBT, DEAD, CLUSTERSTOPPING, PEERSTOPPING, STOPPED, UNKNOWN
 }

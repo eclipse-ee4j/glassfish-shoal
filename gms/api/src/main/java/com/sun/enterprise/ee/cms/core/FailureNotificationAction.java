@@ -17,15 +17,13 @@
 package com.sun.enterprise.ee.cms.core;
 
 /**
- * Implementations of this interface consume FailureNotificationSignals
- * which provide specifics associated with a failed member. They will need to
- * cast the Signal passed to their consumeSignal method to a
- * FailureNotificationSignal in order to use this additional information.
+ * Implementations of this interface consume FailureNotificationSignals which provide specifics associated with a failed
+ * member. They will need to cast the Signal passed to their consumeSignal method to a FailureNotificationSignal in
+ * order to use this additional information.
  *
- * @author Shreedhar Ganapathy
- * Date: Jan 8, 2004
+ * @author Shreedhar Ganapathy Date: Jan 8, 2004
  * @version $Revision$
  */
-public interface FailureNotificationAction extends Action{
+public interface FailureNotificationAction extends Action {
 
 }

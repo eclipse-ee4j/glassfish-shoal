@@ -16,28 +16,34 @@
 
 package com.sun.enterprise.ee.cms.impl.client;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.ActionException;
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.JoinNotificationAction;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
  * Reference Implementation of JoinNotificationAction
- * @author Shreedhar Ganapathy
- *         Date: Mar 15, 2005
+ *
+ * @author Shreedhar Ganapathy Date: Mar 15, 2005
  * @version $Revision$
  */
 public class JoinNotificationActionImpl implements JoinNotificationAction {
     private final CallBack callBack;
     private Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
+
     public JoinNotificationActionImpl(final CallBack callBack) {
         this.callBack = callBack;
     }
 
     /**
-     * Implementations of consumeSignal should strive to return control
-     * promptly back to the thread that has delivered the Signal.
+     * Implementations of consumeSignal should strive to return control promptly back to the thread that has delivered the
+     * Signal.
      */
     public void consumeSignal(final Signal s) throws ActionException {
         boolean signalAcquired = false;

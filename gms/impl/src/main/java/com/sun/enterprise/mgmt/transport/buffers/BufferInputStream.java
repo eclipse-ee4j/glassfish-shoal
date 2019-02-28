@@ -21,7 +21,7 @@ import java.io.InputStream;
 
 /**
  * {@link InputStream} implementation over {@link Buffer}.
- * 
+ *
  * @author Alexey Stashok
  */
 public class BufferInputStream extends InputStream {
@@ -31,7 +31,7 @@ public class BufferInputStream extends InputStream {
     public BufferInputStream(Buffer buffer) {
         this.buffer = buffer;
     }
-    
+
     @Override
     public int read() throws IOException {
         return buffer.get() & 0xFF;
@@ -40,9 +40,9 @@ public class BufferInputStream extends InputStream {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int length = Math.min(len, available());
-        
+
         buffer.get(b, off, length);
-        
+
         return length;
     }
 

@@ -25,5 +25,5 @@ public interface RejoinSubevent extends Serializable {
 
     // time that the failed instance instantiation joined the group.
     long getGroupJoinTime();
-    
+
 }

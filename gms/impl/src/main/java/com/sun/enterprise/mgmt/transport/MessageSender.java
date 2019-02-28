@@ -16,9 +16,9 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
 import java.io.IOException;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
 
 /**
  * This interface is for sending a {@link Message} to the specific destination
@@ -37,5 +37,5 @@ public interface MessageSender extends ShoalMessageSender {
      * @return true if the message is sent to the destination successfully, otherwise false
      * @throws IOException if I/O error occurs or given parameters are not valid
      */
-    public boolean send( final PeerID peerID, final Message message ) throws IOException;
+    boolean send(final PeerID peerID, final Message message) throws IOException;
 }

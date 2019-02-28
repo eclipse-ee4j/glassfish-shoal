@@ -22,7 +22,9 @@ import java.util.EventListener;
  * The listener interface for receiving ClusterViewManager events.
  * <p>
  * The following example illustrates how to implement a {@link com.sun.enterprise.mgmt.ClusterViewEventListener}:
- * <pre><tt>
+ *
+ * <pre>
+ * <tt>
  * ClusterViewEventListener myListener = new ClusterViewEventListener() {
  *   public void clusterViewEvent(int event, , SystemAdvertisement advertisement) {
  *        if (event == ClusterViewManager.ADD_EVENT) {
@@ -30,7 +32,8 @@ import java.util.EventListener;
  *        }
  *   }
  * }
- * </tt></pre>
+ * </tt>
+ * </pre>
  */
 
 public interface ClusterViewEventListener extends EventListener {
@@ -38,9 +41,8 @@ public interface ClusterViewEventListener extends EventListener {
     /**
      * Called when a cluster view event occurs.
      *
-     * @param event       The event that occurred.
+     * @param event The event that occurred.
      * @param clusterView the current membership snapshot after the event.
      */
-    void clusterViewEvent(ClusterViewEvent event,
-                          ClusterView clusterView);
+    void clusterViewEvent(ClusterViewEvent event, ClusterView clusterView);
 }

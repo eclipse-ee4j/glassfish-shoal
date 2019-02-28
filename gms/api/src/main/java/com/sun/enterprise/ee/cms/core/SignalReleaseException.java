@@ -19,19 +19,20 @@ package com.sun.enterprise.ee.cms.core;
 /**
  * Raises exceptions occuring while releasing signals.
  *
- * This will occur on rare conditions, for example, when it is impossible
- * to stop fencing a previously failed server.
+ * This will occur on rare conditions, for example, when it is impossible to stop fencing a previously failed server.
  *
- * @author Shreedhar Ganapathy
- * Date: Jan 8, 2004
+ * @author Shreedhar Ganapathy Date: Jan 8, 2004
  * @version $Revision$
  */
-public class SignalReleaseException extends Exception{
-    public SignalReleaseException(){
+public class SignalReleaseException extends Exception {
+   
+    private static final long serialVersionUID = 4568715109280384599L;
+
+    public SignalReleaseException() {
         super();
     }
 
-    public SignalReleaseException(final String message){
+    public SignalReleaseException(final String message) {
         super(message);
     }
 

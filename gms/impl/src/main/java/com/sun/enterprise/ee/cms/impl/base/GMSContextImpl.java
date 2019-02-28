@@ -16,22 +16,37 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.impl.common.*;
-import com.sun.enterprise.ee.cms.spi.GMSMessage;
-import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-
 import static com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType.WATCHDOG;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GroupHandle;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys;
+import com.sun.enterprise.ee.cms.impl.common.AliveAndReadyViewWindow;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextBase;
+import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
+import com.sun.enterprise.ee.cms.impl.common.Router;
+import com.sun.enterprise.ee.cms.impl.common.ShutdownHelper;
+import com.sun.enterprise.ee.cms.spi.GMSMessage;
+import com.sun.enterprise.ee.cms.spi.GroupCommunicationProvider;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jun 26, 2006
+ * @author Shreedhar Ganapathy Date: Jun 26, 2006
  * @version $Revision$
  */
 public class GMSContextImpl extends GMSContextBase {
@@ -47,7 +62,7 @@ public class GMSContextImpl extends GMSContextBase {
     private DistributedStateCache distributedStateCache;
     private GroupHandle gh;
     private Properties configProperties;
-    private boolean isGroupShutdown = false;  //remember if this context has left the group during a group shutdown.
+    private boolean isGroupShutdown = false; // remember if this context has left the group during a group shutdown.
     private boolean isGroupStartup = false;
     private Thread viewWindowThread = null;
     private Thread messageWindowThread = null;
@@ -60,17 +75,19 @@ public class GMSContextImpl extends GMSContextBase {
         return gmsMonitor;
     }
 
-    public GMSContextImpl(final String serverToken, final String groupName,
-                      final GroupManagementService.MemberType memberType,
-                      final Properties configProperties) {
+    public GMSContextImpl(final String serverToken, final String groupName, final GroupManagementService.MemberType memberType,
+            final Properties configProperties) {
         super(serverToken, groupName, memberType);
-        MAX_MSGS_IN_QUEUE = Utility.getIntProperty(ServiceProviderConfigurationKeys.INCOMING_MESSAGE_QUEUE_SIZE.toString(), DEFAULT_INCOMING_MSG_QUEUE_SIZE, configProperties);
+        MAX_MSGS_IN_QUEUE = Utility.getIntProperty(ServiceProviderConfigurationKeys.INCOMING_MESSAGE_QUEUE_SIZE.toString(), DEFAULT_INCOMING_MSG_QUEUE_SIZE,
+                configProperties);
         if (MAX_MSGS_IN_QUEUE != DEFAULT_INCOMING_MSG_QUEUE_SIZE && logger.isLoggable(Level.CONFIG)) {
             logger.config("INCOMING_MESSAGE_QUEUE_SIZE: " + MAX_MSGS_IN_QUEUE + " overrides default value of " + DEFAULT_INCOMING_MSG_QUEUE_SIZE);
         }
-        INCOMING_MSG_THREAD_POOL_SIZE = Utility.getIntProperty(ServiceProviderConfigurationKeys.INCOMING_MESSAGE_THREAD_POOL_SIZE.toString(), DEFAULT_INCOMING_MSG_THREAD_POOL_SIZE, configProperties);
+        INCOMING_MSG_THREAD_POOL_SIZE = Utility.getIntProperty(ServiceProviderConfigurationKeys.INCOMING_MESSAGE_THREAD_POOL_SIZE.toString(),
+                DEFAULT_INCOMING_MSG_THREAD_POOL_SIZE, configProperties);
         if (INCOMING_MSG_THREAD_POOL_SIZE != DEFAULT_INCOMING_MSG_THREAD_POOL_SIZE && logger.isLoggable(Level.CONFIG)) {
-            logger.config("INCOMING_MSG_THREAD_POOL_SIZE: " + INCOMING_MSG_THREAD_POOL_SIZE + " overrides default value of " + DEFAULT_INCOMING_MSG_THREAD_POOL_SIZE);
+            logger.config(
+                    "INCOMING_MSG_THREAD_POOL_SIZE: " + INCOMING_MSG_THREAD_POOL_SIZE + " overrides default value of " + DEFAULT_INCOMING_MSG_THREAD_POOL_SIZE);
         }
         long MAX_STARTCLUSTER_DURATION_MS = Utility.getLongProperty("MAX_STARTCLUSTER_DURATION_MS", 10000, configProperties);
         this.gmsMonitor = new GMSMonitor(serverToken, groupName, configProperties);
@@ -79,25 +96,23 @@ public class GMSContextImpl extends GMSContextBase {
         router = new Router(groupName, MAX_MSGS_IN_QUEUE + 100, aliveAndReadyViewWindow, INCOMING_MSG_THREAD_POOL_SIZE, gmsMonitor);
 
         this.configProperties = configProperties;
-        groupCommunicationProvider =
-                new GroupCommunicationProviderImpl(groupName);
+        groupCommunicationProvider = new GroupCommunicationProviderImpl(groupName);
 
         if (isWatchdog()) {
             // lower overhead by not having view management for WATCHDOG.
             viewQueue = null;
             viewWindow = null;
         } else {
-            viewQueue = new ArrayBlockingQueue<EventPacket>(MAX_VIEWS_IN_QUEUE,
-                    Boolean.TRUE);
+            viewQueue = new ArrayBlockingQueue<EventPacket>(MAX_VIEWS_IN_QUEUE, Boolean.TRUE);
             viewWindow = new ViewWindowImpl(groupName, viewQueue);
         }
         messageQueue = new ArrayBlockingQueue<MessagePacket>(MAX_MSGS_IN_QUEUE, Boolean.TRUE);
         gh = new GroupHandleImpl(groupName, serverToken);
-        //TODO: consider untying the Dist State Cache creation from GMSContext.
+        // TODO: consider untying the Dist State Cache creation from GMSContext.
         // It should be driven independent of GMSContext through a factory as
         // other impls of this interface can exist
         createDistributedStateCache();
-        logger.log(Level.FINE,  "gms.init");
+        logger.log(Level.FINE, "gms.init");
     }
 
     @Override
@@ -148,8 +163,7 @@ public class GMSContextImpl extends GMSContextBase {
         idMap.put(CustomTagNames.START_TIME.toString(), startTime.toString());
 
         try {
-            groupCommunicationProvider.initializeGroupCommunicationProvider(
-                    serverToken, groupName, idMap, configProperties);
+            groupCommunicationProvider.initializeGroupCommunicationProvider(serverToken, groupName, idMap, configProperties);
             groupCommunicationProvider.join();
         } catch (Throwable t) {
 
@@ -161,27 +175,26 @@ public class GMSContextImpl extends GMSContextBase {
 
     @Override
     public void leave(final GMSConstants.shutdownType shutdownType) {
-        if(shutdownHelper.isGroupBeingShutdown(groupName)){
-            logger.log(Level.INFO, "shutdown.groupshutdown", new Object[] {groupName});
+        if (shutdownHelper.isGroupBeingShutdown(groupName)) {
+            logger.log(Level.INFO, "shutdown.groupshutdown", new Object[] { groupName });
             groupCommunicationProvider.leave(true);
             isGroupShutdown = true;
             shutdownHelper.removeFromGroupShutdownList(groupName);
-        }
-        else {
-            logger.log(Level.INFO, "shutdown.instanceshutdown", new Object[] {groupName});
+        } else {
+            logger.log(Level.INFO, "shutdown.instanceshutdown", new Object[] { groupName });
             groupCommunicationProvider.leave(false);
         }
         shuttingDown = true;
-        if( viewWindowThread != null ) {
+        if (viewWindowThread != null) {
             viewWindowThread.interrupt();
         }
-        if( messageWindowThread != null ) {
+        if (messageWindowThread != null) {
             messageWindowThread.interrupt();
         }
         if (messageWindow != null) {
             messageWindow.stop();
         }
-        if( router != null ) {
+        if (router != null) {
             router.shutdown();
         }
         if (gmsMonitor != null) {
@@ -199,28 +212,21 @@ public class GMSContextImpl extends GMSContextBase {
     }
 
     @Override
-    public void announceGroupShutdown(final String groupName,
-                                      final GMSConstants.shutdownState shutdownState) {
+    public void announceGroupShutdown(final String groupName, final GMSConstants.shutdownState shutdownState) {
         // It is required to announce cluster shutdown BEFORE seizing group leadership.
         // Otherwise, seizing groupleadership is viewed as a master collision.
         // This subtle ordering is necessary so the current master resigns and allows the admin
         // member to grab groupleadership before the entire group is shutdown.
-        groupCommunicationProvider.
-                announceClusterShutdown(
-                        new GMSMessage(GMSConstants.shutdownType.GROUP_SHUTDOWN.toString(), null,
-                                groupName, null));
+        groupCommunicationProvider.announceClusterShutdown(new GMSMessage(GMSConstants.shutdownType.GROUP_SHUTDOWN.toString(), null, groupName, null));
         if (!this.getGroupCommunicationProvider().isGroupLeader()) {
-            logger.log(Level.INFO, "gmsctx.assume.groupleader", new Object[]{groupName});
+            logger.log(Level.INFO, "gmsctx.assume.groupleader", new Object[] { groupName });
             assumeGroupLeadership();
         }
     }
 
     @Override
-     public void announceGroupStartup(final String groupName,
-                                      final GMSConstants.groupStartupState startupState,
-                                     final List<String> memberTokens) {
-       groupCommunicationProvider.
-                announceGroupStartup(groupName, startupState, memberTokens);
+    public void announceGroupStartup(final String groupName, final GMSConstants.groupStartupState startupState, final List<String> memberTokens) {
+        groupCommunicationProvider.announceGroupStartup(groupName, startupState, memberTokens);
     }
 
     @Override
@@ -303,7 +309,7 @@ public class GMSContextImpl extends GMSContextBase {
     }
 
     @Override
-    public void  setGroupStartup(boolean value) {
+    public void setGroupStartup(boolean value) {
         isGroupStartup = value;
     }
 
@@ -311,6 +317,7 @@ public class GMSContextImpl extends GMSContextBase {
     public boolean isWatchdog() {
         return this.getMemberType() == WATCHDOG;
     }
+
     public int outstandingNotifications() {
         return viewQueue.size();
     }
@@ -339,7 +346,7 @@ public class GMSContextImpl extends GMSContextBase {
     }
 
     @Override
-    public AliveAndReadyViewWindow  getAliveAndReadyViewWindow() {
+    public AliveAndReadyViewWindow getAliveAndReadyViewWindow() {
         return aliveAndReadyViewWindow;
     }
 

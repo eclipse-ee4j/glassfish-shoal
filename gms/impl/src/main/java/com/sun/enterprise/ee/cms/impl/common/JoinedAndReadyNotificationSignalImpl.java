@@ -16,20 +16,26 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.Serializable;
-import java.util.Map;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.DistributedStateCache;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationSignal;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
  * Implements JoinedAndReadyNotificationSignal
- * @author Sheetal Vartak
- * Date: 11/13/07
+ *
+ * @author Sheetal Vartak Date: 11/13/07
  */
 public class JoinedAndReadyNotificationSignalImpl implements JoinedAndReadyNotificationSignal {
 
@@ -45,47 +51,40 @@ public class JoinedAndReadyNotificationSignalImpl implements JoinedAndReadyNotif
     private AliveAndReadyView currentView = null;
     private AliveAndReadyView previousView = null;
 
-    //Logging related stuff
+    // Logging related stuff
     protected static final Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
     void setStartupKind(GMSConstants.startupType startupKind) {
         this.startupKind = startupKind;
     }
 
-    public JoinedAndReadyNotificationSignalImpl(final String memberToken,
-                                      final List<String> currentCoreMembers,
-                                      final List<String> allCurrentMembers,
-                                      final String groupName,
-                                      final long startTime,
-                                      final GMSConstants.startupType startupKind,
-                                      final RejoinSubevent rs) {
-        this.memberToken=memberToken;
-        this.currentCoreMembers=currentCoreMembers;
-        this.allCurrentMembers=allCurrentMembers;
+    public JoinedAndReadyNotificationSignalImpl(final String memberToken, final List<String> currentCoreMembers, final List<String> allCurrentMembers,
+            final String groupName, final long startTime, final GMSConstants.startupType startupKind, final RejoinSubevent rs) {
+        this.memberToken = memberToken;
+        this.currentCoreMembers = currentCoreMembers;
+        this.allCurrentMembers = allCurrentMembers;
         this.groupName = groupName;
-        this.startTime=startTime;
+        this.startTime = startTime;
         this.startupKind = startupKind;
         this.rs = rs;
 
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine("JoinAndReadyNotificationSignalImpl ctor: member=" + memberToken + " group=" + groupName +  " startupKind=" + startupKind.toString());
+            logger.fine("JoinAndReadyNotificationSignalImpl ctor: member=" + memberToken + " group=" + groupName + " startupKind=" + startupKind.toString());
         }
     }
 
-    JoinedAndReadyNotificationSignalImpl ( final JoinedAndReadyNotificationSignal signal ) {
-        this(signal.getMemberToken(), signal.getCurrentCoreMembers(), signal.getAllCurrentMembers(),
-            signal.getGroupName(), signal.getStartTime(), signal.getEventSubType(), signal.getRejoinSubevent());
+    JoinedAndReadyNotificationSignalImpl(final JoinedAndReadyNotificationSignal signal) {
+        this(signal.getMemberToken(), signal.getCurrentCoreMembers(), signal.getAllCurrentMembers(), signal.getGroupName(), signal.getStartTime(),
+                signal.getEventSubType(), signal.getRejoinSubevent());
         currentView = signal.getCurrentView();
         previousView = signal.getPreviousView();
     }
 
     /**
-     * Signal is acquired prior to processing of the signal
-     * to protect group resources being
-     * acquired from being affected by a race condition
+     * Signal is acquired prior to processing of the signal to protect group resources being acquired from being affected by
+     * a race condition
      *
-     * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException
-     *         Exception when unable to acquire the signal
+     * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException Exception when unable to acquire the signal
      *
      */
     @Override
@@ -94,26 +93,23 @@ public class JoinedAndReadyNotificationSignalImpl implements JoinedAndReadyNotif
     }
 
     /**
-     * Signal is released after processing of the signal to bring the
-     * group resources to a state of availability
+     * Signal is released after processing of the signal to bring the group resources to a state of availability
      *
-     * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException
-     *         Exception when unable to release the signal
+     * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException Exception when unable to release the signal
      *
      */
     @Override
     public void release() throws SignalReleaseException {
-        memberToken=null;
-        currentCoreMembers=null;
-        allCurrentMembers=null;
+        memberToken = null;
+        currentCoreMembers = null;
+        allCurrentMembers = null;
     }
 
     /**
-     * returns the identity token of the member that caused this signal to be generated.
-     * For instance, in the case of a MessageSignal, this member token would be the sender.
-     * In the case of a FailureNotificationSignal, this member token would be the failed member.
-     * In the case of a JoinNotificationSignal or PlannedShutdownSignal, the member token would be
-     * the member who joined or is being gracefully shutdown, respectively.
+     * returns the identity token of the member that caused this signal to be generated. For instance, in the case of a
+     * MessageSignal, this member token would be the sender. In the case of a FailureNotificationSignal, this member token
+     * would be the failed member. In the case of a JoinNotificationSignal or PlannedShutdownSignal, the member token would
+     * be the member who joined or is being gracefully shutdown, respectively.
      */
     @Override
     public String getMemberToken() {
@@ -131,38 +127,38 @@ public class JoinedAndReadyNotificationSignalImpl implements JoinedAndReadyNotif
     }
 
     /**
-     * returns the details of the member who caused this Signal to be generated
-     * returns a Map containing key-value pairs constituting data pertaining to
-     * the member's details
+     * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
+     * constituting data pertaining to the member's details
+     *
      * @return Map &lt;Serializable, Serializable&gt;
      */
     @Override
-    public Map<Serializable, Serializable> getMemberDetails ( ) {
-        Map<Serializable, Serializable>ret = new HashMap<Serializable, Serializable>();
-        if(ctx == null) {
+    public Map<Serializable, Serializable> getMemberDetails() {
+        Map<Serializable, Serializable> ret = new HashMap<Serializable, Serializable>();
+        if (ctx == null) {
             ctx = GMSContextFactory.getGMSContext(groupName);
         }
         DistributedStateCache dsc = ctx.getDistributedStateCache();
-        if(dsc != null){
-            ret = dsc.getFromCacheForPattern(MEMBER_DETAILS, memberToken );
-        }
-        else {
-            logger.log(Level.WARNING, "no.instance.dsc", new Object[] {memberToken}) ;
+        if (dsc != null) {
+            ret = dsc.getFromCacheForPattern(MEMBER_DETAILS, memberToken);
+        } else {
+            logger.log(Level.WARNING, "no.instance.dsc", new Object[] { memberToken });
         }
         return ret;
     }
 
     /**
      * returns the group to which the member involved in the Signal belonged to
+     *
      * @return String
      */
     @Override
-    public String getGroupName( ){
+    public String getGroupName() {
         return groupName;
     }
 
     @Override
-    public long getStartTime () {
+    public long getStartTime() {
         return startTime;
     }
 

@@ -16,40 +16,41 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.AliveAndReadyView;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
+import com.sun.enterprise.ee.cms.core.SignalAcquireException;
+import com.sun.enterprise.ee.cms.core.SignalReleaseException;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 /**
  * Implementation of PlannedShutdownSignal.
- * @author Shreedhar Ganapathy
- *         Date: Feb 22, 2005
+ *
+ * @author Shreedhar Ganapathy Date: Feb 22, 2005
  * @version $Revision$
  */
 public class PlannedShutdownSignalImpl implements PlannedShutdownSignal {
     private String memberToken;
     private String groupName;
-    //Logging related stuff
+    // Logging related stuff
     protected static final Logger logger = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
     private static final String MEMBER_DETAILS = "MEMBERDETAILS";
-    private GMSContext ctx ;
+    private GMSContext ctx;
     private long startTime;
     private GMSConstants.shutdownType shutdownType;
     private AliveAndReadyView previousView = null;
     private AliveAndReadyView currentView = null;
 
-    public PlannedShutdownSignalImpl(final String memberToken,
-                                     final String groupName,
-                                     final long startTime,
-                                final GMSConstants.shutdownType shutdownType) {
-        this.memberToken=memberToken;
+    public PlannedShutdownSignalImpl(final String memberToken, final String groupName, final long startTime, final GMSConstants.shutdownType shutdownType) {
+        this.memberToken = memberToken;
         this.groupName = groupName;
         this.startTime = startTime;
         this.shutdownType = shutdownType;
-        ctx = GMSContextFactory.getGMSContext( groupName );
+        ctx = GMSContextFactory.getGMSContext(groupName);
     }
 
     PlannedShutdownSignalImpl(final PlannedShutdownSignal signal) {
@@ -57,18 +58,16 @@ public class PlannedShutdownSignalImpl implements PlannedShutdownSignal {
         this.groupName = signal.getGroupName();
         this.startTime = signal.getStartTime();
         this.shutdownType = signal.getEventSubType();
-        ctx = GMSContextFactory.getGMSContext( groupName );
+        ctx = GMSContextFactory.getGMSContext(groupName);
         this.previousView = signal.getPreviousView();
         this.currentView = signal.getCurrentView();
     }
 
     /**
-     * Signal is acquired prior to processing of the signal
-     * to protect group resources being
-     * acquired from being affected by a race condition
+     * Signal is acquired prior to processing of the signal to protect group resources being acquired from being affected by
+     * a race condition
      *
-     * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException
-     *          Exception when unable to aquire the signal
+     * @throws com.sun.enterprise.ee.cms.core.SignalAcquireException Exception when unable to aquire the signal
      *
      */
     public void acquire() throws SignalAcquireException {
@@ -76,15 +75,13 @@ public class PlannedShutdownSignalImpl implements PlannedShutdownSignal {
     }
 
     /**
-     * Signal is released after processing of the signal to bring the
-     * group resources to a state of availability
+     * Signal is released after processing of the signal to bring the group resources to a state of availability
      *
-     * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException
-     *         Exception when unable to release the signal
+     * @throws com.sun.enterprise.ee.cms.core.SignalReleaseException Exception when unable to release the signal
      *
      */
     public void release() throws SignalReleaseException {
-        memberToken=null;
+        memberToken = null;
     }
 
     public String getMemberToken() {
@@ -92,36 +89,36 @@ public class PlannedShutdownSignalImpl implements PlannedShutdownSignal {
     }
 
     /**
-     * returns the details of the member who caused this Signal to be generated
-     * returns a Map containing key-value pairs constituting data pertaining to
-     * the member's details
+     * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
+     * constituting data pertaining to the member's details
+     *
      * @return Map - &lt;Serializable, Serializable&gt;
      */
-    public Map<Serializable, Serializable> getMemberDetails ( ) {
-        return ctx.getDistributedStateCache()
-                .getFromCacheForPattern(MEMBER_DETAILS, memberToken );
+    public Map<Serializable, Serializable> getMemberDetails() {
+        return ctx.getDistributedStateCache().getFromCacheForPattern(MEMBER_DETAILS, memberToken);
     }
 
     /**
      * returns the group to which the member involved in the Signal belonged to
+     *
      * @return String
      */
-    public String getGroupName( ){
+    public String getGroupName() {
         return groupName;
     }
 
-    public long getStartTime () {
+    public long getStartTime() {
         return startTime;
     }
 
     /**
-     * Planned shutdown events can be one of two types, Group Shutdown or
-     * Instance Shutdown. These types are defined in an enum in the class
-     * GMSConstants.shutdownType
+     * Planned shutdown events can be one of two types, Group Shutdown or Instance Shutdown. These types are defined in an
+     * enum in the class GMSConstants.shutdownType
+     *
      * @see com.sun.enterprise.ee.cms.core.GMSConstants
      * @return GMSConstants.shutdownType
      */
-    public GMSConstants.shutdownType getEventSubType () {
+    public GMSConstants.shutdownType getEventSubType() {
         return shutdownType;
     }
 

@@ -16,11 +16,9 @@
 
 package org.shoal.ha.group;
 
-import org.shoal.ha.group.GroupService;
-import org.shoal.ha.group.gms.GroupServiceProvider;
-
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.shoal.ha.group.gms.GroupServiceProvider;
 
 /**
  * @author Mahesh Kannan
@@ -28,8 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GroupServiceFactory {
 
-    private ConcurrentHashMap<String, GroupServiceProvider> groupHandles
-            = new ConcurrentHashMap<String, GroupServiceProvider>();
+    private ConcurrentHashMap<String, GroupServiceProvider> groupHandles = new ConcurrentHashMap<String, GroupServiceProvider>();
 
     private static final GroupServiceFactory _instance = new GroupServiceFactory();
 
@@ -63,9 +60,8 @@ public class GroupServiceFactory {
         }
     }
 
-    public static void main(String[] args)
-            throws Exception {
+    public static void main(String[] args) throws Exception {
         GroupServiceFactory factory = GroupServiceFactory.getInstance();
-        factory.getGroupService(args[0], args[1], true/*startGMS*/);
+        factory.getGroupService(args[0], args[1], true/* startGMS */);
     }
 }

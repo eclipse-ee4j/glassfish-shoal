@@ -16,22 +16,21 @@
 
 package com.sun.enterprise.mgmt;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.text.MessageFormat;
 
-import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
- * ClusterView is a snapshot of the current membership of the group. The
- * ClusterView is created anew each time a membership change occurs in the group.
- * ClusterView is managed by ClusterViewManager.
+ * ClusterView is a snapshot of the current membership of the group. The ClusterView is created anew each time a
+ * membership change occurs in the group. ClusterView is managed by ClusterViewManager.
  */
 public class ClusterView {
     private static final Logger LOG = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
@@ -42,13 +41,12 @@ public class ClusterView {
     private ReentrantLock viewLock = new ReentrantLock(true);
 
     /**
-     * Constructs the ClusterView object with a given TreeMap containing the
-     * system advertisements of members in the group. The membership is sorted
-     * based on the PeerIds.
+     * Constructs the ClusterView object with a given TreeMap containing the system advertisements of members in the group.
+     * The membership is sorted based on the PeerIds.
      *
      * @param advertisements the Map of advertisements ordered by Peer ID sort
-     * @param viewId         View ID
-     * @param masterViewId   MasterView ID
+     * @param viewId View ID
+     * @param masterViewId MasterView ID
      */
     ClusterView(final TreeMap<PeerID, SystemAdvertisement> advertisements, final long viewId, final long masterViewId) {
         view = new TreeMap<PeerID, SystemAdvertisement>(advertisements);
@@ -57,9 +55,8 @@ public class ClusterView {
     }
 
     /**
-     * Constructs the ClusterView object with a given TreeMap containing the
-     * system advertisements of members in the group. The membership is sorted
-     * based on the PeerIds.
+     * Constructs the ClusterView object with a given TreeMap containing the system advertisements of members in the group.
+     * The membership is sorted based on the PeerIds.
      *
      * @param advertisement this nodes system advertisement
      */
@@ -114,8 +111,7 @@ public class ClusterView {
     }
 
     /**
-     * Returns a sorted list containing the System Advertisements of peers in
-     * PeerId sorted order
+     * Returns a sorted list containing the System Advertisements of peers in PeerId sorted order
      *
      * @return List - list of system advertisements
      */
@@ -132,8 +128,7 @@ public class ClusterView {
     }
 
     /**
-     * Returns the list of peer names in the peer id sorted order from the
-     * cluster view
+     * Returns the list of peer names in the peer id sorted order from the cluster view
      *
      * @return List
      */
@@ -142,8 +137,8 @@ public class ClusterView {
         lockLog("getPeerNamesInView()");
         viewLock.lock();
         try {
-            for( PeerID peerID : view.keySet() ) {
-                peerNamesList.add( peerID.toString() );
+            for (PeerID peerID : view.keySet()) {
+                peerNamesList.add(peerID.toString());
             }
         } finally {
             viewLock.unlock();
@@ -179,11 +174,9 @@ public class ClusterView {
         try {
             final PeerID id = view.firstKey();
             final SystemAdvertisement adv = view.get(id);
-            if (LOG.isLoggable(Level.FINE)){
+            if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE,
-                        new StringBuffer().append("Returning Master Candidate Node :")
-                             .append(adv.getName()).append(' ').append(adv.getID())
-                                .toString());
+                        new StringBuffer().append("Returning Master Candidate Node :").append(adv.getName()).append(' ').append(adv.getID()).toString());
             }
             return adv;
         } finally {
@@ -225,9 +218,9 @@ public class ClusterView {
     }
 
     private void lockLog(String method) {
-        if (LOG.isLoggable(Level.FINE)){
-            LOG.log(Level.FINE, MessageFormat.format("{0} viewLock Hold count :{1}, lock queue count:{2}", method, viewLock.getHoldCount(), viewLock.getQueueLength()));
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE,
+                    MessageFormat.format("{0} viewLock Hold count :{1}, lock queue count:{2}", method, viewLock.getHoldCount(), viewLock.getQueueLength()));
         }
     }
 }
-

@@ -16,13 +16,6 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-import org.shoal.ha.cache.impl.util.CommandResponse;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,11 +23,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+import org.shoal.ha.cache.impl.util.CommandResponse;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+
 /**
  * @author Mahesh Kannan
  */
-public class SizeRequestCommand<K, V>
-        extends Command {
+public class SizeRequestCommand<K, V> extends Command {
 
     private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SIZE_REQUEST_COMMAND);
 
@@ -65,25 +64,22 @@ public class SizeRequestCommand<K, V>
         return targetInstanceName != null;
     }
 
-    private void writeObject(ObjectOutputStream ros)
-        throws IOException {
-        
+    private void writeObject(ObjectOutputStream ros) throws IOException {
+
         ros.writeUTF(dsc.getInstanceName());
         ros.writeUTF(targetInstanceName);
         ros.writeLong(tokenId);
     }
 
-    private void readObject(ObjectInputStream ris)
-        throws IOException {
+    private void readObject(ObjectInputStream ris) throws IOException {
 
         targetInstanceName = ris.readUTF();
-        String myName = ris.readUTF();  //Don't remove
+        String myName = ris.readUTF(); // Don't remove
         tokenId = ris.readLong();
     }
 
     @Override
-    public void execute(String initiator)
-        throws DataStoreException {
+    public void execute(String initiator) throws DataStoreException {
 
         int size = dsc.getReplicaStore().size();
         SizeResponseCommand<K, V> srCmd = new SizeResponseCommand<K, V>(targetInstanceName, tokenId, size);
@@ -99,7 +95,7 @@ public class SizeRequestCommand<K, V>
         try {
             result = (Integer) future.get(3, TimeUnit.SECONDS);
         } catch (Exception dse) {
-           //TODO
+            // TODO
         }
 
         return result;
@@ -109,5 +105,5 @@ public class SizeRequestCommand<K, V>
     protected boolean isArtificialKey() {
         return true;
     }
-        
+
 }

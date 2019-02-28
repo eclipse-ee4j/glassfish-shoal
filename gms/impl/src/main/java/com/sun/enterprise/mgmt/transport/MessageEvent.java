@@ -16,20 +16,19 @@
 
 package com.sun.enterprise.mgmt.transport;
 
-import com.sun.enterprise.ee.cms.impl.base.PeerID;
-
 import java.util.EventObject;
+
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
 
 /**
  * This class represents a received message event
  *
- * Management modules will use this message event in order to process a received network packet internally 
+ * Management modules will use this message event in order to process a received network packet internally
  *
  * @author Bongjae Chang
  */
 public class MessageEvent extends EventObject {
     static final long serialVersionUID = -7065693766490210768L;
-
 
     /**
      * The received {@link Message}
@@ -49,13 +48,13 @@ public class MessageEvent extends EventObject {
     /**
      * Creates a new event
      *
-     * @param source  The object on which the message was received.
+     * @param source The object on which the message was received.
      * @param message The message object
      * @param sourcePeerID source peer id
      * @param targetPeerID target peer id
      */
-    public MessageEvent( Object source, Message message, PeerID sourcePeerID, PeerID targetPeerID ) {
-        super( source );
+    public MessageEvent(Object source, Message message, PeerID sourcePeerID, PeerID targetPeerID) {
+        super(source);
         this.message = message;
         this.sourcePeerID = sourcePeerID;
         this.targetPeerID = targetPeerID;
@@ -80,7 +79,7 @@ public class MessageEvent extends EventObject {
     }
 
     /**
-     * Returns the target peer id to which this message is sent 
+     * Returns the target peer id to which this message is sent
      *
      * @return peer id
      */

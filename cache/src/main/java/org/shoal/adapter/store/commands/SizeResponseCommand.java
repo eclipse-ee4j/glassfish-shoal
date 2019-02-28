@@ -16,25 +16,22 @@
 
 package org.shoal.adapter.store.commands;
 
-import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
-import org.shoal.ha.cache.impl.util.CommandResponse;
-import org.shoal.ha.cache.impl.util.ReplicationInputStream;
-import org.shoal.ha.cache.impl.util.ReplicationOutputStream;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
+import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
+import org.shoal.ha.cache.impl.util.CommandResponse;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+
 /**
  * @author Mahesh Kannan
  */
-public class SizeResponseCommand<K, V>
-        extends Command {
+public class SizeResponseCommand<K, V> extends Command {
 
     private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SIZE_RESPONSE_COMMAND);
 
@@ -58,7 +55,6 @@ public class SizeResponseCommand<K, V>
         this.size = size;
     }
 
-
     protected boolean beforeTransmit() {
         setTargetName(originatingInstance);
         return originatingInstance != null;
@@ -68,18 +64,14 @@ public class SizeResponseCommand<K, V>
         return "SizeResp:" + tokenId;
     }
 
-    private void writeObject(ObjectOutputStream ros)
-        throws IOException {
+    private void writeObject(ObjectOutputStream ros) throws IOException {
 
         ros.writeLong(tokenId);
         ros.writeInt(size);
         ros.writeUTF(dsc.getInstanceName());
     }
 
-
-
-    private void readObject(ObjectInputStream ris)
-        throws IOException {
+    private void readObject(ObjectInputStream ris) throws IOException {
 
         tokenId = ris.readLong();
         size = ris.readInt();
@@ -95,7 +87,7 @@ public class SizeResponseCommand<K, V>
             if (_logger.isLoggable(Level.FINE)) {
                 _logger.log(Level.FINE, dsc.getInstanceName() + " executed size_response tokenId=" + tokenId + " value " + size);
             }
-            
+
             resp.setRespondingInstanceName(respondingInstanceName);
             resp.setResult(size);
         }
@@ -105,7 +97,7 @@ public class SizeResponseCommand<K, V>
     protected boolean isArtificialKey() {
         return true;
     }
-       
+
     public String toString() {
         return getName() + "(" + tokenId + ")";
     }

@@ -16,18 +16,17 @@
 
 package org.shoal.test.common;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.shoal.ha.cache.impl.util.MessageReceiver;
 import org.shoal.ha.group.GroupMemberEventListener;
 import org.shoal.ha.group.GroupService;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author Mahesh Kannan
  */
-public class DummyGroupService
-    implements GroupService {
+public class DummyGroupService implements GroupService {
 
     private String memberName;
 
@@ -50,27 +49,27 @@ public class DummyGroupService
 
     @Override
     public void registerGroupMemberEventListener(GroupMemberEventListener listener) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void removeGroupMemberEventListener(GroupMemberEventListener listener) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void close() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void registerGroupMessageReceiver(String messagetoken, MessageReceiver receiver) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public boolean sendMessage(String targetMemberName, String token, byte[] data) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false; // To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

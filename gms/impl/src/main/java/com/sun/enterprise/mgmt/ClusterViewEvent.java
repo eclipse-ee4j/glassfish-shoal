@@ -16,16 +16,14 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
-
 import java.io.Serializable;
 
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
+
 /**
- * Denotes a Cluster View Change Event. Provides the event and the system
- * advertisement in question.
+ * Denotes a Cluster View Change Event. Provides the event and the system advertisement in question.
  *
- * @author Shreedhar Ganapathy
- *         Date: Jun 29, 2006
+ * @author Shreedhar Ganapathy Date: Jun 29, 2006
  * @version $Revision$
  */
 public class ClusterViewEvent implements Serializable {
@@ -37,11 +35,10 @@ public class ClusterViewEvent implements Serializable {
     /**
      * Constructor for the ClusterViewEvent object
      *
-     * @param event         the Event
+     * @param event the Event
      * @param advertisement The system advertisement associated with the event
      */
-    ClusterViewEvent(final ClusterViewEvents event,
-                     final SystemAdvertisement advertisement) {
+    ClusterViewEvent(final ClusterViewEvents event, final SystemAdvertisement advertisement) {
 
         if (event == null) {
             throw new IllegalArgumentException("Null event not allowed");
@@ -71,4 +68,3 @@ public class ClusterViewEvent implements Serializable {
         return advertisement;
     }
 }
-

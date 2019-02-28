@@ -16,26 +16,23 @@
 
 package org.shoal.ha.cache.api;
 
-import org.glassfish.ha.store.api.BackingStoreConfiguration;
-import org.glassfish.ha.store.api.Storeable;
-import org.glassfish.ha.store.util.KeyTransformer;
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
-import org.shoal.ha.cache.impl.store.ReplicaStore;
-import org.shoal.ha.group.GroupService;
-import org.shoal.ha.cache.impl.command.CommandManager;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-import org.shoal.ha.mapper.KeyMapper;
-
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.util.KeyTransformer;
+import org.shoal.ha.cache.impl.command.CommandManager;
+import org.shoal.ha.cache.impl.store.ReplicaStore;
+import org.shoal.ha.cache.impl.util.ResponseMediator;
+import org.shoal.ha.group.GroupService;
+import org.shoal.ha.mapper.KeyMapper;
+
 /**
  * @author Mahesh Kannan
  */
-public class DataStoreContext<K, V>
-    extends DataStoreConfigurator<K, V> {
+public class DataStoreContext<K, V> extends DataStoreConfigurator<K, V> {
 
     private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_DATA_STORE);
 
@@ -57,7 +54,7 @@ public class DataStoreContext<K, V>
         this.groupService = gs;
         super.setClassLoader(loader);
     }
-    
+
     public DataStoreContext() {
         super();
     }
@@ -79,10 +76,7 @@ public class DataStoreContext<K, V>
     }
 
     public DataStoreContext(BackingStoreConfiguration conf) {
-        setInstanceName(conf.getInstanceName())
-                .setGroupName(conf.getClusterName())
-                .setStoreName(conf.getStoreName())
-                .setKeyClazz(conf.getKeyClazz())
+        setInstanceName(conf.getInstanceName()).setGroupName(conf.getClusterName()).setStoreName(conf.getStoreName()).setKeyClazz(conf.getKeyClazz())
                 .setValueClazz(conf.getValueClazz());
 
         if (conf.getClassLoader() != null) {
@@ -90,7 +84,7 @@ public class DataStoreContext<K, V>
             setClassLoader(conf.getClassLoader());
         }
 
-         Map<String, Object> vendorSpecificMap = conf.getVendorSpecificSettings();
+        Map<String, Object> vendorSpecificMap = conf.getVendorSpecificSettings();
 
         Object stGMS = vendorSpecificMap.get("start.gms");
         boolean startGMS = false;
@@ -99,7 +93,7 @@ public class DataStoreContext<K, V>
                 try {
                     startGMS = Boolean.valueOf((String) stGMS);
                 } catch (Throwable th) {
-                    //Ignore
+                    // Ignore
                 }
             } else if (stGMS instanceof Boolean) {
                 startGMS = (Boolean) stGMS;
@@ -113,7 +107,7 @@ public class DataStoreContext<K, V>
                 try {
                     enableLocalCaching = Boolean.valueOf((String) cacheLocally);
                 } catch (Throwable th) {
-                    //Ignore
+                    // Ignore
                 }
             } else if (cacheLocally instanceof Boolean) {
                 enableLocalCaching = (Boolean) stGMS;
@@ -136,12 +130,10 @@ public class DataStoreContext<K, V>
             setClassLoader(cl);
         }
 
-        setStartGMS(startGMS)
-                .setCacheLocally(enableLocalCaching);
+        setStartGMS(startGMS).setCacheLocally(enableLocalCaching);
 
-        boolean asyncReplication = vendorSpecificMap.get("async.replication") == null
-                ? true : (Boolean) vendorSpecificMap.get("async.replication");
-        setDoSynchronousReplication(! asyncReplication);
+        boolean asyncReplication = vendorSpecificMap.get("async.replication") == null ? true : (Boolean) vendorSpecificMap.get("async.replication");
+        setDoSynchronousReplication(!asyncReplication);
 
         KeyMapper keyMapper = (KeyMapper) vendorSpecificMap.get("key.mapper");
         if (keyMapper != null) {
@@ -155,18 +147,12 @@ public class DataStoreContext<K, V>
         }
 
         /*
-        dsConf.addCommand(new SaveCommand<K, V>());
-        dsConf.addCommand(new SimpleAckCommand<K, V>());
-        dsConf.addCommand(new RemoveCommand<K, V>(null));
-        dsConf.addCommand(new LoadRequestCommand<K, V>());
-        dsConf.addCommand(new LoadResponseCommand<K, V>());
-        dsConf.addCommand(new StaleCopyRemoveCommand<K, V>());
-        dsConf.addCommand(new TouchCommand<K, V>());
-        dsConf.addCommand(new SizeRequestCommand<K, V>());
-        dsConf.addCommand(new SizeResponseCommand<K, V>());
-        dsConf.addCommand(new NoOpCommand<K, V>());
-        */
-
+         * dsConf.addCommand(new SaveCommand<K, V>()); dsConf.addCommand(new SimpleAckCommand<K, V>()); dsConf.addCommand(new
+         * RemoveCommand<K, V>(null)); dsConf.addCommand(new LoadRequestCommand<K, V>()); dsConf.addCommand(new
+         * LoadResponseCommand<K, V>()); dsConf.addCommand(new StaleCopyRemoveCommand<K, V>()); dsConf.addCommand(new
+         * TouchCommand<K, V>()); dsConf.addCommand(new SizeRequestCommand<K, V>()); dsConf.addCommand(new
+         * SizeResponseCommand<K, V>()); dsConf.addCommand(new NoOpCommand<K, V>());
+         */
 
         Object idleTimeInSeconds = vendorSpecificMap.get("max.idle.timeout.in.seconds");
         if (idleTimeInSeconds != null) {
@@ -177,10 +163,10 @@ public class DataStoreContext<K, V>
                 try {
                     defaultMaxIdleTimeInMillis = Long.valueOf((String) idleTimeInSeconds);
                 } catch (Exception ex) {
-                    //Ignore
+                    // Ignore
                 }
             }
-            
+
             setDefaultMaxIdleTimeInMillis(defaultMaxIdleTimeInMillis * 1000);
         }
 
@@ -193,7 +179,7 @@ public class DataStoreContext<K, V>
                 try {
                     safeToDelayCaptureState = Boolean.valueOf((String) safeToDelayCaptureStateObj);
                 } catch (Exception ex) {
-                    //Ignore
+                    // Ignore
                 }
             }
 
@@ -209,7 +195,7 @@ public class DataStoreContext<K, V>
                 try {
                     bcastRemExp = Boolean.valueOf((String) bcastRemExpObj);
                 } catch (Exception ex) {
-                    //Ignore
+                    // Ignore
                 }
             }
 

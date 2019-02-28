@@ -16,18 +16,7 @@
 
 package com.sun.enterprise.gms.tools;
 
-
-
 import junit.framework.TestCase;
-
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
-
 
 public class MulticastTesterTest extends TestCase {
     private MulticastTester tester;
@@ -42,46 +31,47 @@ public class MulticastTesterTest extends TestCase {
     public void testValidateMulticastDefaults() {
         // validate all defaults EXCEPT the default timeout of 20 seconds.
         // (in interest of running junit test in minimum amount of time)
-        String[] params = {"--timeout", "3"};
+        String[] params = { "--timeout", "3" };
         tester = new MulticastTester();
         tester.run(params);
     }
 
     public void testValidateMulticastBadTimeout() {
-        String[] params = {"--timeout", "five"};
+        String[] params = { "--timeout", "five" };
         tester = new MulticastTester();
         assertTrue("validate detection of non-numeric parameter for --timeout", tester.run(params) != 0);
     }
 
     public void testValidateMulticastBadPort() {
-        String[] params = {"--multicastport", "five"};
+        String[] params = { "--multicastport", "five" };
         tester = new MulticastTester();
         tester.run(params);
         assertTrue("validate detection of non-numeric parameter for --multicastport", tester.run(params) != 0);
     }
 
     public void testValidateMulticastBadTimeToLive() {
-        String[] params = {"--timetolive", "five"};
+        String[] params = { "--timetolive", "five" };
         tester = new MulticastTester();
         tester.run(params);
         assertTrue("validate detection of non-numeric parameter for --timetolive", tester.run(params) != 0);
     }
 
     public void testValidateMulticastBadSendPeriod() {
-        String[] params = {"--sendperiod", "five"};
+        String[] params = { "--sendperiod", "five" };
         tester = new MulticastTester();
         tester.run(params);
         assertTrue("validate detection of non-numeric parameter for --period", tester.run(params) != 0);
     }
 
     public void testValidateMulticastNonDefaults() {
-        String[] params = {"--timeout", "3", "--multicastport", "3001", "--bindinterface", "127.0.0.1", "--timetolive", "3", "--debug", "--multicastaddress", "228.9.9.1", "--sendperiod", "1000"};
+        String[] params = { "--timeout", "3", "--multicastport", "3001", "--bindinterface", "127.0.0.1", "--timetolive", "3", "--debug", "--multicastaddress",
+                "228.9.9.1", "--sendperiod", "1000" };
         tester = new MulticastTester();
         tester.run(params);
     }
 
     public void testValidateMulticastHelp() {
-        String[] params = {"--help"};
+        String[] params = { "--help" };
         tester = new MulticastTester();
         tester.run(params);
     }

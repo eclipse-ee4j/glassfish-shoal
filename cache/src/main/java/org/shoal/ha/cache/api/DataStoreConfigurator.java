@@ -16,13 +16,13 @@
 
 package org.shoal.ha.cache.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.glassfish.ha.store.util.KeyTransformer;
 import org.shoal.ha.cache.impl.command.Command;
 import org.shoal.ha.cache.impl.store.DataStoreEntryUpdater;
 import org.shoal.ha.mapper.KeyMapper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Mahesh Kannan
@@ -126,6 +126,7 @@ public class DataStoreConfigurator<K, V> {
         this.keyMapper = keyMapper;
         return this;
     }
+
     public boolean isStartGMS() {
         return startGMS;
     }
@@ -206,7 +207,6 @@ public class DataStoreConfigurator<K, V> {
         return this;
     }
 
-
     public boolean isSafeToDelayCaptureState() {
         return safeToDelayCaptureState;
     }
@@ -245,19 +245,9 @@ public class DataStoreConfigurator<K, V> {
 
     @Override
     public String toString() {
-        return "DataStoreConfigurator{" +
-                "instanceName='" + instanceName + '\'' +
-                ", groupName='" + groupName + '\'' +
-                ", storeName='" + storeName + '\'' +
-                ", keyClazz=" + keyClazz +
-                ", valueClazz=" + valueClazz +
-                ", keyMapper=" + keyMapper +
-                ", startGMS=" + startGMS +
-                ", cacheLocally= " + cacheLocally +
-                ", clazzLoader=" + clazzLoader +
-                ", doSynchronousReplication=" + doSynchronousReplication +
-                ", broadcastRemovedExpired=" + broadcastRemovedExpired +
-                ", keyTransformer=" + ((keyTransformer == null) ? null : keyTransformer.getClass().getName()) +
-                '}';
+        return "DataStoreConfigurator{" + "instanceName='" + instanceName + '\'' + ", groupName='" + groupName + '\'' + ", storeName='" + storeName + '\''
+                + ", keyClazz=" + keyClazz + ", valueClazz=" + valueClazz + ", keyMapper=" + keyMapper + ", startGMS=" + startGMS + ", cacheLocally= "
+                + cacheLocally + ", clazzLoader=" + clazzLoader + ", doSynchronousReplication=" + doSynchronousReplication + ", broadcastRemovedExpired="
+                + broadcastRemovedExpired + ", keyTransformer=" + ((keyTransformer == null) ? null : keyTransformer.getClass().getName()) + '}';
     }
 }

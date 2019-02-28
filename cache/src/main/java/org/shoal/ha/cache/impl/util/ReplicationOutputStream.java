@@ -23,8 +23,7 @@ import java.nio.charset.Charset;
 /**
  * @author Mahesh Kannan
  */
-public class ReplicationOutputStream
-    extends ByteArrayOutputStream {
+public class ReplicationOutputStream extends ByteArrayOutputStream {
 
     public ReplicationOutputStream() {
         super();
@@ -39,19 +38,16 @@ public class ReplicationOutputStream
     public void reWrite(int mark, byte[] data) {
         System.arraycopy(data, 0, buf, mark, data.length);
     }
-    
-    public void writeInt(int value)
-        throws IOException {
+
+    public void writeInt(int value) throws IOException {
         write(Utility.intToBytes(value));
     }
-    
-    public void writeLong(long value)
-        throws IOException {
+
+    public void writeLong(long value) throws IOException {
         write(Utility.longToBytes(value));
     }
 
-    public void writeLengthPrefixedString(String str)
-        throws IOException {
+    public void writeLengthPrefixedString(String str) throws IOException {
         if (str == null) {
             writeInt(0);
         } else {
@@ -61,8 +57,7 @@ public class ReplicationOutputStream
         }
     }
 
-    public void writeLengthPrefixedBytes(byte[] data)
-        throws IOException {
+    public void writeLengthPrefixedBytes(byte[] data) throws IOException {
         if (data == null) {
             writeInt(0);
         } else {
@@ -71,9 +66,8 @@ public class ReplicationOutputStream
         }
     }
 
-    public void writeBoolean(boolean b)
-        throws IOException {
-        write(b ? 1 : 0); //Writes one byte
+    public void writeBoolean(boolean b) throws IOException {
+        write(b ? 1 : 0); // Writes one byte
     }
 
     public int moveTo(int pos) {
@@ -102,5 +96,5 @@ public class ReplicationOutputStream
         backToAppendMode();
         return super.toByteArray();
     }
-    
+
 }

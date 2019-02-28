@@ -16,27 +16,25 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
 import static com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys.DISCOVERY_URI_LIST;
 import static com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys.VIRTUAL_MULTICAST_URI_LIST;
-import com.sun.enterprise.ee.cms.core.GMSMember;
-import com.sun.enterprise.ee.cms.core.RejoinSubevent;
-import com.sun.enterprise.ee.cms.impl.base.*;
-import com.sun.enterprise.ee.cms.impl.common.GMSContext;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-import com.sun.enterprise.mgmt.transport.Message;
-import com.sun.enterprise.mgmt.transport.MessageEvent;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
-import com.sun.enterprise.mgmt.transport.MessageIOException;
-import com.sun.enterprise.mgmt.transport.MessageListener;
+import static com.sun.enterprise.mgmt.ClusterViewEvents.ADD_EVENT;
+import static com.sun.enterprise.mgmt.ClusterViewEvents.JOINED_AND_READY_EVENT;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,12 +42,28 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.sun.enterprise.mgmt.ClusterViewEvents.*;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSMember;
+import com.sun.enterprise.ee.cms.core.RejoinSubevent;
+import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
+import com.sun.enterprise.ee.cms.impl.base.GMSThreadFactory;
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
+import com.sun.enterprise.ee.cms.impl.base.Utility;
+import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+import com.sun.enterprise.mgmt.transport.MessageListener;
 
 /**
- * Master Node defines a protocol by which a set of nodes connected to a JXTA infrastructure group
- * may dynamically organize into a group with a determinically self elected master. The protocol is
- * composed of a JXTA message containing a "NAD", and "ROUTE" and one of the following :
+ * Master Node defines a protocol by which a set of nodes connected to a JXTA infrastructure group may dynamically
+ * organize into a group with a determinically self elected master. The protocol is composed of a JXTA message
+ * containing a "NAD", and "ROUTE" and one of the following :
  * <p/>
  * -"MQ", is used to query for a master node
  * <p/>
@@ -57,24 +71,25 @@ import static com.sun.enterprise.mgmt.ClusterViewEvents.*;
  * <p/>
  * -"AMV", is the MasterView of the cluster
  * <p/>
- * -"GS", true if MasterNode is aware that all members in group are starting as part of a GroupStarting, sent as part
- * of MasterNodeResponse NR
+ * -"GS", true if MasterNode is aware that all members in group are starting as part of a GroupStarting, sent as part of
+ * MasterNodeResponse NR
  * <p/>
- * -"GSC", sent when GroupStarting phase has completed.  Subsequent JOIN & JoinedAndReady are considered INSTANCE_STARTUP.
+ * -"GSC", sent when GroupStarting phase has completed. Subsequent JOIN & JoinedAndReady are considered
+ * INSTANCE_STARTUP.
  * <p/>
  * -"CCNTL", is used to indicate collision between two nodes
  * <p/>
  * -"NADV", contains a node's <code>SystemAdvertisement</code>
  * <p/>
- * -"ROUTE", contains a node's list of current physical addresses, which is used to issue ioctl to the JXTA
- * endpoint to update any existing routes to the nodes.  (useful when a node changes physical addresses.
+ * -"ROUTE", contains a node's list of current physical addresses, which is used to issue ioctl to the JXTA endpoint to
+ * update any existing routes to the nodes. (useful when a node changes physical addresses.
  *
  * <p/>
- * MasterNode will attempt to discover a master node with the specified timeout (timeout * number of iterations)
- * after which, it determine whether to become a master, if it happens to be first node in the ordered list of discovered nodes.
- * Note: due to startup time, a master node may not always be the first node node.  However if the master node fails,
- * the first node is expected to assert it's designation as the master, otherwise, all nodes will repeat the master node discovery
- * process.
+ * MasterNode will attempt to discover a master node with the specified timeout (timeout * number of iterations) after
+ * which, it determine whether to become a master, if it happens to be first node in the ordered list of discovered
+ * nodes. Note: due to startup time, a master node may not always be the first node node. However if the master node
+ * fails, the first node is expected to assert it's designation as the master, otherwise, all nodes will repeat the
+ * master node discovery process.
  */
 class MasterNode implements MessageListener, Runnable {
     private static final Logger LOG = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
@@ -84,8 +99,8 @@ class MasterNode implements MessageListener, Runnable {
     private static final Logger nomLog = GMSLogDomain.getNoMCastLogger();
 
     private final ClusterManager manager;
-    private String instanceName="";
-    private String groupName="";
+    private String instanceName = "";
+    private String groupName = "";
 
     private boolean masterAssigned = false;
     private volatile boolean discoveryInProgress = true;
@@ -97,7 +112,7 @@ class MasterNode implements MessageListener, Runnable {
     private ClusterViewManager clusterViewManager;
     private ClusterView discoveryView;
     private final AtomicLong masterViewID = new AtomicLong();
-    //Collision control
+    // Collision control
     final Object MASTERLOCK = new Object();
     private static final String CCNTL = "CCNTL";
     private static final String MASTERNODE = "MN";
@@ -113,9 +128,8 @@ class MasterNode implements MessageListener, Runnable {
     private static final String GROUPSTARTING = "GS";
     private static final String GROUPMEMBERS = "GN";
     private static final String GROUPSTARTUPCOMPLETE = "GSC";
-    private static final String RESENDREQUEST ="RR";
-    private static final String LATESTMASTERVIEWID ="LMWID";
-
+    private static final String RESENDREQUEST = "RR";
+    private static final String LATESTMASTERVIEWID = "LMWID";
 
     private static final boolean NOTIFY_LISTENERS = true;
     private static final boolean DONOT_NOTIFY_LISTENERS = false;
@@ -130,9 +144,9 @@ class MasterNode implements MessageListener, Runnable {
     private List<String> groupStartingMembers = null;
     private final Timer timer;
     private DelayedSetGroupStartingCompleteTask groupStartingTask = null;
-    static final private long MAX_GROUPSTARTING_TIME_MS = 10L * 60L * 1000L;  // 10 minute limit for group starting duration.
-    static final private long GROUPSTARTING_COMPLETE_DELAY = 3000;   // delay before completing group startup.  Allow late arriving JoinedAndReady notifications
-                                                                     // to be group starting.
+    static final private long MAX_GROUPSTARTING_TIME_MS = 10L * 60L * 1000L; // 10 minute limit for group starting duration.
+    static final private long GROUPSTARTING_COMPLETE_DELAY = 3000; // delay before completing group startup. Allow late arriving JoinedAndReady notifications
+                                                                   // to be group starting.
     private boolean clusterStopping = false;
     final Object discoveryLock = new Object();
     private GMSContext ctx = null;
@@ -145,19 +159,14 @@ class MasterNode implements MessageListener, Runnable {
     final TreeSet<ProcessedMasterViewId> processedChangeEvents = new TreeSet<ProcessedMasterViewId>();
     final boolean NON_MULTICAST;
 
-
     /**
      * Constructor for the MasterNode object
      *
-     * @param timeout  - waiting intreval to receive a response to a master
-     *                 node discovery
+     * @param timeout - waiting intreval to receive a response to a master node discovery
      * @param interval - number of iterations to perform master node discovery
-     * @param manager  the cluster manager
+     * @param manager the cluster manager
      */
-    MasterNode(final ClusterManager manager,
-               final long timeout,
-               final int interval,
-               Map props) {
+    MasterNode(final ClusterManager manager, final long timeout, final int interval, Map props) {
         localNodeID = manager.getPeerID();
         if (timeout > 0) {
             this.timeout = timeout;
@@ -170,13 +179,13 @@ class MasterNode implements MessageListener, Runnable {
         discoveryView = new ClusterView(sysAdv);
         timer = new Timer(true);
         outstandingMasterNodeMessages = new TreeSet<MasterNodeMessageEvent>();
-        checkForMissedMasterMsgSingletonExecutor =
-            Executors.newSingleThreadExecutor(new GMSThreadFactory("GMS-validateMasterChangeEvents-Group-" + manager.getGroupName() + "-thread"));
-        String value = (String)props.get(DISCOVERY_URI_LIST.toString());
+        checkForMissedMasterMsgSingletonExecutor = Executors
+                .newSingleThreadExecutor(new GMSThreadFactory("GMS-validateMasterChangeEvents-Group-" + manager.getGroupName() + "-thread"));
+        String value = (String) props.get(DISCOVERY_URI_LIST.toString());
         boolean NON_MULTICAST_VALUE = value != null;
-        if (! NON_MULTICAST_VALUE) {
+        if (!NON_MULTICAST_VALUE) {
             // check VIRTUAL_MULTICAST_URI_LIST for jxta implementation.
-            value = (String)props.get(VIRTUAL_MULTICAST_URI_LIST.toString());
+            value = (String) props.get(VIRTUAL_MULTICAST_URI_LIST.toString());
             NON_MULTICAST_VALUE = value != null;
         }
         NON_MULTICAST = NON_MULTICAST_VALUE;
@@ -198,13 +207,15 @@ class MasterNode implements MessageListener, Runnable {
     static public long getStartTime(SystemAdvertisement adv) {
         long result = 0L;
         try {
-           result = Long.parseLong(adv.getCustomTagValue(CustomTagNames.START_TIME.toString()));
-        } catch (NoSuchFieldException ignore) {}
+            result = Long.parseLong(adv.getCustomTagValue(CustomTagNames.START_TIME.toString()));
+        } catch (NoSuchFieldException ignore) {
+        }
         return result;
     }
 
     /**
      * Returns true if current master is truely senior to new possible master represented by newAdv.
+     *
      * @param currentAdv
      * @param newAdv
      * @return
@@ -214,29 +225,27 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Sets the Master Node peer ID, also checks for collisions at which event
-     * A Conflict Message is sent to the conflicting node, and master designation
-     * is reiterated over the wire after a short timeout
+     * Sets the Master Node peer ID, also checks for collisions at which event A Conflict Message is sent to the conflicting
+     * node, and master designation is reiterated over the wire after a short timeout
      *
      * @param systemAdv the system advertisement
      * @return true if no collisions detected, false otherwise
      */
     boolean checkMaster(final SystemAdvertisement systemAdv) {
         if (masterAssigned && isMaster()) {
-              LOG.log(Level.FINE,"checkMaster : clusterStopping() = " + clusterStopping);
+            LOG.log(Level.FINE, "checkMaster : clusterStopping() = " + clusterStopping);
             if (clusterStopping) {
-                //accept the DAS as the new Master
+                // accept the DAS as the new Master
                 masterLogger.log(Level.FINE, "Resigning Master Node role in anticipation of a master node announcement");
                 masterLogger.log(Level.FINE, "Accepting DAS as new master in the event of cluster stopping...");
                 setMaster(systemAdv, NOTIFY_LISTENERS);
                 return false;
             }
-            LOG.log(Level.INFO, "mgmt.masternode.collision", new Object[]{systemAdv.getName() });
-            send(systemAdv.getID(), systemAdv.getName(),
-                    createMasterCollisionMessage());
+            LOG.log(Level.INFO, "mgmt.masternode.collision", new Object[] { systemAdv.getName() });
+            send(systemAdv.getID(), systemAdv.getName(), createMasterCollisionMessage());
 
-            //TODO add code to ensure whether this node should remain as master or resign
-            //if (manager.getPeerID().compareTo(systemAdv.getID()) >= 0) {
+            // TODO add code to ensure whether this node should remain as master or resign
+            // if (manager.getPeerID().compareTo(systemAdv.getID()) >= 0) {
             if (isSeniorMember(manager.getSystemAdvertisement(), systemAdv)) {
                 masterLogger.log(Level.FINE, "Affirming Master Node role");
             } else {
@@ -250,7 +259,7 @@ class MasterNode implements MessageListener, Runnable {
             synchronized (MASTERLOCK) {
                 MASTERLOCK.notifyAll();
             }
-            if (masterLogger.isLoggable(Level.FINE)){
+            if (masterLogger.isLoggable(Level.FINE)) {
                 masterLogger.log(Level.FINE, "Discovered a Master node :" + systemAdv.getName());
             }
         }
@@ -259,15 +268,14 @@ class MasterNode implements MessageListener, Runnable {
 
     public Message createResendRequest(PeerID master, List<Long> missed) {
         final Message msg = createSelfNodeAdvertisement();
-        msg.addMessageElement(RESENDREQUEST, (Serializable)missed);
+        msg.addMessageElement(RESENDREQUEST, (Serializable) missed);
         return msg;
     }
 
     /**
-     * Creates a Master Collision Message. A collision message is used
-     * to indicate the conflict. Nodes receiving this message then required to
-     * assess the candidate master node based on their knowledge of the network
-     * should await for an assertion of the master node candidate
+     * Creates a Master Collision Message. A collision message is used to indicate the conflict. Nodes receiving this
+     * message then required to assess the candidate master node based on their knowledge of the network should await for an
+     * assertion of the master node candidate
      *
      * @return Master Collision Message
      */
@@ -327,7 +335,7 @@ class MasterNode implements MessageListener, Runnable {
     /**
      * Creates a Master Response Message
      *
-     * @param masterID     the MasterNode ID
+     * @param masterID the MasterNode ID
      * @param announcement if true, creates an anouncement type message, otherwise it creates a response type.
      * @return a message containing a MasterResponse element
      */
@@ -340,10 +348,11 @@ class MasterNode implements MessageListener, Runnable {
         msg.addMessageElement(type, masterID);
         if (groupStarting) {
             msg.addMessageElement(GROUPSTARTING, Boolean.valueOf(groupStarting));
-            msg.addMessageElement(GROUPMEMBERS, (Serializable)groupMembers);
+            msg.addMessageElement(GROUPMEMBERS, (Serializable) groupMembers);
         }
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Created a Master Response Message with masterId = " + masterID.toString() + " groupStarting=" + Boolean.toString(groupStarting));
+            LOG.log(Level.FINE,
+                    "Created a Master Response Message with masterId = " + masterID.toString() + " groupStarting=" + Boolean.toString(groupStarting));
         }
         return msg;
     }
@@ -370,7 +379,7 @@ class MasterNode implements MessageListener, Runnable {
         } catch (InterruptedException intr) {
             Thread.interrupted();
         }
-        if (LOG.isLoggable(Level.FINE)){
+        if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "masterAssigned=" + masterAssigned);
         }
         return masterAssigned;
@@ -383,9 +392,11 @@ class MasterNode implements MessageListener, Runnable {
      */
     boolean isMaster() {
         if (masterLogger.isLoggable(Level.FINEST)) {
-            masterLogger.log(Level.FINEST, "isMaster :" + clusterViewManager.isMaster() + " MasterAssigned :" + masterAssigned + " View Size :" + clusterViewManager.getViewSize());
+            masterLogger.log(Level.FINEST,
+                    "isMaster :" + clusterViewManager.isMaster() + " MasterAssigned :" + masterAssigned + " View Size :" + clusterViewManager.getViewSize());
         } else if (LOG.isLoggable(Level.FINEST)) {
-            LOG.log(Level.FINEST, "isMaster :" + clusterViewManager.isMaster() + " MasterAssigned :" + masterAssigned + " View Size :" + clusterViewManager.getViewSize());
+            LOG.log(Level.FINEST,
+                    "isMaster :" + clusterViewManager.isMaster() + " MasterAssigned :" + masterAssigned + " View Size :" + clusterViewManager.getViewSize());
         }
         return clusterViewManager.isMaster();
     }
@@ -418,9 +429,8 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Resets the master node designation to the original state. This is typically
-     * done when an existing master leaves or fails and a new master node is to
-     * selected.
+     * Resets the master node designation to the original state. This is typically done when an existing master leaves or
+     * fails and a new master node is to selected.
      */
     void resetMaster() {
         LOG.log(Level.FINER, "Resetting Master view");
@@ -438,14 +448,14 @@ class MasterNode implements MessageListener, Runnable {
         final Object msgElement = msg.getMessageElement(NODEADV);
         if (msgElement == null) {
             // no need to go any further
-            LOG.log(Level.WARNING, "mgmt.masternode.missingna", new Object[]{msg.toString()});
+            LOG.log(Level.WARNING, "mgmt.masternode.missingna", new Object[] { msg.toString() });
             return null;
         }
         final SystemAdvertisement adv;
-        if( msgElement instanceof SystemAdvertisement ) {
+        if (msgElement instanceof SystemAdvertisement) {
             adv = (SystemAdvertisement) msgElement;
-            if( !adv.getID().equals( localNodeID ) ) {
-                LOG.log( Level.FINER, "Received a System advertisment Name :" + adv.getName() );
+            if (!adv.getID().equals(localNodeID)) {
+                LOG.log(Level.FINER, "Received a System advertisment Name :" + adv.getName());
             }
         } else {
             LOG.log(Level.WARNING, "mgmt.unknownMessage");
@@ -457,7 +467,7 @@ class MasterNode implements MessageListener, Runnable {
     /**
      * Processes a MasterNode announcement.
      *
-     * @param msg    the Message
+     * @param msg the Message
      * @param source the source node SystemAdvertisement
      * @return true if the message is a MasterNode announcement message
      * @throws IOException if an io error occurs
@@ -472,33 +482,32 @@ class MasterNode implements MessageListener, Runnable {
         GMSMember member = Utility.getGMSMember(source);
         long seqID = getLongFromMessage(msg, NAMESPACE, MASTERVIEWSEQ);
         if (masterLogger.isLoggable(Level.FINE)) {
-            masterLogger.fine("Received a Master Node Announcement from  member:" + member.getMemberToken() +
-                     " of group:" + member.getGroupName() +
-                     " masterViewSeqId:" + seqID + " masterAssigned:" + masterAssigned + " isMaster:" + isMaster());
+            masterLogger.fine("Received a Master Node Announcement from  member:" + member.getMemberToken() + " of group:" + member.getGroupName()
+                    + " masterViewSeqId:" + seqID + " masterAssigned:" + masterAssigned + " isMaster:" + isMaster());
         }
         if (checkMaster(source)) {
             msgElement = msg.getMessageElement(AMASTERVIEW);
             if (msgElement != null && msgElement instanceof List) {
-                final List<SystemAdvertisement> newLocalView = (List<SystemAdvertisement>)msgElement;
+                final List<SystemAdvertisement> newLocalView = (List<SystemAdvertisement>) msgElement;
                 if (LOG.isLoggable(Level.FINER)) {
-                    LOG.log(Level.FINER, MessageFormat.format("Received an authoritative view from {0}, of size {1}" +
-                                " resetting local view containing {2}",
-                                source.getName(), newLocalView.size(), clusterViewManager.getLocalView().getSize()));
+                    LOG.log(Level.FINER, MessageFormat.format("Received an authoritative view from {0}, of size {1}" + " resetting local view containing {2}",
+                            source.getName(), newLocalView.size(), clusterViewManager.getLocalView().getSize()));
                 }
                 msgElement = msg.getMessageElement(VIEW_CHANGE_EVENT);
                 if (msgElement != null && msgElement instanceof ClusterViewEvent) {
-                    LOG.log(Level.FINE, "MasterNode:PMNA: Received Master View with Seq Id="+seqID +
-                    "Current sequence is "+clusterViewManager.getMasterViewID());
+                    LOG.log(Level.FINE,
+                            "MasterNode:PMNA: Received Master View with Seq Id=" + seqID + "Current sequence is " + clusterViewManager.getMasterViewID());
                     if (!isDiscoveryInProgress() && seqID <= clusterViewManager.getMasterViewID()) {
-                        LOG.log(Level.WARNING, MessageFormat.format("Received an older clusterView sequence {0}." +
-                                " Current sequence :{1} discarding out of sequence view", seqID, clusterViewManager.getMasterViewID()));
+                        LOG.log(Level.WARNING,
+                                MessageFormat.format("Received an older clusterView sequence {0}." + " Current sequence :{1} discarding out of sequence view",
+                                        seqID, clusterViewManager.getMasterViewID()));
                         return true;
                     }
-                    final ClusterViewEvent cvEvent = (ClusterViewEvent)msgElement;
+                    final ClusterViewEvent cvEvent = (ClusterViewEvent) msgElement;
                     if (!newLocalView.contains(manager.getSystemAdvertisement())) {
                         LOG.log(Level.FINE, "New ClusterViewManager does not contain self. Publishing Self");
                         sendSelfNodeAdvertisement(source.getID(), null);
-                        //update the view once the the master node includes this node
+                        // update the view once the the master node includes this node
                         return true;
                     }
                     clusterViewManager.setMasterViewID(seqID);
@@ -510,9 +519,9 @@ class MasterNode implements MessageListener, Runnable {
                 }
             } else {
                 LOG.log(Level.WARNING, "mgmt.masternode.noview");
-                //TODO according to the implementation MasterNode does not include VIEW_CHANGE_EVENT
-                //when it announces a Authortative master view
-                //throw new IOException("New View Received without corresponding ViewChangeEvent details");
+                // TODO according to the implementation MasterNode does not include VIEW_CHANGE_EVENT
+                // when it announces a Authortative master view
+                // throw new IOException("New View Received without corresponding ViewChangeEvent details");
             }
         }
         synchronized (MASTERLOCK) {
@@ -524,64 +533,64 @@ class MasterNode implements MessageListener, Runnable {
     /**
      * Processes a MasterNode response.
      *
-     * @param msg    the Message
+     * @param msg the Message
      * @param source the source node SystemAdvertisement
      * @return true if the message is a master node response message
      * @throws IOException if an io error occurs
      */
     @SuppressWarnings("unchecked")
-    boolean processMasterNodeResponse(final Message msg,
-                                      final SystemAdvertisement source) throws IOException {
+    boolean processMasterNodeResponse(final Message msg, final SystemAdvertisement source) throws IOException {
         Object msgElement = msg.getMessageElement(MASTERNODERESPONSE);
-        if ( msgElement == null )
+        if (msgElement == null) {
             return false;
+        }
         long seqID = getLongFromMessage(msg, NAMESPACE, MASTERVIEWSEQ);
-        if (LOG.isLoggable(Level.FINE)){
-            LOG.log(Level.FINE, "Received a MasterNode Response from Member:" + source.getName() + " PMNR masterViewSeqId:" + seqID +
-                                " current MasterViewSeqId:" + masterViewID.get() + " masterAssigned=" + masterAssigned +
-                                " isMaster=" + isMaster() + " discoveryInProgress:" + isDiscoveryInProgress());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE,
+                    "Received a MasterNode Response from Member:" + source.getName() + " PMNR masterViewSeqId:" + seqID + " current MasterViewSeqId:"
+                            + masterViewID.get() + " masterAssigned=" + masterAssigned + " isMaster=" + isMaster() + " discoveryInProgress:"
+                            + isDiscoveryInProgress());
         }
         msgElement = msg.getMessageElement(GROUPSTARTING);
         if (msgElement != null && !groupStarting) {
             Set<String> groupmembers = null;
             msgElement = msg.getMessageElement(GROUPMEMBERS);
-            if (msgElement != null && msgElement instanceof Set){
-                groupmembers= (Set<String>)msgElement;
+            if (msgElement != null && msgElement instanceof Set) {
+                groupmembers = (Set<String>) msgElement;
                 getGMSContext().setGroupStartupJoinMembers(groupmembers);
             }
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "MNR indicates GroupStart for group: " + manager.getGroupName() + " members:" + groupmembers);
             }
             setGroupStarting(true);
-            delayedSetGroupStarting(false, MAX_GROUPSTARTING_TIME_MS);  // place a boundary on length of time that GroupStarting state is true.
+            delayedSetGroupStarting(false, MAX_GROUPSTARTING_TIME_MS); // place a boundary on length of time that GroupStarting state is true.
         }
         msgElement = msg.getMessageElement(AMASTERVIEW);
-        if ( msgElement == null || !(msgElement instanceof List) ) {
+        if (msgElement == null || !(msgElement instanceof List)) {
             setMaster(source, NOTIFY_LISTENERS);
             return true;
         }
         final List<SystemAdvertisement> newLocalView = (List<SystemAdvertisement>) msgElement;
         msgElement = msg.getMessageElement(VIEW_CHANGE_EVENT);
-        if ( msgElement == null || !(msgElement instanceof ClusterViewEvent)) {
+        if (msgElement == null || !(msgElement instanceof ClusterViewEvent)) {
             setMaster(source, NOTIFY_LISTENERS);
             return true;
         }
         if (!isDiscoveryInProgress() && seqID <= clusterViewManager.getMasterViewID()) {
             setMaster(source, NOTIFY_LISTENERS);
-            LOG.log(Level.WARNING, "mgmt.masternode.staleview",
-                    new Object[]{seqID, newLocalView.size(), clusterViewManager.getMasterViewID()});
+            LOG.log(Level.WARNING, "mgmt.masternode.staleview", new Object[] { seqID, newLocalView.size(), clusterViewManager.getMasterViewID() });
             return true;
         }
-        final ClusterViewEvent cvEvent = (ClusterViewEvent)msgElement;
+        final ClusterViewEvent cvEvent = (ClusterViewEvent) msgElement;
         boolean masterChanged;
-        synchronized(this) {
+        synchronized (this) {
             clusterViewManager.setMasterViewID(seqID);
             masterViewID.set(seqID);
-            masterChanged = clusterViewManager.setMaster( newLocalView, source );
+            masterChanged = clusterViewManager.setMaster(newLocalView, source);
             masterAssigned = true;
         }
-        if ( masterChanged ) {
-            clusterViewManager.notifyListeners( cvEvent );
+        if (masterChanged) {
+            clusterViewManager.notifyListeners(cvEvent);
             clearChangeEventsNotFromCurrentMaster(source.getID());
         } else {
             clusterViewManager.addToView(newLocalView, true, cvEvent);
@@ -595,16 +604,16 @@ class MasterNode implements MessageListener, Runnable {
     /**
      * Processes a Group Startup Complete message
      *
-     * @param msg    the Message
+     * @param msg the Message
      * @param source the source node SystemAdvertisement
      * @return true if the message is a Group Startup Complete message
      * @throws IOException if an io error occurs
      */
-    boolean processGroupStartupComplete(final Message msg,
-                                        final SystemAdvertisement source) throws IOException {
+    boolean processGroupStartupComplete(final Message msg, final SystemAdvertisement source) throws IOException {
         Object msgElement = msg.getMessageElement(GROUPSTARTUPCOMPLETE);
-        if ( msgElement == null )
+        if (msgElement == null) {
             return false;
+        }
 
         LOG.fine("received GROUPSTARTUPCOMPLETE from Master");
         // provide wiggle room to enable JoinedAndReady Notifications to be considered part of group startup.
@@ -614,47 +623,46 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Processes a cluster change event. This results in adding the new
-     * members to the cluster view, and subsequently in application notification.
+     * Processes a cluster change event. This results in adding the new members to the cluster view, and subsequently in
+     * application notification.
      *
-     * @param msg    the Message
+     * @param msg the Message
      * @param source the source node SystemAdvertisement
      * @return true if the message is a change event message
      * @throws IOException if an io error occurs
      */
     @SuppressWarnings("unchecked")
-    boolean processChangeEvent(final Message msg,
-                               final SystemAdvertisement source) throws IOException {
+    boolean processChangeEvent(final Message msg, final SystemAdvertisement source) throws IOException {
         MemberStates[] memberStates = null;
         Object msgElement = msg.getMessageElement(VIEW_CHANGE_EVENT);
-        if (LOG.isLoggable(Level.FINER)){
-            LOG.log(Level.FINER,"Inside processChangeEvent for group: " + manager.getGroupName());
+        if (LOG.isLoggable(Level.FINER)) {
+            LOG.log(Level.FINER, "Inside processChangeEvent for group: " + manager.getGroupName());
         }
         if (msgElement != null && msgElement instanceof ClusterViewEvent) {
             final ClusterViewEvent cvEvent = (ClusterViewEvent) msgElement;
             RejoinSubevent rjse = null;
             switch (cvEvent.getEvent()) {
-                case ADD_EVENT:
-                    rjse = (RejoinSubevent) msg.getMessageElement(REJOIN_SUBEVENT);
-                    if (rjse != null) {
-                        getGMSContext().getInstanceRejoins().put(cvEvent.getAdvertisement().getName(), rjse);
-                    }
-                    break;
-                case JOINED_AND_READY_EVENT:
-                    rjse = (RejoinSubevent) msg.getMessageElement(REJOIN_SUBEVENT);
-                    if (rjse != null) {
-                        getGMSContext().getInstanceRejoins().put(cvEvent.getAdvertisement().getName(), rjse);
-                    }
-                    msgElement = msg.getMessageElement(AMASTERVIEWSTATES);
-                    if (msgElement != null) {
-                        memberStates = (MemberStates[])msgElement;
-                    }
-                    break;
-                default:
+            case ADD_EVENT:
+                rjse = (RejoinSubevent) msg.getMessageElement(REJOIN_SUBEVENT);
+                if (rjse != null) {
+                    getGMSContext().getInstanceRejoins().put(cvEvent.getAdvertisement().getName(), rjse);
+                }
+                break;
+            case JOINED_AND_READY_EVENT:
+                rjse = (RejoinSubevent) msg.getMessageElement(REJOIN_SUBEVENT);
+                if (rjse != null) {
+                    getGMSContext().getInstanceRejoins().put(cvEvent.getAdvertisement().getName(), rjse);
+                }
+                msgElement = msg.getMessageElement(AMASTERVIEWSTATES);
+                if (msgElement != null) {
+                    memberStates = (MemberStates[]) msgElement;
+                }
+                break;
+            default:
             }
             msgElement = msg.getMessageElement(AMASTERVIEW);
             if (msgElement != null && msgElement instanceof List) {
-                final List<SystemAdvertisement> newLocalView = (List<SystemAdvertisement>)msgElement;
+                final List<SystemAdvertisement> newLocalView = (List<SystemAdvertisement>) msgElement;
                 if (cvEvent.getEvent() == ClusterViewEvents.JOINED_AND_READY_EVENT) {
                     if (cvEvent.getAdvertisement().getID().equals(localNodeID)) {
 
@@ -668,10 +676,10 @@ class MasterNode implements MessageListener, Runnable {
                         SortedSet<String> readyMembers = new TreeSet<String>();
                         for (SystemAdvertisement adv : newLocalView) {
                             switch (memberStates[i]) {
-                                case READY:
-                                case ALIVEANDREADY:
-                                    readyMembers.add(adv.getName());
-                                    break;
+                            case READY:
+                            case ALIVEANDREADY:
+                                readyMembers.add(adv.getName());
+                                break;
                             }
                             i++;
                         }
@@ -680,23 +688,21 @@ class MasterNode implements MessageListener, Runnable {
                 }
                 long seqID = getLongFromMessage(msg, NAMESPACE, MASTERVIEWSEQ);
                 if (seqID <= clusterViewManager.getMasterViewID()) {
-                    LOG.log(Level.WARNING, "mgmt.masternode.staleviewnotify",
-                            new Object[]{ seqID, clusterViewManager.getMasterViewID(), cvEvent.getEvent().toString(),
-                             cvEvent.getAdvertisement().getName(), manager.getGroupName()} );
+                    LOG.log(Level.WARNING, "mgmt.masternode.staleviewnotify", new Object[] { seqID, clusterViewManager.getMasterViewID(),
+                            cvEvent.getEvent().toString(), cvEvent.getAdvertisement().getName(), manager.getGroupName() });
                     clusterViewManager.notifyListeners(cvEvent);
                     return true;
                 }
                 if (LOG.isLoggable(Level.FINER)) {
                     LOG.log(Level.FINER,
-                            MessageFormat.format("Received a new view of size :{0}, event :{1}",
-                                    newLocalView.size(), cvEvent.getEvent().toString()));
+                            MessageFormat.format("Received a new view of size :{0}, event :{1}", newLocalView.size(), cvEvent.getEvent().toString()));
                 }
                 if (!newLocalView.contains(manager.getSystemAdvertisement())) {
                     LOG.log(Level.FINER, "Received ClusterViewManager does not contain self. Publishing Self");
                     sendSelfNodeAdvertisement(source.getID(), null);
                     clusterViewManager.notifyListeners(cvEvent);
 
-                    //update the view once the the master node includes this node
+                    // update the view once the the master node includes this node
                     return true;
                 }
                 clusterViewManager.setMasterViewID(seqID);
@@ -713,20 +719,21 @@ class MasterNode implements MessageListener, Runnable {
         if (isMaster() && masterAssigned) {
             Object element = msg.getMessageElement(RESENDREQUEST);
             if (element != null && element instanceof List) {
-                List<Long> missedList = (List<Long>)element;
+                List<Long> missedList = (List<Long>) element;
                 for (Long missed : missedList) {
                     reliableMulticast.resend(adv.getID(), missed);
                 }
                 if (isAdvAddedToView) {
                     final ClusterViewEvent cvEvent = new ClusterViewEvent(ADD_EVENT, adv);
                     Message masterResponseMsg = createMasterResponse(false, localNodeID);
-                    synchronized(masterViewID) {
+                    synchronized (masterViewID) {
                         clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
                         addAuthoritativeView(masterResponseMsg);
                     }
                     clusterViewManager.notifyListeners(cvEvent);
                     if (LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Rejoin initiated due to resend request: Master " + manager.getInstanceName() +  " broadcasting ADD_EVENT  of member: " + adv.getName() + " to GMS group: " + manager.getGroupName());
+                        LOG.log(Level.FINE, "Rejoin initiated due to resend request: Master " + manager.getInstanceName()
+                                + " broadcasting ADD_EVENT  of member: " + adv.getName() + " to GMS group: " + manager.getGroupName());
                     }
                     sendNewView(null, cvEvent, masterResponseMsg, false);
                 }
@@ -737,8 +744,7 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Processes a Masternode Query message. This results in a master node
-     * response if this node is a master node.
+     * Processes a Masternode Query message. This results in a master node response if this node is a master node.
      *
      * @param msg the Message
      * @param adv the source node SystemAdvertisement
@@ -757,13 +763,14 @@ class MasterNode implements MessageListener, Runnable {
             if (isAdvAddedToView) {
                 final ClusterViewEvent cvEvent = new ClusterViewEvent(ADD_EVENT, adv);
                 Message masterResponseMsg = createMasterResponse(false, localNodeID);
-                synchronized(masterViewID) {
+                synchronized (masterViewID) {
                     clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
                     addAuthoritativeView(masterResponseMsg);
                 }
                 clusterViewManager.notifyListeners(cvEvent);
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Master " + manager.getInstanceName() +  " broadcasting ADD_EVENT  of member: " + adv.getName() + " to GMS group: " + manager.getGroupName());
+                    LOG.log(Level.FINE, "Master " + manager.getInstanceName() + " broadcasting ADD_EVENT  of member: " + adv.getName() + " to GMS group: "
+                            + manager.getGroupName());
                 }
                 sendNewView(null, cvEvent, masterResponseMsg, false);
             } else if (LOG.isLoggable(Level.FINER)) {
@@ -774,35 +781,33 @@ class MasterNode implements MessageListener, Runnable {
             // forward master node query to Master.
             send(getMasterNodeID(), "", msg);
         }
-        //for issue 484
-        //when the master is killed and restarted very quickly
-        //there is no failure notification sent out and no new master elected
-        //this results in the instance coming back up and assuming group leadership
-        //instance which is the master never sends out a join notif for itself.
-        //this will get fixed with the following code
+        // for issue 484
+        // when the master is killed and restarted very quickly
+        // there is no failure notification sent out and no new master elected
+        // this results in the instance coming back up and assuming group leadership
+        // instance which is the master never sends out a join notif for itself.
+        // this will get fixed with the following code
 
-        //check if this instance has an older start time of the restarted instance
-        //i.e. check if the restarted instance is in the cache of this instance
+        // check if this instance has an older start time of the restarted instance
+        // i.e. check if the restarted instance is in the cache of this instance
 
-        //check if the adv.getID was the master before ...
+        // check if the adv.getID was the master before ...
         SystemAdvertisement madv = clusterViewManager.getMaster();
         SystemAdvertisement oldSysAdv = clusterViewManager.get(adv.getID());
         if (madv != null && madv.getID().equals(adv.getID())) {
-            //master restarted
-            //check for the start times for both advs i.e. the one in the view and the one passed into this method.
-            //If they are different that means the master has restarted for sure
-            //put a warning that master has restarted without failure
+            // master restarted
+            // check for the start times for both advs i.e. the one in the view and the one passed into this method.
+            // If they are different that means the master has restarted for sure
+            // put a warning that master has restarted without failure
 
             if (confirmInstanceHasRestarted(oldSysAdv, adv)) {
-                LOG.log(Level.WARNING, "mgmt.masternode.unreportedmasterfailure", new Object[]{ madv.getName()});
-                //re-elect a new master so that a join and joinedandready event
-                //can be sent for the restarted master
+                LOG.log(Level.WARNING, "mgmt.masternode.unreportedmasterfailure", new Object[] { madv.getName() });
+                // re-elect a new master so that a join and joinedandready event
+                // can be sent for the restarted master
                 if (LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("MasterNode.processMasterNodeQuery() : clusterViewManager.getMaster().getID() = " +
-                            clusterViewManager.getMaster().getID());
+                    LOG.finer("MasterNode.processMasterNodeQuery() : clusterViewManager.getMaster().getID() = " + clusterViewManager.getMaster().getID());
                     LOG.finer("MasterNode.processMasterNodeQuery() : adv.getID() = " + adv.getID());
-                    LOG.finer("MasterNode.processMasterNodeQuery() : clusterViewManager.getMaster().getname() = " +
-                            clusterViewManager.getMaster().getName());
+                    LOG.finer("MasterNode.processMasterNodeQuery() : clusterViewManager.getMaster().getname() = " + clusterViewManager.getMaster().getName());
                     LOG.finer("MasterNode.processMasterNodeQuery() : adv.getID() = " + adv.getName());
                 }
                 if (LOG.isLoggable(Level.FINE)) {
@@ -819,16 +824,16 @@ class MasterNode implements MessageListener, Runnable {
                 LOG.fine("MasterNode.processMasterNodeQuery() : master node did not restart as suspected");
             }
         } else {
-            //some instance other than the master has restarted
-            //without a failure notification
+            // some instance other than the master has restarted
+            // without a failure notification
 
-            // todo:  this is an intermediate fix for ADD_EVENT with REJOIN to work.
-            //        issue is that addToView() does a reset of view, flushing old systemAdvertisements necessary
-            //        to detect restart.
-             boolean restarted = confirmInstanceHasRestarted(oldSysAdv, adv, false);
-             if (restarted) {
+            // todo: this is an intermediate fix for ADD_EVENT with REJOIN to work.
+            // issue is that addToView() does a reset of view, flushing old systemAdvertisements necessary
+            // to detect restart.
+            boolean restarted = confirmInstanceHasRestarted(oldSysAdv, adv, false);
+            if (restarted) {
                 manager.getClusterViewManager().add(adv);
-             }
+            }
 
         }
         return true;
@@ -864,16 +869,17 @@ class MasterNode implements MessageListener, Runnable {
                 LOG.fine("MasterNode.confirmInstanceHasRestarted() : currentAdvStartTime = " + currentAdvStartTime);
             }
             if (currentAdvStartTime != cachedAdvStartTime) {
-                // previous instance has restarted w/o a FAILURE detection.  Clean cache of references to previous instantiation of the instance.
+                // previous instance has restarted w/o a FAILURE detection. Clean cache of references to previous instantiation of the
+                // instance.
                 manager.getHealthMonitor().cleanAllCaches(oldSysAdv.getName());
-                //that means the instance has really restarted
-                LOG.log(Level.WARNING, "mgmt.masternode.restarted", new Object[]{newSysAdv.getName(), new Date(currentAdvStartTime)});
-                LOG.log(Level.WARNING, "mgmt.masternode.nofailurereported", new Object[]{new Date(cachedAdvStartTime)});
+                // that means the instance has really restarted
+                LOG.log(Level.WARNING, "mgmt.masternode.restarted", new Object[] { newSysAdv.getName(), new Date(currentAdvStartTime) });
+                LOG.log(Level.WARNING, "mgmt.masternode.nofailurereported", new Object[] { new Date(cachedAdvStartTime) });
                 return true;
             } else {
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("MasterNode.confirmInstanceHasRestarted : currentAdvStartTime and cachedAdvStartTime have the same value = " +
-                    new Date(cachedAdvStartTime) + " .Instance " + newSysAdv.getName() + "was not restarted.");
+                    LOG.fine("MasterNode.confirmInstanceHasRestarted : currentAdvStartTime and cachedAdvStartTime have the same value = "
+                            + new Date(cachedAdvStartTime) + " .Instance " + newSysAdv.getName() + "was not restarted.");
                 }
                 return false;
             }
@@ -886,8 +892,7 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Processes a Node Query message. This results in a node
-     * response.
+     * Processes a Node Query message. This results in a node response.
      *
      * @param msg the Message
      * @param adv the source node SystemAdvertisement
@@ -910,10 +915,10 @@ class MasterNode implements MessageListener, Runnable {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, MessageFormat.format("Received a Node Query from Name :{0} ID :{1}", adv.getName(), adv.getID()));
             }
-            if(isAdvAddedToView) {
+            if (isAdvAddedToView) {
                 final ClusterViewEvent cvEvent = new ClusterViewEvent(ADD_EVENT, adv);
                 Message responseMsg = createMasterResponse(false, localNodeID);
-                synchronized(masterViewID) {
+                synchronized (masterViewID) {
                     clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
                     addAuthoritativeView(responseMsg);
                 }
@@ -929,10 +934,10 @@ class MasterNode implements MessageListener, Runnable {
                 LOG.log(Level.FINER, "Sending Node response to  :" + adv.getName());
             }
 
-           // Part of fix for BugDB 13375653. Broadcast node response. to all nodes.
-           // TCP connnection between isolated instance and master does not repair in time to
-           // receive this message.
-           //send(adv.getID(), null, response);
+            // Part of fix for BugDB 13375653. Broadcast node response. to all nodes.
+            // TCP connnection between isolated instance and master does not repair in time to
+            // receive this message.
+            // send(adv.getID(), null, response);
             send(null, null, response);
         }
         return true;
@@ -957,12 +962,13 @@ class MasterNode implements MessageListener, Runnable {
         }
         if (isMaster() && masterAssigned) {
             if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, MessageFormat.format("Received a Node Response from Name :{0} ID :{1} isAdvAddedToView :{2}", adv.getName(), adv.getID(), isAdvAddedToView));
+                LOG.log(Level.FINE, MessageFormat.format("Received a Node Response from Name :{0} ID :{1} isAdvAddedToView :{2}", adv.getName(), adv.getID(),
+                        isAdvAddedToView));
             }
-            if(isAdvAddedToView) {
+            if (isAdvAddedToView) {
                 final ClusterViewEvent cvEvent = new ClusterViewEvent(ADD_EVENT, adv);
                 Message responseMsg = createMasterResponse(false, localNodeID);
-                synchronized(masterViewID) {
+                synchronized (masterViewID) {
                     clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
                     addAuthoritativeView(responseMsg);
                 }
@@ -972,24 +978,22 @@ class MasterNode implements MessageListener, Runnable {
                 LOG.log(Level.FINE, "Node " + adv.getName() + " is already in the view. Hence not sending ADD_EVENT.");
             }
         } else if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE,  "Received a node response from " + adv.getName() + " id:" + adv.getID());
+            LOG.log(Level.FINE, "Received a node response from " + adv.getName() + " id:" + adv.getID());
         }
         return true;
     }
 
     /**
-     * Processes a MasterNode Collision.  When two nodes assume a master role (by assertion through
-     * a master node announcement), each node can indepedentaly and deterministically elect the master node.
-     * This is done through electing the node atop of the NodeID sort order. If there are more than two
-     * nodes in collision, this same process is repeated.
+     * Processes a MasterNode Collision. When two nodes assume a master role (by assertion through a master node
+     * announcement), each node can indepedentaly and deterministically elect the master node. This is done through electing
+     * the node atop of the NodeID sort order. If there are more than two nodes in collision, this same process is repeated.
      *
      * @param msg the Message
      * @param adv the source node SystemAdvertisement
      * @return true if the message was indeed a collision message
      * @throws IOException if an io error occurs
      */
-    boolean processMasterNodeCollision(final Message msg,
-                                       final SystemAdvertisement adv) throws IOException {
+    boolean processMasterNodeCollision(final Message msg, final SystemAdvertisement adv) throws IOException {
 
         final Object msgElement = msg.getMessageElement(CCNTL);
         if (msgElement == null) {
@@ -997,14 +1001,15 @@ class MasterNode implements MessageListener, Runnable {
         }
         final SystemAdvertisement madv = manager.getSystemAdvertisement();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, MessageFormat.format("Candidate Master: " + madv.getName() + "received a MasterNode Collision from Name :{0} ID :{1}", adv.getName(), adv.getID()));
+            LOG.log(Level.FINE, MessageFormat.format("Candidate Master: " + madv.getName() + "received a MasterNode Collision from Name :{0} ID :{1}",
+                    adv.getName(), adv.getID()));
         }
         if (madv.getID().compareTo(adv.getID()) >= 0) {
-            if (LOG.isLoggable(Level.FINE)){
+            if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Member " + madv.getName() + " affirming Master Node role over member:" + adv.getName());
             }
             synchronized (MASTERLOCK) {
-                //Ensure the view SeqID is incremented by 2
+                // Ensure the view SeqID is incremented by 2
                 clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
                 announceMaster(manager.getSystemAdvertisement());
                 MASTERLOCK.notifyAll();
@@ -1024,7 +1029,7 @@ class MasterNode implements MessageListener, Runnable {
      */
     void probeNode(final HealthMessage.Entry entry) throws IOException {
         if (isMaster() && masterAssigned) {
-            if (LOG.isLoggable(Level.FINER)){
+            if (LOG.isLoggable(Level.FINER)) {
                 LOG.log(Level.FINER, "Probing ID = " + entry.id + ", name = " + entry.adv.getName());
             }
             send(entry.id, null, createNodeQuery());
@@ -1033,10 +1038,8 @@ class MasterNode implements MessageListener, Runnable {
 
     private boolean injectSimulatedFailure(MasterNodeMessageEvent mnme) {
         boolean result = false;
-        if ((manager.getInstanceName().equals("instance02") ||
-             manager.getInstanceName().equals("instance04") ||
-             manager.getInstanceName().equals("instance06")) &&
-             (((mnme.seqId) % 5) == 0)) {
+        if ((manager.getInstanceName().equals("instance02") || manager.getInstanceName().equals("instance04") || manager.getInstanceName().equals("instance06"))
+                && (((mnme.seqId) % 5) == 0)) {
 
             Object element = mnme.msg.getMessageElement("RESEND");
             if (element != null && element instanceof Boolean) {
@@ -1046,8 +1049,8 @@ class MasterNode implements MessageListener, Runnable {
                 // testing only. do not i18n.
                 // simulated drop of UDP message.
                 if (mcastLogger.isLoggable(Level.FINE)) {
-                    mcastLogger.fine("simulated drop of receiving UDP broadcast for member:" +
-                                     manager.getInstanceName() + " masterViewSequenceId:" + mnme.seqId);
+                    mcastLogger
+                            .fine("simulated drop of receiving UDP broadcast for member:" + manager.getInstanceName() + " masterViewSequenceId:" + mnme.seqId);
                 }
                 // purposely return w/o processing this message.
                 result = true;
@@ -1083,9 +1086,9 @@ class MasterNode implements MessageListener, Runnable {
 //                }
                 // TODO: do not allow in final release.
 
-                ProcessedMasterViewId processed = new ProcessedMasterViewId((PeerID)msg.getMessageElement(Message.SOURCE_PEER_ID_TAG), mnme.seqId);
+                ProcessedMasterViewId processed = new ProcessedMasterViewId((PeerID) msg.getMessageElement(Message.SOURCE_PEER_ID_TAG), mnme.seqId);
                 boolean result;
-                synchronized(processedChangeEvents) {
+                synchronized (processedChangeEvents) {
                     result = processedChangeEvents.add(processed);
                 }
                 if (!result) {
@@ -1096,18 +1099,19 @@ class MasterNode implements MessageListener, Runnable {
                 }
             }
 
-            synchronized(outstandingMasterNodeMessages) {
+            synchronized (outstandingMasterNodeMessages) {
 
-                //place message into set ordered via MasterViewSequenceId.
+                // place message into set ordered via MasterViewSequenceId.
                 added = outstandingMasterNodeMessages.add(mnme);
                 outstandingMasterNodeMessages.notify();
             }
             if (added) {
                 if (monitorLogger.isLoggable(Level.FINE)) {
-                    monitorLogger.fine("receiveMessageEvent: added master node message masterViewSeqId:" + mnme.seqId + " from member:" + event.getSourcePeerID());
+                    monitorLogger
+                            .fine("receiveMessageEvent: added master node message masterViewSeqId:" + mnme.seqId + " from member:" + event.getSourcePeerID());
                 }
             } else {
-                LOG.log(Level.WARNING, "mgmt.masternode.dupmasternodemsg", new Object[]{ mnme.seqId, event.getSourcePeerID(), mnme.toString()});
+                LOG.log(Level.WARNING, "mgmt.masternode.dupmasternodemsg", new Object[] { mnme.seqId, event.getSourcePeerID(), mnme.toString() });
             }
         }
     }
@@ -1143,10 +1147,10 @@ class MasterNode implements MessageListener, Runnable {
                 if (adv != null) {
                     if (isMaster() && masterAssigned) {
 
-                        // MEMBER IS ADDED TO GROUP HERE.  Must authenticate BEFORE adding.
+                        // MEMBER IS ADDED TO GROUP HERE. Must authenticate BEFORE adding.
                         result = clusterViewManager.add(adv);
                     } else if (discoveryInProgress) {
-                        result = false;  // never report Join event during discovery mode.
+                        result = false; // never report Join event during discovery mode.
 
                         // MEMBER IS ADDED TO GROUP while in DISCOVERY HERE. Should we authenitcate BEFORE adding to
                         // discoveryView.
@@ -1200,16 +1204,17 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     private void announceMaster(SystemAdvertisement adv) {
-	if (reliableMulticast != null) {
-	    reliableMulticast.stop();
-	    reliableMulticast = null;
+        if (reliableMulticast != null) {
+            reliableMulticast.stop();
+            reliableMulticast = null;
         }
         reliableMulticast = new ReliableMulticast(manager);
         final Message msg = createMasterResponse(true, adv.getID());
         final ClusterViewEvent cvEvent = new ClusterViewEvent(ClusterViewEvents.MASTER_CHANGE_EVENT, adv);
-        if(masterAssigned && isMaster()){
-            LOG.log(Level.INFO, "mgmt.masternode.announcemasternode", new Object[]{clusterViewManager.getViewSize(), manager.getInstanceName(), manager.getGroupName()});
-            
+        if (masterAssigned && isMaster()) {
+            LOG.log(Level.INFO, "mgmt.masternode.announcemasternode",
+                    new Object[] { clusterViewManager.getViewSize(), manager.getInstanceName(), manager.getGroupName() });
+
             sendNewView(null, cvEvent, msg, true);
         }
     }
@@ -1226,7 +1231,7 @@ class MasterNode implements MessageListener, Runnable {
      */
     void startMasterNodeDiscovery() {
         int count = 0;
-        //assumes self as master node
+        // assumes self as master node
         synchronized (this) {
             if (!masterAssigned) {
 
@@ -1238,14 +1243,16 @@ class MasterNode implements MessageListener, Runnable {
             }
         }
         if (masterAssigned) {
-            discoverMaster();  // ensure all instances send out MasterQuery whether or not they already know the master.
-                               // keep discovery of new members by Master consistent.
+            discoverMaster(); // ensure all instances send out MasterQuery whether or not they already know the master.
+                              // keep discovery of new members by Master consistent.
             discoveryInProgress = false;
-            if (LOG.isLoggable(Level.FINE)){
-                LOG.log(Level.FINE, "startMasterNodeDiscovery: discovery completed. masterSequenceId:" + this.masterViewID.get() +
-                        " clusterViewManager.masterViewID:" + clusterViewManager.getMasterViewID());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "startMasterNodeDiscovery: discovery completed. masterSequenceId:" + this.masterViewID.get()
+                        + " clusterViewManager.masterViewID:" + clusterViewManager.getMasterViewID());
             }
-            synchronized (discoveryLock) { discoveryLock.notifyAll(); }
+            synchronized (discoveryLock) {
+                discoveryLock.notifyAll();
+            }
             return;
         }
         while (!stop && count < interval) {
@@ -1264,25 +1271,27 @@ class MasterNode implements MessageListener, Runnable {
             LOG.log(Level.FINER, "MN Discovery timeout, appointing master");
             appointMasterNode();
         }
-       if (LOG.isLoggable(Level.FINE)){
-            LOG.log(Level.FINE, "startMasterNodeDiscovery: after discoverMaster polling, discovery completed. masterSequenceId:" + this.masterViewID.get() +
-                        " clusterViewManager.masterViewID:" + clusterViewManager.getMasterViewID());
-       }
-       discoveryInProgress = false;
-       synchronized (discoveryLock) { discoveryLock.notifyAll(); }
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "startMasterNodeDiscovery: after discoverMaster polling, discovery completed. masterSequenceId:" + this.masterViewID.get()
+                    + " clusterViewManager.masterViewID:" + clusterViewManager.getMasterViewID());
+        }
+        discoveryInProgress = false;
+        synchronized (discoveryLock) {
+            discoveryLock.notifyAll();
+        }
     }
 
     /**
-     * determines a master node candidate, if the result turns to be this node
-     * then a master node announcement is made to assert such state
+     * determines a master node candidate, if the result turns to be this node then a master node announcement is made to
+     * assert such state
      */
     void appointMasterNode() {
         if (masterAssigned) {
             return;
         }
         final SystemAdvertisement madv;
-        if (LOG.isLoggable(Level.FINER)){
-            LOG.log(Level.FINER, "MasterNode: discoveryInProgress="+discoveryInProgress);
+        if (LOG.isLoggable(Level.FINER)) {
+            LOG.log(Level.FINER, "MasterNode: discoveryInProgress=" + discoveryInProgress);
         }
         if (discoveryInProgress) {
             // ensure current instance is in the view.
@@ -1293,15 +1302,15 @@ class MasterNode implements MessageListener, Runnable {
             clusterViewManager.add(sysAdv);
             madv = clusterViewManager.getMasterCandidate();
         }
-        if (LOG.isLoggable(Level.FINER)){
-            LOG.log(Level.FINER, "MasterNode: Master Candidate="+madv.getName());
+        if (LOG.isLoggable(Level.FINER)) {
+            LOG.log(Level.FINER, "MasterNode: Master Candidate=" + madv.getName());
         }
         setMaster(madv, DONOT_NOTIFY_LISTENERS);
         if (madv.getID().equals(localNodeID)) {
             LOG.log(Level.FINER, "MasterNode: Setting myself as MasterNode ");
             clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
-            if (LOG.isLoggable(Level.FINER)){
-                LOG.log(Level.FINER, "MasterNode: masterViewId ="+masterViewID );
+            if (LOG.isLoggable(Level.FINER)) {
+                LOG.log(Level.FINER, "MasterNode: masterViewId =" + masterViewID);
             }
             // generate view change event
             if (discoveryInProgress) {
@@ -1320,8 +1329,8 @@ class MasterNode implements MessageListener, Runnable {
         synchronized (MASTERLOCK) {
             if (madv.getID().equals(localNodeID)) {
                 // this thread's job is done
-                LOG.log(Level.INFO, "mgmt.masternode.assumingmasternode", new Object[]{madv.getName(), manager.getGroupName()});
-                //broadcast we are the masternode for the cluster
+                LOG.log(Level.INFO, "mgmt.masternode.assumingmasternode", new Object[] { madv.getName(), manager.getGroupName() });
+                // broadcast we are the masternode for the cluster
                 LOG.log(Level.FINER, "MasterNode: announcing MasterNode assumption ");
                 announceMaster(manager.getSystemAdvertisement());
                 MASTERLOCK.notifyAll();
@@ -1330,12 +1339,11 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Send a message to a specific node. In the case where the id is null the
-     * message multicast
+     * Send a message to a specific node. In the case where the id is null the message multicast
      *
      * @param peerid the destination node, if null, the message is sent to the cluster
-     * @param msg    the message to send
-     * @param name   name used for debugging messages
+     * @param msg the message to send
+     * @param name name used for debugging messages
      */
     private void send(final PeerID peerid, final String name, final Message msg) {
         try {
@@ -1345,16 +1353,16 @@ class MasterNode implements MessageListener, Runnable {
                 if (LOG.isLoggable(Level.FINER)) {
                     LOG.log(Level.FINER, "Unicasting Message to :" + name + "ID=" + peerid);
                 }
-                final boolean sent = manager.getNetworkManager().send( peerid, msg );
+                final boolean sent = manager.getNetworkManager().send(peerid, msg);
                 if (!sent) {
-                    LOG.log(Level.WARNING, "mgmt.masternode.sendmsgfailed",new Object[]{ msg, name});
+                    LOG.log(Level.WARNING, "mgmt.masternode.sendmsgfailed", new Object[] { msg, name });
                 }
             } else {
                 // multicast
                 LOG.log(Level.FINER, "Broadcasting Message");
                 final boolean sent = manager.getNetworkManager().broadcast(msg);
                 if (!sent) {
-                    LOG.log(Level.WARNING, "mgmt.masternode.broadcastmsgfailed", new Object[]{msg, manager.getGroupName()});
+                    LOG.log(Level.WARNING, "mgmt.masternode.broadcastmsgfailed", new Object[] { msg, manager.getGroupName() });
                 }
             }
         } catch (IOException io) {
@@ -1363,45 +1371,42 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Sends the discovered view to the group indicating a new membership snapshot has been
-     * created. This will lead to all members replacing their localviews to
-     * this new view.
+     * Sends the discovered view to the group indicating a new membership snapshot has been created. This will lead to all
+     * members replacing their localviews to this new view.
      *
-     * @param event       The ClusterViewEvent object containing details of the event.
-     * @param msg         The message to send
-     * @param toID        receipient ID
+     * @param event The ClusterViewEvent object containing details of the event.
+     * @param msg The message to send
+     * @param toID receipient ID
      * @param includeView if true view will be included in the message
      */
-    void sendNewView(final PeerID toID,
-                     final ClusterViewEvent event,
-                     final Message msg,
-                     final boolean includeView) {
+    void sendNewView(final PeerID toID, final ClusterViewEvent event, final Message msg, final boolean includeView) {
         final String memberName = event.getAdvertisement().getName();
         RejoinSubevent rjse = null;
         if (includeView) {
             addAuthoritativeView(msg);
         }
-        //LOG.log(Level.FINER, MessageFormat.format("Created a view element of size {0}bytes", cvEvent.getByteLength()));
+        // LOG.log(Level.FINER, MessageFormat.format("Created a view element of size {0}bytes", cvEvent.getByteLength()));
         msg.addMessageElement(VIEW_CHANGE_EVENT, event);
         switch (event.getEvent()) {
-            case ADD_EVENT:
-            case JOINED_AND_READY_EVENT:
-                GMSContext gmsCtx = getGMSContext();
-                if (gmsCtx != null) {
-                    rjse = gmsCtx.getInstanceRejoins().get(memberName);
-                    if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("sendNewView: clusterViewEvent:" + event.getEvent().toString() + " rejoinSubevent=" + rjse + " member: " + memberName);
-                    }
-                    if (rjse != null) {
-                        msg.addMessageElement(REJOIN_SUBEVENT, rjse);
-                    }
+        case ADD_EVENT:
+        case JOINED_AND_READY_EVENT:
+            GMSContext gmsCtx = getGMSContext();
+            if (gmsCtx != null) {
+                rjse = gmsCtx.getInstanceRejoins().get(memberName);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("sendNewView: clusterViewEvent:" + event.getEvent().toString() + " rejoinSubevent=" + rjse + " member: " + memberName);
                 }
-                break;
-            default:
-                break;
+                if (rjse != null) {
+                    msg.addMessageElement(REJOIN_SUBEVENT, rjse);
+                }
+            }
+            break;
+        default:
+            break;
         }
         if (LOG.isLoggable(Level.FINER)) {
-            LOG.log(Level.FINER, "Sending new authoritative cluster view to group, event :" + event.getEvent().toString()+" viewSeqId: "+clusterViewManager.getMasterViewID());
+            LOG.log(Level.FINER, "Sending new authoritative cluster view to group, event :" + event.getEvent().toString() + " viewSeqId: "
+                    + clusterViewManager.getMasterViewID());
         }
         if (toID != null) {
             send(toID, null, msg);
@@ -1423,9 +1428,9 @@ class MasterNode implements MessageListener, Runnable {
         ClusterView cv = clusterViewManager.getLocalView();
         view = cv.getView();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "MasterNode: Adding Authoritative View of size "+view.size()+ "  to view message masterSeqId=" + cv.masterViewId);
+            LOG.log(Level.FINE, "MasterNode: Adding Authoritative View of size " + view.size() + "  to view message masterSeqId=" + cv.masterViewId);
         }
-        msg.addMessageElement(AMASTERVIEW, (Serializable)view);
+        msg.addMessageElement(AMASTERVIEW, (Serializable) view);
         addLongToMessage(msg, NAMESPACE, MASTERVIEWSEQ, cv.masterViewId);
     }
 
@@ -1438,10 +1443,10 @@ class MasterNode implements MessageListener, Runnable {
         final List<SystemAdvertisement> view;
         ClusterView cv = clusterViewManager.getLocalView();
         view = cv.getView();
-        if (LOG.isLoggable(Level.FINE)){
-            LOG.log(Level.FINE, "MasterNode: Adding Authoritative View of size "+view.size()+ "  to view message masterSeqId=" + cv.masterViewId);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "MasterNode: Adding Authoritative View of size " + view.size() + "  to view message masterSeqId=" + cv.masterViewId);
         }
-        msg.addMessageElement(AMASTERVIEW, (Serializable)view);
+        msg.addMessageElement(AMASTERVIEW, (Serializable) view);
 
         // compute MemberStates for AMASTERVIEW list.
         MemberStates[] memberStates = new MemberStates[view.size()];
@@ -1450,11 +1455,12 @@ class MasterNode implements MessageListener, Runnable {
             MemberStates value = MemberStates.UNKNOWN;
             try {
                 value = MemberStates.valueOf(manager.getHealthMonitor().getMemberStateFromHeartBeat(adv.getID(), 10000).toUpperCase());
-            } catch (Throwable t) {}
+            } catch (Throwable t) {
+            }
             memberStates[i] = value;
             i++;
         }
-        msg.addMessageElement(AMASTERVIEWSTATES, (Serializable)memberStates);
+        msg.addMessageElement(AMASTERVIEWSTATES, memberStates);
 
         addLongToMessage(msg, NAMESPACE, MASTERVIEWSEQ, cv.masterViewId);
     }
@@ -1470,13 +1476,13 @@ class MasterNode implements MessageListener, Runnable {
         started = false;
         stop = true;
         discoveryInProgress = false;
-        synchronized (discoveryLock){
+        synchronized (discoveryLock) {
             discoveryLock.notifyAll();
         }
-        manager.getNetworkManager().removeMessageListener( this );
+        manager.getNetworkManager().removeMessageListener(this);
         processOutstandingMessagesThread.interrupt();
         if (reliableMulticast != null) {
-            reliableMulticast.stop();  // stop reaper TimerTask.
+            reliableMulticast.stop(); // stop reaper TimerTask.
         }
         this.checkForMissedMasterMsgSingletonExecutor.shutdownNow();
     }
@@ -1488,10 +1494,10 @@ class MasterNode implements MessageListener, Runnable {
         LOG.log(Level.FINER, "Starting MasterNode");
         this.clusterViewManager = manager.getClusterViewManager();
         started = true;
-        manager.getNetworkManager().addMessageListener( this );
-        LOG.log(Level.INFO, "mgmt.masternode.registeredlistener", new Object[]{ manager.getInstanceName(), manager.getGroupName()});
-        processOutstandingMessagesThread = new Thread(new ProcessOutstandingMessagesTask(), "GMS MasterNode processOutstandingChangeEvents Group-" +
-        manager.getGroupName());
+        manager.getNetworkManager().addMessageListener(this);
+        LOG.log(Level.INFO, "mgmt.masternode.registeredlistener", new Object[] { manager.getInstanceName(), manager.getGroupName() });
+        processOutstandingMessagesThread = new Thread(new ProcessOutstandingMessagesTask(),
+                "GMS MasterNode processOutstandingChangeEvents Group-" + manager.getGroupName());
         processOutstandingMessagesThread.setDaemon(true);
         processOutstandingMessagesThread.start();
         thread = new Thread(this, "GMS MasterNode Group-" + manager.getGroupName());
@@ -1506,10 +1512,10 @@ class MasterNode implements MessageListener, Runnable {
      */
     void viewChanged(final ClusterViewEvent event) {
         if (isMaster() && masterAssigned) {
-            clusterViewManager.notifyListeners( event );
+            clusterViewManager.notifyListeners(event);
             Message msg = createSelfNodeAdvertisement();
-            synchronized(masterViewID) {
-                //increment the view seqID
+            synchronized (masterViewID) {
+                // increment the view seqID
                 clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
                 addAuthoritativeView(msg);
             }
@@ -1520,10 +1526,10 @@ class MasterNode implements MessageListener, Runnable {
     /**
      * Adds a long to a message
      *
-     * @param message   The message to add to
+     * @param message The message to add to
      * @param nameSpace The namespace of the element to add. a null value assumes default namespace.
-     * @param elemName  Name of the Element.
-     * @param data      The feature to be added to the LongToMessage attribute
+     * @param elemName Name of the Element.
+     * @param data The feature to be added to the LongToMessage attribute
      */
     private static void addLongToMessage(Message message, String nameSpace, String elemName, long data) {
         message.addMessageElement(elemName, data);
@@ -1532,9 +1538,9 @@ class MasterNode implements MessageListener, Runnable {
     /**
      * Returns an long from a message
      *
-     * @param message   The message to retrieve from
+     * @param message The message to retrieve from
      * @param nameSpace The namespace of the element to get.
-     * @param elemName  Name of the Element.
+     * @param elemName Name of the Element.
      * @return The long value, -1 if element does not exist in the message
      * @throws NumberFormatException If the String does not contain a parsable int.
      */
@@ -1548,9 +1554,8 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * This method allows the DAS to become a master by force. This
-     * is especially important when the the DAS is going down and then
-     * coming back up. This way only the DAS will ever be the master.
+     * This method allows the DAS to become a master by force. This is especially important when the the DAS is going down
+     * and then coming back up. This way only the DAS will ever be the master.
      */
     void takeOverMasterRole() {
         synchronized (MASTERLOCK) {
@@ -1558,12 +1563,12 @@ class MasterNode implements MessageListener, Runnable {
             if (LOG.isLoggable(Level.FINER)) {
                 LOG.log(Level.FINER, "MasterNode: Forcefully becoming the Master..." + madv.getName());
             }
-            //avoid notifying listeners
+            // avoid notifying listeners
             setMaster(madv, DONOT_NOTIFY_LISTENERS);
             clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
             if (LOG.isLoggable(Level.FINER)) {
-                LOG.log(Level.FINER, "MasterNode: becomeMaster () : masterViewId ="+masterViewID );
-            // generate view change event
+                LOG.log(Level.FINER, "MasterNode: becomeMaster () : masterViewId =" + masterViewID);
+                // generate view change event
                 LOG.log(Level.FINER, "MasterNode: becomeMaster () : Notifying Local Listeners of  Master Change");
             }
             final ClusterViewEvent cvEvent = new ClusterViewEvent(ClusterViewEvents.MASTER_CHANGE_EVENT, madv);
@@ -1572,7 +1577,7 @@ class MasterNode implements MessageListener, Runnable {
             discoveryView.clear();
             discoveryView.add(sysAdv);
 
-            //broadcast we are the masternode
+            // broadcast we are the masternode
             LOG.log(Level.FINER, "MasterNode: becomeMaster () : announcing MasterNode assumption ");
             announceMaster(manager.getSystemAdvertisement());
             MASTERLOCK.notifyAll();
@@ -1590,15 +1595,16 @@ class MasterNode implements MessageListener, Runnable {
         final ClusterViewEvent cvEvent = new ClusterViewEvent(ClusterViewEvents.JOINED_AND_READY_EVENT, adv);
         LOG.log(Level.FINEST, MessageFormat.format("Sending to Group, Joined and Ready Event View for peer :{0}", adv.getName()));
         Message msg = this.createSelfNodeAdvertisement();
-        synchronized(masterViewID) {
+        synchronized (masterViewID) {
             clusterViewManager.setMasterViewID(masterViewID.incrementAndGet());
             this.addReadyAuthoritativeView(msg);
         }
         sendNewView(null, cvEvent, msg, false);
-        
+
         if (isGroup) {
             this.pendingGroupStartupMembers.remove(adv.getName());
-            LOG.fine("sendReadyEventView: pendingGroupStartupMembers: member=" + adv.getName() + " size=" + pendingGroupStartupMembers.size() + " pending members remaining:" + pendingGroupStartupMembers.keySet());
+            LOG.fine("sendReadyEventView: pendingGroupStartupMembers: member=" + adv.getName() + " size=" + pendingGroupStartupMembers.size()
+                    + " pending members remaining:" + pendingGroupStartupMembers.keySet());
             if (pendingGroupStartupMembers.size() == 0) {
                 LOG.fine("sendReadyEventView:  start-cluster groupStartup completed");
                 setGroupStarting(false);
@@ -1625,19 +1631,20 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Avoid boundary conditions for group startup completed.  Delay setting to false for delaySet time.
+     * Avoid boundary conditions for group startup completed. Delay setting to false for delaySet time.
      *
      * @param value
      * @param delaySet in milliseconds, time to delay setting group starting to value
      */
     private void delayedSetGroupStarting(boolean value, long delaySet) {
-        synchronized(timer) {
+        synchronized (timer) {
             if (groupStartingTask != null) {
                 groupStartingTask.cancel();
             }
             groupStartingTask = new DelayedSetGroupStartingCompleteTask(delaySet);
 
-            // place a delay duration on group startup duration to allow possibly late arriving JoinedAndReady notifications to be considered part of group.
+            // place a delay duration on group startup duration to allow possibly late arriving JoinedAndReady notifications to be
+            // considered part of group.
             timer.schedule(groupStartingTask, delaySet);
         }
     }
@@ -1649,15 +1656,15 @@ class MasterNode implements MessageListener, Runnable {
     /**
      * Demarcate start and end of group startup.
      *
-     * All members started with in this duration of time are considered part of GROUP_STARTUP in GMS JoinNotification and JoinAndReadyNotifications.
-     * All other members restarted after this duration are INSTANCE_STARTUP.
+     * All members started with in this duration of time are considered part of GROUP_STARTUP in GMS JoinNotification and
+     * JoinAndReadyNotifications. All other members restarted after this duration are INSTANCE_STARTUP.
      *
-     * Method is called once when group startup is initiated with <code>INITIATED</code> as startupState.
-     * Method is called again when group startup has completed and indication of success or failure is
-     * indicated by startupState of <code>COMPLETED_SUCCESS</code> or <code>COMPLATED_FAILED</code>.
+     * Method is called once when group startup is initiated with <code>INITIATED</code> as startupState. Method is called
+     * again when group startup has completed and indication of success or failure is indicated by startupState of
+     * <code>COMPLETED_SUCCESS</code> or <code>COMPLATED_FAILED</code>.
      *
-     * @param startupState  either the start or successful or failed completion of group startup.
-     * @param memberTokens  list of members associated with <code>startupState</code>
+     * @param startupState either the start or successful or failed completion of group startup.
+     * @param memberTokens list of members associated with <code>startupState</code>
      */
     void groupStartup(GMSConstants.groupStartupState startupState, List<String> memberTokens) {
         StringBuffer sb = new StringBuffer();
@@ -1666,64 +1673,66 @@ class MasterNode implements MessageListener, Runnable {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("MasterNode:groupStartup: memebrTokens:" + memberTokens + " startupState:" + startupState);
         }
-        switch(startupState) {
-            case INITIATED:
-                // Optimization:  Rather than broadcast to members of cluster (that have not been started yet when INIATIATED group startup),
-                // assume this is called by a static administration utility that is running in same process as master node.
-                // This call toggles state of whether gms MasterNode is currently part of group startup depending on the value of startupState.
-                // See createMasterResponse() for how this group starting is sent from Master to members of the group.
-                // See processMasterNodeResponse() for how members process this sent info.
-                setGroupStarting(true);
-                groupMembers = new TreeSet<String>(memberTokens);
-                getGMSContext().setGroupStartupJoinMembers(new TreeSet<String>(memberTokens));
-                sb.append(" Starting Members: ");
-                pendingGroupStartupMembers = new ConcurrentHashMap<String, Object>();
-                for (String member : memberTokens) {
-                    pendingGroupStartupMembers.put(member, member);
-                }
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("groupStartup: pendingGroupStartupMembers:" + pendingGroupStartupMembers.size() + " members:" + pendingGroupStartupMembers.keySet() + " members passed in:" + memberTokens);
+        switch (startupState) {
+        case INITIATED:
+            // Optimization: Rather than broadcast to members of cluster (that have not been started yet when INIATIATED group
+            // startup),
+            // assume this is called by a static administration utility that is running in same process as master node.
+            // This call toggles state of whether gms MasterNode is currently part of group startup depending on the value of
+            // startupState.
+            // See createMasterResponse() for how this group starting is sent from Master to members of the group.
+            // See processMasterNodeResponse() for how members process this sent info.
+            setGroupStarting(true);
+            groupMembers = new TreeSet<String>(memberTokens);
+            getGMSContext().setGroupStartupJoinMembers(new TreeSet<String>(memberTokens));
+            sb.append(" Starting Members: ");
+            pendingGroupStartupMembers = new ConcurrentHashMap<String, Object>();
+            for (String member : memberTokens) {
+                pendingGroupStartupMembers.put(member, member);
+            }
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("groupStartup: pendingGroupStartupMembers:" + pendingGroupStartupMembers.size() + " members:" + pendingGroupStartupMembers.keySet()
+                        + " members passed in:" + memberTokens);
 
-                }
-                break;
-            case COMPLETED_FAILED:
+            }
+            break;
+        case COMPLETED_FAILED:
 
-                // todo:  communicate to all clustered isntances that they should no longer consider the failed members
-                //        to be starting within start-cluster.  Need to pass failure and list of failed members to all instances.
-                //        Send groupstartup complete needs to send more info in future.  Now just sends start-clsuter is done.
-                //        Need to send whether succeeded or failed. If failed, need to send list of failing instances so they
-                //        be removed from pendingJoins list in ViewWindowImpl.
+            // todo: communicate to all clustered isntances that they should no longer consider the failed members
+            // to be starting within start-cluster. Need to pass failure and list of failed members to all instances.
+            // Send groupstartup complete needs to send more info in future. Now just sends start-clsuter is done.
+            // Need to send whether succeeded or failed. If failed, need to send list of failing instances so they
+            // be removed from pendingJoins list in ViewWindowImpl.
+            setGroupStarting(false);
+            sb.append(" Failed Members: ");
+            if (this.isMaster() && this.isMasterAssigned()) {
+                // send a message to other instances in cluster that group startup has completed
+                sendGroupStartupComplete();
+            }
+            break;
+        case COMPLETED_SUCCESS:
+            if (pendingGroupStartupMembers.size() == 0) {
                 setGroupStarting(false);
-                sb.append(" Failed Members: ");
-                if (this.isMaster() && this.isMasterAssigned()) {
-                    // send a message to other instances in cluster that group startup has completed
-                    sendGroupStartupComplete();
-                }
-                break;
-            case COMPLETED_SUCCESS:
-                if (pendingGroupStartupMembers.size() == 0) {
-                    setGroupStarting(false);
-                }
-                sb.append(" Started Members: ");
+            }
+            sb.append(" Started Members: ");
 
-                break;
+            break;
         }
-        for (String member: memberTokens) {
+        for (String member : memberTokens) {
             sb.append(member).append(",");
         }
-        LOG.log(Level.INFO, "mgmt.masternode.groupstartcomplete",
-                new Object[]{getGMSContext().getGroupName(), startupState.toString(), sb.toString()});
+        LOG.log(Level.INFO, "mgmt.masternode.groupstartcomplete", new Object[] { getGMSContext().getGroupName(), startupState.toString(), sb.toString() });
     }
 
     private GMSContext getGMSContext() {
         if (ctx == null) {
-            ctx = (GMSContext) GMSContextFactory.getGMSContext(manager.getGroupName());
+            ctx = GMSContextFactory.getGMSContext(manager.getGroupName());
         }
         return ctx;
     }
 
     class DelayedSetGroupStartingCompleteTask extends TimerTask {
-        final private long delay;  //millisecs
+        final private long delay; // millisecs
 
         public DelayedSetGroupStartingCompleteTask(long delay) {
             this.delay = delay;
@@ -1734,8 +1743,7 @@ class MasterNode implements MessageListener, Runnable {
 
         public void run() {
             if (delay == MasterNode.MAX_GROUPSTARTING_TIME_MS) {
-                LOG.log(Level.WARNING, "mgmt.masternode.missgroupstartupcomplete",
-                        new Object[]{MasterNode.MAX_GROUPSTARTING_TIME_MS / 1000});
+                LOG.log(Level.WARNING, "mgmt.masternode.missgroupstartupcomplete", new Object[] { MasterNode.MAX_GROUPSTARTING_TIME_MS / 1000 });
             }
             synchronized (timer) {
                 setGroupStarting(false);
@@ -1760,15 +1768,15 @@ class MasterNode implements MessageListener, Runnable {
 
         public int compareTo(Object o) {
             if (o instanceof MasterNodeMessageEvent) {
-                MasterNodeMessageEvent e = (MasterNodeMessageEvent)o;
+                MasterNodeMessageEvent e = (MasterNodeMessageEvent) o;
                 int peerCompareToResult = event.getSourcePeerID().compareTo(e.event.getSourcePeerID());
 
                 // CAUTION: note that comparison should include which peerid that the master view sequence id is from.
-                //          does not make sense to compare between instances.
+                // does not make sense to compare between instances.
                 if (peerCompareToResult != 0) {
                     return peerCompareToResult;
                 } else {
-                    return (int)(seqId - ((MasterNodeMessageEvent)o).seqId);
+                    return (int) (seqId - ((MasterNodeMessageEvent) o).seqId);
                 }
             } else {
                 throw new IllegalArgumentException();
@@ -1799,13 +1807,13 @@ class MasterNode implements MessageListener, Runnable {
                         result.append("masterquery").append(" from ").append(fromInstance);
                     } else if (key.equals(NODEQUERY)) {
                         result.append("nodequery").append(" from ").append(fromInstance);
-                        ;
+
                     } else if (key.equals(MASTERNODERESPONSE)) {
                         result.append("masternoderesponse").append(" from ").append(fromInstance);
-                        ;
+
                     } else if (key.equals(NODERESPONSE)) {
                         result.append("noderesponse").append(" from ").append(fromInstance);
-                        ;
+
                     }
                 }
                 msgElement = msg.getMessageElement(AMASTERVIEW);
@@ -1828,8 +1836,8 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     /**
-     * Process incoming Master Node messages in sorted order via MasterViewSequenceId.
-     * Serializes processing to one at a time.
+     * Process incoming Master Node messages in sorted order via MasterViewSequenceId. Serializes processing to one at a
+     * time.
      */
     public class ProcessOutstandingMessagesTask implements Runnable {
 
@@ -1842,9 +1850,9 @@ class MasterNode implements MessageListener, Runnable {
             while (manager != null && !manager.isStopping()) {
                 msg = null;
                 try {
-                    synchronized(outstandingMasterNodeMessages) {
+                    synchronized (outstandingMasterNodeMessages) {
 
-                        // Only process one outstanding message at a time.  Allow incoming handlers to add new events to be processed.
+                        // Only process one outstanding message at a time. Allow incoming handlers to add new events to be processed.
                         if (outstandingMasterNodeMessages.size() > 0) {
                             msg = outstandingMasterNodeMessages.first();
                             if (msg != null) {
@@ -1857,20 +1865,18 @@ class MasterNode implements MessageListener, Runnable {
 
                     if (msg != null) {
                         processNextMessageEvent(msg);
-                        if (isDiscoveryInProgress() || ! isMaster()) {
+                        if (isDiscoveryInProgress() || !isMaster()) {
                             // delay window before processing next message. allow messages received out of order to be ordered.
                             Thread.sleep(30);
                         }
                     }
                 } catch (InterruptedException ie) {
                 } catch (Throwable t) {
-                    LOG.log(Level.WARNING, "mgmt.masternode.processmsgexception", new Object[]{t.getLocalizedMessage()});
+                    LOG.log(Level.WARNING, "mgmt.masternode.processmsgexception", new Object[] { t.getLocalizedMessage() });
                     LOG.log(Level.WARNING, "stack trace", t);
                 }
             }
-            LOG.log(Level.CONFIG, "mgmt.masternode.processmsgcompleted",
-                    new Object[]{instanceName, groupName,
-                                 outstandingMasterNodeMessages.size()});
+            LOG.log(Level.CONFIG, "mgmt.masternode.processmsgcompleted", new Object[] { instanceName, groupName, outstandingMasterNodeMessages.size() });
         }
     }
 
@@ -1879,7 +1885,7 @@ class MasterNode implements MessageListener, Runnable {
             try {
                 reliableMulticast.broadcast(msg);
             } catch (IOException ioe) {
-                if (mcastLogger.isLoggable(Level.FINE)){
+                if (mcastLogger.isLoggable(Level.FINE)) {
                     mcastLogger.log(Level.FINE, "unexpected exception in reliablceBroadcastSend", ioe);
                 }
             }
@@ -1892,7 +1898,7 @@ class MasterNode implements MessageListener, Runnable {
         synchronized (processedChangeEvents) {
             Iterator<ProcessedMasterViewId> iter = processedChangeEvents.descendingIterator();
             if (iter.hasNext()) {
-                iter.next();  // leave last one always.
+                iter.next(); // leave last one always.
             }
             while (iter.hasNext()) {
                 ProcessedMasterViewId current = iter.next();
@@ -1910,9 +1916,8 @@ class MasterNode implements MessageListener, Runnable {
                 ProcessedMasterViewId current = iter.next();
                 if (!current.master.equals(currentMaster)) {
                     if (mcastLogger.isLoggable(Level.FINE)) {
-                        mcastLogger.log(Level.FINE,
-                                        "expire due to new master: drop history of processing past master change event " +
-                                        current + " due to new master:" + currentMaster);
+                        mcastLogger.log(Level.FINE, "expire due to new master: drop history of processing past master change event " + current
+                                + " due to new master:" + currentMaster);
                     }
                     iter.remove();
                 }
@@ -1921,7 +1926,7 @@ class MasterNode implements MessageListener, Runnable {
     }
 
     private PeerID lastCheckedMaster = null;
-    private long   lastCheckedMasterViewID = -1;
+    private long lastCheckedMasterViewID = -1;
 
     static final Level DEBUG_TRACE = Level.FINE;
 
@@ -1930,31 +1935,34 @@ class MasterNode implements MessageListener, Runnable {
         PeerID masterId = getMasterNodeID();
         ProcessedMasterViewId current = null;
 
-        // NOTE: have caller check if this is not the master. junit simulation testing tests this code when junit instance is running as master.
+        // NOTE: have caller check if this is not the master. junit simulation testing tests this code when junit instance is
+        // running as master.
         if (isMasterAssigned() && masterId != null && masterId.equals(master)) {
             boolean entered = false;
             if (lastCheckedMaster == null || lastCheckedMasterViewID != latestMasterViewID) {
                 entered = true;
                 if (mcastLogger.isLoggable(DEBUG_TRACE)) {
-                    mcastLogger.log(DEBUG_TRACE, "enter checkForMissedMasterChangeEvents master:" + master.getInstanceName() + " latestMasterViewSeqID=" + latestMasterViewID);
+                    mcastLogger.log(DEBUG_TRACE,
+                            "enter checkForMissedMasterChangeEvents master:" + master.getInstanceName() + " latestMasterViewSeqID=" + latestMasterViewID);
                 }
             }
-            
+
             // check over all processed master view ids from this sender.
             // can request sender to rebroadcast missing ones.
 
             // must be ready to receive multiple copies of same MasterViewIdSeq.
             // only the first one received should be processed, repeat ones must be discarded.
             long validateIdx = -1;
-            synchronized(this.processedChangeEvents) {
+            synchronized (this.processedChangeEvents) {
 
                 // check for missed messages by checking for gaps in unchecked processed master view messages.
                 SortedSet<ProcessedMasterViewId> tailToProcess;
                 if (lastCheckedMasterViewID == -1) {
-                    tailToProcess = processedChangeEvents;  // initial time use whole array
+                    tailToProcess = processedChangeEvents; // initial time use whole array
                     try {
                         validateIdx = processedChangeEvents.first().masterViewIdSeq;
-                    } catch (NoSuchElementException e) {}
+                    } catch (NoSuchElementException e) {
+                    }
                 } else {
                     final boolean INCLUSIVE_FALSE = false;
                     ProcessedMasterViewId lastProcessed = new ProcessedMasterViewId(master, lastCheckedMasterViewID);
@@ -1962,7 +1970,7 @@ class MasterNode implements MessageListener, Runnable {
                     validateIdx = lastCheckedMasterViewID + 1;
                 }
                 Iterator<ProcessedMasterViewId> iter = tailToProcess.iterator();
-                while (iter.hasNext() ) {
+                while (iter.hasNext()) {
                     current = iter.next();
                     if (current.masterViewIdSeq > latestMasterViewID) {
                         break;
@@ -1975,13 +1983,14 @@ class MasterNode implements MessageListener, Runnable {
                     } else {
                         if (validateIdx > current.masterViewIdSeq) {
                             if (mcastLogger.isLoggable(Level.FINER)) {
-                                mcastLogger.log(Level.FINER, "skipping:  validateIdx=" + validateIdx + " greater than current.masterViewIdSeq:" + current.masterViewIdSeq + " lastCheckedMasterViewID:" + lastCheckedMasterViewID);
+                                mcastLogger.log(Level.FINER, "skipping:  validateIdx=" + validateIdx + " greater than current.masterViewIdSeq:"
+                                        + current.masterViewIdSeq + " lastCheckedMasterViewID:" + lastCheckedMasterViewID);
                             }
                             continue;
                         }
                         while (validateIdx < current.masterViewIdSeq) {
                             if (mcastLogger.isLoggable(DEBUG_TRACE)) {
-                                mcastLogger.fine("first add validateIdx="+ validateIdx + " current.masterViewIdSeq="+ current.masterViewIdSeq);
+                                mcastLogger.fine("first add validateIdx=" + validateIdx + " current.masterViewIdSeq=" + current.masterViewIdSeq);
                             }
                             missed.add(validateIdx);
                             validateIdx++;
@@ -1994,7 +2003,7 @@ class MasterNode implements MessageListener, Runnable {
                 while (validateIdx <= latestMasterViewID) {
                     missed.add(validateIdx);
                     if (mcastLogger.isLoggable(DEBUG_TRACE)) {
-                        mcastLogger.fine("after add validateIdx="+ validateIdx + " latestMasterViewID=" + latestMasterViewID + " last processed=" + current);
+                        mcastLogger.fine("after add validateIdx=" + validateIdx + " latestMasterViewID=" + latestMasterViewID + " last processed=" + current);
                     }
                     validateIdx++;
                 }
@@ -2009,15 +2018,12 @@ class MasterNode implements MessageListener, Runnable {
                     // stats monitor needs to count the number of dropped master change events sent over UDP.
                     if (mcastLogger.isLoggable(Level.FINE)) {
                         mcastLogger.log(Level.FINE, "mgmt.masternode.missed.change.events",
-                                new Object[]{ master.getInstanceName(), latestMasterViewID ,
-                                              missed, lastCheckedMasterViewID});
+                                new Object[] { master.getInstanceName(), latestMasterViewID, missed, lastCheckedMasterViewID });
                     }
                 } else {
-                    if (mcastLogger.isLoggable(DEBUG_TRACE)){
-                        mcastLogger.log(DEBUG_TRACE, "exit checkForMissedMasterChangeEvents master:" +
-                                                    master.getInstanceName() +
-                                                    " latestMasterViewSeqID=" + latestMasterViewID+
-                                                    " lastCheckedMasterViewID:" + lastCheckedMasterViewID );
+                    if (mcastLogger.isLoggable(DEBUG_TRACE)) {
+                        mcastLogger.log(DEBUG_TRACE, "exit checkForMissedMasterChangeEvents master:" + master.getInstanceName() + " latestMasterViewSeqID="
+                                + latestMasterViewID + " lastCheckedMasterViewID:" + lastCheckedMasterViewID);
                     }
                 }
             }
@@ -2032,14 +2038,15 @@ class MasterNode implements MessageListener, Runnable {
 
     static public class ProcessedMasterViewId implements Comparable {
         public final PeerID master;
-        public final long   masterViewIdSeq;
-        public final long   receivedTime;
-        public final long   expirationTime;
+        public final long masterViewIdSeq;
+        public final long receivedTime;
+        public final long expirationTime;
 
         public static final long EXPIRATION_DURATION_MS = 30 * 1000;
 
         public String toString() {
-            return "ProcessedMasterViewId master:" + master.getInstanceName() + " masterViewSequenceID=" + masterViewIdSeq + " receivedTime=" + new Date(receivedTime);
+            return "ProcessedMasterViewId master:" + master.getInstanceName() + " masterViewSequenceID=" + masterViewIdSeq + " receivedTime="
+                    + new Date(receivedTime);
         }
 
         public ProcessedMasterViewId(PeerID master, long seqId) {
@@ -2050,7 +2057,7 @@ class MasterNode implements MessageListener, Runnable {
             this.master = master;
             this.masterViewIdSeq = seqId;
             receivedTime = System.currentTimeMillis();
-            expirationTime = receivedTime + expire_duration_ms;    
+            expirationTime = receivedTime + expire_duration_ms;
         }
 
         public boolean isExpired() {
@@ -2061,10 +2068,10 @@ class MasterNode implements MessageListener, Runnable {
         public int compareTo(Object o) {
             int result;
             if (o instanceof ProcessedMasterViewId) {
-                ProcessedMasterViewId e = (ProcessedMasterViewId)o;
+                ProcessedMasterViewId e = (ProcessedMasterViewId) o;
                 result = master.compareTo(e.master);
                 if (result == 0) {
-                    result = (int)(masterViewIdSeq - e.masterViewIdSeq);
+                    result = (int) (masterViewIdSeq - e.masterViewIdSeq);
                 }
                 return result;
             } else {
@@ -2081,13 +2088,21 @@ class MasterNode implements MessageListener, Runnable {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             ProcessedMasterViewId that = (ProcessedMasterViewId) o;
 
-            if (masterViewIdSeq != that.masterViewIdSeq) return false;
-            if (master != null ? !master.equals(that.master) : that.master != null) return false;
+            if (masterViewIdSeq != that.masterViewIdSeq) {
+                return false;
+            }
+            if (master != null ? !master.equals(that.master) : that.master != null) {
+                return false;
+            }
 
             return true;
         }
@@ -2122,9 +2137,9 @@ class MasterNode implements MessageListener, Runnable {
         }
     }
 
-    private void setMaster(SystemAdvertisement adv, boolean notify){
+    private void setMaster(SystemAdvertisement adv, boolean notify) {
         boolean newMaster = false;
-        synchronized(this) {
+        synchronized (this) {
             newMaster = clusterViewManager.setMaster(adv, notify);
             masterAssigned = true;
         }
@@ -2138,7 +2153,7 @@ class MasterNode implements MessageListener, Runnable {
         }
     }
 
-    // only the master adds its latest master view sequence id to its heartbeat 
+    // only the master adds its latest master view sequence id to its heartbeat
     void addMasterViewSeqId(Message msg) {
         if (isMaster() && isMasterAssigned() && !isDiscoveryInProgress()) {
             // have master include its current MasterViewSeqID.
@@ -2156,7 +2171,7 @@ class MasterNode implements MessageListener, Runnable {
         if (!isMaster() && masterAssigned && !isDiscoveryInProgress()) {
             Object element = msg.getMessageElement(this.LATESTMASTERVIEWID);
             if (element != null && element instanceof Long) {
-                checkForMissedMasterMsgSingletonExecutor.submit(new CheckForMissedMasterMessages(this, source, (Long)element));
+                checkForMissedMasterMsgSingletonExecutor.submit(new CheckForMissedMasterMessages(this, source, (Long) element));
             }
         }
     }
@@ -2167,13 +2182,12 @@ class MasterNode implements MessageListener, Runnable {
      * @param msg message
      * @return The source value
      */
-    static long getMasterViewSequenceID( Message msg) {
+    static long getMasterViewSequenceID(Message msg) {
         long result = -1;
         Object value = msg.getMessageElement(MasterNode.MASTERVIEWSEQ);
         if (value instanceof Long) {
-            result = (Long)value;
+            result = (Long) value;
         }
         return result;
     }
 }
-

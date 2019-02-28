@@ -21,15 +21,12 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * Provides support for maintaining information about an impending shutdown
- * announcement either in an instance context or in a group context. An instance
- * of this object is consulted for distinguishing an abnormal failure from a
- * planned shutdown resulting in a failure notification from heart beat agents.
- * Also consulted for determining if a member being suspected has already
- * announced shutdown or there is a group shutdown.
+ * Provides support for maintaining information about an impending shutdown announcement either in an instance context
+ * or in a group context. An instance of this object is consulted for distinguishing an abnormal failure from a planned
+ * shutdown resulting in a failure notification from heart beat agents. Also consulted for determining if a member being
+ * suspected has already announced shutdown or there is a group shutdown.
  *
- * @author Shreedhar Ganapathy
- *         Date: Sep 21, 2005
+ * @author Shreedhar Ganapathy Date: Sep 21, 2005
  * @version $Revision$
  */
 public class ShutdownHelper {

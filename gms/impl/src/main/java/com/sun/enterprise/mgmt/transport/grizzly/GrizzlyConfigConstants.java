@@ -17,16 +17,13 @@
 package com.sun.enterprise.mgmt.transport.grizzly;
 
 /**
- * Specifies constants that are allowed to be used as keys for configuration
- * elements that are sought to be set or retrieved for/from Grizzly platform
- * configuration
+ * Specifies constants that are allowed to be used as keys for configuration elements that are sought to be set or
+ * retrieved for/from Grizzly platform configuration
  *
  * @author Bongjae Chang
  */
 public enum GrizzlyConfigConstants {
-    TCPSTARTPORT,
-    TCPENDPORT,
-    BIND_INTERFACE_NAME,
+    TCPSTARTPORT, TCPENDPORT, BIND_INTERFACE_NAME,
 
     // thread pool
     MAX_POOLSIZE, // max threads for tcp and multicast processing. See max parameter for ThreadPoolExecutor constructor.
@@ -46,6 +43,5 @@ public enum GrizzlyConfigConstants {
 
     // comma separated list of tcp uri endpoints
     // ex) tcp://192.168.0.3:9090,tcp://61.77.153.2:9090
-    DISCOVERY_URI_LIST,
-    MULTICAST_TIME_TO_LIVE
+    DISCOVERY_URI_LIST, MULTICAST_TIME_TO_LIVE
 }

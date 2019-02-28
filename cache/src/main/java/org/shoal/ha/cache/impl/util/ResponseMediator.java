@@ -16,21 +16,15 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import org.shoal.ha.cache.impl.util.CommandResponse;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mk
- * Date: Jan 9, 2010
- * Time: 2:44:09 PM
- * To change this template use File | Settings | File Templates.
+ * Created by IntelliJ IDEA. User: mk Date: Jan 9, 2010 Time: 2:44:09 PM To change this template use File | Settings |
+ * File Templates.
  */
 public class ResponseMediator {
 
-    private ConcurrentHashMap<Long, CommandResponse> responses =
-            new ConcurrentHashMap<Long, CommandResponse>();
+    private ConcurrentHashMap<Long, CommandResponse> responses = new ConcurrentHashMap<Long, CommandResponse>();
 
     public CommandResponse createCommandResponse() {
         CommandResponse resp = new CommandResponse(this);
@@ -38,6 +32,7 @@ public class ResponseMediator {
 
         return resp;
     }
+
     public CumulativeCommandResponse createCumulativeCommandResponse(int maxResponse, Object initialValue) {
         CumulativeCommandResponse resp = new CumulativeCommandResponse(this, maxResponse, initialValue);
         responses.put(resp.getTokenId(), resp);
@@ -46,7 +41,7 @@ public class ResponseMediator {
     }
 
     public CommandResponse getCommandResponse(long tokenId) {
-        return  responses.get(tokenId);
+        return responses.get(tokenId);
     }
 
     public void removeCommandResponse(long id) {

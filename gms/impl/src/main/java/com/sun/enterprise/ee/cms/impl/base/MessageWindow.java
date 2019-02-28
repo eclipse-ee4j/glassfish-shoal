@@ -16,29 +16,35 @@
 
 package com.sun.enterprise.ee.cms.impl.base;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.MessageSignal;
-import com.sun.enterprise.ee.cms.impl.common.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.GMSMessage;
-
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.concurrent.*;
+import java.util.Iterator;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Iterator;
+
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.MessageSignal;
+import com.sun.enterprise.ee.cms.impl.common.DSCMessage;
+import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import com.sun.enterprise.ee.cms.impl.common.MessageSignalImpl;
+import com.sun.enterprise.ee.cms.impl.common.Router;
+import com.sun.enterprise.ee.cms.impl.common.ShutdownHelper;
+import com.sun.enterprise.ee.cms.impl.common.SignalPacket;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.GMSMessage;
 
 /**
- * Handles messages from the message queue and dispatches them to the
- * interested parties. Also specially handles messages sent for
- * DistributedStateCacheImpl (the default implementation) for synchronization
- * actions.
+ * Handles messages from the message queue and dispatches them to the interested parties. Also specially handles
+ * messages sent for DistributedStateCacheImpl (the default implementation) for synchronization actions.
  *
- * @author Shreedhar Ganapathy
- *         Date: Jul 11, 2006
+ * @author Shreedhar Ganapathy Date: Jul 11, 2006
  * @version $Revision$
  */
 public class MessageWindow implements Runnable {
@@ -57,13 +63,13 @@ public class MessageWindow implements Runnable {
         this.dscExecutor = Executors.newSingleThreadExecutor(gtf);
     }
 
-   void stop() {
+    void stop() {
         dscExecutor.shutdown();
-   }
+    }
 
     private GMSContext getGMSContext() {
         if (ctx == null) {
-            ctx = (GMSContext) GMSContextFactory.getGMSContext(groupName);
+            ctx = GMSContextFactory.getGMSContext(groupName);
         }
         return ctx;
     }
@@ -84,8 +90,8 @@ public class MessageWindow implements Runnable {
                 recordMessageQueueHighWaterMark();
                 final MessagePacket packet = messageQueue.take();
                 if (packet != null) {
-                    if (logger.isLoggable(Level.FINER)){
-                        logger.log(Level.FINER, "Processing received message .... "+ packet.getMessage());
+                    if (logger.isLoggable(Level.FINER)) {
+                        logger.log(Level.FINER, "Processing received message .... " + packet.getMessage());
                     }
                     newMessageReceived(packet);
                 }
@@ -96,16 +102,16 @@ public class MessageWindow implements Runnable {
             }
         }
         if (monitorLogger.isLoggable(Level.FINE)) {
-            int msgQueueCapacity =  (messageQueue == null ? 0 : messageQueue.remainingCapacity());
-            monitorLogger.log(Level.FINE, "message queue high water mark:" + messageQueueHighWaterMark.get() +
-                                           " msg queue remaining capacity:" + msgQueueCapacity);
+            int msgQueueCapacity = (messageQueue == null ? 0 : messageQueue.remainingCapacity());
+            monitorLogger.log(Level.FINE,
+                    "message queue high water mark:" + messageQueueHighWaterMark.get() + " msg queue remaining capacity:" + msgQueueCapacity);
         }
         if (messageQueue != null && messageQueue.size() > 0) {
             int messageQueueSize = messageQueue.size();
-            logger.log(Level.WARNING, "msg.wdw.thread.shutdown", new Object[]{groupName, messageQueueSize});
+            logger.log(Level.WARNING, "msg.wdw.thread.shutdown", new Object[] { groupName, messageQueueSize });
             if (messageQueueSize > 0 && logger.isLoggable(Level.FINER)) {
                 Iterator<MessagePacket> mqIter = messageQueue.iterator();
-                if (logger.isLoggable(Level.FINER)){
+                if (logger.isLoggable(Level.FINER)) {
                     logger.finer("Dumping received but unprocessed messages for group: " + groupName);
                 }
                 while (mqIter.hasNext()) {
@@ -113,15 +119,16 @@ public class MessageWindow implements Runnable {
                     Object message = mp.getMessage();
                     String sender = mp.getAdvertisement().getName();
                     if (message instanceof GMSMessage) {
-                        writeLog(sender, (GMSMessage)mp.getMessage());
+                        writeLog(sender, (GMSMessage) mp.getMessage());
                     } else if (message instanceof DSCMessage && logger.isLoggable(Level.FINE)) {
-                        logger.log(Level.FINE, MessageFormat.format("Unprocessed DSCMessageReceived from :{0}, Operation :{1}", sender, ((DSCMessage)message).getOperation()));
+                        logger.log(Level.FINE, MessageFormat.format("Unprocessed DSCMessageReceived from :{0}, Operation :{1}", sender,
+                                ((DSCMessage) message).getOperation()));
                     }
                 }
             }
 
         } else {
-            logger.log(Level.INFO, "msg.wdw.thread.terminated", new Object[]{groupName});
+            logger.log(Level.INFO, "msg.wdw.thread.terminated", new Object[] { groupName });
         }
     }
 
@@ -134,7 +141,7 @@ public class MessageWindow implements Runnable {
             handleGMSMessage((GMSMessage) message, sender);
         } else if (message instanceof DSCMessage) {
             try {
-                dscExecutor.submit(new ProcessDSCMessageTask(this, (DSCMessage)message, sender));
+                dscExecutor.submit(new ProcessDSCMessageTask(this, (DSCMessage) message, sender));
             } catch (RejectedExecutionException ree) {
                 logger.log(Level.WARNING, "failed to schedule processDSCMessageTask for mesasge " + message);
 
@@ -153,8 +160,7 @@ public class MessageWindow implements Runnable {
         if (DSCLogger.isLoggable(Level.FINE)) {
             DSCLogger.log(Level.FINE, MessageFormat.format("DSCMessageReceived from :{0}, Operation :{1}", token, ops));
         }
-        final DistributedStateCacheImpl dsc =
-                (DistributedStateCacheImpl) getGMSContext().getDistributedStateCache();
+        final DistributedStateCacheImpl dsc = (DistributedStateCacheImpl) getGMSContext().getDistributedStateCache();
         if (ops.equals(DSCMessage.OPERATION.ADD.toString())) {
             if (DSCLogger.isLoggable(Level.FINE)) {
                 DSCLogger.log(Level.FINE, "Adding Message: " + dMsg.getKey() + ":" + dMsg.getValue());
@@ -162,7 +168,7 @@ public class MessageWindow implements Runnable {
             dsc.addToLocalCache(dMsg.getKey(), dMsg.getValue());
         } else if (ops.equals(DSCMessage.OPERATION.REMOVE.toString())) {
             if (DSCLogger.isLoggable(Level.FINE)) {
-                    DSCLogger.log(Level.FINE, "Removing Values with Key: " + dMsg.getKey());
+                DSCLogger.log(Level.FINE, "Removing Values with Key: " + dMsg.getKey());
             }
             dsc.removeFromLocalCache(dMsg.getKey());
         } else if (ops.equals(DSCMessage.OPERATION.ADDALLLOCAL.toString())) {
@@ -184,25 +190,23 @@ public class MessageWindow implements Runnable {
             if (DSCLogger.isLoggable(Level.FINE)) {
                 DSCLogger.log(Level.FINE, "Add All Remote from member:" + token + " dsc=" + dsc);
             }
-        }//TODO: determine if the following is needed.
-        /*else if( ops.equals( DSCMessage.OPERATION.REMOVEALL.toString()) ) {
-            dsc.removeAllFromCache( dMsg. );
-        }*/
+        } // TODO: determine if the following is needed.
+        /*
+         * else if( ops.equals( DSCMessage.OPERATION.REMOVEALL.toString()) ) { dsc.removeAllFromCache( dMsg. ); }
+         */
     }
 
     private void handleGMSMessage(final GMSMessage gMsg, final String sender) {
-        if (gMsg.getComponentName() != null &&
-                gMsg.getComponentName().equals(GMSConstants.shutdownType.GROUP_SHUTDOWN.toString())) {
+        if (gMsg.getComponentName() != null && gMsg.getComponentName().equals(GMSConstants.shutdownType.GROUP_SHUTDOWN.toString())) {
             final ShutdownHelper sh = GMSContextFactory.getGMSContext(gMsg.getGroupName()).getShutdownHelper();
-            logger.log(Level.INFO, "member.groupshutdown", new Object[]{sender, groupName});
+            logger.log(Level.INFO, "member.groupshutdown", new Object[] { sender, groupName });
             sh.addToGroupShutdownList(gMsg.getGroupName());
             logger.log(Level.FINE, "setting clusterStopping variable to true");
             GMSContextFactory.getGMSContext(gMsg.getGroupName()).getGroupCommunicationProvider().setGroupStoppingState();
         } else {
             if (getRouter().isMessageAFRegistered()) {
                 writeLog(sender, gMsg);
-                final MessageSignal ms = new MessageSignalImpl(gMsg.getMessage(), gMsg.getComponentName(), sender,
-                        gMsg.getGroupName(), gMsg.getStartTime());
+                final MessageSignal ms = new MessageSignalImpl(gMsg.getMessage(), gMsg.getComponentName(), sender, gMsg.getGroupName(), gMsg.getStartTime());
                 final SignalPacket signalPacket = new SignalPacket(ms);
                 getRouter().queueSignal(signalPacket);
             }
@@ -216,8 +220,8 @@ public class MessageWindow implements Runnable {
     private void writeLog(final String sender, final com.sun.enterprise.ee.cms.spi.GMSMessage message) {
         final String localId = getGMSContext().getServerIdentityToken();
         if (logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, MessageFormat.format("Sender:{0}, Receiver :{1}, TargetComponent :{2}, Message :{3}",
-                    sender, localId, message.getComponentName(), new String(message.getMessage(), Charset.defaultCharset())));
+            logger.log(Level.FINER, MessageFormat.format("Sender:{0}, Receiver :{1}, TargetComponent :{2}, Message :{3}", sender, localId,
+                    message.getComponentName(), new String(message.getMessage(), Charset.defaultCharset())));
         }
     }
 
@@ -226,7 +230,7 @@ public class MessageWindow implements Runnable {
         final private DSCMessage dMsg;
         final private String fromMember;
 
-        public ProcessDSCMessageTask(MessageWindow mw, final DSCMessage dMsg, final String token  ) {
+        public ProcessDSCMessageTask(MessageWindow mw, final DSCMessage dMsg, final String token) {
             this.mw = mw;
             this.dMsg = dMsg;
             this.fromMember = token;

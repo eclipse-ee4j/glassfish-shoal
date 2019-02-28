@@ -16,19 +16,16 @@
 
 package org.glassfish.ha.store.impl;
 
+import java.io.Serializable;
+
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStoreException;
-import org.glassfish.ha.store.api.Storeable;
-
-import java.io.Serializable;
-import java.util.Properties;
 
 /**
  * @author Mahesh Kannan
  */
-public class NoOpBackingStore<K extends Serializable, V extends Serializable>
-    extends BackingStore<K, V> {
+public class NoOpBackingStore<K extends Serializable, V extends Serializable> extends BackingStore<K, V> {
 
     private String myName;
 
@@ -37,8 +34,7 @@ public class NoOpBackingStore<K extends Serializable, V extends Serializable>
     }
 
     @Override
-    protected void initialize(BackingStoreConfiguration<K, V> conf)
-        throws BackingStoreException {
+    protected void initialize(BackingStoreConfiguration<K, V> conf) throws BackingStoreException {
         super.initialize(conf);
 
         myName = conf == null ? null : conf.getInstanceName();
@@ -48,6 +44,7 @@ public class NoOpBackingStore<K extends Serializable, V extends Serializable>
     public V load(K key, String version) throws BackingStoreException {
         return null;
     }
+
     public V load(K key, Long version) throws BackingStoreException {
         return null;
     }
@@ -84,6 +81,6 @@ public class NoOpBackingStore<K extends Serializable, V extends Serializable>
 
     @Override
     public void destroy() throws BackingStoreException {
-        
+
     }
 }

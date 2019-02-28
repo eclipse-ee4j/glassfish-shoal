@@ -22,8 +22,7 @@ import java.nio.charset.Charset;
 /**
  * @author Mahesh Kannan
  */
-public class ReplicationInputStream
-    extends ByteArrayInputStream {
+public class ReplicationInputStream extends ByteArrayInputStream {
 
     private int minPos = 0;
 
@@ -47,22 +46,21 @@ public class ReplicationInputStream
 
     public void skipTo(int index) {
         if (index < minPos || index > maxPos) {
-            throw new IllegalArgumentException("Illegal position (" + index + "). Valid values are from "
-                + minPos + " to " + maxPos);
+            throw new IllegalArgumentException("Illegal position (" + index + "). Valid values are from " + minPos + " to " + maxPos);
         }
         super.pos = index;
     }
 
     public final int readInt() {
-        //TODO Check bounds
+        // TODO Check bounds
         int val = Utility.bytesToInt(buf, pos);
         pos += 4;
         return val;
     }
 
     public final long readLong() {
-        //TODO Check bounds
-        return ((long) readInt() << 32) | ((long) readInt() & 0xFFFFFFFFL);
+        // TODO Check bounds
+        return ((long) readInt() << 32) | (readInt() & 0xFFFFFFFFL);
     }
 
     public final String readLengthPrefixedString() {
@@ -89,7 +87,7 @@ public class ReplicationInputStream
     }
 
     public boolean readBoolean() {
-        return buf[pos++] == 1; 
+        return buf[pos++] == 1;
     }
 
     public byte[] getBuffer() {

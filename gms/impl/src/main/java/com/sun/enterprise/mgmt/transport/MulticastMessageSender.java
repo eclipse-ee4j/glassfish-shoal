@@ -32,5 +32,5 @@ public interface MulticastMessageSender extends ShoalMessageSender {
      * @return true if the message is sent to all members successfully, otherwise false
      * @throws IOException if I/O error occurs or given parameters are not valid
      */
-    public boolean broadcast( final Message message ) throws IOException;
+    boolean broadcast(final Message message) throws IOException;
 }

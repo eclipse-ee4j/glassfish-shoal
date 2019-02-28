@@ -19,7 +19,6 @@ package com.sun.enterprise.ee.cms.impl.base;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 /**
  * Enable thread configuration of GMS threads in thread pools.
  */
@@ -32,7 +31,6 @@ public class GMSThreadFactory implements ThreadFactory {
     public GMSThreadFactory(String threadPrefixName) {
         this(threadPrefixName, true);
     }
-
 
     public GMSThreadFactory(String threadPrefixName, boolean isDaemon) {
         this.threadPrefixName = threadPrefixName;

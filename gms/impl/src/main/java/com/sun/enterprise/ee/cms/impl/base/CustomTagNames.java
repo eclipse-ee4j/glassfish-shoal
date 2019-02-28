@@ -17,12 +17,9 @@
 package com.sun.enterprise.ee.cms.impl.base;
 
 /**
- * @author Shreedhar Ganapathy
- *         Date: Jul 14, 2006
+ * @author Shreedhar Ganapathy Date: Jul 14, 2006
  * @version $Revision$
  */
 public enum CustomTagNames {
-    MEMBER_TYPE,
-    GROUP_NAME,
-    START_TIME
+    MEMBER_TYPE, GROUP_NAME, START_TIME
 }

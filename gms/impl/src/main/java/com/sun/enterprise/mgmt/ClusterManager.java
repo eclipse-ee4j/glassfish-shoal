@@ -16,14 +16,6 @@
 
 package com.sun.enterprise.mgmt;
 
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
-import com.sun.enterprise.ee.cms.impl.base.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.mgmt.transport.*;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Inet6Address;
@@ -33,9 +25,28 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
+import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisementImpl;
+import com.sun.enterprise.ee.cms.impl.base.Utility;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.mgmt.transport.AbstractNetworkManager;
+import com.sun.enterprise.mgmt.transport.Message;
+import com.sun.enterprise.mgmt.transport.MessageEvent;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+import com.sun.enterprise.mgmt.transport.MessageListener;
+import com.sun.enterprise.mgmt.transport.NetworkManager;
+import com.sun.enterprise.mgmt.transport.NetworkUtility;
+
 /**
- * The ClusterManager is the entry point for using the cluster management module
- * which provides group communications and membership semantics on top of JXTA, Grizzly and others.
+ * The ClusterManager is the entry point for using the cluster management module which provides group communications and
+ * membership semantics on top of JXTA, Grizzly and others.
  */
 public class ClusterManager implements MessageListener {
     private static final Logger LOG = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
@@ -63,63 +74,48 @@ public class ClusterManager implements MessageListener {
     final String gmsContextProviderTransport;
 
     /**
-     * The ClusterManager is created using the instanceName,
-     * and a Properties object that contains a set of parameters that the
-     * employing application would like to set for its purposes, namely,
-     * configuration parameters such as failure detection timeout, retries,
-     * address and port on which to communicate with the group, group and
-     * instance IDs,etc. The set of allowed constants to be used as keys in the
-     * Properties object are specified in JxtaConfigConstants enum.
+     * The ClusterManager is created using the instanceName, and a Properties object that contains a set of parameters that
+     * the employing application would like to set for its purposes, namely, configuration parameters such as failure
+     * detection timeout, retries, address and port on which to communicate with the group, group and instance IDs,etc. The
+     * set of allowed constants to be used as keys in the Properties object are specified in JxtaConfigConstants enum.
      *
-     * @param groupName        Name of Group to which this process/peer seeks
-     *                         membership
-     * @param instanceName     A token identifying this instance/process
-     * @param identityMap      Additional identity tokens can be specified through
-     *                         this Map object. These become a part of the
-     *                         SystemAdvertisement allowing the peer/system to
-     *                         be identified by the application layer based on their
-     *                         own notion of identity
-     * @param props            a Properties object containing parameters that are
-     *                         allowed to be specified by employing application
-     *                         //TODO: specify that INFRA IDs and address/port are
-     *                         composite keys in essence but addresses/ports could
-     *                         be shared across ids with a performance penalty.
-     *                         //TODO: provide an API to send messages, synchronously or asynchronously
-     * @param viewListeners    listeners interested in group view change events
+     * @param groupName Name of Group to which this process/peer seeks membership
+     * @param instanceName A token identifying this instance/process
+     * @param identityMap Additional identity tokens can be specified through this Map object. These become a part of the
+     * SystemAdvertisement allowing the peer/system to be identified by the application layer based on their own notion of
+     * identity
+     * @param props a Properties object containing parameters that are allowed to be specified by employing application
+     * //TODO: specify that INFRA IDs and address/port are composite keys in essence but addresses/ports could be shared
+     * across ids with a performance penalty. //TODO: provide an API to send messages, synchronously or asynchronously
+     * @param viewListeners listeners interested in group view change events
      * @param messageListeners listeners interested in receiving messages.
      * @throws GMSException Generic exception for handling errors
      */
-    public ClusterManager(final String groupName,
-                          final String instanceName,
-                          final Map<String, String> identityMap,
-                          final Map props,
-                          final List<ClusterViewEventListener> viewListeners,
-                          final List<ClusterMessageListener> messageListeners) throws GMSException {
-        this.memberType = (String)identityMap.get( CustomTagNames.MEMBER_TYPE.toString());
+    public ClusterManager(final String groupName, final String instanceName, final Map<String, String> identityMap, final Map props,
+            final List<ClusterViewEventListener> viewListeners, final List<ClusterMessageListener> messageListeners) throws GMSException {
+        this.memberType = identityMap.get(CustomTagNames.MEMBER_TYPE.toString());
         this.groupName = groupName;
         this.instanceName = instanceName;
         this.loopbackMessages = isLoopBackEnabled(props);
-        //TODO: ability to specify additional rendezvous and also bootstrap a default rendezvous
-        //TODO: revisit and document auto composition of transports
+        // TODO: ability to specify additional rendezvous and also bootstrap a default rendezvous
+        // TODO: revisit and document auto composition of transports
 
-        gmsContextProviderTransport = Utility.getStringProperty( "SHOAL_GROUP_COMMUNICATION_PROVIDER",
-                                                                 GMSConstants.GROUP_COMMUNICATION_PROVIDER,
-                                                                 props );
+        gmsContextProviderTransport = Utility.getStringProperty("SHOAL_GROUP_COMMUNICATION_PROVIDER", GMSConstants.GROUP_COMMUNICATION_PROVIDER, props);
         this.netManager = getNetworkManager(gmsContextProviderTransport);
         LOG.config("instantiated following NetworkManager implementation:" + netManager.getClass().getName());
-        
+
         this.identityMap = identityMap;
         try {
-            netManager.initialize( groupName, instanceName, props);
+            netManager.initialize(groupName, instanceName, props);
             netManager.start();
         } catch (IOException ioe) {
             throw new GMSException("initialization failure", ioe);
         } catch (IllegalStateException ise) {
             throw new GMSException("initialization failure", ise);
         }
-        //NetworkManagerRegistry.add(groupName, netManager);
-        if(props !=null && !props.isEmpty()){
-            this.bindInterfaceAddress = (String)props.get( ConfigConstants.BIND_INTERFACE_ADDRESS.toString());
+        // NetworkManagerRegistry.add(groupName, netManager);
+        if (props != null && !props.isEmpty()) {
+            this.bindInterfaceAddress = (String) props.get(ConfigConstants.BIND_INTERFACE_ADDRESS.toString());
         }
         systemAdv = createSystemAdv(netManager.getLocalPeerID(), instanceName, identityMap, bindInterfaceAddress);
         if (LOG.isLoggable(Level.FINER)) {
@@ -133,19 +129,15 @@ public class ClusterManager implements MessageListener {
             this.masterNode = new MasterNode(this, getDiscoveryTimeout(props), 1, props);
         }
 
-        this.healthMonitor = new HealthMonitor(this,
-                getFailureDetectionTimeout(props),
-                getFailureDetectionRetries(props),
-                getVerifyFailureTimeout(props),
-                getFailureDetectionTcpRetransmitTimeout(props),
-                getFailureDetectionTcpRetransmitPort(props));
-        
+        this.healthMonitor = new HealthMonitor(this, getFailureDetectionTimeout(props), getFailureDetectionRetries(props), getVerifyFailureTimeout(props),
+                getFailureDetectionTcpRetransmitTimeout(props), getFailureDetectionTcpRetransmitPort(props));
+
         cmListeners = messageListeners;
     }
 
     public boolean isWatchdog() {
-         return GroupManagementService.MemberType.WATCHDOG.toString().equals(memberType);
-     }
+        return GroupManagementService.MemberType.WATCHDOG.toString().equals(memberType);
+    }
 
     private boolean isLoopBackEnabled(final Map props) {
         boolean LOOPBACK_DEFAULT = false;
@@ -153,51 +145,44 @@ public class ClusterManager implements MessageListener {
     }
 
     private long getDiscoveryTimeout(Map props) {
-        long DISCOVERY_TIMEOUT_DEFAULT = 5000;  // milliseconds or 5 seconds.
-        return Utility.getLongProperty(ConfigConstants.DISCOVERY_TIMEOUT.toString(),
-            DISCOVERY_TIMEOUT_DEFAULT, props);
+        long DISCOVERY_TIMEOUT_DEFAULT = 5000; // milliseconds or 5 seconds.
+        return Utility.getLongProperty(ConfigConstants.DISCOVERY_TIMEOUT.toString(), DISCOVERY_TIMEOUT_DEFAULT, props);
     }
 
     private long getFailureDetectionTimeout(Map props) {
         long DEFAULT_FAILURE_DETECTION_TIMEOUT = 3000;
-        return Utility.getLongProperty(ConfigConstants.FAILURE_DETECTION_TIMEOUT.toString(),
-            DEFAULT_FAILURE_DETECTION_TIMEOUT, props);
+        return Utility.getLongProperty(ConfigConstants.FAILURE_DETECTION_TIMEOUT.toString(), DEFAULT_FAILURE_DETECTION_TIMEOUT, props);
     }
 
     private int getFailureDetectionRetries(Map props) {
         int DEFAULT_FAILURE_RETRY = 3;
-        return Utility.getIntProperty(ConfigConstants.FAILURE_DETECTION_RETRIES.toString(),
-            DEFAULT_FAILURE_RETRY, props);
+        return Utility.getIntProperty(ConfigConstants.FAILURE_DETECTION_RETRIES.toString(), DEFAULT_FAILURE_RETRY, props);
     }
 
     private long getFailureDetectionTcpRetransmitTimeout(Map props) {
-        long DEFAULT_FAIL_TCP_TIMEOUT = 10000;   // sailfin requirement to discover network outage under 30 seconds.
-                                       // fix for sailfin 626.
-                                       // HealthMonitor.isConnected() is called twice and must time out twice,
-                                       // using 20 seconds.
-                                       // indoubt detection and failure verification takes 8-10 seconds.
-        return Utility.getLongProperty(ConfigConstants.FAILURE_DETECTION_TCP_RETRANSMIT_TIMEOUT.toString(),
-            DEFAULT_FAIL_TCP_TIMEOUT, props);
+        long DEFAULT_FAIL_TCP_TIMEOUT = 10000; // sailfin requirement to discover network outage under 30 seconds.
+        // fix for sailfin 626.
+        // HealthMonitor.isConnected() is called twice and must time out twice,
+        // using 20 seconds.
+        // indoubt detection and failure verification takes 8-10 seconds.
+        return Utility.getLongProperty(ConfigConstants.FAILURE_DETECTION_TCP_RETRANSMIT_TIMEOUT.toString(), DEFAULT_FAIL_TCP_TIMEOUT, props);
     }
 
     private int getFailureDetectionTcpRetransmitPort(Map props) {
         int DEFAULT_FAIL_TCP_PORT = 9000;
-        return Utility.getIntProperty(ConfigConstants.FAILURE_DETECTION_TCP_RETRANSMIT_PORT.toString(),
-            DEFAULT_FAIL_TCP_PORT, props);
+        return Utility.getIntProperty(ConfigConstants.FAILURE_DETECTION_TCP_RETRANSMIT_PORT.toString(), DEFAULT_FAIL_TCP_PORT, props);
     }
 
     private long getVerifyFailureTimeout(Map props) {
         long DEFAULT_VERIFY_TIMEOUT = 2000;
-        return Utility.getLongProperty(ConfigConstants.FAILURE_VERIFICATION_TIMEOUT.toString(),
-                                    DEFAULT_VERIFY_TIMEOUT, props);
+        return Utility.getLongProperty(ConfigConstants.FAILURE_VERIFICATION_TIMEOUT.toString(), DEFAULT_VERIFY_TIMEOUT, props);
     }
 
     public void addClusteMessageListener(final ClusterMessageListener listener) {
         cmListeners.add(listener);
     }
 
-    public void removeClusterViewEventListener(
-            final ClusterMessageListener listener) {
+    public void removeClusterViewEventListener(final ClusterMessageListener listener) {
         cmListeners.remove(listener);
     }
 
@@ -213,10 +198,10 @@ public class ClusterManager implements MessageListener {
             if (!isWatchdog()) {
                 masterNode.stop();
             }
-            netManager.removeMessageListener( this );
+            netManager.removeMessageListener(this);
             try {
                 netManager.stop();
-            } catch( IOException e ) {
+            } catch (IOException e) {
             }
             stopped = true;
             synchronized (closeLock) {
@@ -230,7 +215,7 @@ public class ClusterManager implements MessageListener {
      */
     public synchronized void start() {
         if (!started) {
-            netManager.addMessageListener( this );
+            netManager.addMessageListener(this);
             if (!isWatchdog()) {
                 masterNode.start();
             }
@@ -242,6 +227,7 @@ public class ClusterManager implements MessageListener {
 
     /**
      * Returns the NetworkManager instance
+     *
      * @param transport The type of transport
      *
      * @return The networkManager value
@@ -276,8 +262,8 @@ public class ClusterManager implements MessageListener {
     }
 
     /**
-     * Returns the ClusterViewManager object.  All modules use this common object which
-     * represents a synchronized view of a set of AppServers
+     * Returns the ClusterViewManager object. All modules use this common object which represents a synchronized view of a
+     * set of AppServers
      *
      * @return The clusterViewManager object
      */
@@ -303,49 +289,47 @@ public class ClusterManager implements MessageListener {
     }
 
     /**
-     * Send a message to a specific node or the group. In the case where the id
-     * is null the message is sent to the entire group
+     * Send a message to a specific node or the group. In the case where the id is null the message is sent to the entire
+     * group
      *
      * @param peerid the node ID
-     * @param msg    the message to send
+     * @param msg the message to send
      * @param validatePeeridInView the flag to validate the peer id
-     * @return boolean <code>true</code> if the message has been sent otherwise
-     * <code>false</code>. <code>false</code>. is commonly returned for
-     * non-error related congestion, meaning that you should be able to send
-     * the message after waiting some amount of time.
+     * @return boolean <code>true</code> if the message has been sent otherwise <code>false</code>. <code>false</code>. is
+     * commonly returned for non-error related congestion, meaning that you should be able to send the message after waiting
+     * some amount of time.
      * @throws java.io.IOException if an io error occurs
      * @throws MemberNotInViewException if the peer id is not in view
      */
     public boolean send(final PeerID peerid, final Serializable msg, boolean validatePeeridInView) throws IOException, MemberNotInViewException {
         boolean sent = false;
         if (!stopping) {
-            final Message message = new MessageImpl( Message.TYPE_CLUSTER_MANAGER_MESSAGE );
+            final Message message = new MessageImpl(Message.TYPE_CLUSTER_MANAGER_MESSAGE);
             message.addMessageElement(NODEADV, systemAdv);
             message.addMessageElement(APPMESSAGE, msg);
 
             if (peerid != null) {
-                //check if the peerid is part of the cluster view
-                if (! validatePeeridInView || getClusterViewManager().containsKey(peerid, true)) {
+                // check if the peerid is part of the cluster view
+                if (!validatePeeridInView || getClusterViewManager().containsKey(peerid, true)) {
                     if (LOG.isLoggable(Level.FINE) && validatePeeridInView) {
                         LOG.fine("ClusterManager.send : Cluster View contains " + peerid.toString());
                     }
-                    sent = netManager.send( peerid, message );
-                    if( !sent ) {
-                        LOG.log(Level.WARNING, "mgmt.clustermanager.send.failed", new Object[]{ message, peerid});
+                    sent = netManager.send(peerid, message);
+                    if (!sent) {
+                        LOG.log(Level.WARNING, "mgmt.clustermanager.send.failed", new Object[] { message, peerid });
                     }
                 } else {
-                    LOG.log(Level.INFO, "mgmt.clustermanager.send.membernotinview", new Object[]{peerid.toString()});
+                    LOG.log(Level.INFO, "mgmt.clustermanager.send.membernotinview", new Object[] { peerid.toString() });
 
                     // todo I18N?
-                    throw new MemberNotInViewException("Member " + peerid +
-                            " is not in the View anymore. Hence not performing sendMessage operation");
+                    throw new MemberNotInViewException("Member " + peerid + " is not in the View anymore. Hence not performing sendMessage operation");
                 }
             } else {
                 // multicast
                 LOG.log(Level.FINER, "Broadcasting Message");
-                sent = netManager.broadcast( message );
+                sent = netManager.broadcast(message);
                 if (!sent) {
-                    LOG.log(Level.WARNING, "mgmt.clustermanager.broadcast.failed", new Object[]{message});
+                    LOG.log(Level.WARNING, "mgmt.clustermanager.broadcast.failed", new Object[] { message });
                 }
             }
         }
@@ -370,7 +354,7 @@ public class ClusterManager implements MessageListener {
                     LOG.log(Level.WARNING, "mgmt.clustermanager.nullmessage");
                     return;
                 }
-                //JxtaUtil.printMessageStats(msg, true);
+                // JxtaUtil.printMessageStats(msg, true);
                 LOG.log(Level.FINEST, "ClusterManager:Received a AppMessage ");
                 msgElement = msg.getMessageElement(NODEADV);
                 if (msgElement == null) {
@@ -380,8 +364,8 @@ public class ClusterManager implements MessageListener {
                 }
 
                 final SystemAdvertisement adv;
-                if( msgElement instanceof SystemAdvertisement ) {
-                    adv = (SystemAdvertisement)msgElement;
+                if (msgElement instanceof SystemAdvertisement) {
+                    adv = (SystemAdvertisement) msgElement;
                 } else {
                     LOG.log(Level.WARNING, "mgmt.unknownMessage");
                     return;
@@ -397,10 +381,9 @@ public class ClusterManager implements MessageListener {
                 msgElement = msg.getMessageElement(APPMESSAGE);
                 if (msgElement != null) {
                     if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.log(Level.FINEST, "ClusterManager: Notifying APPMessage Listeners of " +
-                                msgElement.toString() + "and adv = " + adv.getName());
+                        LOG.log(Level.FINEST, "ClusterManager: Notifying APPMessage Listeners of " + msgElement.toString() + "and adv = " + adv.getName());
                     }
-                    notifyMessageListeners(adv, msgElement );
+                    notifyMessageListeners(adv, msgElement);
                 }
             } catch (Throwable e) {
                 LOG.log(Level.WARNING, e.getLocalizedMessage());
@@ -437,18 +420,15 @@ public class ClusterManager implements MessageListener {
     /**
      * Given a peergroup and a SystemAdvertisement is returned
      *
-     * @param peerID     peer id
-     * @param name       host name
-     * @param customTags A Map object. These are additional system identifiers
-     *                   that the application layer can provide for its own
-     *                   identification.
+     * @param peerID peer id
+     * @param name host name
+     * @param customTags A Map object. These are additional system identifiers that the application layer can provide for
+     * its own identification.
      * @param bindInterfaceAddress bind interface address
      * @return SystemAdvertisement object
      */
-    private static synchronized SystemAdvertisement createSystemAdv(final PeerID peerID,
-                                                                    final String name,
-                                                                    final Map<String, String> customTags,
-                                                                    final String bindInterfaceAddress) {
+    private static synchronized SystemAdvertisement createSystemAdv(final PeerID peerID, final String name, final Map<String, String> customTags,
+            final String bindInterfaceAddress) {
         if (peerID == null) {
             throw new IllegalArgumentException("peer id can not be null");
         }
@@ -471,44 +451,43 @@ public class ClusterManager implements MessageListener {
     static private void setBindInterfaceAddress(SystemAdvertisement sysAdv, String bindInterfaceAddress) {
         String bindInterfaceEndpointAddress = null;
         final String TCP_SCHEME = "tcp://";
-        final String PORT = ":4000";  // necessary to add a port but its value is ignored.
+        final String PORT = ":4000"; // necessary to add a port but its value is ignored.
         if (bindInterfaceAddress != null && !bindInterfaceAddress.equals("")) {
             InetAddress inetAddress = null;
             try {
-                inetAddress = NetworkUtility.resolveBindInterfaceName( bindInterfaceAddress );
-                if( inetAddress instanceof Inet6Address ) {
+                inetAddress = NetworkUtility.resolveBindInterfaceName(bindInterfaceAddress);
+                if (inetAddress instanceof Inet6Address) {
                     bindInterfaceEndpointAddress = TCP_SCHEME + "[" + bindInterfaceAddress + "]" + PORT;
                 } else {
                     bindInterfaceEndpointAddress = TCP_SCHEME + bindInterfaceAddress + PORT;
                 }
-            } catch( Exception e ) {
-                LOG.log( Level.WARNING, "mgmt.clustermanager.invalidbindinterfaceaddress",
-                                        new Object[]{ ConfigConstants.BIND_INTERFACE_ADDRESS.toString(), bindInterfaceAddress});
+            } catch (Exception e) {
+                LOG.log(Level.WARNING, "mgmt.clustermanager.invalidbindinterfaceaddress",
+                        new Object[] { ConfigConstants.BIND_INTERFACE_ADDRESS.toString(), bindInterfaceAddress });
             }
         }
         if (bindInterfaceEndpointAddress != null) {
             if (LOG.isLoggable(Level.CONFIG)) {
-                LOG.config("Configured bindInterfaceEndpointAddress URI " + bindInterfaceEndpointAddress +
-                           " using property " + ConfigConstants.BIND_INTERFACE_ADDRESS.toString() +
-                           " value=" + bindInterfaceAddress);
+                LOG.config("Configured bindInterfaceEndpointAddress URI " + bindInterfaceEndpointAddress + " using property "
+                        + ConfigConstants.BIND_INTERFACE_ADDRESS.toString() + " value=" + bindInterfaceAddress);
             }
             sysAdv.addEndpointAddress(bindInterfaceEndpointAddress);
         } else {
             // lookup all public addresses
             List<InetAddress> localAddressList = NetworkUtility.getAllLocalAddresses();
-            for( InetAddress inetAddress: localAddressList ) {
-                if( inetAddress instanceof Inet6Address ) {
+            for (InetAddress inetAddress : localAddressList) {
+                if (inetAddress instanceof Inet6Address) {
                     bindInterfaceEndpointAddress = TCP_SCHEME + "[" + inetAddress.getHostAddress() + "]" + PORT;
                 } else {
                     bindInterfaceEndpointAddress = TCP_SCHEME + inetAddress.getHostAddress() + PORT;
                 }
-                sysAdv.addEndpointAddress( bindInterfaceEndpointAddress );
+                sysAdv.addEndpointAddress(bindInterfaceEndpointAddress);
             }
         }
     }
 
     public String getNodeState(final PeerID peerID, long threshold, long timeout) {
-        return getHealthMonitor().getMemberState((PeerID) peerID, threshold, timeout);
+        return getHealthMonitor().getMemberState(peerID, threshold, timeout);
     }
 
     /**
@@ -527,8 +506,8 @@ public class ClusterManager implements MessageListener {
 
     public void takeOverMasterRole() {
         masterNode.takeOverMasterRole();
-        //wait until the new Master gets forcefully appointed
-        //before processing any further requests.
+        // wait until the new Master gets forcefully appointed
+        // before processing any further requests.
         waitFor(2000);
     }
 
@@ -573,4 +552,3 @@ public class ClusterManager implements MessageListener {
         return masterNode.isDiscoveryInProgress();
     }
 }
-

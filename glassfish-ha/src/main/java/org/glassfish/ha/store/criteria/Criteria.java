@@ -17,9 +17,8 @@
 package org.glassfish.ha.store.criteria;
 
 /**
- * A class that represents a Criteria. Currently only an Expression<Boolean>
- *  can be specified using a Criteria. In future this class may be modified
- *  to support selection of Attributes from V
+ * A class that represents a Criteria. Currently only an Expression<Boolean> can be specified using a Criteria. In
+ * future this class may be modified to support selection of Attributes from V
  *
  * @param <V> The type of
  *
@@ -31,7 +30,6 @@ public final class Criteria<V> {
     private Class<V> entryClazz;
 
     private Expression<Boolean> expression;
-
 
     Criteria(Class<V> entryClazz) {
         this.entryClazz = entryClazz;

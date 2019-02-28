@@ -16,7 +16,9 @@
 
 package org.shoal.ha.cache.impl.util;
 
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author Mahesh Kannan
@@ -44,7 +46,7 @@ public class ASyncReplicationManager {
         LinkedBlockingQueue queue = new LinkedBlockingQueue(boundedPoolSize);
         _asyncPool = new ASyncThreadPool(corePoolSize, maxPoolSize, keepAliveInSeconds, queue);
 
-        //TODO Should we another system property?
+        // TODO Should we another system property?
         _scheduledTP = new ScheduledThreadPoolExecutor(2);
 
 //        System.out.println("Created ExecutorService with: " +
@@ -57,7 +59,7 @@ public class ASyncReplicationManager {
         try {
             value = Integer.parseInt(System.getProperty(propName, "" + defaultValue));
         } catch (Exception ex) {
-            //Ignore
+            // Ignore
         }
 
         return value;

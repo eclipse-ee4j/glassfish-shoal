@@ -19,19 +19,15 @@ package org.glassfish.ha.store.api;
 import java.io.Serializable;
 
 /**
- * A factory for creating BackingStore(s). Every provider must provide an
- * implementation of this interface.
+ * A factory for creating BackingStore(s). Every provider must provide an implementation of this interface.
  *
  * <p>
- * The <code>createBackingStore(env)</code> method is called typically during
- * container creation time. A store instance is typically used to store state
- * for a single container.
+ * The <code>createBackingStore(env)</code> method is called typically during container creation time. A store instance
+ * is typically used to store state for a single container.
  *
  * <p>
- * Any runtime exception thrown from createBackingStore and
- * createBatchBackingStore method will cause the container to use a default
- * persistence-type (typically no replication) and a log message will be logged
- * at WARNING level.
+ * Any runtime exception thrown from createBackingStore and createBatchBackingStore method will cause the container to
+ * use a default persistence-type (typically no replication) and a log message will be logged at WARNING level.
  *
  * @author Mahesh Kannan
  *
@@ -39,27 +35,23 @@ import java.io.Serializable;
 public interface BackingStoreFactory {
 
     /**
-     * This method is called to create a BackingStore. This
-     * class must be thread safe.
+     * This method is called to create a BackingStore. This class must be thread safe.
      * <p>
-     * If the factory can produce a BackingStore that can handle the factors
-     *  specified in the conf, then it must return a fully initialized and operational BackingStore.
-     * Else it must return null.
+     * If the factory can produce a BackingStore that can handle the factors specified in the conf, then it must return a
+     * fully initialized and operational BackingStore. Else it must return null.
      *
      * @param conf The BackingStoreConfiguration
      *
      * @return a BackingStore. The returned BackingStore must be thread safe.
      *
-     * @throws BackingStoreException
-     *             If the store could not be created
+     * @throws BackingStoreException If the store could not be created
      */
-    public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf)
-            throws BackingStoreException;
+    <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf) throws BackingStoreException;
 
     /**
      *
      * @return
      */
-    public BackingStoreTransaction createBackingStoreTransaction();
+    BackingStoreTransaction createBackingStoreTransaction();
 
 }

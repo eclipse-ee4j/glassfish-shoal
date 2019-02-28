@@ -16,35 +16,36 @@
 
 package com.sun.enterprise.mgmt.transport;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSConstants;
 import com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.io.IOException;
-
 /**
- * This class implements a common {@link NetworkManager} logic simply in order to help the specific transport layer to be implemented easily
+ * This class implements a common {@link NetworkManager} logic simply in order to help the specific transport layer to
+ * be implemented easily
  *
- * Mainly, this manages {@link MessageListener} and dispatches an inbound {@link Message} into the appropriate listener 
- * 
+ * Mainly, this manages {@link MessageListener} and dispatches an inbound {@link Message} into the appropriate listener
+ *
  * @author Bongjae Chang
  */
 public abstract class AbstractNetworkManager implements NetworkManager {
 
-    private static final Logger LOG = GMSLogDomain.getLogger( GMSLogDomain.GMS_LOGGER );
+    private static final Logger LOG = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
 
     /**
-     * Represents local {@link PeerID}.
-     * This value should be assigned in real {@link NetworkManager}'s implementation correspoinding to the specific transport layer
+     * Represents local {@link PeerID}. This value should be assigned in real {@link NetworkManager}'s implementation
+     * correspoinding to the specific transport layer
      */
     protected PeerID localPeerID;
 
@@ -72,69 +73,72 @@ public abstract class AbstractNetworkManager implements NetworkManager {
      * {@inheritDoc}
      */
     @Override
-    public void addMessageListener( final MessageListener messageListener ) {
-        if( messageListener != null )
-            messageListeners.add( messageListener );
+    public void addMessageListener(final MessageListener messageListener) {
+        if (messageListener != null) {
+            messageListeners.add(messageListener);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void removeMessageListener( final MessageListener messageListener ) {
-        if( messageListener != null )
-            messageListeners.remove( messageListener );
+    public void removeMessageListener(final MessageListener messageListener) {
+        if (messageListener != null) {
+            messageListeners.remove(messageListener);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void receiveMessage( Message message, Map piggyback ) {
+    public void receiveMessage(Message message, Map piggyback) {
         PeerID sourcePeerID = null;
         PeerID targetPeerID = null;
-        if( message != null ) {
-            Object element = message.getMessageElement( Message.SOURCE_PEER_ID_TAG );
-            if( element instanceof PeerID )
-                sourcePeerID = (PeerID)element;
-            element = message.getMessageElement( Message.TARGET_PEER_ID_TAG );
-            if( element instanceof PeerID )
-                targetPeerID = (PeerID)element;
+        if (message != null) {
+            Object element = message.getMessageElement(Message.SOURCE_PEER_ID_TAG);
+            if (element instanceof PeerID) {
+                sourcePeerID = (PeerID) element;
+            }
+            element = message.getMessageElement(Message.TARGET_PEER_ID_TAG);
+            if (element instanceof PeerID) {
+                targetPeerID = (PeerID) element;
+            }
         }
-        if( sourcePeerID != null && !localPeerID.getGroupName().equals( sourcePeerID.getGroupName() ) )
+        if (sourcePeerID != null && !localPeerID.getGroupName().equals(sourcePeerID.getGroupName())) {
             return; // drop the different group's packet
+        }
         // this is redundant check
-        //if( targetPeerID != null && !localPeerID.getGroupName().equals( targetPeerID.getGroupName() ) )
-        //    return; // drop the different group's packet
-        MessageEvent messageEvent = new MessageEvent( this, message, sourcePeerID, targetPeerID );
+        // if( targetPeerID != null && !localPeerID.getGroupName().equals( targetPeerID.getGroupName() ) )
+        // return; // drop the different group's packet
+        MessageEvent messageEvent = new MessageEvent(this, message, sourcePeerID, targetPeerID);
         try {
-            beforeDispatchingMessage( messageEvent, piggyback );
-        } catch( Throwable t ) {
+            beforeDispatchingMessage(messageEvent, piggyback);
+        } catch (Throwable t) {
             LOG.log(Level.WARNING, "absnetmgr.beforefailed", t);
         }
         boolean messageEventNotProcessed = true;
-        for( MessageListener listener : messageListeners ) {
-            if( message.getType() == listener.getType() ) {
+        for (MessageListener listener : messageListeners) {
+            if (message.getType() == listener.getType()) {
                 try {
                     messageEventNotProcessed = false;
-                    listener.receiveMessageEvent( messageEvent );
-                } catch( Throwable t ) {
-                    LOG.log(Level.WARNING, "failed to receive a message: type = ", new Object[]{ message.getType()});
+                    listener.receiveMessageEvent(messageEvent);
+                } catch (Throwable t) {
+                    LOG.log(Level.WARNING, "failed to receive a message: type = ", new Object[] { message.getType() });
                     LOG.log(Level.WARNING, "stack trace", t);
                 }
             }
         }
         if (messageEventNotProcessed) {
             if (LOG.isLoggable(Level.FINER)) {
-                LOG.log(Level.FINER, "No message listener for messageEvent: {0} "
-                        + "Message :{1} MessageFrom: {2} MessageTo:{3}",
-                        new Object[]{messageEvent.toString(), message,
-                        sourcePeerID, targetPeerID});
+                LOG.log(Level.FINER, "No message listener for messageEvent: {0} " + "Message :{1} MessageFrom: {2} MessageTo:{3}",
+                        new Object[] { messageEvent.toString(), message, sourcePeerID, targetPeerID });
             }
         }
         try {
-            afterDispatchingMessage( messageEvent, piggyback );
-        } catch( Throwable t ) {
+            afterDispatchingMessage(messageEvent, piggyback);
+        } catch (Throwable t) {
             LOG.log(Level.WARNING, "absnetmgr.afterfailed", t);
         }
     }
@@ -147,13 +151,12 @@ public abstract class AbstractNetworkManager implements NetworkManager {
         return localPeerID;
     }
 
-
     private static NetworkManager findByServiceLoader(String transport) {
         NetworkManager networkManager = null;
         ServiceLoader<NetworkManager> loader = ServiceLoader.load(NetworkManager.class);
         Iterator<NetworkManager> iter = loader.iterator();
 
-        while (iter.hasNext())  {
+        while (iter.hasNext()) {
             try {
                 networkManager = iter.next().getClass().newInstance();
                 if (transport.startsWith("grizzly")) {
@@ -177,17 +180,17 @@ public abstract class AbstractNetworkManager implements NetworkManager {
             }
         }
         if (networkManager == null) {
-           LOG.log(Level.SEVERE, "fatal error, no NetworkManger implementations found");
+            LOG.log(Level.SEVERE, "fatal error, no NetworkManger implementations found");
         }
         return networkManager;
     }
 
     private static NetworkManager findByClassLoader(String classname) {
         NetworkManager networkManager = null;
-        // for jdk 5.  just use class loader.
-        try{
+        // for jdk 5. just use class loader.
+        try {
             Class networkManagerClass = Class.forName(classname);
-            networkManager = (NetworkManager)networkManagerClass.newInstance();
+            networkManager = (NetworkManager) networkManagerClass.newInstance();
         } catch (Throwable x) {
             LOG.log(Level.SEVERE, "fatal error instantiating NetworkManager service", x);
         }
@@ -220,7 +223,7 @@ public abstract class AbstractNetworkManager implements NetworkManager {
      * @param messageEvent a received {@link MessageEvent}
      * @param piggyback piggyback
      */
-    protected abstract void beforeDispatchingMessage( MessageEvent messageEvent, Map piggyback );
+    protected abstract void beforeDispatchingMessage(MessageEvent messageEvent, Map piggyback);
 
     /**
      * After executing {@link MessageListener#receiveMessageEvent(MessageEvent)}} callback, this method will be called
@@ -228,21 +231,18 @@ public abstract class AbstractNetworkManager implements NetworkManager {
      * @param messageEvent a received {@link MessageEvent}
      * @param piggyback piggyback
      */
-    protected abstract void afterDispatchingMessage( MessageEvent messageEvent, Map piggyback );
+    protected abstract void afterDispatchingMessage(MessageEvent messageEvent, Map piggyback);
 
     static public Logger getLogger() {
         return LOG;
     }
 
     @Override
-    public synchronized void initialize( final String groupName,
-            final String instanceName, final Map properties )
-            throws IOException {
-        int maxMsgLength =  Utility.getIntProperty( ServiceProviderConfigurationKeys.MAX_MESSAGE_LENGTH.toString(),
-                                                    MessageImpl.DEFAULT_MAX_TOTAL_MESSAGE_LENGTH,
-                                                    properties );
+    public synchronized void initialize(final String groupName, final String instanceName, final Map properties) throws IOException {
+        int maxMsgLength = Utility.getIntProperty(ServiceProviderConfigurationKeys.MAX_MESSAGE_LENGTH.toString(), MessageImpl.DEFAULT_MAX_TOTAL_MESSAGE_LENGTH,
+                properties);
         MessageImpl.setMaxMessageLength(maxMsgLength);
-        if (LOG.isLoggable(Level.CONFIG))  {
+        if (LOG.isLoggable(Level.CONFIG)) {
             LOG.log(Level.CONFIG, "GMS MAX_MESSAGE_LENGTH={0}", maxMsgLength);
         }
     }

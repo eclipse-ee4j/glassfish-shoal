@@ -16,27 +16,29 @@
 
 package com.sun.enterprise.mgmt;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSMember;
 import com.sun.enterprise.ee.cms.core.RejoinSubevent;
 import com.sun.enterprise.ee.cms.impl.base.CustomTagNames;
-import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
+import com.sun.enterprise.ee.cms.impl.base.SystemAdvertisement;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 import com.sun.enterprise.ee.cms.impl.client.RejoinSubeventImpl;
 import com.sun.enterprise.ee.cms.impl.common.GMSContext;
 import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
- * Manages Cluster Views and notifies cluster view listeners when cluster view
- * changes
+ * Manages Cluster Views and notifies cluster view listeners when cluster view changes
  */
 public class ClusterViewManager {
     private static final Logger LOG = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
@@ -53,28 +55,23 @@ public class ClusterViewManager {
     /**
      * Constructor for the ClusterViewManager object
      *
-     * @param advertisement the advertisement of the instance associated with
-     *                      this object
-     * @param manager       the cluster manager
-     * @param listeners     <code>List</code> of <code>ClusterViewEventListener</code>
+     * @param advertisement the advertisement of the instance associated with this object
+     * @param manager the cluster manager
+     * @param listeners <code>List</code> of <code>ClusterViewEventListener</code>
      */
-    public ClusterViewManager(final SystemAdvertisement advertisement,
-                              final ClusterManager manager,
-                              final List<ClusterViewEventListener> listeners) {
+    public ClusterViewManager(final SystemAdvertisement advertisement, final ClusterManager manager, final List<ClusterViewEventListener> listeners) {
         this.advertisement = advertisement;
         this.manager = manager;
         cvListeners.addAll(listeners);
-        gmsCtxt = (GMSContext) GMSContextFactory.getGMSContext(
-            manager.getGroupName());
+        gmsCtxt = GMSContextFactory.getGMSContext(manager.getGroupName());
     }
 
     public void start() {
-        //Self appointed as master and then discover so that we resolve to the right one
+        // Self appointed as master and then discover so that we resolve to the right one
         setMaster(advertisement, true);
     }
 
-    public void addClusterViewEventListener(
-            final ClusterViewEventListener listener) {
+    public void addClusterViewEventListener(final ClusterViewEventListener listener) {
         cvListeners.add(listener);
     }
 
@@ -93,12 +90,9 @@ public class ClusterViewManager {
         viewLock.lock();
         try {
             if (!view.containsKey(advertisement.getID())) {
-                if (LOG.isLoggable(Level.FINER)){
-                    LOG.log(Level.FINER, new StringBuffer().append("Adding ")
-                            .append(advertisement.getName())
-                            .append("   ")
-                            .append(advertisement.getID().toString())
-                            .toString());
+                if (LOG.isLoggable(Level.FINER)) {
+                    LOG.log(Level.FINER, new StringBuffer().append("Adding ").append(advertisement.getName()).append("   ")
+                            .append(advertisement.getID().toString()).toString());
                 }
                 manager.getNetworkManager().addRemotePeer(advertisement.getID());
                 view.put(advertisement.getID(), advertisement);
@@ -106,19 +100,19 @@ public class ClusterViewManager {
                     LOG.log(Level.FINE, "add " + advertisement.getName() + " newViewSize=" + view.size());
                 }
                 result = true;
-                if (LOG.isLoggable(Level.FINER)){
+                if (LOG.isLoggable(Level.FINER)) {
                     LOG.log(Level.FINER, MessageFormat.format("Cluster view now contains {0} entries", getViewSize()));
                 }
             } else {
-                //if view does contain the same sys adv but the start time is different from what
-                //was already in the view
-                //then add the new sys adv
+                // if view does contain the same sys adv but the start time is different from what
+                // was already in the view
+                // then add the new sys adv
                 SystemAdvertisement existingAdv = view.get(advertisement.getID());
                 if (manager.getMasterNode().confirmInstanceHasRestarted(existingAdv, advertisement)) {
-                    if (LOG.isLoggable(Level.FINE))  {
-                        LOG.fine("ClusterViewManager .add() : Instance "+ advertisement.getName() + " has restarted. Adding it to the view.");
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("ClusterViewManager .add() : Instance " + advertisement.getName() + " has restarted. Adding it to the view.");
                     }
-                    // reminder:  peerID can be same but have different tcpport.
+                    // reminder: peerID can be same but have different tcpport.
                     // so this is important to remove old and add the new one.
                     manager.getNetworkManager().removePeerID(existingAdv.getID());
                     manager.getNetworkManager().addRemotePeer(advertisement.getID());
@@ -126,19 +120,15 @@ public class ClusterViewManager {
 
                     // this can't return NO_SUCH_TIME -- we wouldn't have
                     // entered this 'if' block
-                    RejoinSubeventImpl rsi = new RejoinSubeventImpl(
-                        Utility.getStartTime(existingAdv));
-                    RejoinSubevent previous =
-                        gmsCtxt.getInstanceRejoins().put(existingAdv.getName(), rsi);
+                    RejoinSubeventImpl rsi = new RejoinSubeventImpl(Utility.getStartTime(existingAdv));
+                    RejoinSubevent previous = gmsCtxt.getInstanceRejoins().put(existingAdv.getName(), rsi);
                     if (previous != null && LOG.isLoggable(Level.INFO)) {
                         // todo: test this
-                        String [] params = {existingAdv.getName(), previous.toString()};
+                        String[] params = { existingAdv.getName(), previous.toString() };
                         LOG.log(Level.INFO, "rejoin.subevent.replaced", params);
                     }
                     if (LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(String.format(
-                            "Added rejoin subevent for '%s' to context map",
-                            existingAdv.getName()));
+                        LOG.fine(String.format("Added rejoin subevent for '%s' to context map", existingAdv.getName()));
                     }
                     result = true;
                 }
@@ -160,8 +150,8 @@ public class ClusterViewManager {
     /**
      * Set the master instance
      *
-     * @param advertisement Master system adverisement                                                          
-     * @param notify        if true, notifies registered listeners
+     * @param advertisement Master system adverisement
+     * @param notify if true, notifies registered listeners
      * @return true if there is master's change, false otherwise
      */
     boolean setMaster(final SystemAdvertisement advertisement, boolean notify) {
@@ -177,21 +167,17 @@ public class ClusterViewManager {
                 viewLock.unlock();
             }
             if (notify) {
-                if (LOG.isLoggable(Level.FINE)){
+                if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, "setMaster master:" + advertisement.getName());
                 }
-                notifyListeners(new ClusterViewEvent(
-                        ClusterViewEvents.MASTER_CHANGE_EVENT,
-                        advertisement));
+                notifyListeners(new ClusterViewEvent(ClusterViewEvents.MASTER_CHANGE_EVENT, advertisement));
             }
-            if (LOG.isLoggable(Level.FINE)){
+            if (LOG.isLoggable(Level.FINE)) {
                 if (advertisement.getID().equals(this.advertisement.getID())) {
                     LOG.log(Level.FINE, "Setting MasterNode Role");
                 } else {
-                    LOG.log(Level.FINE,
-                            new StringBuffer().append("Setting Master Node :")
-                                    .append(advertisement.getName()).append(' ')
-                                  .append(advertisement.getID()).toString());
+                    LOG.log(Level.FINE, new StringBuffer().append("Setting Master Node :").append(advertisement.getName()).append(' ')
+                            .append(advertisement.getID()).toString());
                 }
             }
             return true;
@@ -205,17 +191,17 @@ public class ClusterViewManager {
      * @param advertisement Master system adverisement
      * @return true if there is master's change, false otherwise
      */
-    boolean setMaster( final List<SystemAdvertisement> newView, final SystemAdvertisement advertisement ) {
-        if( advertisement.equals( masterAdvertisement ) ) {
+    boolean setMaster(final List<SystemAdvertisement> newView, final SystemAdvertisement advertisement) {
+        if (advertisement.equals(masterAdvertisement)) {
             return false;
         }
         lockLog("setMaster()");
         viewLock.lock();
         try {
-            if ( newView != null ) {
-                addToView( newView );
+            if (newView != null) {
+                addToView(newView);
             }
-            setMaster( advertisement, true );
+            setMaster(advertisement, true);
         } finally {
             viewLock.unlock();
         }
@@ -250,11 +236,10 @@ public class ClusterViewManager {
     }
 
     /**
-     * removes an entry from the table. This is only called when a
-     * failure occurs.
+     * removes an entry from the table. This is only called when a failure occurs.
      *
      * @param advertisement Instance advertisement
-     * @return SystemAdvertisement removed  or null if not in view.
+     * @return SystemAdvertisement removed or null if not in view.
      */
     SystemAdvertisement remove(final SystemAdvertisement advertisement) {
         SystemAdvertisement removed = null;
@@ -266,7 +251,7 @@ public class ClusterViewManager {
         } finally {
             viewLock.unlock();
         }
-        if (removed != null ) {
+        if (removed != null) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Removed " + removed.getName() + "   " + id);
             }
@@ -283,15 +268,15 @@ public class ClusterViewManager {
         return containsKey(id, false);
     }
 
-
     public boolean containsKey(final PeerID id, boolean debug) {
         final boolean contains;
         viewLock.lock();
         try {
             contains = view.containsKey(id);
-            if (debug && ! contains) {
+            if (debug && !contains) {
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "ClusterViewManager.containsKey(peerid=" + id + ") is false.\ngroup: " + manager.getGroupName() + " view=" +  dumpView());
+                    LOG.log(Level.FINE,
+                            "ClusterViewManager.containsKey(peerid=" + id + ") is false.\ngroup: " + manager.getGroupName() + " view=" + dumpView());
                 }
             }
         } finally {
@@ -333,7 +318,7 @@ public class ClusterViewManager {
         } finally {
             viewLock.unlock();
         }
-        if (LOG.isLoggable(Level.FINEST)){
+        if (LOG.isLoggable(Level.FINEST)) {
             LOG.log(Level.FINEST, "returning new ClusterView with view size:" + view.size());
         }
         return new ClusterView(temp, localViewId, masterViewId);
@@ -366,16 +351,16 @@ public class ClusterViewManager {
         lockLog("getMasterCandidate()");
         viewLock.lock();
         try {
-            /* no longer take first instance in sorted order.
+            /*
+             * no longer take first instance in sorted order.
              */
             /*
-            final PeerID id = view.firstKey();
-            adv = view.get(id);
-            */
+             * final PeerID id = view.firstKey(); adv = view.get(id);
+             */
 
             // make senior member the Master candidate.
             // adapting to scenarios where cluster membership is not static, but a dynamic evolving
-            // group of members.  (i.e. VM in Cloud complete and new member may replace in future, not a restart
+            // group of members. (i.e. VM in Cloud complete and new member may replace in future, not a restart
             // of previous member.)
             long seniorMemberStartTime = Long.MAX_VALUE;
             for (Map.Entry<PeerID, SystemAdvertisement> e : view.entrySet()) {
@@ -384,13 +369,15 @@ public class ClusterViewManager {
                     seniorMember = i;
                     try {
                         seniorMemberStartTime = Long.parseLong(i.getCustomTagValue(CustomTagNames.START_TIME.toString()));
-                    } catch (NoSuchFieldException ignore) {}
+                    } catch (NoSuchFieldException ignore) {
+                    }
                 } else {
                     long iCurrentStartTime = Long.MAX_VALUE;
                     try {
                         iCurrentStartTime = Long.parseLong(i.getCustomTagValue(CustomTagNames.START_TIME.toString()));
-                    } catch (NoSuchFieldException ignore) {}
-                    if (iCurrentStartTime < seniorMemberStartTime ){
+                    } catch (NoSuchFieldException ignore) {
+                    }
+                    if (iCurrentStartTime < seniorMemberStartTime) {
                         seniorMember = i;
                         seniorMemberStartTime = iCurrentStartTime;
                     }
@@ -407,11 +394,9 @@ public class ClusterViewManager {
         }
 
         // TODO: change this log level to FINE before FINAL release.
-        if (LOG.isLoggable(Level.INFO)){
-            LOG.log(Level.INFO,
-                    new StringBuffer().append("Returning Master Candidate Node :")
-                            .append(seniorMember.getName()).append(' ').append(seniorMember.getID())
-                            .toString());
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, new StringBuffer().append("Returning Master Candidate Node :").append(seniorMember.getName()).append(' ')
+                    .append(seniorMember.getID()).toString());
         }
         return seniorMember;
     }
@@ -436,12 +421,10 @@ public class ClusterViewManager {
     }
 
     /**
-     * the index of id this view, or -1 if this view does not contain this
-     * element.
+     * the index of id this view, or -1 if this view does not contain this element.
      *
      * @param id id
-     * @return the index of id this view, or -1 if this view does not
-     *         contain this element.
+     * @return the index of id this view, or -1 if this view does not contain this element.
      */
     public int indexOf(final PeerID id) {
         if (id == null) {
@@ -466,65 +449,58 @@ public class ClusterViewManager {
     /**
      * Adds a list of advertisements to the view
      *
-     * @param newView       list of advertisements
-     * @param cvEvent       the cluster event
+     * @param newView list of advertisements
+     * @param cvEvent the cluster event
      * @param authoritative whether the view is authoritative or not
      */
-    void addToView(final List<SystemAdvertisement> newView,
-                   final boolean authoritative,
-                   final ClusterViewEvent cvEvent) {
-        //TODO: need to review the use cases of the callers of method
+    void addToView(final List<SystemAdvertisement> newView, final boolean authoritative, final ClusterViewEvent cvEvent) {
+        // TODO: need to review the use cases of the callers of method
         if (cvEvent == null) {
             return;
         }
 
         if (authoritative) {
             ClusterViewEvents event = cvEvent.getEvent();
-            boolean changed = addToView( newView );
-            if (changed || event != ClusterViewEvents.ADD_EVENT) {  
-                //only if there are changes that we notify
+            boolean changed = addToView(newView);
+            if (changed || event != ClusterViewEvents.ADD_EVENT) {
+                // only if there are changes that we notify
                 notifyListeners(cvEvent);
             } else {
                 GMSMember member = Utility.getGMSMember(cvEvent.getAdvertisement());
-                LOG.log(Level.INFO, "mgmt.clusterviewmanager.skipnotify",
-                        new Object[]{cvEvent.getEvent(), member.getMemberToken() , member.getGroupName()});
+                LOG.log(Level.INFO, "mgmt.clusterviewmanager.skipnotify", new Object[] { cvEvent.getEvent(), member.getMemberToken(), member.getGroupName() });
             }
         }
     }
 
-/**
+    /**
      * Adds a list of advertisements to the view
      *
-     * @param newView       list of advertisements
+     * @param newView list of advertisements
      * @return true if there are changes, false otherwise
      */
-    private boolean addToView( final List<SystemAdvertisement> newView ) {
+    private boolean addToView(final List<SystemAdvertisement> newView) {
         boolean changed = false;
-        lockLog( "addToView() - reset and add newView" );
+        lockLog("addToView() - reset and add newView");
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "addToView newViewSize=" + newView.size());
         }
         viewLock.lock();
         reset();
         try {
-            if( !newView.contains( manager.getSystemAdvertisement() ) ) {
-                view.put( manager.getSystemAdvertisement().getID(),
-                          manager.getSystemAdvertisement() );
+            if (!newView.contains(manager.getSystemAdvertisement())) {
+                view.put(manager.getSystemAdvertisement().getID(), manager.getSystemAdvertisement());
             }
-            for( SystemAdvertisement elem : newView ) {
+            for (SystemAdvertisement elem : newView) {
                 if (LOG.isLoggable(Level.FINER)) {
-                    LOG.log( Level.FINER,
-                            new StringBuffer().append( "Adding " )
-                                 .append( elem.getID() ).append( " to view" )
-                                 .toString() );
+                    LOG.log(Level.FINER, new StringBuffer().append("Adding ").append(elem.getID()).append(" to view").toString());
                 }
                 // verify that each member in new view was in old view; otherwise, set change to TRUE.
-                if( !changed && !view.containsKey( elem.getID() ) ) {
+                if (!changed && !view.containsKey(elem.getID())) {
                     changed = true;
                 }
                 // Always add the wire version of the adv
                 manager.getNetworkManager().addRemotePeer(elem.getID());
-                view.put( elem.getID(), elem );
+                view.put(elem.getID(), elem);
             }
         } finally {
             viewLock.unlock();
@@ -533,9 +509,9 @@ public class ClusterViewManager {
     }
 
     void notifyListeners(final ClusterViewEvent event) {
-        if (LOG.isLoggable(Level.FINER)){
-            LOG.log(Level.FINER, MessageFormat.format("Notifying the {0} to listeners, peer in event is {1}",
-                        event.getEvent().toString(), event.getAdvertisement().getName()));
+        if (LOG.isLoggable(Level.FINER)) {
+            LOG.log(Level.FINER, MessageFormat.format("Notifying the {0} to listeners, peer in event is {1}", event.getEvent().toString(),
+                    event.getAdvertisement().getName()));
         }
         ClusterView cv = getLocalView();
         for (ClusterViewEventListener elem : cvListeners) {
@@ -578,9 +554,11 @@ public class ClusterViewManager {
     public void setMasterViewID(long masterViewID) {
         this.masterViewID.set(masterViewID);
     }
+
     private void lockLog(String method) {
-        if (LOG.isLoggable(Level.FINE)){
-            LOG.log(Level.FINE, MessageFormat.format("{0} viewLock Hold count :{1}, lock queue count:{2}", method, viewLock.getHoldCount(), viewLock.getQueueLength()));
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE,
+                    MessageFormat.format("{0} viewLock Hold count :{1}, lock queue count:{2}", method, viewLock.getHoldCount(), viewLock.getQueueLength()));
         }
     }
 
@@ -596,9 +574,9 @@ public class ClusterViewManager {
         StringBuffer sb = new StringBuffer();
         viewLock.lock();
         try {
-            sb.append("clusterviewmanager snapshot: group:" +  manager.getGroupName() + " current view id=" + this.viewId + " \n");
+            sb.append("clusterviewmanager snapshot: group:" + manager.getGroupName() + " current view id=" + this.viewId + " \n");
             int counter = 0;
-            for (Map.Entry<PeerID,SystemAdvertisement> current : view.entrySet()) {
+            for (Map.Entry<PeerID, SystemAdvertisement> current : view.entrySet()) {
                 PeerID peerid = current.getKey();
                 SystemAdvertisement sa = current.getValue();
                 sb.append(++counter).append(". ");
@@ -614,5 +592,3 @@ public class ClusterViewManager {
         return sb.toString();
     }
 }
-
-

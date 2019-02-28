@@ -16,6 +16,18 @@
 
 package org.shoal.ha.cache.impl.interceptor;
 
+import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.shoal.adapter.store.commands.NoOpCommand;
 import org.shoal.ha.cache.api.DataStoreAlreadyClosedException;
 import org.shoal.ha.cache.api.DataStoreContext;
@@ -25,23 +37,12 @@ import org.shoal.ha.cache.impl.command.Command;
 import org.shoal.ha.cache.impl.command.ReplicationCommandOpcode;
 import org.shoal.ha.cache.impl.util.ASyncReplicationManager;
 
-import java.io.IOException;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * @author Mahesh Kannan
  */
-public class ReplicationCommandTransmitterWithList<K, V>
-        implements Runnable, CommandCollector<K, V> {
+public class ReplicationCommandTransmitterWithList<K, V> implements Runnable, CommandCollector<K, V> {
 
-
-    private static final Logger _logger =
-            Logger.getLogger(ShoalCacheLoggerConstants.CACHE_TRANSMIT_INTERCEPTOR);
+    private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_TRANSMIT_INTERCEPTOR);
 
     private DataStoreContext<K, V> dsc;
 
@@ -71,7 +72,6 @@ public class ReplicationCommandTransmitterWithList<K, V>
 
     private CountDownLatch latch = new CountDownLatch(1);
 
-
     public void initialize(String targetName, DataStoreContext<K, V> rsInfo) {
 
         this.executor = ASyncReplicationManager._getInstance().getExecutorService();
@@ -79,24 +79,19 @@ public class ReplicationCommandTransmitterWithList<K, V>
         this.dsc = rsInfo;
 
         try {
-            TRANSMITTER_FREQUECNCY_IN_MILLIS =
-                    Integer.getInteger(System.getProperty(TRANSMITTER_FREQUECNCY_PROP_NAME,
-                            ""+TRANSMITTER_FREQUECNCY_IN_MILLIS));
+            TRANSMITTER_FREQUECNCY_IN_MILLIS = Integer.getInteger(System.getProperty(TRANSMITTER_FREQUECNCY_PROP_NAME, "" + TRANSMITTER_FREQUECNCY_IN_MILLIS));
         } catch (Exception ex) {
-            //Ignore
+            // Ignore
         }
 
         try {
-            MAX_BATCH_SIZE =
-                    Integer.getInteger(System.getProperty(MAX_BATCH_SIZE_PROP_NAME,
-                            ""+MAX_BATCH_SIZE));
+            MAX_BATCH_SIZE = Integer.getInteger(System.getProperty(MAX_BATCH_SIZE_PROP_NAME, "" + MAX_BATCH_SIZE));
         } catch (Exception ex) {
-            //Ignore
+            // Ignore
         }
 
         BatchedCommandListDataFrame batch = new BatchedCommandListDataFrame(openStatus.get());
         mapRef = new AtomicReference<BatchedCommandListDataFrame>(batch);
-
 
         future = asyncReplicationManager.getScheduledThreadPoolExecutor().scheduleAtFixedRate(this, TRANSMITTER_FREQUECNCY_IN_MILLIS,
                 TRANSMITTER_FREQUECNCY_IN_MILLIS, TimeUnit.MILLISECONDS);
@@ -104,26 +99,25 @@ public class ReplicationCommandTransmitterWithList<K, V>
 
     @Override
     public void close() {
-        //We have a write lock here.
+        // We have a write lock here.
         // So no other request threads OR background thread are active
         try {
 
-            //Mark this as closed to prevent new valid batches
+            // Mark this as closed to prevent new valid batches
             if (openStatus.compareAndSet(true, false)) {
 
-                //First cancel the background task
+                // First cancel the background task
                 future.cancel(false);
 
-                //Now flush all pending batched data
+                // Now flush all pending batched data
                 if (_logger.isLoggable(Level.FINE)) {
-                    _logger.log(Level.FINE, "(ReplicationCommandTransmitterWithList) BEGIN Flushing all batched data upon shutdown..."
-                        + activeBatchCount.get() + " to be flushed...");
+                    _logger.log(Level.FINE, "(ReplicationCommandTransmitterWithList) BEGIN Flushing all batched data upon shutdown..." + activeBatchCount.get()
+                            + " to be flushed...");
                 }
 
-                BatchedCommandListDataFrame closedBatch
-                        = new BatchedCommandListDataFrame(false);
+                BatchedCommandListDataFrame closedBatch = new BatchedCommandListDataFrame(false);
                 BatchedCommandListDataFrame batch = mapRef.getAndSet(closedBatch);
-                //Note that the above batch is a valid batch
+                // Note that the above batch is a valid batch
                 asyncReplicationManager.getExecutorService().submit(batch);
                 dsc.getDataStoreMBean().incrementBatchSentCount();
 
@@ -132,7 +126,7 @@ public class ReplicationCommandTransmitterWithList<K, V>
                         try {
                             latch.await(5, TimeUnit.SECONDS);
                         } catch (InterruptedException inEx) {
-                            //Ignore...
+                            // Ignore...
                         }
                     }
                 }
@@ -142,12 +136,11 @@ public class ReplicationCommandTransmitterWithList<K, V>
                 }
             }
         } catch (Exception ex) {
-            //Ignore
+            // Ignore
         }
     }
 
-    public void addCommand(Command<K, V> cmd)
-        throws DataStoreException {
+    public void addCommand(Command<K, V> cmd) throws DataStoreException {
 
         for (boolean done = false; !done;) {
             BatchedCommandListDataFrame batch = mapRef.get();
@@ -164,8 +157,7 @@ public class ReplicationCommandTransmitterWithList<K, V>
     }
 
     @Override
-    public void removeCommand(Command<K, V> cmd)
-        throws DataStoreException {
+    public void removeCommand(Command<K, V> cmd) throws DataStoreException {
         addCommand(cmd);
     }
 
@@ -173,17 +165,17 @@ public class ReplicationCommandTransmitterWithList<K, V>
         try {
             dsc.acquireReadLock();
             BatchedCommandListDataFrame batch = mapRef.get();
-            //Since this called by a async thread
-            //   OR upon close, it is OK to not rethrow the exceptions
-            if (batch.isTimeToFlush(timeStamp) || (! openStatus.get())) {
+            // Since this called by a async thread
+            // OR upon close, it is OK to not rethrow the exceptions
+            if (batch.isTimeToFlush(timeStamp) || (!openStatus.get())) {
                 NoOpCommand noop = new NoOpCommand();
                 while (batch.addCommand(noop)) {
-                    ;
+
                 }
             }
             timeStamp = batch.getBatchCreationTime();
         } catch (DataStoreAlreadyClosedException dsEx) {
-            //Ignore....
+            // Ignore....
         } catch (DataStoreException dsEx) {
             _logger.log(Level.WARNING, "Error during flush...");
         } finally {
@@ -191,8 +183,7 @@ public class ReplicationCommandTransmitterWithList<K, V>
         }
     }
 
-    private class BatchedCommandListDataFrame
-            implements Runnable {
+    private class BatchedCommandListDataFrame implements Runnable {
 
         private AtomicInteger current = new AtomicInteger(-1);
 
@@ -210,9 +201,8 @@ public class ReplicationCommandTransmitterWithList<K, V>
             return validBatch;
         }
 
-        public boolean addCommand(Command cmd)
-            throws DataStoreException {
-            if (! validBatch) {
+        public boolean addCommand(Command cmd) throws DataStoreException {
+            if (!validBatch) {
                 throw new DataStoreAlreadyClosedException("Cannot add a command to a Batch after the DataStore has been closed");
             }
 
@@ -220,14 +210,14 @@ public class ReplicationCommandTransmitterWithList<K, V>
             if (value < MAX_BATCH_SIZE) {
                 list.add(cmd);
                 if (list.size() == MAX_BATCH_SIZE) {
-                  asyncReplicationManager.getExecutorService().submit(this);
+                    asyncReplicationManager.getExecutorService().submit(this);
                 }
             }
 
             return value < MAX_BATCH_SIZE;
         }
 
-        //Called by periodic task
+        // Called by periodic task
         boolean isTimeToFlush(long timeStamp) {
             return batchCreationTime == timeStamp && list.size() > 0;
         }
@@ -253,18 +243,18 @@ public class ReplicationCommandTransmitterWithList<K, V>
             } catch (IOException ioEx) {
                 _logger.log(Level.WARNING, "Batch operation (ASyncCommandList failed...", ioEx);
             } finally {
-                //We want to decrement only if we transmitted a valid batch
-                //   Otherwise we should not decrement the activeBatchCount.
-                //  Also, we decrement even if there was an IOException
+                // We want to decrement only if we transmitted a valid batch
+                // Otherwise we should not decrement the activeBatchCount.
+                // Also, we decrement even if there was an IOException
                 if (validBatch && activeBatchCount.decrementAndGet() <= 0) {
-                    if (! openStatus.get()) {
+                    if (!openStatus.get()) {
                         latch.countDown();
                     }
                 }
 
                 if (_logger.isLoggable(Level.FINE)) {
-                    _logger.log(Level.FINE, "(ReplicationCommandTransmitterWithList) Completed one batch. Still "
-                        + activeBatchCount.get() + " to be flushed...");
+                    _logger.log(Level.FINE,
+                            "(ReplicationCommandTransmitterWithList) Completed one batch. Still " + activeBatchCount.get() + " to be flushed...");
                 }
             }
         }

@@ -22,21 +22,23 @@ import com.sun.enterprise.ee.cms.core.FailureRecoveryActionFactory;
 
 /**
  * Reference implementation of FailureRecoveryActionFactory interface
- * @author Shreedhar Ganapathy
- * Date: Jan 21, 2004
+ *
+ * @author Shreedhar Ganapathy Date: Jan 21, 2004
  * @version $Revision$
  */
-public class FailureRecoveryActionFactoryImpl implements FailureRecoveryActionFactory{
+public class FailureRecoveryActionFactoryImpl implements FailureRecoveryActionFactory {
     private final CallBack cb;
-    public FailureRecoveryActionFactoryImpl(final CallBack cb){
+
+    public FailureRecoveryActionFactoryImpl(final CallBack cb) {
         this.cb = cb;
     }
 
     /**
      * Produces an Action instance.
+     *
      * @return com.sun.enterprise.ee.cms.Action
      */
     public Action produceAction() {
-         return new FailureRecoveryActionImpl(cb);
+        return new FailureRecoveryActionImpl(cb);
     }
 }

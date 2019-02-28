@@ -16,25 +16,37 @@
 
 package com.sun.enterprise.ee.cms.impl.common;
 
-import com.sun.enterprise.ee.cms.core.*;
-import com.sun.enterprise.ee.cms.impl.client.*;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.spi.MemberStates;
-import com.sun.enterprise.mgmt.ConfigConstants;
-import com.sun.enterprise.mgmt.transport.MessageIOException;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
-import junit.framework.TestCase;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.sun.enterprise.ee.cms.impl.common.GMSMonitor;
 
+import com.sun.enterprise.ee.cms.core.CallBack;
+import com.sun.enterprise.ee.cms.core.GMSConstants;
+import com.sun.enterprise.ee.cms.core.GMSException;
+import com.sun.enterprise.ee.cms.core.GMSFactory;
+import com.sun.enterprise.ee.cms.core.GroupLeadershipNotificationSignal;
+import com.sun.enterprise.ee.cms.core.GroupManagementService;
+import com.sun.enterprise.ee.cms.core.JoinNotificationSignal;
+import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationSignal;
+import com.sun.enterprise.ee.cms.core.MemberNotInViewException;
+import com.sun.enterprise.ee.cms.core.MessageSignal;
+import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
+import com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys;
+import com.sun.enterprise.ee.cms.core.Signal;
+import com.sun.enterprise.ee.cms.impl.client.GroupLeadershipNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.JoinNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.JoinedAndReadyNotificationActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.MessageActionFactoryImpl;
+import com.sun.enterprise.ee.cms.impl.client.PlannedShutdownActionFactoryImpl;
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import com.sun.enterprise.ee.cms.spi.MemberStates;
+import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
+
+import junit.framework.TestCase;
 
 public class GroupManagementServiceImplTest extends TestCase {
     final private String instanceName = this.getClass().getSimpleName() + "_instance01";
@@ -49,9 +61,9 @@ public class GroupManagementServiceImplTest extends TestCase {
     final private AtomicBoolean isShutdown = new AtomicBoolean(false);
     private AtomicLong numMsgReceived = new AtomicLong(0);
 
-    public GroupManagementServiceImplTest( String testName ) {
-        super( testName );
-        //GMSLogDomain.getMcastLogger().setLevel(Level.FINEST);
+    public GroupManagementServiceImplTest(String testName) {
+        super(testName);
+        // GMSLogDomain.getMcastLogger().setLevel(Level.FINEST);
     }
 
     public void mySetUp() throws GMSException {
@@ -60,18 +72,18 @@ public class GroupManagementServiceImplTest extends TestCase {
         props.put(ServiceProviderConfigurationKeys.DISCOVERY_TIMEOUT.toString(), 5L);
         props.put(ServiceProviderConfigurationKeys.MONITORING.toString(), 2L); // in seconds
         props.put(ServiceProviderConfigurationKeys.LOOPBACK.toString(), "true");
-        gms = (GroupManagementService)
-                GMSFactory.startGMSModule(instanceName, groupName, GroupManagementService.MemberType.CORE, props);
+        gms = (GroupManagementService) GMSFactory.startGMSModule(instanceName, groupName, GroupManagementService.MemberType.CORE, props);
         assertTrue(gms != null);
         assertTrue(gms.getInstanceName().equals(instanceName));
         assertTrue(gms.getGroupName().equals(groupName));
 
-        numGroupLeadership =0;
+        numGroupLeadership = 0;
         gms.addActionFactory(new GroupLeadershipNotificationActionFactoryImpl(new CallBack() {
-             public void processNotification(Signal sig) {
+            public void processNotification(Signal sig) {
                 if (sig instanceof GroupLeadershipNotificationSignal) {
-                    GroupLeadershipNotificationSignal groupSig = (GroupLeadershipNotificationSignal)sig;
-                }   numGroupLeadership++;
+                    GroupLeadershipNotificationSignal groupSig = (GroupLeadershipNotificationSignal) sig;
+                }
+                numGroupLeadership++;
             }
         }));
 
@@ -79,15 +91,16 @@ public class GroupManagementServiceImplTest extends TestCase {
         gms.addActionFactory(new JoinNotificationActionFactoryImpl(new CallBack() {
             public void processNotification(Signal sig) {
                 if (sig instanceof JoinNotificationSignal) {
-                    JoinNotificationSignal joinSig = (JoinNotificationSignal)sig;
-                }   numJoinsReceived++;
+                    JoinNotificationSignal joinSig = (JoinNotificationSignal) sig;
+                }
+                numJoinsReceived++;
             }
 
         }));
         numMsgReceived = new AtomicLong(0);
         gms.addActionFactory(new MessageActionFactoryImpl(new CallBack() {
             public void processNotification(Signal sig) {
-                MessageSignal mSig = (MessageSignal)sig;
+                MessageSignal mSig = (MessageSignal) sig;
                 numMsgReceived.incrementAndGet();
             }
         }), "testTargetComponent");
@@ -102,11 +115,11 @@ public class GroupManagementServiceImplTest extends TestCase {
         gms.addActionFactory(new JoinedAndReadyNotificationActionFactoryImpl(new CallBack() {
             public void processNotification(Signal sig) {
                 if (sig instanceof JoinedAndReadyNotificationSignal) {
-                    JoinedAndReadyNotificationSignal joinedReadySig = (JoinedAndReadyNotificationSignal)sig;
+                    JoinedAndReadyNotificationSignal joinedReadySig = (JoinedAndReadyNotificationSignal) sig;
                     numJoinedAndReadyReceived++;
-                    synchronized(joinedAndReady) {
+                    synchronized (joinedAndReady) {
                         boolean result = joinedAndReady.compareAndSet(false, true);
-                        //assertTrue(result);
+                        // assertTrue(result);
                         joinedAndReady.notify();
                     }
                 }
@@ -118,9 +131,9 @@ public class GroupManagementServiceImplTest extends TestCase {
         gms.addActionFactory(new PlannedShutdownActionFactoryImpl(new CallBack() {
             public void processNotification(Signal sig) {
                 if (sig instanceof PlannedShutdownSignal) {
-                    PlannedShutdownSignal joinedReadySig = (PlannedShutdownSignal)sig;
+                    PlannedShutdownSignal joinedReadySig = (PlannedShutdownSignal) sig;
                     numPlannedShutdownReceived++;
-                    synchronized(isShutdown) {
+                    synchronized (isShutdown) {
                         boolean result = isShutdown.compareAndSet(false, true);
                         assertTrue(result);
                         isShutdown.notify();
@@ -140,14 +153,15 @@ public class GroupManagementServiceImplTest extends TestCase {
         GMSContext ctx = GMSContextFactory.getGMSContext(groupName);
         GMSMonitor monitor = ctx.getGMSMonitor();
 
-         try {
+        try {
             Thread.sleep(3000);
-        } catch(InterruptedException ie) {}
-        for (int i =0; i < 10; i++) {
-            gms.getGroupHandle().sendMessage(instanceName, "NotRegisteredtestTargetComponent", "hello".getBytes());
-            gms.getGroupHandle().sendMessage(instanceName, "NotRegistered2testTargetComponent", "goodbye".getBytes());          
+        } catch (InterruptedException ie) {
         }
-        for (int i =0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
+            gms.getGroupHandle().sendMessage(instanceName, "NotRegisteredtestTargetComponent", "hello".getBytes());
+            gms.getGroupHandle().sendMessage(instanceName, "NotRegistered2testTargetComponent", "goodbye".getBytes());
+        }
+        for (int i = 0; i < 20; i++) {
             gms.getGroupHandle().sendMessage(instanceName, "testTargetComponent", "hello".getBytes());
             gms.getGroupHandle().sendMessage(instanceName, "testTargetComponent", "goodbye".getBytes());
         }
@@ -160,11 +174,12 @@ public class GroupManagementServiceImplTest extends TestCase {
         }
         try {
             Thread.sleep(1000);
-        } catch(InterruptedException ie) {}
+        } catch (InterruptedException ie) {
+        }
 
         assertTrue("expected to receive 40 messages, only received " + numMsgReceived.get(), numMsgReceived.get() == 40);
         assertTrue(monitor.getGMSMessageMonitorStats("NotRegisteredtestTargetComponent").getNumMsgsNoListener() == 10);
-        assertTrue(monitor.getGMSMessageMonitorStats("NotRegistered2testTargetComponent").getNumMsgsNoListener() == 10);            
+        assertTrue(monitor.getGMSMessageMonitorStats("NotRegistered2testTargetComponent").getNumMsgsNoListener() == 10);
         monitor.report();
 
         System.out.println("Test sending too big of a message");
@@ -175,7 +190,7 @@ public class GroupManagementServiceImplTest extends TestCase {
             gms.getGroupHandle().sendMessage(instanceName, "testTargetComponent", tooBigPayload);
             assertTrue("Failed.  Should have thrown GMSException caused by MessageIOException sending too big a message payload", false);
         } catch (GMSException ge) {
-            //log.log(Level.WARNING, "following exception thrown attempting to write too big of a message", ge);
+            // log.log(Level.WARNING, "following exception thrown attempting to write too big of a message", ge);
             Throwable causeException = ge.getCause();
             String causeExceptionName = causeException == null ? "<noCauseException>" : causeException.getClass().getName();
             String causeMsg = causeException == null ? "" : causeException.getMessage();
@@ -188,7 +203,7 @@ public class GroupManagementServiceImplTest extends TestCase {
         monitor.report();
 
         gms.shutdown(GMSConstants.shutdownType.INSTANCE_SHUTDOWN);
-        log.setLevel(Level.INFO);                                                
+        log.setLevel(Level.INFO);
     }
 
     public void testMultipleJoinsLeaves() throws GMSException {
@@ -207,30 +222,30 @@ public class GroupManagementServiceImplTest extends TestCase {
         assertTrue(gms.getGroupHandle().isMemberAlive(instanceName) == true);
         long startTime = System.currentTimeMillis();
         gms.reportJoinedAndReadyState();
-        synchronized(joinedAndReady) {
+        synchronized (joinedAndReady) {
             if (!joinedAndReady.get()) {
                 try {
                     joinedAndReady.wait(4000);
-                } catch (InterruptedException ie) {}
+                } catch (InterruptedException ie) {
+                }
             }
             assertTrue(joinedAndReady.get());
         }
         long readynotifyduration = System.currentTimeMillis() - startTime;
         System.out.println("joinedAndReady = " + joinedAndReady.get() + " wait duration(ms)=" + readynotifyduration);
         memberState = gms.getGroupHandle().getMemberState(instanceName, 10000, 0);
-        assertTrue("expected READY, observed "+ memberState.toString(),
-                   memberState == MemberStates.READY || memberState == MemberStates.ALIVEANDREADY);
+        assertTrue("expected READY, observed " + memberState.toString(), memberState == MemberStates.READY || memberState == MemberStates.ALIVEANDREADY);
 
         // The Master never receives its own join.
-        //assertTrue(numJoinsReceived==1);
+        // assertTrue(numJoinsReceived==1);
 
-        assertTrue(numJoinedAndReadyReceived==1);
-        assertTrue(numPlannedShutdownReceived==0);
+        assertTrue(numJoinedAndReadyReceived == 1);
+        assertTrue(numPlannedShutdownReceived == 0);
 
-        gms.join();  // duplicate join should just be ignored.
-        //assertTrue(numJoinsReceived==1);
-        assertTrue(numJoinedAndReadyReceived==1);
-        assertTrue(numPlannedShutdownReceived==0);
+        gms.join(); // duplicate join should just be ignored.
+        // assertTrue(numJoinsReceived==1);
+        assertTrue(numJoinedAndReadyReceived == 1);
+        assertTrue(numPlannedShutdownReceived == 0);
 
         // test multiple shutdown calls.
         gms.shutdown(GMSConstants.shutdownType.INSTANCE_SHUTDOWN);
@@ -242,11 +257,12 @@ public class GroupManagementServiceImplTest extends TestCase {
         isShutdown.set(true);
         // remove above line in future if instance does receive its planned shutdown notification in future.
 
-        synchronized(isShutdown) {
+        synchronized (isShutdown) {
             if (!isShutdown.get()) {
                 try {
                     isShutdown.wait();
-                } catch (InterruptedException ie) {}
+                } catch (InterruptedException ie) {
+                }
             }
             assertTrue(isShutdown.get());
         }

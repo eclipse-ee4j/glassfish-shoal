@@ -16,6 +16,34 @@
 
 package com.sun.enterprise.mgmt;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.sun.enterprise.ee.cms.core.GMSMember;
 import com.sun.enterprise.ee.cms.impl.base.GMSThreadFactory;
 import com.sun.enterprise.ee.cms.impl.base.PeerID;
@@ -24,36 +52,17 @@ import com.sun.enterprise.ee.cms.impl.base.Utility;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.mgmt.transport.Message;
 import com.sun.enterprise.mgmt.transport.MessageEvent;
-import com.sun.enterprise.mgmt.transport.MessageImpl;
 import com.sun.enterprise.mgmt.transport.MessageIOException;
+import com.sun.enterprise.mgmt.transport.MessageImpl;
 import com.sun.enterprise.mgmt.transport.MessageListener;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.Serializable;
-import java.net.InetSocketAddress;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.atomic.AtomicInteger;
 /**
- * HealthMonitor utilizes MasterNode to determine self designation. All nodes
- * cache other node's states, and can act as a master node at any given
- * point in time.  The intention behind the designation is that no node other than
- * the master node should determine collective state and communicate it to
- * group members.
+ * HealthMonitor utilizes MasterNode to determine self designation. All nodes cache other node's states, and can act as
+ * a master node at any given point in time. The intention behind the designation is that no node other than the master
+ * node should determine collective state and communicate it to group members.
  * <p>
- * TODO: Convert the InDoubt Peer Determination and Failure Verification into
- * Callable FutureTask using java.util.concurrent
+ * TODO: Convert the InDoubt Peer Determination and Failure Verification into Callable FutureTask using
+ * java.util.concurrent
  */
 public class HealthMonitor implements MessageListener, Runnable {
     private static final Logger LOG = GMSLogDomain.getLogger(GMSLogDomain.GMS_LOGGER);
@@ -77,17 +86,8 @@ public class HealthMonitor implements MessageListener, Runnable {
     private static final String NODEADV = "NAD";
 
     private InDoubtPeerDetector inDoubtPeerDetector;
-    static final String[] states = {"starting",
-            "started",
-            "alive",
-            "clusterstopping",
-            "peerstopping",
-            "stopped",
-            "dead",
-            "indoubt",
-            "unknown",
-            "ready",
-            "aliveandready"};
+    static final String[] states = { "starting", "started", "alive", "clusterstopping", "peerstopping", "stopped", "dead", "indoubt", "unknown", "ready",
+            "aliveandready" };
     // "alive_in_isolation"};
     private static final short STARTING = 0;
     private static final short ALIVE = 2;
@@ -108,16 +108,16 @@ public class HealthMonitor implements MessageListener, Runnable {
     private static final String MEMBER_STATE_RESPONSE = "MEMBERSTATERESPONSE";
     private static final String WATCHDOG_NOTIFICATION = "WATCHDOG_NOTIFICATION";
     private volatile boolean readyStateComplete = false;
-    private volatile boolean JoinedAndReadyReceived = false;  // keep sending READY till receive JoinedAndReadyNotification.
+    private volatile boolean JoinedAndReadyReceived = false; // keep sending READY till receive JoinedAndReadyNotification.
     private List<String> joinedAndReadyMembers = new LinkedList<String>();
 
     private Message aliveMsg = null;
     private Message aliveAndReadyMsg = null;
 
-    //counter for keeping track of the seq ids of the health messages
+    // counter for keeping track of the seq ids of the health messages
     AtomicLong hmSeqID = new AtomicLong();
 
-    //use LWRMulticast to send messages for getting the member state
+    // use LWRMulticast to send messages for getting the member state
     LWRMulticast mcast = null;
     int lwrTimeout = 6000;
     public static final long DEFAULT_MEMBERSTATE_TIMEOUT = 0L;
@@ -129,24 +129,21 @@ public class HealthMonitor implements MessageListener, Runnable {
     private int failureDetectionTCPPort;
     private final ThreadPoolExecutor isConnectedPool;
     private ConcurrentHashMap<PeerID, MemberStateResult> memberStateResults = new ConcurrentHashMap<PeerID, MemberStateResult>();
-    //private ShutdownHook shutdownHook;
+    // private ShutdownHook shutdownHook;
 
     /**
      * Constructor for the HealthMonitor object
      *
-     * @param manager        the ClusterManager
+     * @param manager the ClusterManager
      * @param maxMissedBeats Maximum retries before failure
-     * @param verifyTimeout  timeout in milliseconds that the health monitor
-     *                       waits before finalizing that the in doubt peer is dead.
-     * @param timeout        in milliseconds that the health monitor waits before
-     *                       retrying an indoubt peer's availability.
+     * @param verifyTimeout timeout in milliseconds that the health monitor waits before finalizing that the in doubt peer
+     * is dead.
+     * @param timeout in milliseconds that the health monitor waits before retrying an indoubt peer's availability.
      * @param failureDetectionTCPPort the tcp port of failure Detection
      * @param failureDetectionTCPTimeout the timeout to detect the failure
      */
-    public HealthMonitor(final ClusterManager manager, final long timeout,
-                         final int maxMissedBeats, final long verifyTimeout,
-                         final long failureDetectionTCPTimeout,
-                         final int failureDetectionTCPPort) {
+    public HealthMonitor(final ClusterManager manager, final long timeout, final int maxMissedBeats, final long verifyTimeout,
+            final long failureDetectionTCPTimeout, final int failureDetectionTCPPort) {
         this.timeout = timeout;
         this.defaultThreshold = timeout * maxMissedBeats;
         this.maxMissedBeats = maxMissedBeats;
@@ -159,26 +156,24 @@ public class HealthMonitor implements MessageListener, Runnable {
         ThreadFactory isConnectedThreadFactory = new GMSThreadFactory("GMS-isConnected-Group-" + manager.getGroupName() + "-thread");
         isConnectedPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(3, isConnectedThreadFactory);
         if (LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("HealthMonitor: heartBeatTimeout(ms)=" + timeout +
-                       " maxMissedBeats=" + maxMissedBeats +
-                       " failureDetectionTCPTimeout(ms)=" + failureDetectionTCPTimeout +
-                       " failureDetectionTCPPort=" + failureDetectionTCPPort);
+            LOG.config("HealthMonitor: heartBeatTimeout(ms)=" + timeout + " maxMissedBeats=" + maxMissedBeats + " failureDetectionTCPTimeout(ms)="
+                    + failureDetectionTCPTimeout + " failureDetectionTCPPort=" + failureDetectionTCPPort);
         }
 
         try {
-            mcast = new LWRMulticast(manager,this);
+            mcast = new LWRMulticast(manager, this);
             mcast.setSoTimeout(lwrTimeout);
         } catch (IOException e) {
             LOG.log(Level.WARNING, "mgmt.healthmonitor.lwrmulticastioexception", e.getLocalizedMessage());
         }
 
-        //this.shutdownHook = new ShutdownHook();
-        //Runtime.getRuntime().addShutdownHook(shutdownHook);
+        // this.shutdownHook = new ShutdownHook();
+        // Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
     /**
-     * A member is considered INDOUBT when a heartbeat has not been received in this amout of time.  (in milliseconds.)
-     * 
+     * A member is considered INDOUBT when a heartbeat has not been received in this amout of time. (in milliseconds.)
+     *
      * @return the duration
      */
     public long getIndoubtDuration() {
@@ -207,46 +202,46 @@ public class HealthMonitor implements MessageListener, Runnable {
         return createMessage(state, HEALTHM, manager.getSystemAdvertisement());
     }
 
-    private Message createMessage(final short state, final String tag,
-                                  final SystemAdvertisement adv) {
+    private Message createMessage(final short state, final String tag, final SystemAdvertisement adv) {
         final Message msg = new MessageImpl(Message.TYPE_HEALTH_MONITOR_MESSAGE);
         final HealthMessage hm = new HealthMessage();
         hm.setSrcID(localPeerID);
         final HealthMessage.Entry entry = new HealthMessage.Entry(adv, states[state], hmSeqID.incrementAndGet());
         hm.add(entry);
-        msg.addMessageElement(tag,hm);
-        //add this state to the local health cache.
+        msg.addMessageElement(tag, hm);
+        // add this state to the local health cache.
         fine("createMessage() => putting into cache " + entry.adv.getName() + " state is " + entry.state);
         synchronized (cacheLock) {
             cache.put(entry.id, entry);
         }
-        //fine(" after putting into cache " + cache + " , contents are :-");
-        //print(cache);
+        // fine(" after putting into cache " + cache + " , contents are :-");
+        // print(cache);
         return msg;
     }
 
     // Fix for glassfish issue 9055
     // This method is used by master to send a healthmessage reporting another peers state.
     // use entry and its entry.seqID that is already in cache.
-    // NOTE: the entry.seqID is NEVER incremented for IN_DOUBT state.  The IN_DOUBT state is reported by Master.
+    // NOTE: the entry.seqID is NEVER incremented for IN_DOUBT state. The IN_DOUBT state is reported by Master.
     // If an INDOUBT peer ever comes back, its HM entry.seqID will be same as last hm it sent.
     // An INDOUBT peer that starts sending HM again either was slowed by high load. To simulate
     // high load, testing has SUSPENDED a gms client for a minute and then CONTINUED it. The peer's hm seqID
     // will be same before and after the master has reported INDOUBT to the gms grou.
     //
     // Master hmseqid was incorrectly getting used when reporting another peers state using #createMessage.
-    // Also this method does not update the cache as createMessage does, the entry has already been updated in the cache when
+    // Also this method does not update the cache as createMessage does, the entry has already been updated in the cache
+    // when
     // Master is reporting another peers state for INDOUBT or DEAD.
     private Message createHealthMessageForOtherPeer(final HealthMessage.Entry entry) {
         final Message msg = new MessageImpl(Message.TYPE_HEALTH_MONITOR_MESSAGE);
         final HealthMessage hm = new HealthMessage();
         hm.setSrcID(localPeerID);
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "create health message state: " + entry.state + " for member: " + entry.adv.getName() + " Master member reporting for peer is " +
-                manager.getInstanceName() + " for group: " + manager.getGroupName());
+            LOG.log(Level.FINE, "create health message state: " + entry.state + " for member: " + entry.adv.getName() + " Master member reporting for peer is "
+                    + manager.getInstanceName() + " for group: " + manager.getGroupName());
         }
         hm.add(entry);
-        msg.addMessageElement( HEALTHM, hm );
+        msg.addMessageElement(HEALTHM, hm);
         // do not update cache, it already has correct state in it.
         return msg;
     }
@@ -269,7 +264,7 @@ public class HealthMonitor implements MessageListener, Runnable {
      * {@inheritDoc}
      */
     public void receiveMessageEvent(final MessageEvent event) throws MessageIOException {
-        //if this peer is stopping, then stop processing incoming health messages.
+        // if this peer is stopping, then stop processing incoming health messages.
         if (manager.isStopping()) {
             return;
         }
@@ -279,16 +274,16 @@ public class HealthMonitor implements MessageListener, Runnable {
                 // grab the message from the event
                 msg = event.getMessage();
                 if (msg != null) {
-                    for( Map.Entry<String, Serializable> entry: msg.getMessageElements() ) {
-                        if ( entry.getKey().equals(HEALTHM)) {
+                    for (Map.Entry<String, Serializable> entry : msg.getMessageElements()) {
+                        if (entry.getKey().equals(HEALTHM)) {
                             Serializable value = entry.getValue();
-                            if( value instanceof HealthMessage ) {
-                                HealthMessage hm = (HealthMessage)value;
-                                updateHealthMessage( hm );
+                            if (value instanceof HealthMessage) {
+                                HealthMessage hm = (HealthMessage) value;
+                                updateHealthMessage(hm);
 
                                 // check if this message has latestMasterViewId from master.
                                 masterNode.processForLatestMasterViewId(msg, hm.getSrcID());
-                                process( hm );
+                                process(hm);
                             } else {
                                 LOG.log(Level.WARNING, "mgmt.unknownMessage");
                             }
@@ -316,12 +311,12 @@ public class HealthMonitor implements MessageListener, Runnable {
 
     private SystemAdvertisement getNodeAdvertisement(Message msg) {
         SystemAdvertisement adv = null;
-        Object value = msg.getMessageElement( NODEADV );
-        if( value instanceof SystemAdvertisement ) {
-            adv = (SystemAdvertisement)value;
-            if( !adv.getID().equals( localPeerID ) ) {
-                if( LOG.isLoggable( Level.FINER ) ) {
-                    LOG.log( Level.FINER, "Received a System advertisement Name :" + adv.getName() );
+        Object value = msg.getMessageElement(NODEADV);
+        if (value instanceof SystemAdvertisement) {
+            adv = (SystemAdvertisement) value;
+            if (!adv.getID().equals(localPeerID)) {
+                if (LOG.isLoggable(Level.FINER)) {
+                    LOG.log(Level.FINER, "Received a System advertisement Name :" + adv.getName());
                 }
             }
         }
@@ -334,14 +329,14 @@ public class HealthMonitor implements MessageListener, Runnable {
         try {
             adv = getNodeAdvertisement(msg);
             if (adv != null) {
-                PeerID sender = adv.getID();       //sender of this query
+                PeerID sender = adv.getID(); // sender of this query
                 String state = getStateFromCache(localPeerID);
                 Message response = createMemberStateResponse(state);
-                if (LOG.isLoggable(Level.FINE)){
+                if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine(" sending via LWR response to " + sender.toString() + " with state " + state + " for " + localPeerID);
                 }
-                final boolean sent = mcast.send((PeerID) sender, response);    //send the response back to the query sender
-                if (!sent){
+                final boolean sent = mcast.send(sender, response); // send the response back to the query sender
+                if (!sent) {
                     LOG.log(Level.WARNING, "mgmt.healthmonitor.processmemberstatequery", adv.getName());
                 }
             } else {
@@ -355,8 +350,9 @@ public class HealthMonitor implements MessageListener, Runnable {
     private void processMemberStateResponse(Message msg) {
         String memberState = null;
         Object value = msg.getMessageElement(MEMBER_STATE_RESPONSE);
-        if( value != null )
+        if (value != null) {
             memberState = value.toString();
+        }
         SystemAdvertisement adv = getNodeAdvertisement(msg);
         if (adv == null) {
             LOG.log(Level.WARNING, "mgmt.healthmonitor.nosenderadv");
@@ -364,7 +360,7 @@ public class HealthMonitor implements MessageListener, Runnable {
         }
 
         MemberStateResult result = memberStateResults.get(adv.getID());
-        if (result !=  null) {
+        if (result != null) {
             synchronized (result.lock) {
                 result.memberState = memberState;
                 memberStateResults.remove(adv.getID(), result);
@@ -374,8 +370,7 @@ public class HealthMonitor implements MessageListener, Runnable {
                 LOG.fine(" member state in processMemberStateResponse() is " + memberState + " for member " + adv.getName());
             }
         } else if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("memberStateResponse received too late. result already removed by timeout. response from " + adv.getName()
-                    + " state=" + memberState);
+            LOG.fine("memberStateResponse received too late. result already removed by timeout. response from " + adv.getName() + " state=" + memberState);
         }
     }
 
@@ -383,44 +378,44 @@ public class HealthMonitor implements MessageListener, Runnable {
 
     // All other instances in the gms group watch for watch dog notification of Master failure.
     // Only newly elected master reports failure of failed master (implemented by assignAndReportFailure)
-     private void processWatchDogNotification(Message msg) {
-         final SystemAdvertisement fromAdv = getNodeAdvertisement(msg);
-         if (fromAdv == null) {
+    private void processWatchDogNotification(Message msg) {
+        final SystemAdvertisement fromAdv = getNodeAdvertisement(msg);
+        if (fromAdv == null) {
             LOG.fine("ignoring WATCHDOG_NOTIFICATION with a null sender advertisement");
             return;
-         }
-         final GMSMember watchdogMember = Utility.getGMSMember(fromAdv);
-         if (!watchdogMember.isWatchDog()) {
-            LOG.fine("ignoring WATCHDOG_NOTIFICATION from member:" + watchdogMember.getMemberToken() + " of group " +
-                         watchdogMember.getGroupName() + " received one without a WATCHDOG member sender advertisement");
+        }
+        final GMSMember watchdogMember = Utility.getGMSMember(fromAdv);
+        if (!watchdogMember.isWatchDog()) {
+            LOG.fine("ignoring WATCHDOG_NOTIFICATION from member:" + watchdogMember.getMemberToken() + " of group " + watchdogMember.getGroupName()
+                    + " received one without a WATCHDOG member sender advertisement");
             return;
-         }
-         Object value = msg.getMessageElement(WATCHDOG_NOTIFICATION);
-         if( !(value instanceof String ) ) {
+        }
+        Object value = msg.getMessageElement(WATCHDOG_NOTIFICATION);
+        if (!(value instanceof String)) {
             LOG.log(Level.WARNING, "mgmt.unknownMessage");
             return;
-         }
-         String failedTokenName = (String)value;
-         final PeerID failedMemberId = manager.getID(failedTokenName);
-         boolean masterFailed = (failedMemberId == null ? false : failedMemberId.equals(masterNode.getMasterNodeID()));
-         if (masterNode.isMaster() && masterNode.isMasterAssigned() || masterFailed) {
-             LOG.log(Level.INFO, "mgmt.healthmonitor.watchdog",
-                     new Object[]{ failedTokenName,  failedMemberId, watchdogMember.getMemberToken(),masterFailed});
+        }
+        String failedTokenName = (String) value;
+        final PeerID failedMemberId = manager.getID(failedTokenName);
+        boolean masterFailed = (failedMemberId == null ? false : failedMemberId.equals(masterNode.getMasterNodeID()));
+        if (masterNode.isMaster() && masterNode.isMasterAssigned() || masterFailed) {
+            LOG.log(Level.INFO, "mgmt.healthmonitor.watchdog", new Object[] { failedTokenName, failedMemberId, watchdogMember.getMemberToken(), masterFailed });
 
-             HealthMessage.Entry failedEntry;
-             synchronized (cache) {
-                 failedEntry = cache.get(failedMemberId);
+            HealthMessage.Entry failedEntry;
+            synchronized (cache) {
+                failedEntry = cache.get(failedMemberId);
 
                 if (failedEntry == null) {
-                    LOG.info("ignoring WATCHDOG FAILURE NOTIFICATION: can not find member: " + failedTokenName + " of group: "  + manager.getGroupName() +
-                             " with id:" + failedMemberId);
+                    LOG.info("ignoring WATCHDOG FAILURE NOTIFICATION: can not find member: " + failedTokenName + " of group: " + manager.getGroupName()
+                            + " with id:" + failedMemberId);
                     return;
                 }
 
-                if (failedEntry.isState(STOPPED) || failedEntry.isState(DEAD) || failedEntry.isState(PEERSTOPPING) || failedEntry.isState(CLUSTERSTOPPING) ||
-                     failedEntry.isState(STARTING)) {
-                     String logMsg = MessageFormat.format("ignoring WATCHDOG FAILURE Notification for member: {0} of group: {1} with last heartbeat state of {2} at {3,time,full} on {3,date}.",
-                                 failedTokenName,  manager.getGroupName(), failedEntry.state,  new Date(failedEntry.timestamp));
+                if (failedEntry.isState(STOPPED) || failedEntry.isState(DEAD) || failedEntry.isState(PEERSTOPPING) || failedEntry.isState(CLUSTERSTOPPING)
+                        || failedEntry.isState(STARTING)) {
+                    String logMsg = MessageFormat.format(
+                            "ignoring WATCHDOG FAILURE Notification for member: {0} of group: {1} with last heartbeat state of {2} at {3,time,full} on {3,date}.",
+                            failedTokenName, manager.getGroupName(), failedEntry.state, new Date(failedEntry.timestamp));
                     LOG.info(logMsg);
                     return;
                 }
@@ -430,12 +425,13 @@ public class HealthMonitor implements MessageListener, Runnable {
                     LOG.info("received WATCHDOG failure notification for " + failedTokenName + " with local hm state=" + failedEntry.state);
                 }
 
-                LOG.info("validated FAILURE reported by WATCHDOG FAILURE notification for " + failedTokenName + " of group: " + manager.getGroupName() + " last heartbeat state:"
-             + failedEntry.state + " received at " + MessageFormat.format(" {0,time,full} on {0,date}", new Date(failedEntry.timestamp)));
+                LOG.info("validated FAILURE reported by WATCHDOG FAILURE notification for " + failedTokenName + " of group: " + manager.getGroupName()
+                        + " last heartbeat state:" + failedEntry.state + " received at "
+                        + MessageFormat.format(" {0,time,full} on {0,date}", new Date(failedEntry.timestamp)));
                 assignAndReportFailure(failedEntry);
-             }
-         }
-     }
+            }
+        }
+    }
 
     /**
      * creates a node query message specially for querying the member state
@@ -443,8 +439,8 @@ public class HealthMonitor implements MessageListener, Runnable {
      * @return msg Message
      */
     private Message createMemberStateQuery() {
-        Message msg = new MessageImpl( Message.TYPE_HEALTH_MONITOR_MESSAGE );
-        msg.addMessageElement(NODEADV, manager.getSystemAdvertisement() );
+        Message msg = new MessageImpl(Message.TYPE_HEALTH_MONITOR_MESSAGE);
+        msg.addMessageElement(NODEADV, manager.getSystemAdvertisement());
         msg.addMessageElement(MEMBER_STATE_QUERY, "member state query");
         LOG.log(Level.FINE, "Created a Member State Query Message ");
         return msg;
@@ -456,10 +452,10 @@ public class HealthMonitor implements MessageListener, Runnable {
      * @return msg Message
      */
     private Message createMemberStateResponse(String myState) {
-        Message msg = new MessageImpl( Message.TYPE_HEALTH_MONITOR_MESSAGE);
+        Message msg = new MessageImpl(Message.TYPE_HEALTH_MONITOR_MESSAGE);
         msg.addMessageElement(MEMBER_STATE_RESPONSE, myState);
         msg.addMessageElement(NODEADV, manager.getSystemAdvertisement());
-        if (LOG.isLoggable(Level.FINE)){
+        if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "Created a Member State Response Message with " + myState);
         }
         return msg;
@@ -467,17 +463,17 @@ public class HealthMonitor implements MessageListener, Runnable {
 
     /**
      * creates a WATCHDOG notification for <code>failedServerToken</code>
+     *
      * @param failedServerToken failed server token
      *
      * @return msg Message
      */
     private Message createWatchdogNotification(String failedServerToken) {
-        Message msg = new MessageImpl( Message.TYPE_HEALTH_MONITOR_MESSAGE );
+        Message msg = new MessageImpl(Message.TYPE_HEALTH_MONITOR_MESSAGE);
         msg.addMessageElement(WATCHDOG_NOTIFICATION, failedServerToken);
-        msg.addMessageElement(NODEADV, manager.getSystemAdvertisement() );
+        msg.addMessageElement(NODEADV, manager.getSystemAdvertisement());
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Created a WATCHDOG Notification Message for member:" + failedServerToken +
-                                 " of group:" + manager.getGroupName());
+            LOG.log(Level.FINE, "Created a WATCHDOG Notification Message for member:" + failedServerToken + " of group:" + manager.getGroupName());
         }
         return msg;
     }
@@ -489,23 +485,21 @@ public class HealthMonitor implements MessageListener, Runnable {
      */
     private void process(final HealthMessage hm) {
 
-        //discard loopback messages
+        // discard loopback messages
         if (!hm.getSrcID().equals(localPeerID)) {
-            //current assumption is that there is only 1 entry
-            //per health message
+            // current assumption is that there is only 1 entry
+            // per health message
             for (HealthMessage.Entry entry : hm.getEntries()) {
-                if (LOG.isLoggable(Level.FINEST)){
-                    LOG.log(Level.FINEST, "Processing Health Message " + entry.getSeqID() + " for entry " + entry.adv.getName() +
-                             " startTime=" + entry.getSrcStartTime() + " state=" + entry.state);
+                if (LOG.isLoggable(Level.FINEST)) {
+                    LOG.log(Level.FINEST, "Processing Health Message " + entry.getSeqID() + " for entry " + entry.adv.getName() + " startTime="
+                            + entry.getSrcStartTime() + " state=" + entry.state);
                 }
                 synchronized (cacheLock) {
                     HealthMessage.Entry cachedEntry = cache.get(entry.id);
                     if (cachedEntry != null) {
                         if (LOG.isLoggable(Level.FINEST)) {
-                            LOG.log(Level.FINEST, "cached entry name=" + cachedEntry.adv.getName() +
-                                    " startTime=" + cachedEntry.getSrcStartTime() +
-                                    " seqId=" + cachedEntry.getSeqID() +
-                                    " state=" + cachedEntry.state );
+                            LOG.log(Level.FINEST, "cached entry name=" + cachedEntry.adv.getName() + " startTime=" + cachedEntry.getSrcStartTime() + " seqId="
+                                    + cachedEntry.getSeqID() + " state=" + cachedEntry.state);
                         }
                         if (entry.isFromSameMember(cachedEntry) && entry.getSrcStartTime() < cachedEntry.getSrcStartTime()) {
                             LOG.fine("Discarding older health message from a previously failed run of member " + entry.adv.getName());
@@ -513,27 +507,28 @@ public class HealthMonitor implements MessageListener, Runnable {
                         }
 
                         // only compare sequence ids if heathmessage entrys from same member with same start time
-                        //if (entry.getSeqID() <= cachedEntry.getSeqId()) {
+                        // if (entry.getSeqID() <= cachedEntry.getSeqId()) {
                         if (cachedEntry.isFromSameMemberStartup(entry) && entry.getSeqID() < cachedEntry.getSeqID()) {
                             if (LOG.isLoggable(Level.FINER)) {
-                                LOG.log(Level.FINER, MessageFormat.format("Received an older health message from source member {2} seqId={0}." +
-                                        " Current cached health message seqId:{1}. ",
-                                        entry.getSeqID(), cachedEntry.getSeqID(), entry.adv.getName()));
+                                LOG.log(Level.FINER,
+                                        MessageFormat.format(
+                                                "Received an older health message from source member {2} seqId={0}."
+                                                        + " Current cached health message seqId:{1}. ",
+                                                entry.getSeqID(), cachedEntry.getSeqID(), entry.adv.getName()));
                             }
                             if (entry.state.equals(states[CLUSTERSTOPPING]) || entry.state.equals(states[PEERSTOPPING])) {
-                                //dont discard the message
-                                //and don't alter the state if the cachedEntry's state is stopped
-                                LOG.log(Level.FINER, "Received an older health message " +
-                                           "with clusterstopping state." +
-                                         " Calling handleStopEvent() to handle shutdown state.");
+                                // dont discard the message
+                                // and don't alter the state if the cachedEntry's state is stopped
+                                LOG.log(Level.FINER, "Received an older health message " + "with clusterstopping state."
+                                        + " Calling handleStopEvent() to handle shutdown state.");
 
                                 if (!cachedEntry.state.equals(states[STOPPED])) {
                                     cache.put(entry.id, entry);
                                 }
                                 handleStopEvent(entry);
                             } else if (entry.state.equals(states[READY])) {
-                                LOG.fine("Received an older health message with Joined and Ready state. " +
-                                        "Calling handleReadyEvent() for handling the peer's ready state");
+                                LOG.fine("Received an older health message with Joined and Ready state. "
+                                        + "Calling handleReadyEvent() for handling the peer's ready state");
                                 handleReadyEvent(entry);
                             } else {
                                 LOG.log(Level.FINER, "Discarding older health message");
@@ -543,17 +538,14 @@ public class HealthMonitor implements MessageListener, Runnable {
                     }
                     cache.put(entry.id, entry);
                     if (LOG.isLoggable(Level.FINER)) {
-                        LOG.log(Level.FINER, "Put into cache " + entry.adv.getName() + " state = " + entry.state + " peerid = " + entry.id +
-                                " seq id=" + entry.getSeqID());
+                        LOG.log(Level.FINER,
+                                "Put into cache " + entry.adv.getName() + " state = " + entry.state + " peerid = " + entry.id + " seq id=" + entry.getSeqID());
                     }
                 }
-                //fine("after putting into cache " + cache + " , contents are :-");
-                //print(cache);
-                if (!manager.getClusterViewManager().containsKey(entry.id) &&
-                        (!entry.state.equals(states[CLUSTERSTOPPING]) &&
-                                !entry.state.equals(states[PEERSTOPPING]) &&
-                                !entry.state.equals(states[STOPPED]) &&
-                                !entry.state.equals(states[DEAD]))) {
+                // fine("after putting into cache " + cache + " , contents are :-");
+                // print(cache);
+                if (!manager.getClusterViewManager().containsKey(entry.id) && (!entry.state.equals(states[CLUSTERSTOPPING])
+                        && !entry.state.equals(states[PEERSTOPPING]) && !entry.state.equals(states[STOPPED]) && !entry.state.equals(states[DEAD]))) {
                     try {
                         masterNode.probeNode(entry);
                     } catch (IOException e) {
@@ -595,17 +587,18 @@ public class HealthMonitor implements MessageListener, Runnable {
         synchronized (cacheLock) {
             cache.put(entry.id, entry);
         }
-        //fine(" after putting into cache " + cache + " , contents are :-");
-        //print(cache);
+        // fine(" after putting into cache " + cache + " , contents are :-");
+        // print(cache);
         if (entry.id.equals(masterNode.getMasterNodeID())) {
-            //if this is a ready state sent out by master, take no action here as master would send out a view to the group.
+            // if this is a ready state sent out by master, take no action here as master would send out a view to the group.
             return;
         }
-        //if this is a ready state sent by a non-master, and if I am the assigned master, send out a new view and notify local listeners.
+        // if this is a ready state sent by a non-master, and if I am the assigned master, send out a new view and notify local
+        // listeners.
         if (masterNode.isMaster() && masterNode.isMasterAssigned()) {
-            synchronized(joinedAndReadyMembers) {
+            synchronized (joinedAndReadyMembers) {
                 // don't notify of joined and ready more than once.
-                if (! joinedAndReadyMembers.contains(entry.adv.getName())) {
+                if (!joinedAndReadyMembers.contains(entry.adv.getName())) {
                     // note notification.
                     joinedAndReadyMembers.add(entry.adv.getName());
                     LOG.log(Level.FINEST, MessageFormat.format("Handling Ready Event for peer :{0}", entry.adv.getName()));
@@ -623,7 +616,7 @@ public class HealthMonitor implements MessageListener, Runnable {
             stateByte = CLUSTERSTOPPING;
         }
         if (entry.adv.getID().equals(masterNode.getMasterNodeID())) {
-            //if masternode is resigning, remove master node from view and start discovery
+            // if masternode is resigning, remove master node from view and start discovery
             LOG.log(Level.FINER, MessageFormat.format("Removing master node {0} from view as it has stopped.", entry.adv.getName()));
             removeMasterAdv(entry, stateByte);
             masterNode.resetMaster();
@@ -646,8 +639,8 @@ public class HealthMonitor implements MessageListener, Runnable {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("HealthMonitor.cleanAllCaches : removing pipes and route from cache..." + entry.id);
         }
-        manager.getNetworkManager().removePeerID( entry.id );
-        synchronized(joinedAndReadyMembers) {
+        manager.getNetworkManager().removePeerID(entry.id);
+        synchronized (joinedAndReadyMembers) {
             joinedAndReadyMembers.remove(entry.adv.getName());
         }
     }
@@ -655,13 +648,13 @@ public class HealthMonitor implements MessageListener, Runnable {
     void cleanAllCaches(String memberToken) {
         HealthMessage.Entry entry = null;
         PeerID id = manager.getID(memberToken);
-        synchronized(cache) {
+        synchronized (cache) {
             entry = cache.get(id);
         }
         if (entry != null) {
             cleanAllCaches(entry);
         } else {
-            synchronized(joinedAndReadyMembers) {
+            synchronized (joinedAndReadyMembers) {
                 joinedAndReadyMembers.remove(memberToken);
             }
         }
@@ -669,9 +662,9 @@ public class HealthMonitor implements MessageListener, Runnable {
 
     private Map<PeerID, HealthMessage.Entry> getCacheCopy() {
         ConcurrentHashMap<PeerID, HealthMessage.Entry> clone = new ConcurrentHashMap<PeerID, HealthMessage.Entry>();
-        //fine(" cache object in getCacheCopy() = " + cache);
-        //fine(" getCacheCopy => printing main cache contents (size = " + cache.size() + ") ...");
-        //print(cache);
+        // fine(" cache object in getCacheCopy() = " + cache);
+        // fine(" getCacheCopy => printing main cache contents (size = " + cache.size() + ") ...");
+        // print(cache);
         synchronized (cacheLock) {
             for (Map.Entry<PeerID, HealthMessage.Entry> entry : cache.entrySet()) {
                 try {
@@ -681,8 +674,8 @@ public class HealthMonitor implements MessageListener, Runnable {
                 }
             }
         }
-        //fine(" getCacheCopy => printing clone cache contents (size = " + clone.size() + ")...");
-        //print(clone);
+        // fine(" getCacheCopy => printing clone cache contents (size = " + clone.size() + ")...");
+        // print(clone);
         return clone;
     }
 
@@ -690,8 +683,7 @@ public class HealthMonitor implements MessageListener, Runnable {
 
         for (Iterator i = c.values().iterator(); i.hasNext();) {
             HealthMessage.Entry e = (HealthMessage.Entry) i.next();
-            fine("cache contents => " + e.adv.getName() +
-                    " state => " + e.state);
+            fine("cache contents => " + e.adv.getName() + " state => " + e.state);
         }
 
     }
@@ -699,14 +691,12 @@ public class HealthMonitor implements MessageListener, Runnable {
     /**
      * Reports on the wire the specified state
      *
-     * @param state specified state can be
-     *              ALIVE|SLEEP|HIBERNATING|SHUTDOWN|DEAD
-     * @param id    destination node ID, if null broadcast to group
+     * @param state specified state can be ALIVE|SLEEP|HIBERNATING|SHUTDOWN|DEAD
+     * @param id destination node ID, if null broadcast to group
      */
     private void reportMyState(final short state, final PeerID id) {
-        if (LOG.isLoggable(Level.FINER)){
-            LOG.log(Level.FINER, MessageFormat.format("Sending state {0} to {1}", states[state],
-                    id == null ? "group" : id));
+        if (LOG.isLoggable(Level.FINER)) {
+            LOG.log(Level.FINER, MessageFormat.format("Sending state {0} to {1}", states[state], id == null ? "group" : id));
         }
         boolean sent = true;
         IOException ioe = null;
@@ -737,8 +727,8 @@ public class HealthMonitor implements MessageListener, Runnable {
                     } else {
                         reason = "sent returned false";
                     }
-                    final String target =  id == null ? "group " + manager.getGroupName() : "member " + id;
-                    LOG.log(Level.WARNING, "mgmt.healthmonitor.reportstatefailed", new Object[]{states[state], target, reason});
+                    final String target = id == null ? "group " + manager.getGroupName() : "member " + id;
+                    LOG.log(Level.WARNING, "mgmt.healthmonitor.reportstatefailed", new Object[] { states[state], target, reason });
                 }
             }
         }
@@ -762,11 +752,11 @@ public class HealthMonitor implements MessageListener, Runnable {
                     String reason = "";
                     if (ioe != null) {
                         reason = ioe.getClass().getSimpleName() + ":" + ioe.getLocalizedMessage();
-                    } else  {
+                    } else {
                         reason = "sent returned false";
                     }
                     LOG.log(Level.WARNING, "mgmt.healthmonitor.reportotherstatefailed",
-                            new Object[]{entry.adv.getName(), entry.state, manager.getGroupName(), reason});
+                            new Object[] { entry.adv.getName(), entry.state, manager.getGroupName(), reason });
                 }
             }
         }
@@ -776,19 +766,17 @@ public class HealthMonitor implements MessageListener, Runnable {
      * Main processing method for the HealthMonitor object
      */
     public void run() {
-        //At start, the starting state is reported. But reporting ready state is dependent on
-        //the parent application making the call that it is in the ready state, which is not
-        //necessarily deterministic. Hence we move on from starting state to reporting
-        //this peer's alive state. For join notification event, the liveness state of a peer
+        // At start, the starting state is reported. But reporting ready state is dependent on
+        // the parent application making the call that it is in the ready state, which is not
+        // necessarily deterministic. Hence we move on from starting state to reporting
+        // this peer's alive state. For join notification event, the liveness state of a peer
         // would be one of starting or ready or alive (other than peerstopping, etc).
         reportMyState(STARTING, null);
-        //System.out.println("Running HealthMonitor Thread at interval :"+actualto);
+        // System.out.println("Running HealthMonitor Thread at interval :"+actualto);
         if (LOG.isLoggable(Level.CONFIG)) {
             SystemAdvertisement myAdv = manager.getSystemAdvertisement();
             GMSMember member = Utility.getGMSMember(myAdv);
-            LOG.config("MySystemAdvertisement(summary): " + member.toString()
-                    + " ID:" + myAdv.getID().toString()
-                    + " TCP uri(s):" + myAdv.getURIs());
+            LOG.config("MySystemAdvertisement(summary): " + member.toString() + " ID:" + myAdv.getID().toString() + " TCP uri(s):" + myAdv.getURIs());
             LOG.config("MySystemAdvertisement(dump)=" + myAdv.toString());
         }
         while (!stop) {
@@ -809,8 +797,7 @@ public class HealthMonitor implements MessageListener, Runnable {
                 stop = true;
                 break;
             } catch (Throwable all) {
-                LOG.log(Level.WARNING, "mgmt.healthmonitor.threaduncaughtexception",
-                        new Object[]{Thread.currentThread().getName(), all});
+                LOG.log(Level.WARNING, "mgmt.healthmonitor.threaduncaughtexception", new Object[] { Thread.currentThread().getName(), all });
                 if (LOG.isLoggable(Level.INFO)) {
                     LOG.log(Level.INFO, "stack trace", all);
                 }
@@ -819,41 +806,37 @@ public class HealthMonitor implements MessageListener, Runnable {
     }
 
     /**
-     * Send a message to a specific node. In case the peerId is null the
-     * message is multicast to the group
+     * Send a message to a specific node. In case the peerId is null the message is multicast to the group
      *
      * @param peerid Peer ID to send massage to
-     * @param msg    the message to send
-     * @return boolean <code>true</code> if the message has been sent otherwise
-     * <code>false</code>. <code>false</code>. is commonly returned for
-     * non-error related congestion, meaning that you should be able to send
-     * the message after waiting some amount of time.
+     * @param msg the message to send
+     * @return boolean <code>true</code> if the message has been sent otherwise <code>false</code>. <code>false</code>. is
+     * commonly returned for non-error related congestion, meaning that you should be able to send the message after waiting
+     * some amount of time.
      */
     private boolean send(final PeerID peerid, final Message msg) throws IOException {
         MsgSendStats msgSendStat = null;
         boolean sent = false;
         sendStopLock.lock();
         try {
-                //the message contains only one messageElement and
-            //  the  healthMessage contains only 1 entry
+            // the message contains only one messageElement and
+            // the healthMessage contains only 1 entry
             Object value = msg.getMessageElement(HEALTHM);
-            if( value instanceof HealthMessage ) {
-                HealthMessage hm = (HealthMessage)value;
-                for( HealthMessage.Entry healthEntry : hm.getEntries() ) {
+            if (value instanceof HealthMessage) {
+                HealthMessage hm = (HealthMessage) value;
+                for (HealthMessage.Entry healthEntry : hm.getEntries()) {
 
-                    //if stop() has been called before the sendStopLock was acquired
-                    //then don't send any alive/aliveready/ready messages
-                    if( stop &&
-                        ( !healthEntry.state.equals( states[CLUSTERSTOPPING] ) &&
-                          !healthEntry.state.equals( states[PEERSTOPPING] ) &&
-                          !healthEntry.state.equals( states[STOPPED] ) ) ) {
-                        LOG.fine( "HealthMonitor.send()=> not sending the message since HealthMonitor is trying to stop. state = " + healthEntry.state );
+                    // if stop() has been called before the sendStopLock was acquired
+                    // then don't send any alive/aliveready/ready messages
+                    if (stop && (!healthEntry.state.equals(states[CLUSTERSTOPPING]) && !healthEntry.state.equals(states[PEERSTOPPING])
+                            && !healthEntry.state.equals(states[STOPPED]))) {
+                        LOG.fine("HealthMonitor.send()=> not sending the message since HealthMonitor is trying to stop. state = " + healthEntry.state);
                         // don't flag this send as a failure to send, it is a graceful stop
                         return true;
                     }
                 }
             } else {
-                LOG.log( Level.WARNING, "mgmt.unknownMessage" );
+                LOG.log(Level.WARNING, "mgmt.unknownMessage");
             }
 
             if (peerid != null) {
@@ -861,12 +844,12 @@ public class HealthMonitor implements MessageListener, Runnable {
                 // create a op pipe to the destination peer
                 LOG.log(Level.FINER, "Unicasting Message to :" + peerid.toString());
                 msgSendStat = getMsgSendStats(peerid.getInstanceName());
-                sent = manager.getNetworkManager().send( peerid, msg );
+                sent = manager.getNetworkManager().send(peerid, msg);
                 msgSendStat.sendSucceeded();
 
             } else {
                 msgSendStat = getMsgSendStats(manager.getGroupName());
-                sent = manager.getNetworkManager().broadcast( msg );
+                sent = manager.getNetworkManager().broadcast(msg);
                 msgSendStat.sendSucceeded();
             }
         } catch (IOException io) {
@@ -886,8 +869,8 @@ public class HealthMonitor implements MessageListener, Runnable {
         if (!started) {
             LOG.log(Level.FINE, "Starting HealthMonitor");
             // no indoubt peer detector needed for HeatlhMonitor associated with a GMS WatchDog membertype.
-            if (!isWatchDog())  {
-                manager.getNetworkManager().addMessageListener( this );
+            if (!isWatchDog()) {
+                manager.getNetworkManager().addMessageListener(this);
                 this.healthMonitorThread = new Thread(this, "GMS HealthMonitor for Group-" + manager.getGroupName());
                 this.healthMonitorThread.setDaemon(true);
                 healthMonitorThread.start();
@@ -899,19 +882,18 @@ public class HealthMonitor implements MessageListener, Runnable {
     }
 
     /**
-     * Announces Stop event to all members indicating that this peer
-     * will gracefully exit the group.
-     * TODO: Make this a synchronous call or a simulated synchronous call so that responses from majority of members can be collected before returning from this method
+     * Announces Stop event to all members indicating that this peer will gracefully exit the group. TODO: Make this a
+     * synchronous call or a simulated synchronous call so that responses from majority of members can be collected before
+     * returning from this method
      *
-     * @param isClusterShutdown boolean value indicating whether this
-     *                          announcement is in the context of a clusterwide shutdown or a shutdown of
-     *                          this peer only.
+     * @param isClusterShutdown boolean value indicating whether this announcement is in the context of a clusterwide
+     * shutdown or a shutdown of this peer only.
      */
     void announceStop(final boolean isClusterShutdown) {
         if (isWatchDog()) {
             return;
         }
-        //System.out.println("Announcing  Shutdown");
+        // System.out.println("Announcing Shutdown");
         LOG.log(Level.FINE, MessageFormat.format("Announcing stop event to group with clusterShutdown set to {0}", isClusterShutdown));
         if (isClusterShutdown) {
             reportMyState(CLUSTERSTOPPING, null);
@@ -942,8 +924,8 @@ public class HealthMonitor implements MessageListener, Runnable {
             isConnectedPool.shutdownNow();
         }
 
-        //acquire lock again since dont want send() to send messages while stop()
-        //is clearing the caches
+        // acquire lock again since dont want send() to send messages while stop()
+        // is clearing the caches
         sendStopLock.lock();
         try {
             LOG.log(Level.FINE, "Stopping HealthMonitor");
@@ -956,13 +938,13 @@ public class HealthMonitor implements MessageListener, Runnable {
         } finally {
             sendStopLock.unlock();
         }
-        manager.getNetworkManager().removeMessageListener( this );
+        manager.getNetworkManager().removeMessageListener(this);
     }
 
-    private HealthMessage updateHealthMessage( final HealthMessage hm ) throws IOException {
-        if( hm != null ) {
+    private HealthMessage updateHealthMessage(final HealthMessage hm) throws IOException {
+        if (hm != null) {
             long currentTime = System.currentTimeMillis();
-            for( HealthMessage.Entry entry : hm.getEntries() ) {
+            for (HealthMessage.Entry entry : hm.getEntries()) {
                 entry.timestamp = currentTime;
             }
         }
@@ -982,42 +964,40 @@ public class HealthMonitor implements MessageListener, Runnable {
             manager.getClusterViewManager().setPeerStoppingState(adv);
         } else if (state.equals(states[READY])) {
             manager.getClusterViewManager().setPeerReadyState(adv);
-        }  /*else if (state.equals(states[ALIVE_IN_ISOLATION])) {
-            manager.getClusterViewManager().setInIsolationState(adv);
-        } */
+        } /*
+           * else if (state.equals(states[ALIVE_IN_ISOLATION])) { manager.getClusterViewManager().setInIsolationState(adv); }
+           */
     }
 
     /**
      *
      * @param peerID is the peer id
-     * @param threshold is a positive value if the user wants to look at the caller's local
-     * cache to get the state
-     * @param timeout is a positive value if the user desires to make a network call directly to the
-     * member whose state it wants
-     * if both the above parameters are specified, then fisrt attempt is to get the state from the local
-     * cache. If it comes back as UNKNOWN, then another attempt is made via LWR multicast to get the state
-     * directly from the concerned member.
+     * @param threshold is a positive value if the user wants to look at the caller's local cache to get the state
+     * @param timeout is a positive value if the user desires to make a network call directly to the member whose state it
+     * wants if both the above parameters are specified, then fisrt attempt is to get the state from the local cache. If it
+     * comes back as UNKNOWN, then another attempt is made via LWR multicast to get the state directly from the concerned
+     * member.
      * @return state
      */
     public String getMemberState(PeerID peerID, long threshold, long timeout) {
         if (peerID == null) {
             throw new IllegalArgumentException("getMemberState parameter PeerID must be non-null");
         }
-        if (peerID.equals(localPeerID)){
+        if (peerID.equals(localPeerID)) {
             // handle getting your own member state
             return getStateFromCache(peerID);
         }
-        //if threshold is a positive value and there is no timeout specified i.e.
-        //timeout is a negative value or simply 0
+        // if threshold is a positive value and there is no timeout specified i.e.
+        // timeout is a negative value or simply 0
 
         if (threshold > 0 && timeout <= 0) {
             return getMemberStateFromHeartBeat(peerID, threshold);
-        } else if (threshold <= 0 && timeout > 0 ) {
+        } else if (threshold <= 0 && timeout > 0) {
             return getMemberStateViaLWR(peerID, timeout);
         } else {
-            //in this case, threshold and timeout are both either positive or both set to 0
-            //if state is UNKNOWN, it means that the last heartbeat was received longer than the specified
-            //threshold. So we make a network call to that instance to get its state
+            // in this case, threshold and timeout are both either positive or both set to 0
+            // if state is UNKNOWN, it means that the last heartbeat was received longer than the specified
+            // threshold. So we make a network call to that instance to get its state
             if (timeout == 0 && threshold == 0) {
                 timeout = DEFAULT_MEMBERSTATE_TIMEOUT;
                 threshold = defaultThreshold;
@@ -1025,25 +1005,27 @@ public class HealthMonitor implements MessageListener, Runnable {
             String state = getMemberStateFromHeartBeat(peerID, threshold);
             if (state.equals(states[UNKNOWN])) {
                 return getMemberStateViaLWR(peerID, timeout);
-            } else return state;
+            } else {
+                return state;
+            }
         }
     }
 
     public String getMemberStateFromHeartBeat(final PeerID peerID, long threshold) {
         if (threshold <= 0) {
-           threshold = defaultThreshold;
+            threshold = defaultThreshold;
         }
         HealthMessage.Entry entry;
         synchronized (cacheLock) {
-            entry  = cache.get((PeerID) peerID);
+            entry = cache.get(peerID);
         }
         if (entry != null) {
-            //calculate if the timestamp of the entry and the current time gives a delta that is <= threshold
+            // calculate if the timestamp of the entry and the current time gives a delta that is <= threshold
             if (System.currentTimeMillis() - entry.timestamp <= threshold) {
                 return entry.state;
             } else {
-                return states[UNKNOWN]; //this means that either the heartbeat from that instance has'nt come in yet so the state in the cache could be stale
-                //so rather than give a stale state, give it as UNKNOWN
+                return states[UNKNOWN]; // this means that either the heartbeat from that instance has'nt come in yet so the state in the cache could be stale
+                // so rather than give a stale state, give it as UNKNOWN
             }
         } else {
             return states[UNKNOWN];
@@ -1056,7 +1038,7 @@ public class HealthMonitor implements MessageListener, Runnable {
     }
 
     public String getMemberStateViaLWR(final PeerID peerID, long timeout) {
-        if (peerID.equals(localPeerID)){
+        if (peerID.equals(localPeerID)) {
             // handle getting your own member state
             return getStateFromCache(peerID);
         }
@@ -1076,38 +1058,39 @@ public class HealthMonitor implements MessageListener, Runnable {
         MemberStateResult result = memberStateResults.get(peerID);
         boolean sent = false;
         boolean ioe = false;
-        if ( result == null) {
+        if (result == null) {
             // no outstanding calls at this time.
             result = new MemberStateResult();
             MemberStateResult prevResult = memberStateResults.putIfAbsent(peerID, result);
-            if (prevResult != null ) {
+            if (prevResult != null) {
                 // some other thread put a result into result cache, let that thread send the query, we will wait for the reply
                 result = prevResult;
                 sent = true;
             } else {
                 // only thread that puts result into result cache will send a message to peerID
-                //instead send a query to that instance to get the most up-to-date state
+                // instead send a query to that instance to get the most up-to-date state
                 if (LOG.isLoggable(Level.FINER)) {
                     LOG.finer("getMemberStateViaLWR send query to " + peerID.toString());
                 }
                 Message msg = createMemberStateQuery();
 
-                //send it via LWRMulticast
+                // send it via LWRMulticast
                 try {
-                    sent = mcast.send((PeerID) peerID, msg);
+                    sent = mcast.send(peerID, msg);
                 } catch (IOException e) {
                     ioe = true;
-                    LOG.log(Level.FINE, "Could not send the LWR Multicast message to get the member state of " + peerID.toString() + " IOException : " + e.getMessage());
+                    LOG.log(Level.FINE,
+                            "Could not send the LWR Multicast message to get the member state of " + peerID.toString() + " IOException : " + e.getMessage());
                 }
                 if (!sent && !ioe) {
-                    LOG.log(Level.FINE,"failed to send LWRMulticast message, send returned false");
+                    LOG.log(Level.FINE, "failed to send LWRMulticast message, send returned false");
                 }
             }
         }
 
-        synchronized(result.lock) {
+        synchronized (result.lock) {
             try {
-                if (sent && result.memberState == null) {  // check for result coming back
+                if (sent && result.memberState == null) { // check for result coming back
                     result.lock.wait(timeout);
                 }
             } catch (InterruptedException e) {
@@ -1133,11 +1116,11 @@ public class HealthMonitor implements MessageListener, Runnable {
     String getStateFromCache(final PeerID peerID) {
         HealthMessage.Entry entry;
         final String state;
-        entry = cache.get((PeerID) peerID);
+        entry = cache.get(peerID);
         if (entry != null) {
             state = entry.state;
         } else {
-            if (((PeerID) peerID).equals(localPeerID)) {
+            if (peerID.equals(localPeerID)) {
                 if (!started) {
                     state = states[STARTING];
                 } else if (readyStateComplete) {
@@ -1146,12 +1129,12 @@ public class HealthMonitor implements MessageListener, Runnable {
                     state = states[ALIVE];
                 }
             } else {
-                entry = cache.get((PeerID) peerID);
+                entry = cache.get(peerID);
                 if (entry != null) {
                     state = entry.state;
                 } else {
                     if (manager.getClusterViewManager().containsKey(peerID)) {
-                        state = states[STARTING];//we assume that the peer is in starting state hence its state is not yet known in this peer
+                        state = states[STARTING];// we assume that the peer is in starting state hence its state is not yet known in this peer
                     } else {
                         state = states[UNKNOWN];
                     }
@@ -1161,14 +1144,14 @@ public class HealthMonitor implements MessageListener, Runnable {
         return state;
     }
 
-     public boolean addHealthEntryIfMissing(final SystemAdvertisement adv) {
+    public boolean addHealthEntryIfMissing(final SystemAdvertisement adv) {
         final PeerID id = adv.getID();
-        synchronized(cacheLock) {
+        synchronized (cacheLock) {
             HealthMessage.Entry entry = cache.get(id);
             if (entry == null) {
                 final long BEFORE_FIRST_HEALTHMESSAGE_SEQ_ID = 0;
                 entry = new HealthMessage.Entry(adv, states[STARTING], BEFORE_FIRST_HEALTHMESSAGE_SEQ_ID);
-                 HealthMessage.Entry result = cache.putIfAbsent(id, entry);
+                HealthMessage.Entry result = cache.putIfAbsent(id, entry);
                 return result == null;
             } else {
                 return false;
@@ -1177,15 +1160,17 @@ public class HealthMonitor implements MessageListener, Runnable {
     }
 
     public void reportJoinedAndReadyState() {
-        //if I am the master send out a new view with ready event but wait for master discovery to be over.Also send out a health message
-        //with state set to READY. Recipients of health message would only update their health state cache.
-        //Master Node discovery completion and assignment is necessary for the ready state of a peer to be sent out as an event with a view.
-        //if I am not the master, report my state to the group as READY. MasterNode will send out a
-        //JOINED_AND_READY_EVENT view to the group on receipt of this health state message.
+        // if I am the master send out a new view with ready event but wait for master discovery to be over.Also send out a
+        // health message
+        // with state set to READY. Recipients of health message would only update their health state cache.
+        // Master Node discovery completion and assignment is necessary for the ready state of a peer to be sent out as an event
+        // with a view.
+        // if I am not the master, report my state to the group as READY. MasterNode will send out a
+        // JOINED_AND_READY_EVENT view to the group on receipt of this health state message.
 
         if (isWatchDog()) {
             return;
-         }
+        }
 
         if (masterNode.isDiscoveryInProgress()) {
             synchronized (masterNode.discoveryLock) {
@@ -1206,8 +1191,8 @@ public class HealthMonitor implements MessageListener, Runnable {
             }
             ClusterViewEvent cvEvent = masterNode.sendReadyEventView(manager.getSystemAdvertisement());
             if (LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, MessageFormat.format("Notifying Local listeners about " +
-                        "Joined and Ready Event View for peer :{0}", manager.getSystemAdvertisement().getName()));
+                LOG.log(Level.FINEST, MessageFormat.format("Notifying Local listeners about " + "Joined and Ready Event View for peer :{0}",
+                        manager.getSystemAdvertisement().getName()));
             }
             manager.getClusterViewManager().notifyListeners(cvEvent);
         }
@@ -1218,8 +1203,7 @@ public class HealthMonitor implements MessageListener, Runnable {
     }
 
     /**
-     * Detects suspected failures and then delegates final decision to
-     * FailureVerifier
+     * Detects suspected failures and then delegates final decision to FailureVerifier
      *
      * @author : Shreedhar Ganapathy
      */
@@ -1264,21 +1248,20 @@ public class HealthMonitor implements MessageListener, Runnable {
         public void run() {
             while (!stop) {
                 try {
-                    //System.out.println("InDoubtPeerDetector failureDetectorThread waiting for :"+timeout);
-                    //wait for specified timeout or until woken up
+                    // System.out.println("InDoubtPeerDetector failureDetectorThread waiting for :"+timeout);
+                    // wait for specified timeout or until woken up
                     synchronized (indoubtthreadLock) {
                         indoubtthreadLock.wait(timeout);
                     }
-                    //LOG.log(Level.FINEST, "Analyzing cache for health...");
-                    //get the copy of the states cache
+                    // LOG.log(Level.FINEST, "Analyzing cache for health...");
+                    // get the copy of the states cache
                     if (!manager.isStopping()) {
                         processCacheUpdate();
                     }
                 } catch (InterruptedException ex) {
                     LOG.log(Level.FINEST, "InDoubtPeerDetector Thread stopping as it is now interrupted :" + ex.getLocalizedMessage());
                     break;
-                }
-                catch (Throwable all) {
+                } catch (Throwable all) {
                     LOG.log(Level.FINE, "Uncaught Throwable in failureDetectorThread " + Thread.currentThread().getName() + ":" + all, all);
                 }
             }
@@ -1299,20 +1282,18 @@ public class HealthMonitor implements MessageListener, Runnable {
         private void processCacheUpdate() {
             final Map<PeerID, HealthMessage.Entry> cacheCopy = getCacheCopy();
             final long cacheSnapShotTime = System.currentTimeMillis();
-            //for each peer id
+            // for each peer id
             for (HealthMessage.Entry entry : cacheCopy.values()) {
-                //don't check for isConnected with your own self
-                //don't check when state is not a running state.
+                // don't check for isConnected with your own self
+                // don't check when state is not a running state.
                 if (!entry.id.equals(manager.getSystemAdvertisement().getID())) {
-                    if (entry.state.equals(states[STARTING]) ||
-                        entry.state.equals(states[ALIVE]) ||
-                        entry.state.equals(states[READY]) ||
-                        entry.state.equals(states[ALIVEANDREADY])) {
+                    if (entry.state.equals(states[STARTING]) || entry.state.equals(states[ALIVE]) || entry.state.equals(states[READY])
+                            || entry.state.equals(states[ALIVEANDREADY])) {
                         if (LOG.isLoggable(Level.FINER)) {
                             LOG.finer("processCacheUpdate : " + entry.adv.getName() + " 's state is " + entry.state);
                         }
-                        //if there is a record, then get the number of
-                        //retries performed in an earlier iteration
+                        // if there is a record, then get the number of
+                        // retries performed in an earlier iteration
                         try {
                             determineInDoubtPeers(entry, cacheSnapShotTime);
                         } catch (NumberFormatException nfe) {
@@ -1328,24 +1309,21 @@ public class HealthMonitor implements MessageListener, Runnable {
 
         private void determineInDoubtPeers(final HealthMessage.Entry entry, long cacheSnapShotTime) {
 
-            //if current time exceeds the last state update timestamp from this peer id, by more than the
-            //the specified max timeout
+            // if current time exceeds the last state update timestamp from this peer id, by more than the
+            // the specified max timeout
             if (!stop) {
 
                 final boolean processInDoubt = canProcessInDoubt(entry);
                 if (processInDoubt && LOG.isLoggable(Level.FINER)) {
                     LOG.log(Level.FINER, MessageFormat.format("For instance = {0}; last recorded heart-beat = {1}ms ago, heart-beat # {2} out of a max of {3}",
-                            entry.adv.getName(), (cacheSnapShotTime - entry.timestamp),
-                            computeMissedBeat(cacheSnapShotTime, entry), maxMissedBeats));
+                            entry.adv.getName(), (cacheSnapShotTime - entry.timestamp), computeMissedBeat(cacheSnapShotTime, entry), maxMissedBeats));
                 }
 
-                // Optimization.  Avoid calling isConnected() (network call) when not authorized to declare entry as indoubt.
-                if (processInDoubt &&
-                    computeMissedBeat(cacheSnapShotTime, entry) >= maxMissedBeats &&
-                    !isConnected(entry)) {
+                // Optimization. Avoid calling isConnected() (network call) when not authorized to declare entry as indoubt.
+                if (processInDoubt && computeMissedBeat(cacheSnapShotTime, entry) >= maxMissedBeats && !isConnected(entry)) {
                     LOG.log(Level.FINER, "Designating InDoubtState for " + entry.adv.getName());
                     designateInDoubtState(entry);
-                    //delegate verification to Failure Verifier
+                    // delegate verification to Failure Verifier
                     LOG.log(Level.FINER, "Notifying FailureVerifier for " + entry.adv.getName());
                     synchronized (verifierLock) {
                         outstandingFailureToVerify = true;
@@ -1360,7 +1338,7 @@ public class HealthMonitor implements MessageListener, Runnable {
         private boolean canProcessInDoubt(final HealthMessage.Entry entry) {
             boolean canProcessIndoubt = false;
 
-            //dont suspect self
+            // dont suspect self
             if (!entry.id.equals(localPeerID)) {
                 if (masterNode.getMasterNodeID().equals(entry.id)) {
                     canProcessIndoubt = true;
@@ -1381,15 +1359,15 @@ public class HealthMonitor implements MessageListener, Runnable {
                 reportEntry = new HealthMessage.Entry(entry);
                 cache.put(entry.id, entry);
             }
-            //fine(" after putting into cache " + cache + " , contents are :-");
-            //print(cache);
+            // fine(" after putting into cache " + cache + " , contents are :-");
+            // print(cache);
             if (masterNode.isMaster()) {
-                //do this only when masternode is not suspect.
+                // do this only when masternode is not suspect.
                 // When masternode is suspect, all members update their states
                 // anyways so no need to report
-                //Send group message announcing InDoubt State
+                // Send group message announcing InDoubt State
                 fine("Sending INDOUBT state message about member: " + entry.adv.getName() + " to the group: " + manager.getGroupName());
-                // fix glassfish issue 9055.  entry sent in health message should not have use Master's health message sequence id.
+                // fix glassfish issue 9055. entry sent in health message should not have use Master's health message sequence id.
                 // health message sequence id's should only be used from instance that the health message is reporting about.
                 reportOtherPeerState(reportEntry);
             }
@@ -1426,13 +1404,13 @@ public class HealthMonitor implements MessageListener, Runnable {
         }
 
         void verify() throws InterruptedException {
-            //wait for the specified timeout for verification
+            // wait for the specified timeout for verification
             Thread.sleep(verifyTimeout + BUFFER_TIMEOUT_MS);
             HealthMessage.Entry entry;
             for (HealthMessage.Entry entry1 : getCacheCopy().values()) {
                 entry = entry1;
-                LOG.log(Level.FINE, "FV: Verifying state of "+entry.adv.getName()+" state = "+entry.state);
-                if(entry.state.equals(states[INDOUBT]) && !isConnected(entry)){
+                LOG.log(Level.FINE, "FV: Verifying state of " + entry.adv.getName() + " state = " + entry.state);
+                if (entry.state.equals(states[INDOUBT]) && !isConnected(entry)) {
                     LOG.log(Level.FINE, "FV: Assigning and reporting failure ....");
                     assignAndReportFailure(entry);
                 }
@@ -1441,129 +1419,124 @@ public class HealthMonitor implements MessageListener, Runnable {
     }
 
     private void assignAndReportFailure(final HealthMessage.Entry entry) {
-            HealthMessage.Entry deadEntry = null;
-            if (entry != null) {
-                synchronized (cacheLock) {
-                    // before updating cache that entry is dead, make sure that no other thread has concurrently done this.
-                    HealthMessage.Entry lastCheck = cache.get(entry.id);
-                    if (lastCheck == null || lastCheck.isState(DEAD)) {
-                        // another thread has already called assignedAndReportFailure.  There exist 2 ways to declare an instance dead.
-                        // The FailureVerifier is one thread and processWatchdogNotification is second way.  Ensure only one thread ever runs
-                        // this method.
-                        // TBD:  change back to FINE before checkin.
-                        String deadTime =  lastCheck == null ? "" : MessageFormat.format(" at {0,time,full} on {0,date}", new Date(lastCheck.timestamp));
-                        LOG.log(Level.INFO, "mgmt.healthmonitor.alreadydead", new Object[] {entry.id, deadTime});
-                        return;
-                    }
-                    // master is generating a DEAD health entry on behalf of DEAD instance.
-                    // DO NOT bump the HM seqid just in case the master is declaring an instance dead and it is only
-                    // isolated by a network failure.  When isolated instance rejoins cluster, its HM seqid will still
-                    // be this value, so keep it same now.  Part of fix for BugDB 13375653.
-                    deadEntry = new HealthMessage.Entry(lastCheck.adv, states[DEAD], lastCheck.getSeqID());
-                    cache.put(lastCheck.id, deadEntry);
+        HealthMessage.Entry deadEntry = null;
+        if (entry != null) {
+            synchronized (cacheLock) {
+                // before updating cache that entry is dead, make sure that no other thread has concurrently done this.
+                HealthMessage.Entry lastCheck = cache.get(entry.id);
+                if (lastCheck == null || lastCheck.isState(DEAD)) {
+                    // another thread has already called assignedAndReportFailure. There exist 2 ways to declare an instance dead.
+                    // The FailureVerifier is one thread and processWatchdogNotification is second way. Ensure only one thread ever runs
+                    // this method.
+                    // TBD: change back to FINE before checkin.
+                    String deadTime = lastCheck == null ? "" : MessageFormat.format(" at {0,time,full} on {0,date}", new Date(lastCheck.timestamp));
+                    LOG.log(Level.INFO, "mgmt.healthmonitor.alreadydead", new Object[] { entry.id, deadTime });
+                    return;
                 }
-                if (LOG.isLoggable(Level.FINE)){
-                    fine(" assignAndReportFailure => going to put into cache " + entry.adv.getName() +
-                         " state is " + entry.state);
-                }
-                //fine(" after putting into cache " + cache + " , contents are :-");
-                //print(cache);
-                if (masterNode.isMaster()) {
-                    LOG.log(Level.FINE, MessageFormat.format("Reporting Failed Node {0}", entry.id.toString()));
-                    reportOtherPeerState(deadEntry);
-                }
-                final boolean masterFailed = (masterNode.getMasterNodeID()).equals(entry.id);
+                // master is generating a DEAD health entry on behalf of DEAD instance.
+                // DO NOT bump the HM seqid just in case the master is declaring an instance dead and it is only
+                // isolated by a network failure. When isolated instance rejoins cluster, its HM seqid will still
+                // be this value, so keep it same now. Part of fix for BugDB 13375653.
+                deadEntry = new HealthMessage.Entry(lastCheck.adv, states[DEAD], lastCheck.getSeqID());
+                cache.put(lastCheck.id, deadEntry);
+            }
+            if (LOG.isLoggable(Level.FINE)) {
+                fine(" assignAndReportFailure => going to put into cache " + entry.adv.getName() + " state is " + entry.state);
+            }
+            // fine(" after putting into cache " + cache + " , contents are :-");
+            // print(cache);
+            if (masterNode.isMaster()) {
+                LOG.log(Level.FINE, MessageFormat.format("Reporting Failed Node {0}", entry.id.toString()));
+                reportOtherPeerState(deadEntry);
+            }
+            final boolean masterFailed = (masterNode.getMasterNodeID()).equals(entry.id);
+            if (masterNode.isMaster() && masterNode.isMasterAssigned()) {
+                LOG.log(Level.FINE, MessageFormat.format("Removing System Advertisement :{0} for name {1}", entry.id.toString(), entry.adv.getName()));
+                manager.getClusterViewManager().remove(entry.adv);
+                LOG.log(Level.FINE, MessageFormat.format("Announcing Failure Event of {0} for name {1}...", entry.id, entry.adv.getName()));
+                final ClusterViewEvent cvEvent = new ClusterViewEvent(ClusterViewEvents.FAILURE_EVENT, entry.adv);
+                masterNode.viewChanged(cvEvent);
+            } else if (masterFailed) {
+                // remove the failed node
+                LOG.log(Level.FINE, MessageFormat.format("Master Failed. Removing System Advertisement :{0} for master named {1}", entry.id.toString(),
+                        entry.adv.getName()));
+                manager.getClusterViewManager().remove(entry.adv);
+                masterNode.resetMaster();
+                masterNode.appointMasterNode();
                 if (masterNode.isMaster() && masterNode.isMasterAssigned()) {
-                    LOG.log(Level.FINE, MessageFormat.format("Removing System Advertisement :{0} for name {1}", entry.id.toString(), entry.adv.getName()));
-                    manager.getClusterViewManager().remove(entry.adv);
                     LOG.log(Level.FINE, MessageFormat.format("Announcing Failure Event of {0} for name {1}...", entry.id, entry.adv.getName()));
                     final ClusterViewEvent cvEvent = new ClusterViewEvent(ClusterViewEvents.FAILURE_EVENT, entry.adv);
                     masterNode.viewChanged(cvEvent);
-                } else if (masterFailed) {
-                    //remove the failed node
-                    LOG.log(Level.FINE, MessageFormat.format("Master Failed. Removing System Advertisement :{0} for master named {1}", entry.id.toString(), entry.adv.getName()));
-                    manager.getClusterViewManager().remove(entry.adv);
-                    masterNode.resetMaster();
-                    masterNode.appointMasterNode();
-                    if (masterNode.isMaster() && masterNode.isMasterAssigned()) {
-                        LOG.log(Level.FINE, MessageFormat.format("Announcing Failure Event of {0} for name {1}...", entry.id, entry.adv.getName()));
-                        final ClusterViewEvent cvEvent = new ClusterViewEvent(ClusterViewEvents.FAILURE_EVENT, entry.adv);
-                        masterNode.viewChanged(cvEvent);
-                    }
                 }
-                cleanAllCaches(entry);
             }
+            cleanAllCaches(entry);
         }
+    }
 
     private void removeMasterAdv(HealthMessage.Entry entry, short state) {
         manager.getClusterViewManager().remove(entry.adv);
         if (entry.adv != null) {
             switch (state) {
-                case DEAD:
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.log(Level.FINER, "FV: Notifying local listeners of Failure of " + entry.adv.getName());
-                    }
-                    manager.getClusterViewManager().notifyListeners(
-                            new ClusterViewEvent(ClusterViewEvents.FAILURE_EVENT, entry.adv));
-                    break;
-                case PEERSTOPPING:
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.log(Level.FINER, "FV: Notifying local listeners of Shutdown of " + entry.adv.getName());
-                    }
-                    manager.getClusterViewManager().notifyListeners(
-                            new ClusterViewEvent(ClusterViewEvents.PEER_STOP_EVENT, entry.adv));
-                    break;
-                case CLUSTERSTOPPING:
-                    if (LOG.isLoggable(Level.FINER)) {
-                        LOG.log(Level.FINER, "FV: Notifying local listeners of Cluster_Stopping of " + entry.adv.getName());
-                    }
-                    manager.getClusterViewManager().notifyListeners(
-                            new ClusterViewEvent(ClusterViewEvents.CLUSTER_STOP_EVENT, entry.adv));
-                    break;
-                default:
-                    if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.log(Level.FINEST, MessageFormat.format("Invalid State for removing adv from view {0}", state));
-                    }
+            case DEAD:
+                if (LOG.isLoggable(Level.FINER)) {
+                    LOG.log(Level.FINER, "FV: Notifying local listeners of Failure of " + entry.adv.getName());
+                }
+                manager.getClusterViewManager().notifyListeners(new ClusterViewEvent(ClusterViewEvents.FAILURE_EVENT, entry.adv));
+                break;
+            case PEERSTOPPING:
+                if (LOG.isLoggable(Level.FINER)) {
+                    LOG.log(Level.FINER, "FV: Notifying local listeners of Shutdown of " + entry.adv.getName());
+                }
+                manager.getClusterViewManager().notifyListeners(new ClusterViewEvent(ClusterViewEvents.PEER_STOP_EVENT, entry.adv));
+                break;
+            case CLUSTERSTOPPING:
+                if (LOG.isLoggable(Level.FINER)) {
+                    LOG.log(Level.FINER, "FV: Notifying local listeners of Cluster_Stopping of " + entry.adv.getName());
+                }
+                manager.getClusterViewManager().notifyListeners(new ClusterViewEvent(ClusterViewEvents.CLUSTER_STOP_EVENT, entry.adv));
+                break;
+            default:
+                if (LOG.isLoggable(Level.FINEST)) {
+                    LOG.log(Level.FINEST, MessageFormat.format("Invalid State for removing adv from view {0}", state));
+                }
             }
         } else {
-            LOG.log(Level.WARNING, "mgmt.healthmonitor.removemasteradvfail", new Object[]{states[state], entry.id});
+            LOG.log(Level.WARNING, "mgmt.healthmonitor.removemasteradvfail", new Object[] { states[state], entry.id });
         }
     }
 
     /**
-     * This method is for designating myself in network isolation
-     * if my network interface is not up.
-     * It does not matter if I am the master or not.
+     * This method is for designating myself in network isolation if my network interface is not up. It does not matter if I
+     * am the master or not.
      */
-    /* private void designateInIsolationState(final HealthMessage.Entry entry) {
-
-       entry.state = states[ALIVE_IN_ISOLATION];
-       cache.put(entry.id, entry);
-       LOG.log(Level.FINE, "Sending ALIVE_IN_ISOLATION state message about node ID: " + entry.id + " to the cluster...");
-       reportMyState(ALIVE_IN_ISOLATION, entry.id);
-       LOG.log(Level.FINE, "Notifying Local Listeners of designated ALIVE_IN_ISOLATION state for " + entry.adv.getName());
-       notifyLocalListeners(entry.state, entry.adv);
-   } */
-
+    /*
+     * private void designateInIsolationState(final HealthMessage.Entry entry) {
+     *
+     * entry.state = states[ALIVE_IN_ISOLATION]; cache.put(entry.id, entry); LOG.log(Level.FINE,
+     * "Sending ALIVE_IN_ISOLATION state message about node ID: " + entry.id + " to the cluster...");
+     * reportMyState(ALIVE_IN_ISOLATION, entry.id); LOG.log(Level.FINE,
+     * "Notifying Local Listeners of designated ALIVE_IN_ISOLATION state for " + entry.adv.getName());
+     * notifyLocalListeners(entry.state, entry.adv); }
+     */
 
     static public class PeerMachineConnectionResult {
-       public Boolean isConnectionUp = null;
-       public SocketAddress connectionUpSocketAddress = null;
-       public AtomicBoolean completed = new AtomicBoolean(false);
-       public long startTime = 0;
+        public Boolean isConnectionUp = null;
+        public SocketAddress connectionUpSocketAddress = null;
+        public AtomicBoolean completed = new AtomicBoolean(false);
+        public long startTime = 0;
 
-       public boolean isConnectionUp() {
-           return isConnectionUp != null && isConnectionUp.booleanValue();
-       }
+        public boolean isConnectionUp() {
+            return isConnectionUp != null && isConnectionUp.booleanValue();
+        }
 
-       PeerMachineConnectionResult() {
-           if (LOG.isLoggable(Level.FINE)) {
-               startTime = System.currentTimeMillis();
-           }
-       }
-   }
+        PeerMachineConnectionResult() {
+            if (LOG.isLoggable(Level.FINE)) {
+                startTime = System.currentTimeMillis();
+            }
+        }
+    }
 
-   public boolean isConnected(HealthMessage.Entry entry) {
+    public boolean isConnected(HealthMessage.Entry entry) {
         boolean result = false;
         List<URI> list = entry.adv.getURIs();
         List<CheckConnectionToPeerMachine> connections = new ArrayList<CheckConnectionToPeerMachine>(list.size());
@@ -1571,8 +1544,7 @@ public class HealthMonitor implements MessageListener, Runnable {
         PeerMachineConnectionResult checkConnectionsResult = new PeerMachineConnectionResult();
 
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("HealthMonitor.isConnected() peerMachine=" + entry.adv.getName() +
-                     " number of network interfaces=" + outstandingConnections);
+            LOG.fine("HealthMonitor.isConnected() peerMachine=" + entry.adv.getName() + " number of network interfaces=" + outstandingConnections);
         }
         for (URI uri : list) {
             if (!checkConnectionsResult.completed.get()) {
@@ -1581,10 +1553,8 @@ public class HealthMonitor implements MessageListener, Runnable {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Checking for machine status for network interface : " + uri.toString());
                 }
-                CheckConnectionToPeerMachine connectToPeer =
-                        new CheckConnectionToPeerMachine(entry, uri.getHost(), outstandingConnections,
-                                                         (int) failureDetectionTCPTimeout,
-                                                         checkConnectionsResult);
+                CheckConnectionToPeerMachine connectToPeer = new CheckConnectionToPeerMachine(entry, uri.getHost(), outstandingConnections,
+                        (int) failureDetectionTCPTimeout, checkConnectionsResult);
                 connections.add(connectToPeer);
 
                 // starts checking if it can create a socket connection to peer using uri in another thread.
@@ -1595,9 +1565,9 @@ public class HealthMonitor implements MessageListener, Runnable {
         try {
             // wait until one network interface is confirmed to be up or all network interface addresses are confirmed to be down.
             synchronized (checkConnectionsResult) {
-                if (! checkConnectionsResult.completed.get()) {
+                if (!checkConnectionsResult.completed.get()) {
                     long startTime = 0;
-                    if (LOG.isLoggable(Level.FINE)){
+                    if (LOG.isLoggable(Level.FINE)) {
                         startTime = System.currentTimeMillis();
                     }
                     checkConnectionsResult.wait(failureDetectionTCPTimeout);
@@ -1606,13 +1576,13 @@ public class HealthMonitor implements MessageListener, Runnable {
                                 + failureDetectionTCPTimeout);
                     }
                 } else {
-                    if (LOG.isLoggable(Level.FINE)){
+                    if (LOG.isLoggable(Level.FINE)) {
                         LOG.fine("check connection completed with no waiting");
                     }
                 }
             }
         } catch (InterruptedException e) {
-            fine("InterruptedException occurred..." + e.getMessage(), new Object[]{e});
+            fine("InterruptedException occurred..." + e.getMessage(), new Object[] { e });
         }
 
         if (checkConnectionsResult.isConnectionUp()) {
@@ -1620,30 +1590,31 @@ public class HealthMonitor implements MessageListener, Runnable {
             if (LOG.isLoggable(Level.FINE)) {
                 startTime = System.currentTimeMillis();
             }
-            result = manager.getNetworkManager().isConnected( entry.id );
+            result = manager.getNetworkManager().isConnected(entry.id);
             if (LOG.isLoggable(Level.FINE)) {
-                fine("routeControl.isConnected() for " + entry.adv.getName() + " is => " + result + " call elapsed time=" +
-                        (System.currentTimeMillis() - startTime) + "ms");
+                fine("routeControl.isConnected() for " + entry.adv.getName() + " is => " + result + " call elapsed time="
+                        + (System.currentTimeMillis() - startTime) + "ms");
             }
         }
 
         // cleanup outstanding tasks
-        // also be sure to cancel any outstanding future tasks.  (Could be hung trying to create a socket to a failed network interface)
+        // also be sure to cancel any outstanding future tasks. (Could be hung trying to create a socket to a failed network
+        // interface)
         boolean canceled = false;
         for (CheckConnectionToPeerMachine connection : connections) {
             try {
                 Future future = connection.getFuture();
-                //if the task has completed after waiting for the
-                //specified timeout
-                if (! future.isDone()) {
+                // if the task has completed after waiting for the
+                // specified timeout
+                if (!future.isDone()) {
 
-                    //interrupt the thread which is still running the task submitted to it.
+                    // interrupt the thread which is still running the task submitted to it.
                     // chances are that the thread is hung on socket creation to a failed network interface.
                     future.cancel(true);
                     canceled = true;
                 }
             } catch (Throwable t) {
-                // ignore.  must iterate over all connections.
+                // ignore. must iterate over all connections.
             }
         }
         if (canceled) {
@@ -1652,13 +1623,13 @@ public class HealthMonitor implements MessageListener, Runnable {
         }
         String machineStatus = result ? "up!" : "down!";
         if (LOG.isLoggable(Level.FINE)) {
-            fine("HealthMonitor.isConnected(): Peer Machine for " + entry.adv.getName() + " is " + machineStatus +
-                    " computeTime=" + (System.currentTimeMillis() - checkConnectionsResult.startTime) + "ms");
+            fine("HealthMonitor.isConnected(): Peer Machine for " + entry.adv.getName() + " is " + machineStatus + " computeTime="
+                    + (System.currentTimeMillis() - checkConnectionsResult.startTime) + "ms");
         }
         return result;
     }
 
-    //This is the Callable Object that gets executed by the ExecutorService
+    // This is the Callable Object that gets executed by the ExecutorService
     private class CheckConnectionToPeerMachine implements Callable<Object> {
         HealthMessage.Entry entry;
         String address;
@@ -1669,14 +1640,11 @@ public class HealthMonitor implements MessageListener, Runnable {
         PeerMachineConnectionResult result;
         final int socketConnectTimeout;
 
-        CheckConnectionToPeerMachine(HealthMessage.Entry entry,
-                String address,
-                AtomicInteger outstanding,
-                int socketConnectTimeout,
+        CheckConnectionToPeerMachine(HealthMessage.Entry entry, String address, AtomicInteger outstanding, int socketConnectTimeout,
                 PeerMachineConnectionResult result) {
             this.entry = entry;
             this.address = address;
-            this.connectionIsUp = null;   // unknown
+            this.connectionIsUp = null; // unknown
             this.running = true;
             this.outstandingConnectionChecks = outstanding;
             this.result = result;
@@ -1704,8 +1672,7 @@ public class HealthMonitor implements MessageListener, Runnable {
             Socket socket = null;
             try {
                 if (LOG.isLoggable(Level.FINE)) {
-                    fine("Attempting to connect to a socket at " + address + ":" + failureDetectionTCPPort +
-                         " timeout=" + socketConnectTimeout);
+                    fine("Attempting to connect to a socket at " + address + ":" + failureDetectionTCPPort + " timeout=" + socketConnectTimeout);
                 }
                 socket = new Socket();
                 siaddr = new InetSocketAddress(address, failureDetectionTCPPort);
@@ -1714,8 +1681,8 @@ public class HealthMonitor implements MessageListener, Runnable {
                     fine("Socket created at " + address + ":" + failureDetectionTCPPort);
                 }
 
-                //for whatever reason a socket got created, finally block will close it and return true
-                //i.e. this instance was able to create a socket on that machine so it is up
+                // for whatever reason a socket got created, finally block will close it and return true
+                // i.e. this instance was able to create a socket on that machine so it is up
                 connectionIsUp = Boolean.TRUE;
             } catch (SocketTimeoutException toe) {
                 connectionIsUp = Boolean.FALSE;
@@ -1724,8 +1691,7 @@ public class HealthMonitor implements MessageListener, Runnable {
                 connectionIsUp = null;
             } catch (IOException e) {
                 if (LOG.isLoggable(Level.FINE)) {
-                    fine("IOException occurred while trying to connect to peer " + entry.adv.getName() +
-                         "'s machine : " + e.getMessage(), new Object[]{e});
+                    fine("IOException occurred while trying to connect to peer " + entry.adv.getName() + "'s machine : " + e.getMessage(), new Object[] { e });
                 }
                 if (e.getMessage().trim().contains(CONNECTION_REFUSED)) {
                     connectionIsUp = Boolean.TRUE;
@@ -1741,7 +1707,8 @@ public class HealthMonitor implements MessageListener, Runnable {
                         socket.close();
                     } catch (IOException e) {
                         fine("Could not close the socket due to " + e.getMessage());
-                    } catch (Throwable t) {}
+                    } catch (Throwable t) {
+                    }
                 }
 
                 if (isConnectionUp() || outstandingConnectionChecks.get() <= 0) {
@@ -1753,7 +1720,7 @@ public class HealthMonitor implements MessageListener, Runnable {
                     synchronized (result) {
                         if (!result.completed.get()) {
                             result.isConnectionUp = Boolean.valueOf(isConnectionUp());
-                            if (result.isConnectionUp)  {
+                            if (result.isConnectionUp) {
                                 result.connectionUpSocketAddress = siaddr;
                             }
                             completed = true;
@@ -1763,8 +1730,8 @@ public class HealthMonitor implements MessageListener, Runnable {
                     }
                     if (completed) {
                         if (LOG.isLoggable(Level.FINE)) {
-                                fine("completed computation that one of the network interfaces is up.  isConnectionUp=" + isConnectionUp() +
-                                        " outstandingNetworkInterfaceChecks =" + outstandingConnectionChecks.get());
+                            fine("completed computation that one of the network interfaces is up.  isConnectionUp=" + isConnectionUp()
+                                    + " outstandingNetworkInterfaceChecks =" + outstandingConnectionChecks.get());
                         }
                     }
                 }
@@ -1791,12 +1758,11 @@ public class HealthMonitor implements MessageListener, Runnable {
                 MsgSendStats msgSendStats = this.getMsgSendStats(manager.getGroupName());
                 if (msgSendStats.reportSendFailed()) {
                     if (ioe != null) {
-                        reason = ioe.getClass().getSimpleName() + ":" +ioe.getLocalizedMessage();
+                        reason = ioe.getClass().getSimpleName() + ":" + ioe.getLocalizedMessage();
                     } else {
                         reason = "send returned false";
                     }
-                    LOG.log(Level.WARNING, "mgmt.healthmonitor.failedwatchdognotify",
-                            new Object[]{failedMemberToken, manager.getGroupName(), reason});
+                    LOG.log(Level.WARNING, "mgmt.healthmonitor.failedwatchdognotify", new Object[] { failedMemberToken, manager.getGroupName(), reason });
 
                 }
             }
@@ -1806,66 +1772,64 @@ public class HealthMonitor implements MessageListener, Runnable {
     public void setJoinedAndReadyReceived() {
         JoinedAndReadyReceived = true;
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("JoinedAndReady notification received from master, set JoinedAndReadyReceived to true for member:" +
-                      manager.getInstanceName());
+            LOG.fine("JoinedAndReady notification received from master, set JoinedAndReadyReceived to true for member:" + manager.getInstanceName());
         }
     }
 
-
-        public MsgSendStats getMsgSendStats(String memberName) {
-            MsgSendStats result = msgSendStats.get(memberName);
-            if (result == null) {
-                result = new MsgSendStats(memberName);
-                MsgSendStats putresult = msgSendStats.putIfAbsent(memberName, result);
-                if (putresult != null) {
-                    result = putresult;
-                }
-            }
-            return result;
-        }
-
-        private static class MsgSendStats {
-            static final long MAX_DURATION_BETWEEN_FAILURE_REPORT_MS = (60000 * 60) * 2;  // two hours between fail to send to an instance.
-            String     memberName;
-            AtomicLong numSends;
-            AtomicLong numFailSends;
-            AtomicLong lastReportedFailSendTime;
-            AtomicLong lastSendTime;
-
-            MsgSendStats(String memberName) {
-                this.memberName = memberName;
-                numSends = new AtomicLong(0);
-                numFailSends = new AtomicLong(0);
-                lastReportedFailSendTime = new AtomicLong(-1);
-                lastSendTime = new AtomicLong(0);
-            }
-
-            MsgSendStats sendSucceeded() {
-                long value = numSends.incrementAndGet();
-                if (value == Long.MAX_VALUE) {
-                    numSends.set(1);  // reset to avoid overflow.
-                }
-                lastSendTime.set(System.currentTimeMillis());
-                return this;
-            }
-
-            void sendFailed() {
-                numSends.incrementAndGet();
-                numFailSends.incrementAndGet();
-            }
-
-            boolean reportSendFailed() {
-                if (lastSendTime.get() > lastReportedFailSendTime.get() ||
-                    (System.currentTimeMillis() - this.lastReportedFailSendTime.get()) > MAX_DURATION_BETWEEN_FAILURE_REPORT_MS ) {
-                     lastReportedFailSendTime.set(System.currentTimeMillis());
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-            String getFailureReport() {
-                return memberName + " (failed to send " + numFailSends + " times)";
+    public MsgSendStats getMsgSendStats(String memberName) {
+        MsgSendStats result = msgSendStats.get(memberName);
+        if (result == null) {
+            result = new MsgSendStats(memberName);
+            MsgSendStats putresult = msgSendStats.putIfAbsent(memberName, result);
+            if (putresult != null) {
+                result = putresult;
             }
         }
+        return result;
+    }
+
+    private static class MsgSendStats {
+        static final long MAX_DURATION_BETWEEN_FAILURE_REPORT_MS = (60000 * 60) * 2; // two hours between fail to send to an instance.
+        String memberName;
+        AtomicLong numSends;
+        AtomicLong numFailSends;
+        AtomicLong lastReportedFailSendTime;
+        AtomicLong lastSendTime;
+
+        MsgSendStats(String memberName) {
+            this.memberName = memberName;
+            numSends = new AtomicLong(0);
+            numFailSends = new AtomicLong(0);
+            lastReportedFailSendTime = new AtomicLong(-1);
+            lastSendTime = new AtomicLong(0);
+        }
+
+        MsgSendStats sendSucceeded() {
+            long value = numSends.incrementAndGet();
+            if (value == Long.MAX_VALUE) {
+                numSends.set(1); // reset to avoid overflow.
+            }
+            lastSendTime.set(System.currentTimeMillis());
+            return this;
+        }
+
+        void sendFailed() {
+            numSends.incrementAndGet();
+            numFailSends.incrementAndGet();
+        }
+
+        boolean reportSendFailed() {
+            if (lastSendTime.get() > lastReportedFailSendTime.get()
+                    || (System.currentTimeMillis() - this.lastReportedFailSendTime.get()) > MAX_DURATION_BETWEEN_FAILURE_REPORT_MS) {
+                lastReportedFailSendTime.set(System.currentTimeMillis());
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        String getFailureReport() {
+            return memberName + " (failed to send " + numFailSends + " times)";
+        }
+    }
 }

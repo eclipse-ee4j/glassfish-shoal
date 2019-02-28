@@ -16,25 +16,21 @@
 
 package org.glassfish.ha.store.spi;
 
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.glassfish.ha.store.api.BackingStoreException;
 import org.glassfish.ha.store.api.BackingStoreFactory;
 import org.glassfish.ha.store.impl.NoOpBackingStoreFactory;
-
-import java.util.Properties;
-import java.util.HashMap;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author bhavanishankar@dev.java.net
  */
 
 /**
- * A class for storing BackingStore implementation. This is a
- * singleton and contains a mapping between persistence-type and
- * <code>BackingStoreFactory</code>.
+ * A class for storing BackingStore implementation. This is a singleton and contains a mapping between persistence-type
+ * and <code>BackingStoreFactory</code>.
  *
  * @author Mahesh.Kannan@Sun.Com
  * @author Larry.White@Sun.Com
@@ -42,49 +38,39 @@ import java.util.logging.Logger;
  */
 public final class BackingStoreFactoryRegistry {
 
-    private static final HashMap<String, BackingStoreFactory> factories =
-            new HashMap<String, BackingStoreFactory>();
+    private static final HashMap<String, BackingStoreFactory> factories = new HashMap<String, BackingStoreFactory>();
 
     static {
         factories.put("noop", new NoOpBackingStoreFactory());
     }
 
-    public static synchronized void register(String type, BackingStoreFactory factory)
-            throws DuplicateFactoryRegistrationException {
+    public static synchronized void register(String type, BackingStoreFactory factory) throws DuplicateFactoryRegistrationException {
         if (factories.get(type) != null) {
-            throw new DuplicateFactoryRegistrationException("BackingStoreFactory " +
-                    "for persistene-type " + type + " already exists");
+            throw new DuplicateFactoryRegistrationException("BackingStoreFactory " + "for persistene-type " + type + " already exists");
         }
         factories.put(type, factory);
-        Logger.getLogger(BackingStoreFactoryRegistry.class.getName()).log(Level.INFO, "Registered "
-            + factory.getClass().getName() + " for persistence-type = " + type
-            + " in BackingStoreFactoryRegistry");
+        Logger.getLogger(BackingStoreFactoryRegistry.class.getName()).log(Level.INFO,
+                "Registered " + factory.getClass().getName() + " for persistence-type = " + type + " in BackingStoreFactoryRegistry");
     }
 
     /**
-     * Return an instance of BackingStoreFactory for the
-     * specified type. If a factory instance for this persistence
-     * type has not yet been instantiated then an instance is
-     * created using the public no-arg constructor.
+     * Return an instance of BackingStoreFactory for the specified type. If a factory instance for this persistence type has
+     * not yet been instantiated then an instance is created using the public no-arg constructor.
      */
-    public static synchronized BackingStoreFactory getFactoryInstance(String type)
-            throws BackingStoreException {
+    public static synchronized BackingStoreFactory getFactoryInstance(String type) throws BackingStoreException {
         BackingStoreFactory factory = factories.get(type);
         if (factory == null) {
-            throw new BackingStoreException("Backing store for " +
-                        "persistence-type " + type + " is not registered.");
+            throw new BackingStoreException("Backing store for " + "persistence-type " + type + " is not registered.");
         }
-        
+
         return factory;
     }
 
     /**
-     * Will be called by Store's Lifecycle module to unregister
-     * the factory class name.
+     * Will be called by Store's Lifecycle module to unregister the factory class name.
      */
     public static synchronized void unregister(String type) {
         factories.remove(type);
     }
-    
-}
 
+}

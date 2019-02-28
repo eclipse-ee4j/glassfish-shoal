@@ -16,31 +16,34 @@
 
 package org.shoal.adapter.store;
 
-import org.glassfish.ha.store.api.*;
-
 import java.io.Serializable;
 import java.util.Properties;
+
+import org.glassfish.ha.store.api.BackingStore;
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.api.BackingStoreException;
+import org.glassfish.ha.store.api.BackingStoreFactory;
+import org.glassfish.ha.store.api.BackingStoreTransaction;
 
 /**
  * @author Mahesh Kannan
  */
-public class ReplicatedBackingStoreFactory
-    implements BackingStoreFactory {
+public class ReplicatedBackingStoreFactory implements BackingStoreFactory {
 
     private Properties props;
 
-    public ReplicatedBackingStoreFactory()  {
+    public ReplicatedBackingStoreFactory() {
     }
 
-    public ReplicatedBackingStoreFactory(Properties p)  {
-        this.props=p;
+    public ReplicatedBackingStoreFactory(Properties p) {
+        this.props = p;
     }
 
     @Override
     public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf)
             throws BackingStoreException {
 
-        ReplicatedBackingStore<K, V> store =  new ReplicatedBackingStore<K, V>();
+        ReplicatedBackingStore<K, V> store = new ReplicatedBackingStore<K, V>();
         store.setBackingStoreFactory(this);
         store.initialize(conf);
 
@@ -51,7 +54,7 @@ public class ReplicatedBackingStoreFactory
     public BackingStoreTransaction createBackingStoreTransaction() {
         return new BackingStoreTransaction() {
             @Override
-            public void commit() throws BackingStoreException {    
+            public void commit() throws BackingStoreException {
             }
         };
     }
