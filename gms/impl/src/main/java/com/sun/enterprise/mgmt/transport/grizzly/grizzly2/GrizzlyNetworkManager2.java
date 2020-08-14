@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -41,7 +41,6 @@ import java.util.logging.Logger;
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.Grizzly;
 import org.glassfish.grizzly.PortRange;
-import org.glassfish.grizzly.config.SSLConfigurator;
 import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainBuilder;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
@@ -121,12 +120,6 @@ public class GrizzlyNetworkManager2 extends com.sun.enterprise.mgmt.transport.gr
         if (engConfig != null && getLogger().isLoggable(Level.CONFIG)) {
             StringBuffer buf = new StringBuffer();
             buf.append(description).append(" SSLEngineConfigurator");
-            if (engConfig != null && engConfig instanceof SSLConfigurator) {
-                SSLConfigurator sslConfigurator = (SSLConfigurator) engConfig;
-                if (sslConfigurator.getSslImplementation() != null) {
-                    buf.append(" [ssl impl=").append(sslConfigurator.getSslImplementation().getImplementationName()).append("]");
-                }
-            }
             buf.append(" [Enabled Protocols:");
             String[] protocols = engConfig.getEnabledProtocols();
             if (protocols != null) {
