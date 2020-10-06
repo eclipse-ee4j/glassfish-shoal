@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019-2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -35,12 +35,24 @@ apiVersion: v1
 kind: Pod
 metadata:
 spec:
-  securityContext:
-    runAsUser: 1000100000
   volumes:
+    - name: "jenkins-home"
+      emptyDir: {}
     - name: maven-repo-shared-storage
       persistentVolumeClaim:
        claimName: glassfish-maven-repo-storage
+    - name: settings-xml
+      secret:
+        secretName: m2-secret-dir
+        items:
+        - key: settings.xml
+          path: settings.xml
+    - name: settings-security-xml
+      secret:
+        secretName: m2-secret-dir
+        items:
+        - key: settings-security.xml
+          path: settings-security.xml
     - name: maven-repo-local-storage
       emptyDir: {}
   containers:
@@ -56,16 +68,27 @@ spec:
         memory: "1Gi"
         cpu: "1"
   - name: build-container
-    image: ee4jglassfish/ci:jdk-8.181
+    image: ee4jglassfish/ci:tini-jdk-8.181
     args:
     - cat
     tty: true
     imagePullPolicy: Always
     volumeMounts:
-      - mountPath: "/home/jenkins/.m2/repository"
-        name: maven-repo-shared-storage
-      - mountPath: "/home/jenkins/.m2/repository/org/glassfish/shoal"
-        name: maven-repo-local-storage
+      - name: "jenkins-home"
+        mountPath: "/home/jenkins"
+        readOnly: false
+      - name: maven-repo-shared-storage 
+        mountPath: "/home/jenkins/.m2/repository"
+      - name: settings-xml
+        mountPath: "/home/jenkins/.m2/settings.xml"
+        subPath: settings.xml
+        readOnly: true
+      - name: settings-security-xml
+        mountPath: "/home/jenkins/.m2/settings-security.xml"
+        subPath: settings-security.xml
+        readOnly: true
+      - name: maven-repo-local-storage
+        mountPath: "/home/jenkins/.m2/repository/org/glassfish/shoal"
     resources:
       limits:
         memory: "7Gi"
