@@ -1,5 +1,4 @@
 <!--
-
     Copyright (c) 2009, 2018 Oracle and/or its affiliates. All rights reserved.
     Copyright (c) 2020 Payara Services Ltd.
 
@@ -27,10 +26,10 @@
     <groupId>org.glassfish.shoal</groupId>
     <artifactId>shoal</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.54-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>shoal</name>
     <description>GlassFish project for scalable dynamic clustering infrastructure to for fault tolerance, reliability and availability.</description>
-    <url>http://java.net/projects/shoal</url>
+    <url>https://github.com/eclipse-ee4j/glassfish-shoal</url>
 
     <scm>
         <connection>scm:git:https://github.com/eclipse-ee4j/glassfish-shoal.git</connection>
@@ -73,6 +72,11 @@
             <organization>Oracle Corporation</organization>
             <organizationUrl>http://www.oracle.com/</organizationUrl>
         </contributor>
+        <contributor>
+            <name>Steve Millidge</name>
+            <organization>Payara</organization>
+            <organizationUrl>http://www.payara.fish/</organizationUrl>
+        </contributor>
     </contributors>
 
     <licenses>
@@ -89,11 +93,9 @@
     </licenses>
 
     <properties>
-        <!--<grizzly.group.id>com.sun.grizzly</grizzly.group.id>
-        <grizzly.version>1.9.36</grizzly.version>-->
 
-        <grizzly2.group.id>org.glassfish.grizzly</grizzly2.group.id>
-        <grizzly2.version>2.4.0-beta9</grizzly2.version>
+        <grizzly.group.id>org.glassfish.grizzly</grizzly.group.id>
+        <grizzly.version>3.0.0-M1</grizzly.version>
 
         <junit.group.id>junit</junit.group.id>
         <junit.version>4.12</junit.version>
@@ -110,6 +112,7 @@
     <modules>
         <module>gms</module>
         <module>cache</module>
+        <module>backing-store</module>
     </modules>
 
     <build>
@@ -118,8 +121,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
 
@@ -208,11 +211,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--<dependency>
-                <groupId>${grizzly.group.id}</groupId>
-                <version>${grizzly.version}</version>
-                <artifactId>grizzly-http</artifactId>
-            </dependency>-->
             <dependency>
                 <groupId>${junit.group.id}</groupId>
                 <artifactId>junit</artifactId>
