@@ -98,7 +98,7 @@
         <grizzly.version>3.0.0-M1</grizzly.version>
 
         <junit.group.id>junit</junit.group.id>
-        <junit.version>4.13</junit.version>
+        <junit.version>4.13.1</junit.version>
 
         <ha.api.version>3.1.12</ha.api.version>
 
