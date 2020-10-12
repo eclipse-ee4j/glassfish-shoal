@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -110,8 +111,9 @@ public class AliveAndReadyViewImpl implements AliveAndReadyView {
         return duration;
     }
 
+    @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("AliveAndReadyView  ViewId:").append(viewId);
         if (signal == null) {
             sb.append(" View created at ").append(MessageFormat.format("{0,date} {0,time,full}", creationTime));

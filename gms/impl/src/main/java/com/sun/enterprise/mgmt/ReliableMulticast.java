@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -76,7 +77,7 @@ public class ReliableMulticast {
     }
 
     static private String clusterViewEventMsgToString(Message msg) {
-        StringBuffer sb = new StringBuffer(40);
+        StringBuilder sb = new StringBuilder(40);
         try {
             long seqId = MasterNode.getMasterViewSequenceID(msg);
             Object element = msg.getMessageElement(MasterNode.VIEW_CHANGE_EVENT);
@@ -91,7 +92,7 @@ public class ReliableMulticast {
                 peerId = cve.getAdvertisement().getID();
                 cveType = type.toString();
                 sb.append("broadcast seq id:").append(seqId).append(" viewChangeEvent:").append(cveType).append(" member:").append(memberName)
-                        .append(" peerId:" + peerId);
+                        .append(" peerId:").append(peerId);
             }
         } catch (Error e) {
             e.printStackTrace();

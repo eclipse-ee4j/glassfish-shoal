@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -254,7 +255,7 @@ public class SenderReceiver {
                 for (String instanceName : members) {
                     if (!instanceName.equalsIgnoreCase(memberID)) {
 
-                        StringBuffer sb = new StringBuffer(payloadSize);
+                        StringBuilder sb = new StringBuilder(payloadSize);
                         for (int k = 0; k < payloadSize; k++) {
                             sb.append("X");
                         }
@@ -513,8 +514,9 @@ public class SenderReceiver {
         public int msgId = -1;   // -1 - initialized, 0 - STOP msg , 1...n msgids
         public String payload = "none";
 
+        @Override
         public String toString() {
-            StringBuffer sb = new StringBuffer(60);
+            StringBuilder sb = new StringBuilder(60);
             sb.append("[");
             sb.append("to:").append(to);
             sb.append(" from:").append(from);

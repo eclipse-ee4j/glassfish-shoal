@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -211,9 +212,8 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
     }
 
     private String getDSCContents() {
-        final StringBuffer buf = new StringBuffer();
-        final ConcurrentHashMap<GMSCacheable, Object> copy;
-        copy = new ConcurrentHashMap<GMSCacheable, Object>(cache);
+        final StringBuilder buf = new StringBuilder();
+        final ConcurrentHashMap<GMSCacheable, Object> copy = new ConcurrentHashMap<>(cache);
         for (Map.Entry<GMSCacheable, Object> entry : copy.entrySet()) {
             buf.append(entry.getKey().hashCode()).append(" key=").append(entry.getKey().toString()).append(" : value=").append(entry.getValue()).append("\n");
         }
@@ -256,7 +256,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
             cKey = getTrueKey(cKey);
             return cache.get(cKey);
         } else { // TODO: Localize
-            throw new GMSException(new StringBuffer().append("DistributedStateCache: ").append("componentName, memberTokenId and key ")
+            throw new GMSException(new StringBuilder().append("DistributedStateCache: ").append("componentName, memberTokenId and key ")
                     .append("are required parameters and cannot be null").toString());
         }
     }
@@ -385,7 +385,7 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         boolean retval = false;
         for (GMSCacheable c : cache.keySet()) {
             if (logger.isLoggable(FINER)) {
-                logger.log(FINER, new StringBuffer().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
+                logger.log(FINER, new StringBuilder().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
             }
             if (key.equals(c.getKey())) {
                 retval = true;
@@ -398,8 +398,8 @@ public class DistributedStateCacheImpl implements DistributedStateCache {
         boolean retval = false;
         for (GMSCacheable c : cache.keySet()) {
             if (logger.isLoggable(FINER)) {
-                logger.log(FINER, new StringBuffer().append("comp=").append(componentName).append(" underlying comp=").append(c.getComponentName()).toString());
-                logger.log(FINER, new StringBuffer().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
+                logger.log(FINER, new StringBuilder().append("comp=").append(componentName).append(" underlying comp=").append(c.getComponentName()).toString());
+                logger.log(FINER, new StringBuilder().append("key=").append(key).append(" underlying key=").append(c.getKey()).toString());
             }
             if (key.equals(c.getKey()) && componentName.equals(c.getComponentName())) {
                 retval = true;

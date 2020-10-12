@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -248,8 +249,8 @@ public class BroadcastSendMsg {
                 String nullString = null;
                 sendStartTime = new GregorianCalendar();
                 for (int i = 1; i <= numberOfMessages; i++) {
-                    StringBuffer sb = new StringBuffer(payloadSize);
-                    sb.append("[from:" + memberID + ":" + i + "]");
+                    StringBuilder sb = new StringBuilder(payloadSize);
+                    sb.append("[from:").append(memberID).append(":").append(i).append("]");
                     for (int k = 0; k < payloadSize; k++) {
                         sb.append("X");
                     }

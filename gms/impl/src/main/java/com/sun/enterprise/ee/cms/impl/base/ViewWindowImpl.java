@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -211,7 +212,7 @@ class ViewWindowImpl implements ViewWindow, Runnable {
 
     private ArrayList<GMSMember> getMemberTokens(final EventPacket packet) {
         final List<GMSMember> tokens = new ArrayList<GMSMember>(); // contain list of GMSMember objects.
-        final StringBuffer sb = new StringBuffer(100);
+        final StringBuilder sb = new StringBuilder(100);
 
         // NOTE: always synchronize currentCoreMembers and allCurrentMembers in this order when getting both locks at same time.
         synchronized (currentCoreMembers) {
@@ -229,10 +230,10 @@ class ViewWindowImpl implements ViewWindow, Runnable {
                     sb.append(++count).append(": MemberId: ").append(member.getMemberToken()).append(", MemberType: ").append(member.getMemberType())
                             .append(", Address: ").append(advert.getID().toString()).append('\n');
                     if (member.getMemberType().equals(CORETYPE)) {
-                        currentCoreMembers.add(new StringBuffer(member.getMemberToken()).append("::").append(member.getStartTime()).toString());
+                        currentCoreMembers.add(new StringBuilder(member.getMemberToken()).append("::").append(member.getStartTime()).toString());
                     }
                     tokens.add(member);
-                    allCurrentMembers.add(new StringBuffer().append(member.getMemberToken()).append("::").append(member.getStartTime()).toString());
+                    allCurrentMembers.add(new StringBuilder().append(member.getMemberToken()).append("::").append(member.getStartTime()).toString());
                 }
             }
         }
@@ -430,7 +431,7 @@ class ViewWindowImpl implements ViewWindow, Runnable {
                 final List<String> recApptsHeldByFailedMember = getRecApptsHeldByFailedMember(token);
                 for (final String comp : router.getFailureRecoveryComponents()) {
                     if (logger.isLoggable(Level.FINE)) {
-                        logger.log(Level.FINE, new StringBuffer("adding failure recovery signal for component=").append(comp).toString());
+                        logger.log(Level.FINE, new StringBuilder("adding failure recovery signal for component=").append(comp).toString());
                     }
                     signals.add(new FailureRecoverySignalImpl(comp, token, groupName, startTime));
                     if (!recInProgressMembers.isEmpty()) {
@@ -461,7 +462,7 @@ class ViewWindowImpl implements ViewWindow, Runnable {
                         if (logger.isLoggable(Level.FINER)) {
                             // if the target member is already up dont include that
                             logger.log(Level.FINER,
-                                    new StringBuffer("Failed Member ").append(token).append(" was appointed for recovery of ").append(gmsCacheable.getKey())
+                                    new StringBuilder("Failed Member ").append(token).append(" was appointed for recovery of ").append(gmsCacheable.getKey())
                                             .append(" when ").append(token).append(" failed. ").append("Adding to recovery-appointed list...").toString());
                         }
                         tokens.add((String) gmsCacheable.getKey());
@@ -491,7 +492,7 @@ class ViewWindowImpl implements ViewWindow, Runnable {
                 if (entry.getValue() instanceof String) {
                     if (((String) entry.getValue()).startsWith(REC_PROGRESS_STATE)) {
                         if (logger.isLoggable(Level.FINER)) {
-                            logger.log(Level.FINER, new StringBuffer("Failed Member ").append(token).append(" had recovery-in-progress for ")
+                            logger.log(Level.FINER, new StringBuilder("Failed Member ").append(token).append(" had recovery-in-progress for ")
                                     .append(gmsCacheable.getKey()).append(" when ").append(token).append(" failed. ").toString());
                         }
                         tokens.add((String) gmsCacheable.getKey());

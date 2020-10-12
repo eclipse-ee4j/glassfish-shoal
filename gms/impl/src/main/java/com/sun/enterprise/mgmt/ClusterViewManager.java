@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -91,7 +92,7 @@ public class ClusterViewManager {
         try {
             if (!view.containsKey(advertisement.getID())) {
                 if (LOG.isLoggable(Level.FINER)) {
-                    LOG.log(Level.FINER, new StringBuffer().append("Adding ").append(advertisement.getName()).append("   ")
+                    LOG.log(Level.FINER, new StringBuilder().append("Adding ").append(advertisement.getName()).append("   ")
                             .append(advertisement.getID().toString()).toString());
                 }
                 manager.getNetworkManager().addRemotePeer(advertisement.getID());
@@ -176,7 +177,7 @@ public class ClusterViewManager {
                 if (advertisement.getID().equals(this.advertisement.getID())) {
                     LOG.log(Level.FINE, "Setting MasterNode Role");
                 } else {
-                    LOG.log(Level.FINE, new StringBuffer().append("Setting Master Node :").append(advertisement.getName()).append(' ')
+                    LOG.log(Level.FINE, new StringBuilder().append("Setting Master Node :").append(advertisement.getName()).append(' ')
                             .append(advertisement.getID()).toString());
                 }
             }
@@ -395,7 +396,7 @@ public class ClusterViewManager {
 
         // TODO: change this log level to FINE before FINAL release.
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, new StringBuffer().append("Returning Master Candidate Node :").append(seniorMember.getName()).append(' ')
+            LOG.log(Level.INFO, new StringBuilder().append("Returning Master Candidate Node :").append(seniorMember.getName()).append(' ')
                     .append(seniorMember.getID()).toString());
         }
         return seniorMember;
@@ -492,7 +493,7 @@ public class ClusterViewManager {
             }
             for (SystemAdvertisement elem : newView) {
                 if (LOG.isLoggable(Level.FINER)) {
-                    LOG.log(Level.FINER, new StringBuffer().append("Adding ").append(elem.getID()).append(" to view").toString());
+                    LOG.log(Level.FINER, new StringBuilder().append("Adding ").append(elem.getID()).append(" to view").toString());
                 }
                 // verify that each member in new view was in old view; otherwise, set change to TRUE.
                 if (!changed && !view.containsKey(elem.getID())) {
@@ -571,10 +572,10 @@ public class ClusterViewManager {
     }
 
     String dumpView() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         viewLock.lock();
         try {
-            sb.append("clusterviewmanager snapshot: group:" + manager.getGroupName() + " current view id=" + this.viewId + " \n");
+            sb.append("clusterviewmanager snapshot: group:").append(manager.getGroupName()).append(" current view id=").append(this.viewId).append(" \n");
             int counter = 0;
             for (Map.Entry<PeerID, SystemAdvertisement> current : view.entrySet()) {
                 PeerID peerid = current.getKey();

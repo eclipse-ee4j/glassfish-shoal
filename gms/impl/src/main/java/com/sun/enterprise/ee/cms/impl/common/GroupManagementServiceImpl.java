@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -376,7 +377,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
 
     public void announceGroupStartup(String groupName, GMSConstants.groupStartupState startupState, List<String> memberTokens) {
         final GMSContext gctx = GMSContextFactory.getGMSContext(groupName);
-        final StringBuffer sb = new StringBuffer(120);
+        final StringBuilder sb = new StringBuilder(120);
         if (memberTokens != null) {
             for (String memberToken : memberTokens) {
                 sb.append(memberToken).append(",");

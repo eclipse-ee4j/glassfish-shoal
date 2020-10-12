@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -136,7 +137,7 @@ public class GMSClientService implements Runnable, CallBack{
         if (notification.getMemberToken().equals("admincli")) {
             return;
         }
-        logger.log(Level.FINEST, new StringBuffer().append(serviceName)
+        logger.log(Level.FINEST, new StringBuilder().append(serviceName)
                 .append(": Notification Received for:")
                 .append(notification.getMemberToken())
                 .append(":[")
@@ -241,11 +242,11 @@ public class GMSClientService implements Runnable, CallBack{
             logger.log(Level.FINEST, memberDetails.toString());
             for(Object key : memberDetails.keySet()){
                 logger.log(Level.FINEST,
-                           new StringBuffer()
+                           new StringBuilder()
                            .append( "Got Member Details for " )
                            .append( serverToken ).toString());
                 logger.log(Level.FINEST,
-                           new StringBuffer().append( "Key:" )
+                           new StringBuilder().append( "Key:" )
                            .append( key )
                            .append( ":Value:" )
                            .append( memberDetails.get( key )

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -1667,7 +1668,7 @@ class MasterNode implements MessageListener, Runnable {
      * @param memberTokens list of members associated with <code>startupState</code>
      */
     void groupStartup(GMSConstants.groupStartupState startupState, List<String> memberTokens) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         groupStartingMembers = memberTokens;
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -1784,8 +1785,9 @@ class MasterNode implements MessageListener, Runnable {
         }
 
         @SuppressWarnings("unchecked")
+        @Override
         public String toString() {
-            StringBuffer result = new StringBuffer(100);
+            StringBuilder result = new StringBuilder(100);
             try {
                 if (seqId != -1) {
                     result.append("masterViewSeqId:").append(seqId);

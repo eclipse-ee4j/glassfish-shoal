@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -271,7 +272,7 @@ public class ApplicationServer implements Runnable, CallBack {
                 }
             }
             if (logger.isLoggable(Level.FINE)) {
-                StringBuffer sb = new StringBuffer(110);
+                StringBuilder sb = new StringBuilder(110);
                 sb.append("JoinedAndReadyNotificationSignal for member: " + notification.getMemberToken() + " CurrentCoreMembersSize: " +
                           currentCoreMembers.size() + " CurrentCoreMembers:");
                 int ii = 0;
@@ -323,7 +324,7 @@ public class ApplicationServer implements Runnable, CallBack {
     public static void main(final String[] args) {
         CLB clb = null;
         if (args.length > 0 && "--usage".equals(args[1])) {
-            logger.log(Level.INFO, new StringBuffer().append("USAGE: java -DMEMBERTYPE <CORE|SPECTATOR|WATCHDOG>")
+            logger.log(Level.INFO, new StringBuilder().append("USAGE: java -DMEMBERTYPE <CORE|SPECTATOR|WATCHDOG>")
                     .append(" -DINSTANCEID=<instanceid>")
                     .append(" -DCLUSTERNAME=<clustername")
                     .append(" -DLIFEINMILLIS= <length of time for this demo")

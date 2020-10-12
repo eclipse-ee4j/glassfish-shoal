@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -229,8 +230,9 @@ public class GMSMonitor {
             }
         }
 
+        @Override
         public String toString() {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append("targetComponent:").append(targetComponent);
             sb.append(" Send:[numMsgs:").append(numMsgsSent.get());
             if (numMsgsSent.get() != 0) {
