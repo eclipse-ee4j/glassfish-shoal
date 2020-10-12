@@ -98,12 +98,12 @@
         <grizzly.version>3.0.0-M1</grizzly.version>
 
         <junit.group.id>junit</junit.group.id>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13</junit.version>
 
         <ha.api.version>3.1.12</ha.api.version>
 
         <findbugs.exclude />
-        <findbugs.version>2.5.2</findbugs.version>
+        <findbugs.version>3.0.5</findbugs.version>
         <findbugs.threshold>Low</findbugs.threshold>
         
         <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>     
