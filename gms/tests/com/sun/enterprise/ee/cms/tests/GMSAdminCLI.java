@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -153,7 +154,7 @@ public class GMSAdminCLI implements CallBack {
     }
 
     public static void usage() {
-        System.out.println(new StringBuffer().append("USAGE: java ").append(" -Dcom.sun.management.jmxremote").append(" -DSHOAL_GROUP_COMMUNICATION_PROVIDER=grizzly").append(" -DTCPSTARTPORT=9060").append(" -DTCPENDPORT=9089").append(" -DMULTICASTADDRESS=229.9.1.1").append(" -DMULTICASTPORT=2299").append("-DTEST_LOG_LEVEL=WARNING").append("-DLOG_LEVEL=WARNING").append("-DOPTARGS=OPTARGS").append(" -cp shoal-gms-tests.jar:shoal-gms.jar:grizzly-framework.jar:grizzly-utils.jar").append(" com.sun.enterprise.ee.cms.tests.GMSAdminCLI").append(" ARGUMENTS").toString());
+        System.out.println(new StringBuilder().append("USAGE: java ").append(" -Dcom.sun.management.jmxremote").append(" -DSHOAL_GROUP_COMMUNICATION_PROVIDER=grizzly").append(" -DTCPSTARTPORT=9060").append(" -DTCPENDPORT=9089").append(" -DMULTICASTADDRESS=229.9.1.1").append(" -DMULTICASTPORT=2299").append("-DTEST_LOG_LEVEL=WARNING").append("-DLOG_LEVEL=WARNING").append("-DOPTARGS=OPTARGS").append(" -cp shoal-gms-tests.jar:shoal-gms.jar:grizzly-framework.jar:grizzly-utils.jar").append(" com.sun.enterprise.ee.cms.tests.GMSAdminCLI").append(" ARGUMENTS").toString());
         System.out.println("ARGUMENT usages:");
         System.out.println("        list groupName [memberName(default is all)]  - list member(s)");
         System.out.println("        stopc groupName - stops a cluster");
@@ -189,7 +190,7 @@ public class GMSAdminCLI implements CallBack {
             if (memberName == null) {
                 // all members in the group
                 List<String> members = gms.getGroupHandle().getAllCurrentMembers();
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for (String _memberName : members) {
                     if (!_memberName.equals(GMSAdminConstants.ADMINCLI)) {
                         sb.append(" ");
@@ -216,7 +217,7 @@ public class GMSAdminCLI implements CallBack {
             } else if (memberName.contains("instance")) {
                 // only a specfic instance
                 List<String> members = gms.getGroupHandle().getCurrentCoreMembers();
-                StringBuffer sb = new StringBuffer(" ");
+                StringBuilder sb = new StringBuilder(" ");
                 for (String _memberName : members) {
                     if (_memberName.equals(memberName)) {
                         sb.append(_memberName);
@@ -242,7 +243,7 @@ public class GMSAdminCLI implements CallBack {
             } else {
                 // only the das
                 List<String> members = gms.getGroupHandle().getAllCurrentMembers();
-                StringBuffer sb = new StringBuffer(" ");
+                StringBuilder sb = new StringBuilder(" ");
                 for (String _memberName : members) {
                     if (_memberName.equals(GMSAdminConstants.ADMINNAME)) {
                         sb.append(_memberName);
@@ -577,7 +578,7 @@ public class GMSAdminCLI implements CallBack {
             // all members in the group
             int count = 0;
             List<String> members = gms.getGroupHandle().getAllCurrentMembers();
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (String _memberName : members) {
                 if (!_memberName.equals(GMSAdminConstants.ADMINCLI)) {
                     if (gms.getGroupHandle().getMemberState(_memberName).equals(whichState)) {

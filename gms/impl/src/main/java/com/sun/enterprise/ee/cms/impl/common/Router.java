@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * COpyright (c) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -223,7 +224,7 @@ public class Router {
     private void logActionRegistration(String notification, String componentName) {
         if (handlerLogger.isLoggable(Level.FINE)) {
             final Exception ste = handlerLogger.isLoggable(Level.FINER) ? new Exception("stack trace") : null;
-            StringBuffer buf = new StringBuffer(30);
+            StringBuilder buf = new StringBuilder(30);
             buf.append("registering a ").append(notification).append(" handler for ");
             if (componentName != null) {
                 buf.append("targetComponent: ").append(componentName).append(" for ");

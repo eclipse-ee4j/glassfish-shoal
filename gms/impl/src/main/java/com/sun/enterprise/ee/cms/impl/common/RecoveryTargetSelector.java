@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (C) 2020 Payara Services Ltd.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -303,10 +304,10 @@ public class RecoveryTargetSelector {
     }
 
     private static String getMemberTokens(final List<GMSMember> members) {
-        final StringBuffer temp = new StringBuffer();
+        final StringBuilder temp = new StringBuilder();
         for (GMSMember member : members) {
             if (member.getMemberType().equals(CORETYPE)) {
-                temp.append(member.getMemberToken() + ":");
+                temp.append(member.getMemberToken()).append(":");
             }
         }
         return temp.toString();
