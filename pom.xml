@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>1.0.6</version>
+        <version>1.0.7</version>
     </parent>
     <groupId>org.glassfish.shoal</groupId>
     <artifactId>shoal</artifactId>
@@ -95,18 +95,18 @@
     <properties>
 
         <grizzly.group.id>org.glassfish.grizzly</grizzly.group.id>
-        <grizzly.version>3.0.0-M1</grizzly.version>
+        <grizzly.version>4.0.0-M1</grizzly.version>
 
         <junit.group.id>junit</junit.group.id>
-        <junit.version>4.13.1</junit.version>
+        <junit.version>4.13.2</junit.version>
 
-        <ha.api.version>3.1.12</ha.api.version>
+        <ha.api.version>3.1.13</ha.api.version>
 
         <findbugs.exclude />
         <findbugs.version>3.0.5</findbugs.version>
         <findbugs.threshold>Low</findbugs.threshold>
-        
-        <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>     
+
+        <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>
     </properties>
 
     <modules>
@@ -146,7 +146,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
