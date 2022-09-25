@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -53,8 +54,6 @@ public class DSCMessage implements Serializable {
     public DSCMessage(final GMSCacheable key, final Object value, final String operation) {
         this.key = key;
         if (value instanceof Serializable) {
-            this.value = value;
-        } else if (value instanceof byte[]) { // TODO:This instanceof could be suspect. Revisit
             this.value = value;
         } else {
             this.value = null;
