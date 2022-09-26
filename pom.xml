@@ -95,7 +95,7 @@
     <properties>
 
         <grizzly.group.id>org.glassfish.grizzly</grizzly.group.id>
-        <grizzly.version>4.0.0-M1</grizzly.version>
+        <grizzly.version>4.0.0</grizzly.version>
 
         <junit.group.id>junit</junit.group.id>
         <junit.version>4.13.2</junit.version>
