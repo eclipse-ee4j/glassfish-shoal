@@ -28,7 +28,7 @@
     <groupId>org.glassfish.shoal</groupId>
     <artifactId>shoal</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.1</version>
     <name>shoal</name>
     <description>GlassFish project for scalable dynamic clustering infrastructure to for fault tolerance, reliability and availability.</description>
     <url>https://github.com/eclipse-ee4j/glassfish-shoal</url>

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.glassfish.shoal</groupId>
         <artifactId>shoal</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
     
     <artifactId>shoal-gms</artifactId>
