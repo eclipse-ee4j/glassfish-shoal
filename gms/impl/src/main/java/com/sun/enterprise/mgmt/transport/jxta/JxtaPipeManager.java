@@ -102,9 +102,10 @@ public class JxtaPipeManager {
         OutputPipe output = pipeCache.get( peerid );
         RouteAdvertisement route = null;
         final int MAX_RETRIES = 2;
-        IOException lastOne = null;
-        if( output != null && output.isClosed() )
+        Exception lastOne = null;
+        if( output != null && output.isClosed() ) {
             output = null;
+        }
         for( int createOutputPipeAttempts = 0; output == null && createOutputPipeAttempts < MAX_RETRIES; createOutputPipeAttempts++ )
         {
             route = networkManager.getCachedRoute( peerid );

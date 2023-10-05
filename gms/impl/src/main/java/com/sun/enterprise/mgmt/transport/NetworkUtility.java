@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,13 +17,14 @@
 
 package com.sun.enterprise.mgmt.transport;
 
+import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -39,8 +41,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 
 /**
  * Utility class that can be used by any calling code to do common routines about Network I/O
@@ -164,7 +164,7 @@ public class NetworkUtility {
         if (allLocalAddresses != null) {
             return allLocalAddresses;
         }
-        List<InetAddress> allAddr = new ArrayList<InetAddress>();
+        List<InetAddress> allAddr = new ArrayList<>();
         Enumeration<NetworkInterface> allInterfaces = null;
         try {
             allInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -547,10 +547,6 @@ public class NetworkUtility {
     }
 
     public static int serialize(final OutputStream baos, final Map<String, Serializable> messages) throws MessageIOException {
-        return serialize(baos, messages, false);
-    }
-
-    public static int serialize(final OutputStream baos, final Map<String, Serializable> messages, final boolean debug) throws MessageIOException {
         int count = 0;
         if (baos == null || messages == null) {
             return count;
@@ -558,11 +554,7 @@ public class NetworkUtility {
         String name = null;
         ObjectOutputStream oos = null;
         try {
-            if (debug) {
-                oos = new DebuggingObjectOutputStream(baos);
-            } else {
-                oos = new ObjectOutputStream(baos);
-            }
+            oos = new ObjectOutputStream(baos);
             for (Map.Entry<String, Serializable> entry : messages.entrySet()) {
                 name = entry.getKey();
                 Serializable obj = entry.getValue();
@@ -572,8 +564,7 @@ public class NetworkUtility {
             }
             oos.flush();
         } catch (Throwable t) {
-            throw new MessageIOException("failed to serialize a message : name = " + name + "."
-                    + (debug ? " path to bad object: " + ((DebuggingObjectOutputStream) oos).getStack() : ""), t);
+            throw new MessageIOException("failed to serialize a message : name = " + name + ".", t);
         } finally {
             if (oos != null) {
                 try {
@@ -611,85 +602,6 @@ public class NetworkUtility {
                 } catch (IOException e) {
                 }
             }
-        }
-    }
-
-    /**
-     * Returns an available tcp port between <code>tcpStartPort</code> and <code>tcpEndPort</code>
-     *
-     * @param host specific host name
-     * @param tcpStartPort start port
-     * @param tcpEndPort end port
-     * @return an available tcp port which is not bound yet. Throws IllegalStateException if no ports exist.
-     */
-    /*
-     * // Using grizzly tcp port selection from a range. public static int getAvailableTCPPort( String host, int
-     * tcpStartPort, int tcpEndPort ) { if( tcpStartPort > tcpEndPort ) tcpEndPort = tcpStartPort + 30; for( int portInRange
-     * = tcpStartPort; portInRange <= tcpEndPort; portInRange++ ) { ServerSocket testSocket = null; try { testSocket = new
-     * ServerSocket( portInRange, -1, host == null ? null : InetAddress.getByName( host ) ); } catch( IOException ie ) {
-     * continue; } finally { if( testSocket != null ) { try { testSocket.close(); } catch( IOException e ) { } } } return
-     * portInRange; } LOG.log(Level.SEVERE, "netutil.no.available.ports", new Object[]{host,tcpStartPort,tcpEndPort}); throw
-     * new IllegalStateException("Fatal error. No available ports exist for " + host + " in range " + tcpStartPort + " to "
-     * + tcpEndPort); }
-     */
-
-    private static final Field DEPTH_FIELD;
-
-    static {
-        try {
-            DEPTH_FIELD = ObjectOutputStream.class.getDeclaredField("depth");
-            DEPTH_FIELD.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    /**
-     * This class extends <code>ObjectOutputStream</code> for providing any debugging informations when an object is written
-     */
-    private static class DebuggingObjectOutputStream extends ObjectOutputStream {
-
-        final List<Object> stack = new ArrayList<Object>();
-        boolean broken = false;
-
-        public DebuggingObjectOutputStream(OutputStream out) throws IOException {
-            super(out);
-            enableReplaceObject(true);
-        }
-
-        protected Object replaceObject(Object o) {
-            int currentDepth = currentDepth();
-            if (o instanceof IOException && currentDepth == 0) {
-                broken = true;
-            }
-            if (!broken) {
-                truncate(currentDepth);
-                stack.add(o);
-            }
-            return o;
-        }
-
-        private void truncate(int depth) {
-            while (stack.size() > depth) {
-                pop();
-            }
-        }
-
-        private Object pop() {
-            return stack.remove(stack.size() - 1);
-        }
-
-        private int currentDepth() {
-            try {
-                Integer oneBased = (Integer) DEPTH_FIELD.get(this);
-                return oneBased - 1;
-            } catch (IllegalAccessException e) {
-                throw new AssertionError(e);
-            }
-        }
-
-        public List<Object> getStack() {
-            return stack;
         }
     }
 
