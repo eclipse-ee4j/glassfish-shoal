@@ -50,11 +50,6 @@
             <artifactId>grizzly-core</artifactId>
             <version>${grizzly.version}</version>
         </dependency>
-        <dependency>
-            <groupId>net.jxta</groupId>
-            <artifactId>jxta-jxse</artifactId>
-            <version>2.5</version>
-        </dependency>
     </dependencies>
 
     <build>
