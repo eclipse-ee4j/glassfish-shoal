@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 2011, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -22,7 +23,6 @@ import org.glassfish.grizzly.Buffer;
 import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.Grizzly;
 import org.glassfish.grizzly.attributes.Attribute;
-import org.glassfish.grizzly.attributes.NullaryFunction;
 import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
@@ -42,8 +42,8 @@ import com.sun.enterprise.mgmt.transport.MessageImpl;
  *
  * Message Body is composed of following fields. payload byte[messageLen]
  *
- * MessageHeader {@link Message#parseHeader(com.sun.enterprise.mgmt.transport.Buffer, int)} MessageBody
- * {@link Message#parseMessage(com.sun.enterprise.mgmt.transport.Buffer, int, int)}
+ * MessageHeader {@link Message#parseHeader(com.sun.enterprise.mgmt.transport.buffers.Buffer, int)}
+ * MessageBody {@link Message#parseMessage(com.sun.enterprise.mgmt.transport.buffers.Buffer, int, int)}
  *
  * @author Bongjae Chang
  * @author Joe Fialli
@@ -52,17 +52,11 @@ import com.sun.enterprise.mgmt.transport.MessageImpl;
 public class MessageFilter extends BaseFilter {
 
     private final Attribute<MessageParsingState> preparsedMessageAttr = Grizzly.DEFAULT_ATTRIBUTE_BUILDER
-            .createAttribute(MessageFilter.class + ".preparsedMessageAttr", new NullaryFunction<MessageParsingState>() {
-
-                @Override
-                public MessageParsingState evaluate() {
-                    return new MessageParsingState();
-                }
-            });
+            .createAttribute(MessageFilter.class + ".preparsedMessageAttr", MessageParsingState::new);
 
     @Override
     public NextAction handleRead(final FilterChainContext ctx) throws IOException {
-        final Connection connection = ctx.getConnection();
+        final Connection<?> connection = ctx.getConnection();
         final Buffer buffer = ctx.getMessage();
 
         final MessageParsingState parsingState = preparsedMessageAttr.get(connection);
@@ -83,8 +77,9 @@ public class MessageFilter extends BaseFilter {
             gmsBuffer.recycle();
 
             if (messageLength + MessageImpl.HEADER_LENGTH > MessageImpl.getMaxMessageLength()) {
-                throw new IllegalStateException("too large message." + " request-size=" + (messageLength + MessageImpl.HEADER_LENGTH) + " max-size="
-                        + MessageImpl.getMaxMessageLength());
+                throw new IllegalStateException("too large message."
+                    + " request-size=" + (messageLength + MessageImpl.HEADER_LENGTH)
+                    + " max-size=" + MessageImpl.getMaxMessageLength());
             }
 
             parsingState.isHeaderParsed = true;
@@ -121,7 +116,7 @@ public class MessageFilter extends BaseFilter {
     public NextAction handleWrite(final FilterChainContext ctx) throws IOException {
         final Message message = ctx.getMessage();
 
-        final MemoryManager mm = ctx.getConnection().getTransport().getMemoryManager();
+        final MemoryManager<?> mm = ctx.getConnection().getTransport().getMemoryManager();
 
         com.sun.enterprise.mgmt.transport.buffers.Buffer buffer = message.getPlainBuffer(Grizzly2ExpandableBufferWriter.createFactory(mm));
 
