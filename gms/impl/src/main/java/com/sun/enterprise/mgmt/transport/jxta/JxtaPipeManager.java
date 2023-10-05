@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -106,11 +107,11 @@ public class JxtaPipeManager {
             output = null;
         for( int createOutputPipeAttempts = 0; output == null && createOutputPipeAttempts < MAX_RETRIES; createOutputPipeAttempts++ )
         {
-            route = networkManager.getCachedRoute( (PeerID)peerid );
+            route = networkManager.getCachedRoute( peerid );
             if( route != null ) {
                 try {
-                    output = new BlockingWireOutputPipe( networkManager.getNetPeerGroup(), pipeAdv, (PeerID)peerid, route );
-                } catch( IOException ioe ) {
+                    output = new BlockingWireOutputPipe( networkManager.getNetPeerGroup(), pipeAdv, peerid, route );
+                } catch( Exception ioe ) {
                     lastOne = ioe;
                 }
             }

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -315,7 +316,7 @@ public class JxtaNetworkManager extends AbstractNetworkManager implements Rendez
 
     public boolean isConnected( final PeerID peerID ) {
         net.jxta.peer.PeerID jxtaPeerID = (net.jxta.peer.PeerID)peerID.getUniqueID();
-        return getRouteControl().isConnected( jxtaPeerID, getCachedRoute( jxtaPeerID ) );
+        return getRouteControl().isConnected(jxtaPeerID);
     }
 
     public net.jxta.peer.PeerID getJxtaPeerID( final String instanceName ) {
@@ -780,18 +781,19 @@ public class JxtaNetworkManager extends AbstractNetworkManager implements Rendez
         if( mcastPort > 0 ) {
             config.setMulticastPort( mcastPort );
         }
-        if( multicastPoolsize != 0 ) {
-            config.setMulticastPoolSize( multicastPoolsize );
-            if( LOG.isLoggable( Level.CONFIG ) ) {
-                LOG.config( "set jxta Multicast Poolsize to " + config.getMulticastPoolSize() );
-            }
-        }
+        // TODO: Not supported as of 2023, 3.0.2-SNAPSHOT
+//        if( multicastPoolsize != 0 ) {
+//            config.setMulticastPoolSize( multicastPoolsize );
+//            if( LOG.isLoggable( Level.CONFIG ) ) {
+//                LOG.config( "set jxta Multicast Poolsize to " + config.getMulticastPoolSize() );
+//            }
+//        }
 
         //if a machine has multiple network interfaces,
         //specify which interface the group communication should start on
         if( tcpAddress != null && !tcpAddress.equals( "" ) ) {
             config.setTcpInterfaceAddress( tcpAddress );
-            config.setMulticastInterface( tcpAddress );
+            config.setMulticastAddress(tcpAddress);
         }
         if( LOG.isLoggable( Level.CONFIG ) ) {
             LOG.config( "node config adv = " + config.getPlatformConfig().toString() );

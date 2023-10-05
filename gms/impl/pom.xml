@@ -63,19 +63,6 @@
 
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <!--exclude the Shoal classes that internally call JXTA specific classes -->
-                    <excludes>
-                        <exclude>**/com/sun/enterprise/ee/cms/impl/jxta/*.java</exclude>
-                        <exclude>**/com/sun/enterprise/jxtamgmt/**/*.java</exclude>
-                        <exclude>**/com/sun/enterprise/mgmt/transport/jxta/*.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
