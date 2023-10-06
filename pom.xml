@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2009, 2018 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2023 Contributors to the Eclipse Foundation. All rights reserved.
     Copyright (c) 2020 Payara Services Ltd.
+    Copyright (c) 2009, 2018 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
     terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,12 +24,12 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>1.0.7</version>
+        <version>1.0.8</version>
     </parent>
     <groupId>org.glassfish.shoal</groupId>
     <artifactId>shoal</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
     <name>shoal</name>
     <description>GlassFish project for scalable dynamic clustering infrastructure to for fault tolerance, reliability and availability.</description>
     <url>https://github.com/eclipse-ee4j/glassfish-shoal</url>
@@ -97,7 +98,7 @@
     <properties>
 
         <grizzly.group.id>org.glassfish.grizzly</grizzly.group.id>
-        <grizzly.version>4.0.0</grizzly.version>
+        <grizzly.version>4.0.1</grizzly.version>
 
         <junit.group.id>junit</junit.group.id>
         <junit.version>4.13.2</junit.version>
@@ -118,16 +119,24 @@
     </modules>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <release>11</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>5.1.9</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
+        <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
@@ -152,6 +161,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>add-legal-resource</id>
@@ -176,7 +186,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
@@ -185,16 +194,6 @@
                 </configuration>
             </plugin>
         </plugins>
-
-        <!-- explicitly define this extension to resolve invalid checksums -->
-        <!-- See: http://jira.codehaus.org/browse/MNG-4301 -->
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav</artifactId>
-                <version>1.0-beta-2</version>
-            </extension>
-        </extensions>
     </build>
 
     <reporting>
