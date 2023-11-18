@@ -69,7 +69,7 @@ public class InMemoryBackingStore<K extends Serializable, V extends Serializable
                     //Ignore
                 }
             } else if (cacheLocally instanceof Boolean) {
-                enableLocalCaching = (Boolean) stGMS;
+                enableLocalCaching = (Boolean) cacheLocally;
             }
         }
 
