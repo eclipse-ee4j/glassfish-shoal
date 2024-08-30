@@ -105,10 +105,6 @@
 
         <ha.api.version>3.1.13</ha.api.version>
 
-        <findbugs.exclude />
-        <findbugs.version>3.0.5</findbugs.version>
-        <findbugs.threshold>Low</findbugs.threshold>
-
         <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>
     </properties>
 
@@ -137,27 +133,6 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.version}</version>
-                <configuration>
-                    <skip>${findbugs.skip}</skip>
-                    <threshold>${findbugs.threshold}</threshold>
-                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-                    <excludeFilterFile>
-                        exclude-common.xml,${findbugs.exclude}
-                    </excludeFilterFile>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.glassfish.findbugs</groupId>
-                        <artifactId>findbugs</artifactId>
-                        <version>1.0</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -195,20 +170,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.version}</version>
-                <configuration>
-                    <threshold>${findbugs.threshold}</threshold>
-                    <excludeFilterFile>${findbugs.exclude}</excludeFilterFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <dependencyManagement>
         <dependencies>
