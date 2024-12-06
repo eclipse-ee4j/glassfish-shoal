@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,10 +17,6 @@
 
 package org.shoal.ha.mapper;
 
-import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -197,24 +194,6 @@ public class DefaultKeyMapper implements KeyMapper, GroupMemberEventListener {
         if (key1 instanceof HashableKey) {
             HashableKey k = (HashableKey) key1;
             hc = k.getHashKey() == null ? hc : k.getHashKey().hashCode();
-        }
-
-        return hc;
-    }
-
-    private static int getDigestHashCode(String val) {
-        int hc = val.hashCode();
-        try {
-            String hcStr = "_" + val.hashCode() + "_";
-            MessageDigest dig = MessageDigest.getInstance("MD5");
-            dig.update(hcStr.getBytes(Charset.defaultCharset()));
-            dig.update(val.getBytes(Charset.defaultCharset()));
-            dig.update(hcStr.getBytes(Charset.defaultCharset()));
-            BigInteger bi = new BigInteger(dig.digest());
-            hc = bi.intValue();
-            return hc;
-        } catch (NoSuchAlgorithmException nsaEx) {
-            hc = val.hashCode();
         }
 
         return hc;

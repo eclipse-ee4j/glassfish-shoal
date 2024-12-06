@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright (C) 2020 Payara Services Ltd.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -217,14 +218,6 @@ public class RecoveryTargetSelector {
             }
         }
         return temp;
-    }
-
-    private static void dWait(final long damperWaitOnMultiFails) {
-        try {
-            Thread.sleep(damperWaitOnMultiFails);
-        } catch (InterruptedException e) {
-            logger.log(Level.FINEST, e.getLocalizedMessage(), e);
-        }
     }
 
     /*

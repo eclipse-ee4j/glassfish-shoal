@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -1037,29 +1038,6 @@ class MasterNode implements MessageListener, Runnable {
         }
     }
 
-    private boolean injectSimulatedFailure(MasterNodeMessageEvent mnme) {
-        boolean result = false;
-        if ((manager.getInstanceName().equals("instance02") || manager.getInstanceName().equals("instance04") || manager.getInstanceName().equals("instance06"))
-                && (((mnme.seqId) % 5) == 0)) {
-
-            Object element = mnme.msg.getMessageElement("RESEND");
-            if (element != null && element instanceof Boolean) {
-                // don't drop the resend.
-                result = false;
-            } else {
-                // testing only. do not i18n.
-                // simulated drop of UDP message.
-                if (mcastLogger.isLoggable(Level.FINE)) {
-                    mcastLogger
-                            .fine("simulated drop of receiving UDP broadcast for member:" + manager.getInstanceName() + " masterViewSequenceId:" + mnme.seqId);
-                }
-                // purposely return w/o processing this message.
-                result = true;
-            }
-        }
-        return result;
-    }
-
     public void receiveMessageEvent(final MessageEvent event) throws MessageIOException {
         final Message msg = event.getMessage();
         if (msg == null) {
@@ -1078,14 +1056,6 @@ class MasterNode implements MessageListener, Runnable {
             final boolean added;
 
             if (masterAssigned && !isMaster() && !isDiscoveryInProgress()) {
-
-                // TODO: do not allow this in final release. injecting test failures via logging config is short term only.
-//                if (mcastLogger.isLoggable(Level.FINEST)) {
-//                    if (injectSimulatedFailure(mnme)) {
-//                         return;
-//                    }
-//                }
-                // TODO: do not allow in final release.
 
                 ProcessedMasterViewId processed = new ProcessedMasterViewId((PeerID) msg.getMessageElement(Message.SOURCE_PEER_ID_TAG), mnme.seqId);
                 boolean result;
