@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2023, 2024 Contributors to the Eclipse Foundation
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -25,7 +25,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -129,27 +128,7 @@ public class NetworkUtility {
         }
     }
 
-    private static Method isLoopbackMethod = null;
-    private static Method isUpMethod = null;
-    private static Method supportsMulticastMethod = null;
-
     static {
-        // JDK 1.6
-        try {
-            isLoopbackMethod = NetworkInterface.class.getMethod("isLoopback");
-        } catch (Throwable t) {
-            isLoopbackMethod = null;
-        }
-        try {
-            isUpMethod = NetworkInterface.class.getMethod("isUp");
-        } catch (Throwable t) {
-            isUpMethod = null;
-        }
-        try {
-            supportsMulticastMethod = NetworkInterface.class.getMethod("supportsMulticast");
-        } catch (Throwable t) {
-            supportsMulticastMethod = null;
-        }
         String vendor = System.getProperty("java.vendor");
         IS_AIX_JDK = vendor == null ? false : vendor.startsWith("IBM");
     }
@@ -455,11 +434,9 @@ public class NetworkUtility {
         if (anInterface == null) {
             return false;
         }
-        if (isLoopbackMethod != null) {
-            try {
-                return (Boolean) isLoopbackMethod.invoke(anInterface);
-            } catch (Throwable t) {
-            }
+        try {
+            return anInterface.isLoopback();
+        } catch (Throwable t) {
         }
         boolean hasLoopback = false;
         Enumeration<InetAddress> allIntfAddr = anInterface.getInetAddresses();
@@ -477,13 +454,11 @@ public class NetworkUtility {
         if (anInterface == null) {
             return false;
         }
-        boolean result = true;
-        if (isUpMethod != null) {
-            try {
-                result = (Boolean) isUpMethod.invoke(anInterface);
-            } catch (Throwable t) {
-                result = false;
-            }
+        boolean result;
+        try {
+            result = anInterface.isUp();
+        } catch (Throwable t) {
+            result = false;
         }
         if (!result) {
             return result;
@@ -494,9 +469,9 @@ public class NetworkUtility {
                 LOG.fine("Workaround for java.net.NetworkInterface.supportsMulticast() returning false on AIX");
             }
             return true;
-        } else if (supportsMulticastMethod != null) {
+        } else {
             try {
-                return (Boolean) supportsMulticastMethod.invoke(anInterface);
+                return anInterface.supportsMulticast();
             } catch (Throwable t) {
                 // will just return false in this case
             }
@@ -509,12 +484,10 @@ public class NetworkUtility {
         if (anInterface == null) {
             return false;
         }
-        if (isUpMethod != null) {
-            try {
-                return (Boolean) isUpMethod.invoke(anInterface);
-            } catch (Throwable t) {
-                // will just return false in this case
-            }
+        try {
+            return anInterface.isUp();
+        } catch (Throwable t) {
+            // will just return false in this case
         }
         return false;
     }
