@@ -36,8 +36,6 @@ public class DefaultKeyMapper implements KeyMapper, GroupMemberEventListener {
 
     private String myName;
 
-    private String groupName;
-
     private ReentrantReadWriteLock.ReadLock rLock;
 
     private ReentrantReadWriteLock.WriteLock wLock;
@@ -50,15 +48,22 @@ public class DefaultKeyMapper implements KeyMapper, GroupMemberEventListener {
 
     private static final String _EMPTY_REPLICAS = "";
 
+    /**
+     * @deprecated use {@link #DefaultKeyMapper(String)} instead
+     */
+    @Deprecated(forRemoval = true)
     public DefaultKeyMapper(String myName, String groupName) {
+        this(myName);
+    }
+
+    public DefaultKeyMapper(String myName) {
         this.myName = myName;
-        this.groupName = groupName;
         ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
 
         rLock = rwLock.readLock();
         wLock = rwLock.writeLock();
 
-        _logger.log(Level.FINE, "DefaultKeyMapper created for: myName: " + myName + "; groupName: " + groupName);
+        _logger.log(Level.FINE, "DefaultKeyMapper created for: myName: " + myName);
     }
 
     protected ReentrantReadWriteLock.ReadLock getReadLock() {

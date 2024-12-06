@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -50,8 +51,6 @@ public class DataStoreConfigurator<K, V> {
     private boolean doSynchronousReplication;
 
     private List<Command<K, ? super V>> commands = new ArrayList<Command<K, ? super V>>();
-
-    private List<AbstractCommandInterceptor<K, V>> interceptors;
 
     private boolean addCommands;
 

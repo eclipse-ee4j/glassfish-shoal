@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -131,7 +132,7 @@ public class ReplicatedDataStore<K, V extends Serializable> implements DataStore
         }
 
         if (dsc.getKeyMapper() == null) {
-            dsc.setKeyMapper(new DefaultKeyMapper(dsc.getInstanceName(), dsc.getGroupName()));
+            dsc.setKeyMapper(new DefaultKeyMapper(dsc.getInstanceName()));
         }
 
         if (dsc.getKeyMapper() instanceof GroupMemberEventListener) {
