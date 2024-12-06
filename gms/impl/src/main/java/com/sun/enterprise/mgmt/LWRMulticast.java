@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -55,16 +56,16 @@ public class LWRMulticast implements MessageListener {
      * source node id message element name
      */
     public final static String SRCIDTAG = "SRCID";
-    private transient boolean closed = false;
-    private transient boolean bound = false;
+    private boolean closed = false;
+    private boolean bound = false;
 
-    private transient long padding = 250;
-    private transient long timeout = 5000 + padding;
-    private transient AtomicLong sequence = new AtomicLong();
+    private long padding = 250;
+    private long timeout = 5000 + padding;
+    private AtomicLong sequence = new AtomicLong();
     private final Object ackLock = new Object();
-    private transient int threshold = 0;
-    private transient Set<PeerID> ackSet = new HashSet<PeerID>();
-    private transient Set<PeerID> ackList = new HashSet<PeerID>();
+    private int threshold = 0;
+    private Set<PeerID> ackSet = new HashSet<PeerID>();
+    private Set<PeerID> ackList = new HashSet<PeerID>();
     private long t0 = System.currentTimeMillis();
     private ClusterManager manager;
     private PeerID localPeerID;
@@ -72,7 +73,7 @@ public class LWRMulticast implements MessageListener {
     /**
      * The application message listener
      */
-    protected transient MessageListener msgListener;
+    protected MessageListener msgListener;
 
     /**
      * Create a multicast channel bind it to a specific pipe within specified peer group

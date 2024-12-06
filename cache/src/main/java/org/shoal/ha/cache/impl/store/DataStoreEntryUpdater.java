@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -36,7 +37,7 @@ import org.shoal.ha.cache.api.ShoalCacheLoggerConstants;
  */
 public abstract class DataStoreEntryUpdater<K, V> {
 
-    protected transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
+    protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);
 
     protected DataStoreContext<K, V> ctx;
 
