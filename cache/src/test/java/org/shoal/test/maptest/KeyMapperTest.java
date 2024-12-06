@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -60,7 +61,7 @@ public class KeyMapperTest extends TestCase {
     }
 
     public void testRegisterOnly() {
-        DefaultKeyMapper km = new DefaultKeyMapper("n0", "g1");
+        DefaultKeyMapper km = new DefaultKeyMapper("n0");
 
         String[] aliveInstances = new String[] { "n0", "n1" };
         String[] previousView = new String[] {};
@@ -70,7 +71,7 @@ public class KeyMapperTest extends TestCase {
     }
 
     public void testUnregisterOnly() {
-        DefaultKeyMapper km = new DefaultKeyMapper("n0", "g1");
+        DefaultKeyMapper km = new DefaultKeyMapper("n0");
         String[] aliveInstances = new String[] {};
         String[] previousView = new String[] { "n0", "n1" };
         km.onViewChange("n0", Arrays.asList(aliveInstances), Arrays.asList(previousView), false);
@@ -79,7 +80,7 @@ public class KeyMapperTest extends TestCase {
     }
 
     public void testRegisterAndUnregister() {
-        DefaultKeyMapper km = new DefaultKeyMapper("n0", "g1");
+        DefaultKeyMapper km = new DefaultKeyMapper("n0");
 
         String[] aliveInstances = new String[] { "n0", "n1" };
         String[] previousView = new String[] {};
@@ -92,7 +93,7 @@ public class KeyMapperTest extends TestCase {
     }
 
     public void testEmptyMapTest() {
-        DefaultKeyMapper km = new DefaultKeyMapper("n0", "g1");
+        DefaultKeyMapper km = new DefaultKeyMapper("n0");
         String mappedInstance = km.getMappedInstance("g1", "Key1");
         String[] replicaInstances = (km.findReplicaInstance("g1", "Key1", null));
 
@@ -103,7 +104,7 @@ public class KeyMapperTest extends TestCase {
     }
 
     public void testRegisterAndTest() {
-        DefaultKeyMapper km = new DefaultKeyMapper("n0", "g1");
+        DefaultKeyMapper km = new DefaultKeyMapper("n0");
 
         String[] aliveInstances = new String[] { "n0", "n1" };
         String[] previousView = new String[] {};
@@ -119,7 +120,7 @@ public class KeyMapperTest extends TestCase {
     }
 
     public void testMappedToMyself() {
-        DefaultKeyMapper km = new DefaultKeyMapper("inst0", "g1");
+        DefaultKeyMapper km = new DefaultKeyMapper("inst0");
 
         String[] aliveInstances = new String[10];
         for (int i = 0; i < 10; i++) {
@@ -146,7 +147,7 @@ public class KeyMapperTest extends TestCase {
     }
 
     public void testReplicaUponFailure() {
-        DefaultKeyMapper km1 = new DefaultKeyMapper("inst2", "g1");
+        DefaultKeyMapper km1 = new DefaultKeyMapper("inst2");
 
         String[] aliveInstances = new String[10];
         for (int i = 0; i < 10; i++) {
@@ -167,7 +168,7 @@ public class KeyMapperTest extends TestCase {
             replicaInstanceNames[i] = km1.getMappedInstance("g1", keys[i]);
         }
 
-        DefaultKeyMapper km4 = new DefaultKeyMapper("inst4", "g1");
+        DefaultKeyMapper km4 = new DefaultKeyMapper("inst4");
         List<String> currentMembers = new ArrayList();
         currentMembers.addAll(Arrays.asList(aliveInstances));
         currentMembers.remove("inst2");
