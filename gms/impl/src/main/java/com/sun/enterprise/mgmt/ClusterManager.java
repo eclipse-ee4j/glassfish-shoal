@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -64,7 +65,7 @@ public class ClusterManager implements MessageListener {
     private SystemAdvertisement systemAdv = null;
 
     private static final String NODEADV = "NAD";
-    private transient Map<String, String> identityMap;
+    private Map<String, String> identityMap;
     private static final String APPMESSAGE = "APPMESSAGE";
     private List<ClusterMessageListener> cmListeners;
     private volatile boolean stopping = false;
