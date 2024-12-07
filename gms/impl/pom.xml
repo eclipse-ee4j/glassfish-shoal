@@ -49,6 +49,16 @@
             <groupId>${grizzly.group.id}</groupId>
             <artifactId>grizzly-core</artifactId>
             <version>${grizzly.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.grizzly</groupId>
+                    <artifactId>grizzly-framework</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish.grizzly</groupId>
+                    <artifactId>grizzly-portunif</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
