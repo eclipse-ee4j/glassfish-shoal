@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>${grizzly.group.id}</groupId>
-            <artifactId>grizzly-core</artifactId>
+            <artifactId>grizzly-framework</artifactId>
             <version>${grizzly.version}</version>
         </dependency>
     </dependencies>
