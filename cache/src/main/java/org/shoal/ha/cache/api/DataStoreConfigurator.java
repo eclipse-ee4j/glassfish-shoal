@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.glassfish.ha.store.util.KeyTransformer;
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.store.DataStoreEntryUpdater;
-import org.shoal.ha.mapper.KeyMapper;
+import org.shoal.ha.cache.command.Command;
+import org.shoal.ha.cache.mapper.KeyMapper;
+import org.shoal.ha.cache.store.DataStoreEntryUpdater;
 
 /**
  * @author Mahesh Kannan

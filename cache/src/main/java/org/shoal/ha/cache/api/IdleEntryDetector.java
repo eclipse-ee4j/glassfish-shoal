@@ -16,7 +16,7 @@
 
 package org.shoal.ha.cache.api;
 
-import org.shoal.ha.cache.impl.store.DataStoreEntry;
+import org.shoal.ha.cache.store.DataStoreEntry;
 
 /**
  * @author Mahesh Kannan

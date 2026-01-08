@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.shoal.ha.mapper.DefaultKeyMapper;
+import org.shoal.ha.cache.mapper.DefaultKeyMapper;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

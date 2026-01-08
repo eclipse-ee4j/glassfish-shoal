@@ -16,7 +16,7 @@
 
 package org.shoal.test.command;
 
-import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.command.Command;
 
 /**
  * @author Mahesh Kannan

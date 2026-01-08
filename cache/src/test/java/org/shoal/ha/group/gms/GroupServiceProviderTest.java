@@ -21,9 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.shoal.ha.cache.impl.util.MessageReceiver;
-
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import org.glassfish.shoal.gms.logging.GMSLogDomain;
+import org.shoal.ha.cache.group.GroupServiceProvider;
+import org.shoal.ha.cache.util.MessageReceiver;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

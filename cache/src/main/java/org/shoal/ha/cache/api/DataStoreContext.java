@@ -23,11 +23,11 @@ import java.util.logging.Logger;
 
 import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.util.KeyTransformer;
-import org.shoal.ha.cache.impl.command.CommandManager;
-import org.shoal.ha.cache.impl.store.ReplicaStore;
-import org.shoal.ha.cache.impl.util.ResponseMediator;
-import org.shoal.ha.group.GroupService;
-import org.shoal.ha.mapper.KeyMapper;
+import org.shoal.ha.cache.command.CommandManager;
+import org.shoal.ha.cache.group.GroupService;
+import org.shoal.ha.cache.mapper.KeyMapper;
+import org.shoal.ha.cache.store.ReplicaStore;
+import org.shoal.ha.cache.util.ResponseMediator;
 
 /**
  * @author Mahesh Kannan

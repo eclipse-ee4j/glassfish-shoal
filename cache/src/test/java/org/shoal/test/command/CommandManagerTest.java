@@ -19,8 +19,8 @@ package org.shoal.test.command;
 import org.shoal.ha.cache.api.DataStoreContext;
 import org.shoal.ha.cache.api.DataStoreException;
 import org.shoal.ha.cache.api.ReplicatedDataStoreStatsHolder;
-import org.shoal.ha.cache.impl.command.CommandManager;
-import org.shoal.ha.group.GroupService;
+import org.shoal.ha.cache.command.CommandManager;
+import org.shoal.ha.cache.group.GroupService;
 import org.shoal.test.common.DummyGroupService;
 
 import junit.framework.Test;

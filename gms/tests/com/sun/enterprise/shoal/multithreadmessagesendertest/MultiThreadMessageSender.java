@@ -20,11 +20,11 @@ import com.sun.enterprise.ee.cms.core.*;
 import com.sun.enterprise.ee.cms.impl.client.MessageActionFactoryImpl;
 import com.sun.enterprise.ee.cms.impl.client.JoinNotificationActionFactoryImpl;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
-import com.sun.enterprise.ee.cms.impl.common.JoinNotificationSignalImpl;
-import com.sun.enterprise.ee.cms.impl.common.MessageSignalImpl;
+import org.glassfish.shoal.gms.common.JoinNotificationSignalImpl;
+import org.glassfish.shoal.gms.common.MessageSignalImpl;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
-import com.sun.enterprise.ee.cms.impl.common.GMSContext;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import org.glassfish.shoal.gms.common.GMSContext;
+import org.glassfish.shoal.gms.common.GMSContextFactory;
 
 import java.util.Properties;
 import java.util.List;

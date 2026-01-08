@@ -35,5 +35,5 @@ CACHE_HOME=.
 CP=${HA_API_JAR}:${CACHE_HOME}/target/classes:${CACHE_HOME}/../gms/api/target/shoal-gms-api.jar:${CACHE_HOME}/../gms/impl/target/shoal-gms-impl.jar:${CACHE_HOME}/../gms/lib/grizzly-framework.jar:${CACHE_HOME}/../gms/lib/grizzly-utils.jar
 
 
-#java -cp ${CP}  -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 org.shoal.ha.cache.impl.util.StoreableBackingStoreShell cache $1 $2
-java -cp ${CP} -Dorg.shoal.ha.cache.mbean.register=true org.shoal.ha.cache.impl.util.SimpleStoreableBackingStoreShell cache $1 shoal-shell-group
+#java -cp ${CP}  -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 org.shoal.ha.cache.util.StoreableBackingStoreShell cache $1 $2
+java -cp ${CP} -Dorg.shoal.ha.cache.mbean.register=true org.shoal.ha.cache.util.SimpleStoreableBackingStoreShell cache $1 shoal-shell-group

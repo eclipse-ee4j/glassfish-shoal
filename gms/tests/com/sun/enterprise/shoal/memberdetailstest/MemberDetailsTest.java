@@ -27,7 +27,7 @@ import com.sun.enterprise.ee.cms.core.GMSException;
 import com.sun.enterprise.ee.cms.core.GMSFactory;
 import com.sun.enterprise.ee.cms.core.GroupManagementService;
 import com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType;
-import com.sun.enterprise.ee.cms.impl.common.GroupManagementServiceImpl;
+import org.glassfish.shoal.gms.common.GroupManagementServiceImpl;
 
 /**
  * Simple test for MemberDetails

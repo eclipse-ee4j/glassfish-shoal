@@ -35,5 +35,5 @@ HA_API_JAR=/space/work/ha-api/target/ha-api-3.1.10-SNAPSHOT.jar
 CP=${HA_API_JAR}:${CACHE_HOME}/target/classes:${CACHE_HOME}/../gms/api/target/shoal-gms-api.jar:${CACHE_HOME}/../gms/impl/target/shoal-gms-impl.jar:${CACHE_HOME}/../gms/lib/grizzly-framework.jar:${CACHE_HOME}/../gms/lib/grizzly-utils.jar
 
 
-echo java -cp ${CP}  org.shoal.ha.cache.impl.util.StoreableBackingStoreShell cache $1 shoal-shell-group
-java -cp ${CP}  org.shoal.ha.cache.impl.util.StoreableBackingStoreShell cache $1 shoal-shell-group
+echo java -cp ${CP}  org.shoal.ha.cache.util.StoreableBackingStoreShell cache $1 shoal-shell-group
+java -cp ${CP}  org.shoal.ha.cache.util.StoreableBackingStoreShell cache $1 shoal-shell-group

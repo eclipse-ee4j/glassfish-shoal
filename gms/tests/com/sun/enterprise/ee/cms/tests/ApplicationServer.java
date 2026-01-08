@@ -36,7 +36,7 @@ import com.sun.enterprise.ee.cms.impl.client.JoinNotificationActionFactoryImpl;
 import com.sun.enterprise.ee.cms.impl.client.JoinedAndReadyNotificationActionFactoryImpl;
 import com.sun.enterprise.ee.cms.impl.client.FailureNotificationActionFactoryImpl;
 import com.sun.enterprise.ee.cms.impl.client.PlannedShutdownActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.common.GroupManagementServiceImpl;
+import org.glassfish.shoal.gms.common.GroupManagementServiceImpl;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.ee.cms.spi.MemberStates;

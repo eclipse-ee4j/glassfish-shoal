@@ -49,7 +49,7 @@ public class ShoalCacheLoggerConstants {
 
     public static final String CACHE_REVEIVE_INTERCEPTOR = "org.shoal.ha.cache.interceptor.receive";
 
-    public static final String CACHE_DATA_STORE = "org.shoal.ha.cache.store";
+    public static final String CACHE_DATA_STORE = "org.shoal.ha.cache.store.backing";
 
     public static final String CACHE_MONITOR = "org.shoal.ha.monitor";
 

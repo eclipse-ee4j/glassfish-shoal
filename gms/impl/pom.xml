@@ -23,11 +23,11 @@
     <parent>
         <groupId>org.glassfish.shoal</groupId>
         <artifactId>shoal-gms</artifactId>
-        <version>3.1.1-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>shoal-gms-impl</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <name>shoal-gms-impl</name>
 
     <properties>
@@ -41,31 +41,22 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${junit.group.id}</groupId>
+            <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${grizzly.group.id}</groupId>
+            <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-framework</artifactId>
-            <version>${grizzly.version}</version>
         </dependency>
     </dependencies>
 
     <build>
-
         <finalName>${project.artifactId}</finalName>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>com.sun.enterprise.ee.cms.impl.*;com.sun.enterprise.gms.tools;com.sun.enterprise.ee.cms.logging;com.sun.enterprise.mgmt.*;com.sun.enterprise.osgi</Export-Package>
-                    </instructions>
-                </configuration>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>
@@ -76,11 +67,8 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -90,10 +78,7 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
-                <inherited>true</inherited>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <doclint>none</doclint>

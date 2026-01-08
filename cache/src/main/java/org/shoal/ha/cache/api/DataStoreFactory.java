@@ -19,10 +19,10 @@ package org.shoal.ha.cache.api;
 
 import java.io.Serializable;
 
-import org.shoal.ha.cache.impl.store.ReplicatedDataStore;
-import org.shoal.ha.group.GroupService;
-import org.shoal.ha.group.GroupServiceFactory;
-import org.shoal.ha.mapper.DefaultKeyMapper;
+import org.shoal.ha.cache.group.GroupService;
+import org.shoal.ha.cache.group.GroupServiceFactory;
+import org.shoal.ha.cache.mapper.DefaultKeyMapper;
+import org.shoal.ha.cache.store.ReplicatedDataStore;
 
 /**
  * @author Mahesh Kannan

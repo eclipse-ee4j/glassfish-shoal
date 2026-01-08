@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import com.sun.enterprise.ee.cms.core.*;
 import com.sun.enterprise.ee.cms.impl.client.*;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import org.glassfish.shoal.gms.common.GMSContextFactory;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 
 /**

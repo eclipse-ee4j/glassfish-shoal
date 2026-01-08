@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2023, 2026 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,7 +19,10 @@ package org.shoal.adapter.store;
 import org.glassfish.ha.store.api.BackingStoreException;
 import org.glassfish.ha.store.api.BackingStoreTransaction;
 
-class NoCommitBackingStoreTransaction implements BackingStoreTransaction {
+/**
+ * A special {@link BackingStoreTransaction} ignoring {@link #commit()} calls.
+ */
+public class NoCommitBackingStoreTransaction implements BackingStoreTransaction {
     @Override
     public void commit() throws BackingStoreException {
         // ignored

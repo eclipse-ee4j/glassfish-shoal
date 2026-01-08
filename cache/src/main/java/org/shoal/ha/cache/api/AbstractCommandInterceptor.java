@@ -16,8 +16,8 @@
 
 package org.shoal.ha.cache.api;
 
-import org.shoal.ha.cache.impl.command.Command;
-import org.shoal.ha.cache.impl.command.CommandManager;
+import org.shoal.ha.cache.command.Command;
+import org.shoal.ha.cache.command.CommandManager;
 
 /**
  * @author Mahesh Kannan

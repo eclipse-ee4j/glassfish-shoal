@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.shoal.ha.cache.api.AbstractCommandInterceptor;
 import org.shoal.ha.cache.api.DataStoreException;
-import org.shoal.ha.cache.impl.command.Command;
+import org.shoal.ha.cache.command.Command;
 
 /**
  * @author Mahesh Kannan

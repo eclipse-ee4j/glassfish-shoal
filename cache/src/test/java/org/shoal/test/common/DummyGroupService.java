@@ -19,9 +19,9 @@ package org.shoal.test.common;
 import java.util.Collections;
 import java.util.List;
 
-import org.shoal.ha.cache.impl.util.MessageReceiver;
-import org.shoal.ha.group.GroupMemberEventListener;
-import org.shoal.ha.group.GroupService;
+import org.shoal.ha.cache.group.GroupMemberEventListener;
+import org.shoal.ha.cache.group.GroupService;
+import org.shoal.ha.cache.util.MessageReceiver;
 
 /**
  * @author Mahesh Kannan
