@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,20 +17,24 @@
 
 package org.shoal.adapter.store;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStoreException;
-import org.shoal.ha.cache.api.*;
-
-import java.io.Serializable;
-import java.util.Map;
 import org.glassfish.ha.store.api.BackingStoreFactory;
+import org.shoal.ha.cache.api.DataStore;
+import org.shoal.ha.cache.api.DataStoreContext;
+import org.shoal.ha.cache.api.DataStoreException;
+import org.shoal.ha.cache.api.DataStoreFactory;
 
 /**
+ * @param <K> Key type
+ * @param <V> Value type
  * @author Mahesh Kannan
  */
-public class InMemoryBackingStore<K extends Serializable, V extends Serializable>
-        extends BackingStore<K, V> {
+public class InMemoryBackingStore<K extends Serializable, V extends Serializable> extends BackingStore<K, V> {
 
     DataStore<K, V> dataStore;
 
@@ -37,7 +42,7 @@ public class InMemoryBackingStore<K extends Serializable, V extends Serializable
     protected void initialize(BackingStoreConfiguration<K, V> conf)
             throws BackingStoreException {
         super.initialize(conf);
-        DataStoreContext<K, V> dsConf = new DataStoreContext<K, V>();
+        DataStoreContext<K, V> dsConf = new DataStoreContext<>();
         dsConf.setInstanceName(conf.getInstanceName())
                 .setGroupName(conf.getClusterName())
                 .setStoreName(conf.getStoreName())
@@ -49,25 +54,17 @@ public class InMemoryBackingStore<K extends Serializable, V extends Serializable
         boolean startGMS = false;
         if (stGMS != null) {
             if (stGMS instanceof String) {
-                try {
-                    startGMS = Boolean.valueOf((String) stGMS);
-                } catch (Throwable th) {
-                    //Ignore
-                }
+                startGMS = Boolean.parseBoolean((String) stGMS);
             } else if (stGMS instanceof Boolean) {
                 startGMS = (Boolean) stGMS;
             }
         }
 
-        Object cacheLocally = vendorSpecificMap.get("local.caching");;
+        Object cacheLocally = vendorSpecificMap.get("local.caching");
         boolean enableLocalCaching = false;
         if (cacheLocally != null) {
             if (cacheLocally instanceof String) {
-                try {
-                    enableLocalCaching = Boolean.valueOf((String) cacheLocally);
-                } catch (Throwable th) {
-                    //Ignore
-                }
+                enableLocalCaching = Boolean.parseBoolean((String) cacheLocally);
             } else if (cacheLocally instanceof Boolean) {
                 enableLocalCaching = (Boolean) cacheLocally;
             }
@@ -80,7 +77,7 @@ public class InMemoryBackingStore<K extends Serializable, V extends Serializable
         dsConf.setClassLoader(cl)
                 .setStartGMS(startGMS)
                 .setCacheLocally(enableLocalCaching);
-        
+
         dataStore = DataStoreFactory.createDataStore(dsConf);
     }
 
@@ -137,7 +134,6 @@ public class InMemoryBackingStore<K extends Serializable, V extends Serializable
 
     @Override
     public BackingStoreFactory getBackingStoreFactory() {
-        return new GlassFishReplicationBackingStoreFactory();
+        return new ReplicationBackingStoreFactory();
     }
-
 }

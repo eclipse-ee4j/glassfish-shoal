@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,41 +17,31 @@
 
 package org.shoal.adapter.store;
 
-import org.glassfish.ha.store.api.*;
-
 import java.io.Serializable;
-import java.util.Properties;
+
+import org.glassfish.ha.store.api.BackingStore;
+import org.glassfish.ha.store.api.BackingStoreConfiguration;
+import org.glassfish.ha.store.api.BackingStoreException;
+import org.glassfish.ha.store.api.BackingStoreFactory;
+import org.glassfish.ha.store.api.BackingStoreTransaction;
 
 /**
  * @author Mahesh Kannan
  */
-public class GlassFishReplicationBackingStoreFactory
-    implements BackingStoreFactory {
-
-    private Properties props;
-
-    public GlassFishReplicationBackingStoreFactory() {
-    }
-    
-    public GlassFishReplicationBackingStoreFactory(Properties p)  {
-        this.props=p;
-    }
+public class GlassFishReplicationBackingStoreFactory implements BackingStoreFactory {
 
     @Override
-    public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(BackingStoreConfiguration<K, V> conf) throws BackingStoreException {
-
-        InMemoryBackingStore<K, V> bStore = new InMemoryBackingStore<K, V>();
+    public <K extends Serializable, V extends Serializable> BackingStore<K, V> createBackingStore(
+        BackingStoreConfiguration<K, V> conf) throws BackingStoreException {
+        InMemoryBackingStore<K, V> bStore = new InMemoryBackingStore<>();
         bStore.initialize(conf);
         System.out.println("ReplicationBackingStoreFactory:: CREATED an instance of: " + bStore.getClass().getName());
         return bStore;
     }
 
+
     @Override
     public BackingStoreTransaction createBackingStoreTransaction() {
-        return new BackingStoreTransaction() {
-            @Override
-            public void commit() throws BackingStoreException {
-            }
-        };
+        return new NoCommitBackingStoreTransaction();
     }
 }
