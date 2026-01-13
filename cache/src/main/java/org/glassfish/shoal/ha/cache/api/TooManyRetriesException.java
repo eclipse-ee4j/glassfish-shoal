@@ -21,7 +21,7 @@ package org.glassfish.shoal.ha.cache.api;
  */
 public class TooManyRetriesException extends DataStoreException {
 
-   
+
     private static final long serialVersionUID = -6309507580534901353L;
 
     public TooManyRetriesException() {

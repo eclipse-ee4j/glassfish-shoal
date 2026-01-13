@@ -50,7 +50,7 @@ do
        ;;
        *)
          echo "ERROR: Invalid argument [${1}]"
-         usage         
+         usage
        ;;
      esac
 done
@@ -437,5 +437,5 @@ elif [ "${CMD}" = "add" ]; then
 else
     grep WARNING  ${ALLLOGS} | grep -v ${APPLICATIONADMIN}
 fi
-echo Exceptions 
+echo Exceptions
 grep "Exception" ${ALLLOGS}  | grep -v ${APPLICATIONADMIN} | grep -v "stack trace"

@@ -28,7 +28,7 @@ import org.glassfish.shoal.ha.cache.store.DataStoreEntry;
  */
 public class SaveCommand<K, V> extends AbstractSaveCommand<K, V> {
 
-   
+
     private static final long serialVersionUID = -1681470355087702983L;
 
     private transient V v;

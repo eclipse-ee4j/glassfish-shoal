@@ -118,7 +118,7 @@ public class ApplicationServer implements Runnable, CallBack {
         } catch (InterruptedException ie) {}
         logger.log(Level.FINE,"reporting joined and ready state...");
         gms.reportJoinedAndReadyState();
-        
+
         logger.log(Level.INFO, "Waiting for timeout or group shutdown...");
         gaa.waitTillNotified();
 
@@ -166,7 +166,7 @@ public class ApplicationServer implements Runnable, CallBack {
         try {
             gms.join();
             logger.info("joined group " + gms.getGroupName()  + " groupLeader: " + gms.getGroupHandle().getGroupLeader());
-            
+
         } catch (GMSException ge) {
             logger.log(Level.SEVERE, "failed to join gms group " + gms.getGroupName(), ge);
             throw new IllegalStateException("failed to join gms group" + gms.getGroupName());
@@ -284,19 +284,19 @@ public class ApplicationServer implements Runnable, CallBack {
         }
 
     }
-    
+
     // simulate CLB polling getMemberState
     public class CLB implements Runnable {
         boolean getMemberState;
         long threshold;
         long timeout;
-        
+
         public CLB(boolean getMemberState, long threshold, long timeout) {
             this.getMemberState = getMemberState;
             this.threshold = threshold;
             this.timeout = timeout;
         }
-        
+
         private void getAllMemberStates() {
             long startTime = System.currentTimeMillis();
             List<String> members = gms.getGroupHandle().getCurrentCoreMembers();
@@ -304,17 +304,17 @@ public class ApplicationServer implements Runnable, CallBack {
                           " timeout(ms)=" + timeout);
             for (String member : members) {
                 MemberStates state = gms.getGroupHandle().getMemberState(member, threshold, timeout);
-                logger.info("getMemberState member=" + member + " state=" + state + 
+                logger.info("getMemberState member=" + member + " state=" + state +
                         " threshold=" + threshold + " timeout=" + timeout);
             }
             logger.info("exit getAllMemberStates()  elapsed time=" + (System.currentTimeMillis() - startTime) +
                     " ms " + "currentMembers#=" + members.size());
         }
-        
+
         public void run() {
             while (getMemberState && !stopped) {
                 getAllMemberStates();
-                try { 
+                try {
                     Thread.sleep(500);
                 } catch (InterruptedException ie) {}
             }
@@ -356,7 +356,7 @@ public class ApplicationServer implements Runnable, CallBack {
         final ApplicationServer applicationServer;
         final String MEMBERTYPE_STRING = System.getProperty("MEMBERTYPE", "CORE").toUpperCase();
         final GroupManagementService.MemberType memberType = GroupManagementService.MemberType.valueOf(MEMBERTYPE_STRING);
-        
+
         Properties configProps = new Properties();
         configProps.put(ServiceProviderConfigurationKeys.MONITORING.toString(), "5"); //seconds
 
@@ -397,7 +397,7 @@ public class ApplicationServer implements Runnable, CallBack {
             String threshold = System.getProperty("GETMEMBERSTATE_THRESHOLD","3000");
             long getMemberStateThreshold = Long.parseLong(threshold);
             long getMemberStateTimeout = Long.parseLong(System.getProperty("GETMEMBERSTATE_TIMEOUT", "3000"));
-            logger.fine("getMemberState=true threshold=" + getMemberStateThreshold + 
+            logger.fine("getMemberState=true threshold=" + getMemberStateThreshold +
                     " timeout=" + getMemberStateTimeout);
             clb = applicationServer.new CLB(getMemberState, getMemberStateThreshold, getMemberStateTimeout);
         }
@@ -411,13 +411,13 @@ public class ApplicationServer implements Runnable, CallBack {
             // developer level manual WATCHDOG test.
             // Start each of the following items in a different terminal window.
             // Fix permissions for shell scripts: chmod +x rungmsdemo.sh killmembers.sh
-            // 1. ./rungmsdemo.sh server cluster1 SPECTATOR 600000 FINE &> server.log 
+            // 1. ./rungmsdemo.sh server cluster1 SPECTATOR 600000 FINE &> server.log
             // 2. ./rungmsdemo.sh instance1 cluster1 CORE 600000 FINE
             // 3. ./rungmsdemo.sh instance10 cluster1 CORE 600000 FINE
             // 4. ./rungmsdemo.sh nodeagent cluster1 WATCHDOG 600000 FINE
             //
-            // If WATCHDOG, then test reporting failure to cluster. 
-            // kill instance10 15 seconds after starting nodeagent WATCHDOG.  
+            // If WATCHDOG, then test reporting failure to cluster.
+            // kill instance10 15 seconds after starting nodeagent WATCHDOG.
             // Broadcast failure and check server.log for
             // immediate FAILURE detection, not FAILURE detected by GMS heartbeat.
             // grep server.log for WATCHDOG to see watchdog notification time compared to FAILURE report.

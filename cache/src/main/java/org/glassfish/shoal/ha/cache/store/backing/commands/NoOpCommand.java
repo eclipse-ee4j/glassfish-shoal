@@ -25,7 +25,7 @@ import org.glassfish.shoal.ha.cache.command.ReplicationCommandOpcode;
  */
 public class NoOpCommand<K, V> extends Command {
 
-   
+
     private static final long serialVersionUID = 3353080048287174569L;
 
     private transient static final byte[] rawReadState = new byte[] { ReplicationCommandOpcode.NOOP_COMMAND, (byte) 123 };

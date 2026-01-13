@@ -36,12 +36,12 @@ goto end
 
 
 :usage
-echo Usage: %0 parameters... 
+echo Usage: %0 parameters...
 echo The required parameters are :
 echo instance_id_token groupname membertype{CORE--OR--SPECTATOR} Life-In-Milliseconds log-level <bind_interface_ip_address>
 echo Life in milliseconds should be at least 60000 to demo failure fencing.
-echo <bind_interface_ip_address> refers to the ip address of a virtual or physical network interface 
-echo which should be used by this test to bind to for all communications. Currently this test only accepts IPv4 addresses. 
+echo <bind_interface_ip_address> refers to the ip address of a virtual or physical network interface
+echo which should be used by this test to bind to for all communications. Currently this test only accepts IPv4 addresses.
 
 :end
 endlocal

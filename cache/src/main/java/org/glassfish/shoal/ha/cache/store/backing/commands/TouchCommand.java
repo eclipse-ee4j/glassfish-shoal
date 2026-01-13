@@ -27,7 +27,7 @@ import org.glassfish.shoal.ha.cache.store.DataStoreEntry;
  */
 public class TouchCommand<K, V> extends AbstractSaveCommand<K, V> {
 
-   
+
     private static final long serialVersionUID = -7824388716058350739L;
 
     public TouchCommand() {

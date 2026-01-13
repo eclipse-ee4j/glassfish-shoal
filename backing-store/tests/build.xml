@@ -45,11 +45,11 @@
 
         <!-- when I figure out how to parse multivalues in pom.xml then I can use the code below -->
         <!--
-        <xmlproperty file="../pom.xml"/> 
+        <xmlproperty file="../pom.xml"/>
         <pathconvert property="hagroupid" description="Replace '.' with '/' and assign value to new property">
-            <path path="${project.dependencies.dependency.groupId}"/> 
+            <path path="${project.dependencies.dependency.groupId}"/>
 
-            Pathconvert will try to add the root directory to the "path", so replace with empty string 
+            Pathconvert will try to add the root directory to the "path", so replace with empty string
             <map from="${basedir}" to="" />
             <filtermapper>
                 <replacestring from="." to="/"/>
@@ -116,10 +116,10 @@
      broke these tests
     <target name="all" depends="clean, build"
     -->
-    <target name="all" 
+    <target name="all"
             description="DISABLED UNTIL I FIGURE OUT WHAT GOING ON WITH THIS MODULE">
     </target>
-    
+
     <!-- build -->
     <!-- DISABLED UNTIL I FIGURE OUT WHAT GOING ON WITH THIS MODULE, RECENT CHANGE
          Revision 1119  by mk111283:
@@ -130,7 +130,7 @@
     <target name="build"
             description="DISABLED UNTIL I FIGURE OUT WHAT GOING ON WITH THIS MODULE">
     </target>
-    
+
     <!-- init. Initialization involves creating publishing directories and
          OS specific targets. -->
     <target name="init" depends="getalljars" description="${component.name} initialization">

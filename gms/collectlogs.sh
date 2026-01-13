@@ -50,6 +50,6 @@
        SERVER=configs/clusters/${GROUPNAME}/server.properties
        TMP=`egrep "^MACHINE_NAME" ${SERVER}`
        MACHINE_NAME=`echo $TMP | awk -F= '{print $2}' `
-       ${EXECUTE_REMOTE_CONNECT} ${MACHINENAME} "cd ${WORKSPACE_HOME}; analyzelogs.sh -l ${TMP_SAVE_LOG_DIR}/${COUNT} ${TEST} > ${RESULTFILE}; chmod 777 ${RESULTFILE}"       
+       ${EXECUTE_REMOTE_CONNECT} ${MACHINENAME} "cd ${WORKSPACE_HOME}; analyzelogs.sh -l ${TMP_SAVE_LOG_DIR}/${COUNT} ${TEST} > ${RESULTFILE}; chmod 777 ${RESULTFILE}"
 
     done

@@ -19,8 +19,8 @@ PUBLISH_HOME=./dist
 LIB_HOME=./lib
 
 usage () {
-    cat << USAGE 
-Usage: $0 <parameters...> 
+    cat << USAGE
+Usage: $0 <parameters...>
 The required parameters are :
  <instance_id_token> <groupname> <membertype{CORE|SPECTATOR}> <Life In Milliseconds> <log level> <transport>{grizzly,jxta} <-l logdir> <-ts tcpstartport> <-tp tcpendport> <-ma multicastaddress> <-mp multicastport> <-bia bindinginterfaceaddress>
 

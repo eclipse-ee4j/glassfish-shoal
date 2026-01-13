@@ -31,7 +31,7 @@ import org.glassfish.shoal.ha.cache.util.ResponseMediator;
  */
 public abstract class AcknowledgedCommand<K, V> extends Command<K, V> {
 
-   
+
     private static final long serialVersionUID = -4027862351560585449L;
 
     private transient CommandResponse resp;

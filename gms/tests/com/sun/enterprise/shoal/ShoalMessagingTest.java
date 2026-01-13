@@ -128,8 +128,8 @@ public class ShoalMessagingTest implements Runnable, CallBack {
                 System.out.println("-- received " + total_msgs_received);
             }
             if (total_msgs_received == 2001) {
-		        throw new NullPointerException("simulated unchecked exception test");
-	        }
+                throw new NullPointerException("simulated unchecked exception test");
+            }
             if (total_msgs_received == num_msgs * nbOfMembers) {
                 // signal that completed receiving all expected messages so app can continue and shutdown.
                 synchronized(sendMessagesSignal) {

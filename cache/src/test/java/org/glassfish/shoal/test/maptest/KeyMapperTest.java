@@ -191,26 +191,26 @@ public class KeyMapperTest extends TestCase {
 
     /*
      * public void testReplicaUponFailureFromAllOtherNodes() {
-     * 
+     *
      * String[] aliveInstances = new String[10]; for (int i=0; i<10; i++) {aliveInstances[i] = "inst"+i;}
-     * 
+     *
      * String[] previousView = new String[] {};
-     * 
+     *
      * int sz = 10; DefaultKeyMapper<String>[] mappers = new DefaultKeyMapper[sz]; for (int i = 0; i < sz; i++) { mappers[i]
      * = new DefaultKeyMapper("n"+i, "g1"); mappers[i].onViewChange(Arrays.asList(aliveInstances),
      * Arrays.asList(previousView), true); }
-     * 
+     *
      * String[] keys = new String[16]; String[] replicaInstanceNames = new String[16];
-     * 
+     *
      * int count = keys.length;
-     * 
+     *
      * for (int i = 0; i < count; i++) { keys[i] = "Key-" + Math.random(); replicaInstanceNames[i] =
      * mappers[0].getMappedInstance("g1", keys[i]); }
-     * 
+     *
      * for (int i = 0; i < sz; i++) { List<String> currentMembers = new ArrayList();
      * currentMembers.addAll(Arrays.asList(aliveInstances)); currentMembers.remove("inst5");
      * mappers[i].onViewChange(currentMembers, Arrays.asList(aliveInstances), false); }
-     * 
+     *
      * boolean result = true; for (int id = 1; id < sz; id++) { for (int i = 0; i < keys.length; i++) { String
      * mappedInstanceName = mappers[id].findReplicaInstance("g1", keys[i]); if
      * (!mappedInstanceName.equals(replicaInstanceNames[i])) { result = false; System.err.println("For key: " + keys[i] +
@@ -224,20 +224,20 @@ public class KeyMapperTest extends TestCase {
      * public void testReplicaUponRestart() { Integer[] keys = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
      * 14}; String[] expectedReplica = new String[]{ "n0", "n1", "n2", "n4", "n4", "n5", "n0", "n1", "n2", "n5", "n4", "n5",
      * "n0", "n1", "n2"};
-     * 
+     *
      * boolean result = true;
-     * 
-     * 
-     * 
-     * 
+     *
+     *
+     *
+     *
      * DefaultKeyMapper mapper = new DefaultKeyMapper("n3", "g1"); mapper.registerInstance("n0");
      * mapper.registerInstance("n1"); mapper.registerInstance("n2"); mapper.registerInstance("n4");
      * mapper.registerInstance("n5"); mapper.removeInstance("n3"); mapper.registerInstance("n3"); for (int i = 0; i <
      * keys.length; i++) { if (!mapper.findReplicaInstance("g1", keys[i]).equals(expectedReplica[i])) { result = false;
      * System.err.println("testReplicaUponRestart:: For key: " + keys[i] + " exptected Replica was: " + expectedReplica[i] +
      * " but got mapped to: " + mapper.findReplicaInstance("g1", keys[i])); } }
-     * 
-     * 
+     *
+     *
      * System.out.println("* Test[testReplicaUponRestart] => " + result); assert (result); }
      */
 

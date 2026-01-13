@@ -83,17 +83,17 @@ public class CommandManagerTest extends TestCase {
      * CommandMonitorInterceptor cmi1 = new CommandMonitorInterceptor(); CommandMonitorInterceptor cmi2 = new
      * CommandMonitorInterceptor(); cm.registerExecutionInterceptor(cmi1); cm.registerExecutionInterceptor(cmi2);
      * cm.executeCommand(new NoopCommand());
-     * 
+     *
      * boolean stat = cmi1.getTransmitCount() == 1; stat = stat && (cmi2.getTransmitCount() == cmi1.getTransmitCount());
      * assertTrue(stat); }
-     * 
+     *
      * public void testLoopBackInterceptors() { GroupService gs = new DummyGroupService("inst1", "grp1"); DataStoreContext
      * dsc = new DataStoreContext("test", gs); CommandManager cm = dsc.getCommandManager();
-     * 
+     *
      * cm.registerCommand(new NoopCommand()); cm.registerCommand(new BatchedNoopCommand()); NoopCommandInterceptor cmi1 =
      * new NoopCommandInterceptor(); BatchedNoopCommandInterceptor bat = new BatchedNoopCommandInterceptor();
      * cm.registerExecutionInterceptor(cmi1); cm.registerExecutionInterceptor(bat); cm.executeCommand(new NoopCommand());
-     * 
+     *
      * System.out.println("****** testLoopBackInterceptors ******"); System.out.println("* cmi1.getTotalTransCount(): " +
      * cmi1.getTotalTransCount()); System.out.println("* cmi1.getNoopTransCount(): " + cmi1.getNoopTransCount());
      * System.out.println("* bat.getNoopTransCount(): " + bat.getTransmitCount()); boolean stat = cmi1.getTotalTransCount()

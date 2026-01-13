@@ -83,7 +83,7 @@ public class GMSClientService implements Runnable, CallBack{
         flag = new Thread(this, "GMSClient:"+serviceName);
         flag.start();
     }
-    
+
     public void run() {
         GroupHandle gh = gms.getGroupHandle();
 

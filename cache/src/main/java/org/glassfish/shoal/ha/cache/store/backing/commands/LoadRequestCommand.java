@@ -37,7 +37,7 @@ import org.glassfish.shoal.ha.cache.util.ResponseMediator;
  */
 public class LoadRequestCommand<K, V> extends Command<K, V> {
 
-   
+
     private static final long serialVersionUID = 3672209854011660431L;
 
     private static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_LOAD_REQUEST_COMMAND);

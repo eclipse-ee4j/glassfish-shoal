@@ -29,7 +29,7 @@ import org.glassfish.ha.store.api.Storeable;
  */
 public class SimpleStoreableMetadata implements Storeable {
 
-   
+
     private static final long serialVersionUID = 2852227115353486022L;
 
     private long version;

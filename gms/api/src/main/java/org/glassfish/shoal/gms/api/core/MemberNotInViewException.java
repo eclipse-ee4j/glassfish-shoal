@@ -22,7 +22,7 @@ package org.glassfish.shoal.gms.api.core;
  */
 public class MemberNotInViewException extends GMSException {
 
-   
+
     private static final long serialVersionUID = -8581553671167071724L;
 
     public MemberNotInViewException() {

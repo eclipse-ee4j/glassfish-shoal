@@ -41,27 +41,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MultiThreadMessageSender implements CallBack{
 
-	private GroupManagementService gms;
-	private String memberToken;
-	private String destMemberToken;
-	private int sendingThreadNum;
-	private String msg = "hello, world";
+    private GroupManagementService gms;
+    private String memberToken;
+    private String destMemberToken;
+    private int sendingThreadNum;
+    private String msg = "hello, world";
     private AtomicInteger masterMsgId = new AtomicInteger(-1);
     private Thread[] threads;
-	
-	public MultiThreadMessageSender(String memberToken,String destMemberToken,int sendingThreadNum){
-		
-		this.memberToken = memberToken;
-		this.destMemberToken = destMemberToken;
-		this.sendingThreadNum = sendingThreadNum;
+
+    public MultiThreadMessageSender(String memberToken,String destMemberToken,int sendingThreadNum){
+
+        this.memberToken = memberToken;
+        this.destMemberToken = destMemberToken;
+        this.sendingThreadNum = sendingThreadNum;
         this.threads = new Thread[sendingThreadNum];
-				
-	}
-	
-	public void start(){
-		initGMS();		
-		startSenderThread();
-	}
+
+    }
+
+    public void start(){
+        initGMS();
+        startSenderThread();
+    }
 
     public void waitTillDone() {
         boolean done = false;
@@ -108,23 +108,23 @@ public class MultiThreadMessageSender implements CallBack{
         gms.shutdown(GMSConstants.shutdownType.INSTANCE_SHUTDOWN);
     }
 
-	private void initGMS(){
-		try {
+    private void initGMS(){
+        try {
             Properties props = new Properties();
             props.put(ServiceProviderConfigurationKeys.INCOMING_MESSAGE_QUEUE_SIZE.toString(), "1500");
             props.put(ServiceProviderConfigurationKeys.MONITORING.toString(), "0");
-			gms = (GroupManagementService) GMSFactory.startGMSModule(memberToken,"DemoGroup", GroupManagementService.MemberType.CORE, props);
-			gms.addActionFactory(new MessageActionFactoryImpl(this),"SimpleSampleComponent");
+            gms = (GroupManagementService) GMSFactory.startGMSModule(memberToken,"DemoGroup", GroupManagementService.MemberType.CORE, props);
+            gms.addActionFactory(new MessageActionFactoryImpl(this),"SimpleSampleComponent");
             gms.addActionFactory(new JoinNotificationActionFactoryImpl(this));
-			gms.join();
-			Thread.sleep(5000);
-		} catch (GMSException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+            gms.join();
+            Thread.sleep(5000);
+        } catch (GMSException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
 
-		}
-	}
-	private void startSenderThread(){
+        }
+    }
+    private void startSenderThread(){
 
         for(int i=0;i<sendingThreadNum; i++){
             final int i1 = i;
@@ -148,7 +148,7 @@ public class MultiThreadMessageSender implements CallBack{
                             while (true) {
                                 members = gms.getGroupHandle().getAllCurrentMembers();
                                 try {
-							        Thread.sleep(10);
+                                    Thread.sleep(10);
                                     if (msgId >= EXPECTED_NUMBER_OF_MESSAGES) {
 //                                        String stopMsg = "stop";
 //                                        System.out.println("sending stop message");
@@ -161,7 +161,7 @@ public class MultiThreadMessageSender implements CallBack{
                                         break;
                                     }
                                } catch (InterruptedException e) {
-							        e.printStackTrace();
+                                    e.printStackTrace();
                                     //break;
                                 } catch (GMSException e) {
                                     System.out.println("thread " + i + "caught GMSException " + e );
@@ -172,18 +172,18 @@ public class MultiThreadMessageSender implements CallBack{
                             if (msgId >= EXPECTED_NUMBER_OF_MESSAGES) {
                                 break;
                             }
-	                    }
+                        }
                     } finally {
-					    System.out.println("Exiting threadid " + i1);
+                        System.out.println("Exiting threadid " + i1);
                     }
                 }
-			}, "SendingThread_" + i);
+            }, "SendingThread_" + i);
             threads[i].start();
-		}
-	}
+        }
+    }
 
 
-	public void processNotification(Signal arg0) {
+    public void processNotification(Signal arg0) {
         if (arg0 instanceof JoinNotificationSignal) {
             JoinNotificationSignal joinSig = (JoinNotificationSignal)arg0;
         } else if (arg0 instanceof MessageSignal) {
@@ -253,21 +253,21 @@ public class MultiThreadMessageSender implements CallBack{
     private static final int PAYLOADSIZE = 80 * 1024;
     private static final StringBuffer payload = new StringBuffer(PAYLOADSIZE);
 
-	/**
-	 * main
-	 * 
-	 * start serveral threads to send message
-	 * 
-	 * usage: start two instance using following two commands for the test 
-	 * 			java MultiThreadMessageSender A B 20
-	 * 		  	java MultiThreadMessageSender B A 0
-	 * 
-	 * @param args command line args
-	 */
-	public static void main(String[] args) {
-		String memberToken = args[0];
-		String destMemberToken = args[1];
-		int sendingThreadNum = Integer.parseInt(args[2]);
+    /**
+     * main
+     *
+     * start serveral threads to send message
+     *
+     * usage: start two instance using following two commands for the test
+     *             java MultiThreadMessageSender A B 20
+     *               java MultiThreadMessageSender B A 0
+     *
+     * @param args command line args
+     */
+    public static void main(String[] args) {
+        String memberToken = args[0];
+        String destMemberToken = args[1];
+        int sendingThreadNum = Integer.parseInt(args[2]);
         EXPECTED_NUMBER_OF_MESSAGES = NUM_MESSAGES_TO_SEND * sendingThreadNum;
 
         msgIdReceived = new boolean[EXPECTED_NUMBER_OF_MESSAGES];
@@ -280,12 +280,12 @@ public class MultiThreadMessageSender implements CallBack{
         logger.setLevel(Level.CONFIG);
         for (int i = 0; i < PAYLOADSIZE; i++) {
             payload.append('X');
-        }        
-		MultiThreadMessageSender multiThreadMessageSender = new MultiThreadMessageSender(memberToken,destMemberToken,sendingThreadNum);
-		multiThreadMessageSender.start();
+        }
+        MultiThreadMessageSender multiThreadMessageSender = new MultiThreadMessageSender(memberToken,destMemberToken,sendingThreadNum);
+        multiThreadMessageSender.start();
         multiThreadMessageSender.waitTillDone();
         logger.info("Test completed.");
 
-	}
+    }
 }
 

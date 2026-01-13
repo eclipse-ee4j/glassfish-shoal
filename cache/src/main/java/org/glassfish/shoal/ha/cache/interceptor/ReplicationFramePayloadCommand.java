@@ -36,7 +36,7 @@ import org.glassfish.shoal.ha.cache.command.ReplicationCommandOpcode;
  */
 public class ReplicationFramePayloadCommand<K, V> extends Command {
 
-   
+
     private static final long serialVersionUID = -7673740871785789916L;
 
     private transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REPLICATION_FRAME_COMMAND);

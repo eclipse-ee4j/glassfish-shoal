@@ -28,7 +28,7 @@ import org.glassfish.shoal.ha.cache.api.ShoalCacheLoggerConstants;
  */
 public abstract class AbstractSaveCommand<K, V> extends AcknowledgedCommand<K, V> {
 
-   
+
     private static final long serialVersionUID = 241699054955846907L;
 
     protected transient static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_SAVE_COMMAND);

@@ -663,7 +663,7 @@ public class GroupHandleTest {
             gmsLogger.log(Level.SEVERE, "TEST39: sendMessage to doesnotexist member did not result in a MemberNotInViewException");
         } catch (MemberNotInViewException mnive) {
         } catch (GMSException ge) {
-            
+
         }
 
             // send a message to the TestComponent component of all members
@@ -786,7 +786,7 @@ public class GroupHandleTest {
         } catch (GMSException ge) {
             // expect this for null target component.
         }
-        
+
         // send a message to the TestComponent component of all members
         numOfTests++;
         gmsLogger.log(Level.INFO, "Executing TEST35");
@@ -1217,7 +1217,7 @@ public class GroupHandleTest {
             gmsLogger.log(Level.SEVERE, "TEST46: lowerFence(null, null): resulted in a non GMSException:" + ex);
         }
 
-        // JMF: COMMENT OUT all getMemberState test for STOPPED for now.  
+        // JMF: COMMENT OUT all getMemberState test for STOPPED for now.
 
         // try to get member state of core102 using negative threshold value
 //        numOfTests++;

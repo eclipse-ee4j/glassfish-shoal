@@ -23,7 +23,7 @@ package org.glassfish.shoal.gms.api.core;
  * @version $Revision$
  */
 public class GMSNotInitializedException extends GMSException {
-   
+
     private static final long serialVersionUID = -6120235287892833517L;
 
     public GMSNotInitializedException() {

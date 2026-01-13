@@ -33,7 +33,7 @@ import org.glassfish.shoal.ha.cache.util.ResponseMediator;
  */
 public class RemoveExpiredResultCommand<K, V> extends Command<String, V> {
 
-   
+
     private static final long serialVersionUID = -6402834139071754486L;
 
     protected static final Logger _logger = Logger.getLogger(ShoalCacheLoggerConstants.CACHE_REMOVE_COMMAND);

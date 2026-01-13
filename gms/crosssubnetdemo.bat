@@ -37,7 +37,7 @@ echo "%jdk_home%"\java -Dcom.sun.management.jmxremote -DMEMBERTYPE=%3 -DINSTANCE
 goto end
 
 :usage
-echo Usage: %0 parameters... 
+echo Usage: %0 parameters...
 echo The required parameters are :
 echo instance_id_token groupname membertype{CORE--OR--SPECTATOR} Life-In-Milliseconds log-level IS_INITIAL_HOST={true--OR--false} INITIAL_HOST_LIST={comma separated (no space) list of tcp addresses in the form tcp://ipaddress:port}
 echo Life in milliseconds should be at least 60000 to demo failure fencing.

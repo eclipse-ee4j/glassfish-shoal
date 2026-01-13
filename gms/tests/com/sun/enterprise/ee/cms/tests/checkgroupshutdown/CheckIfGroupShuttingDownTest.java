@@ -72,7 +72,7 @@ public class CheckIfGroupShuttingDownTest implements CallBack{
         registerForGroupEvents(gms);
         //join group
         joinGMSGroup(group, gms);
-        
+
         if (serverName.equals("C1"))
               logger.info("SHUTDOWN : Is the group shutting down ? : " + gms.isGroupBeingShutdown());
 
@@ -92,7 +92,7 @@ public class CheckIfGroupShuttingDownTest implements CallBack{
         } catch (InterruptedException e) {
             logger.log(Level.WARNING, e.getMessage());
         }
-        
+
         if (serverName.equals("C1"))
             logger.info("SHUTDOWN : Now is the group shutting down ? : " + gms.isGroupBeingShutdown());
 

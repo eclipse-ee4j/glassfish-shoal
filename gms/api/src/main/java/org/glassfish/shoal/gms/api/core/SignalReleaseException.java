@@ -25,7 +25,7 @@ package org.glassfish.shoal.gms.api.core;
  * @version $Revision$
  */
 public class SignalReleaseException extends Exception {
-   
+
     private static final long serialVersionUID = 4568715109280384599L;
 
     public SignalReleaseException() {
