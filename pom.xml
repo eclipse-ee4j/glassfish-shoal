@@ -96,7 +96,7 @@
     </licenses>
 
     <properties>
-        <grizzly.version>5.0.0-SNAPSHOT</grizzly.version>
+        <grizzly.version>4.0.2</grizzly.version>
         <junit.version>4.13.2</junit.version>
         <ha.api.version>3.1.13</ha.api.version>
 
@@ -123,6 +123,13 @@
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>6.0.0</version>
+                    <configuration>
+                        <failOnWarning>true</failOnWarning>
+                        <niceManifest>true</niceManifest>
+                        <instructions>
+                            <_consumer-policy><![CDATA[$${versionmask;=}]]></_consumer-policy>
+                        </instructions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
