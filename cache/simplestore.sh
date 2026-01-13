@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2021, 2026 Contributors to the Eclipse Foundation.
 # Copyright (c) 2010, 2018 Oracle and/or its affiliates. All rights reserved.
 #
 # This program and the accompanying materials are made available under the
@@ -35,5 +36,5 @@ CACHE_HOME=.
 CP=${HA_API_JAR}:${CACHE_HOME}/target/classes:${CACHE_HOME}/../gms/api/target/shoal-gms-api.jar:${CACHE_HOME}/../gms/impl/target/shoal-gms-impl.jar:${CACHE_HOME}/../gms/lib/grizzly-framework.jar:${CACHE_HOME}/../gms/lib/grizzly-utils.jar
 
 
-#java -cp ${CP}  -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 org.shoal.ha.cache.util.StoreableBackingStoreShell cache $1 $2
-java -cp ${CP} -Dorg.shoal.ha.cache.mbean.register=true org.shoal.ha.cache.util.SimpleStoreableBackingStoreShell cache $1 shoal-shell-group
+#java -cp ${CP}  -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 org.glassfish.shoal.ha.cache.util.StoreableBackingStoreShell cache $1 $2
+java -cp ${CP} -Dorg.glassfish.shoal.ha.cache.mbean.register=true org.glassfish.shoal.ha.cache.util.SimpleStoreableBackingStoreShell cache $1 shoal-shell-group

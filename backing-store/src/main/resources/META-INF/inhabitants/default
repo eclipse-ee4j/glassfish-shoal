@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 # Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
 #
 # This program and the accompanying materials are made available under the
@@ -14,6 +15,5 @@
 # SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 #
 
-# generated on 17 Jun 2010 15:23:45 GMT
-class=org.shoal.adapter.store.ReplicationBackingStoreFactory,index=org.glassfish.ha.store.api.BackingStoreFactory:replication
-class=org.shoal.adapter.store.GlassFishReplicationBackingStoreFactory,index=org.glassfish.ha.store.api.BackingStoreFactory:shoal-backing-store
+class=org.glassfish.shoal.adapter.store.ReplicationBackingStoreFactory,index=org.glassfish.ha.store.api.BackingStoreFactory:replication
+class=org.glassfish.shoal.adapter.store.GlassFishReplicationBackingStoreFactory,index=org.glassfish.ha.store.api.BackingStoreFactory:shoal-backing-store

@@ -54,7 +54,7 @@ import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreFactory;
 import org.glassfish.ha.store.spi.BackingStoreFactoryRegistry;
-import org.shoal.adapter.store.ReplicationBackingStoreFactory;
+import org.glassfish.shoal.adapter.store.ReplicationBackingStoreFactory;
 
 public class KillTest implements CallBack {
 

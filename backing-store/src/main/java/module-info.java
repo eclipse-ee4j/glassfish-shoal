@@ -22,5 +22,5 @@ module org.glassfish.shoal.backingstore {
     requires org.glassfish.ha.api;
     requires org.glassfish.shoal.ha.cache;
 
-    exports org.shoal.adapter.store;
+    exports org.glassfish.shoal.adapter.store;
 }

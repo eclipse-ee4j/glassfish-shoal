@@ -26,11 +26,11 @@ module org.glassfish.shoal.ha.cache {
     requires org.glassfish.shoal.gms.api;
     requires org.glassfish.shoal.gms.impl;
 
-    exports org.shoal.ha.cache.api;
-    exports org.shoal.ha.cache.command;
-    exports org.shoal.ha.cache.util;
-    exports org.shoal.ha.cache.store;
-    exports org.shoal.ha.cache.store.backing;
-    exports org.shoal.ha.cache.store.backing.commands;
-    exports org.shoal.ha.cache.mapper;
+    exports org.glassfish.shoal.ha.cache.api;
+    exports org.glassfish.shoal.ha.cache.command;
+    exports org.glassfish.shoal.ha.cache.util;
+    exports org.glassfish.shoal.ha.cache.store;
+    exports org.glassfish.shoal.ha.cache.store.backing;
+    exports org.glassfish.shoal.ha.cache.store.backing.commands;
+    exports org.glassfish.shoal.ha.cache.mapper;
 }

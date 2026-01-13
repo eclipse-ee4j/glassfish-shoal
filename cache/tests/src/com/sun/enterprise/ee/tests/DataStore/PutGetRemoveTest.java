@@ -49,8 +49,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.ErrorManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.shoal.ha.cache.api.DataStore;
-import org.shoal.ha.cache.api.DataStoreFactory;
+import org.glassfish.shoal.ha.cache.api.DataStore;
+import org.glassfish.shoal.ha.cache.api.DataStoreFactory;
 
 public class PutGetRemoveTest implements CallBack {
 
