@@ -19,8 +19,8 @@ publish_home=./dist
 lib_home=./lib
 
 usage () {
-    cat << USAGE 
-Usage: $0 <parameters...> 
+    cat << USAGE
+Usage: $0 <parameters...>
 The required parameters are :
  <instance_id_token> <sendto-instance_id_token> <sendingThreadNumber> <log level> <tcpstartport> <tcpendport>
 <tcpstartport> and <tcpendport> are optional.  Grizzly and jxta transports have different defaults.

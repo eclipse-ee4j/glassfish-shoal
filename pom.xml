@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2023, 2024 Contributors to the Eclipse Foundation. All rights reserved.
+    Copyright (c) 2023, 2026 Contributors to the Eclipse Foundation.
     Copyright (c) 2020 Payara Services Ltd.
     Copyright (c) 2009, 2018 Oracle and/or its affiliates. All rights reserved.
 
@@ -18,7 +18,7 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -29,7 +29,7 @@
     <groupId>org.glassfish.shoal</groupId>
     <artifactId>shoal</artifactId>
     <packaging>pom</packaging>
-    <version>3.1.1-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <name>shoal</name>
     <description>GlassFish project for scalable dynamic clustering infrastructure to for fault tolerance, reliability and availability.</description>
     <url>https://github.com/eclipse-ee4j/glassfish-shoal</url>
@@ -96,13 +96,8 @@
     </licenses>
 
     <properties>
-
-        <grizzly.group.id>org.glassfish.grizzly</grizzly.group.id>
         <grizzly.version>4.0.2</grizzly.version>
-
-        <junit.group.id>junit</junit.group.id>
         <junit.version>4.13.2</junit.version>
-
         <ha.api.version>3.1.13</ha.api.version>
 
         <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>
@@ -121,13 +116,20 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.14.1</version>
                     <configuration>
-                        <release>11</release>
+                        <release>17</release>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>6.0.0</version>
+                    <configuration>
+                        <failOnWarning>true</failOnWarning>
+                        <niceManifest>true</niceManifest>
+                        <instructions>
+                            <_consumer-policy><![CDATA[$${versionmask;=}]]></_consumer-policy>
+                        </instructions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
@@ -173,6 +175,18 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>false</addClasspath>
+                        </manifest>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
@@ -186,15 +200,22 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>${junit.group.id}</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.glassfish.ha</groupId>
                 <artifactId>ha-api</artifactId>
                 <version>${ha.api.version}</version>
                 <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-framework</artifactId>
+                <version>${grizzly.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

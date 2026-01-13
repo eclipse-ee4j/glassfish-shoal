@@ -19,10 +19,10 @@ publish_home=./dist
 lib_home=./lib
 
 usage () {
-    cat << USAGE 
-Usage: $0 <parameters...> 
+    cat << USAGE
+Usage: $0 <parameters...>
 The required parameters are :
- <sender|receiver> 
+ <sender|receiver>
 USAGE
    exit 0
 }
@@ -31,7 +31,7 @@ USAGE
  #   usage;
 #fi
 
-#if [ -n $5 ]; then 
+#if [ -n $5 ]; then
 
 java -Dcom.sun.management.jmxremote -cp ${publish_home}/shoal-gms-tests.jar:${publish_home}/shoal-gms.jar:${lib_home}/jxta.jar:${lib_home}/bcprov-jdk14.jar -DTYPE=$1 com.sun.enterprise.ee.cms.tests.p2pmessagesend.P2PMessageSendAndReceive;
 

@@ -24,14 +24,14 @@ package com.sun.enterprise.ee.cms.tests.p2pmessagesend;
  * This test needs to be run on 2 terminals : one as a sender and the other as a receiver.
  * The sender sends 10 messages and the receiver receives them.
  * This test is to check the P2P functionality (with a new thread being spawned for
- * every message send operation) introduced for DSC messages and messages sent using 
- * the groupHandle. 
+ * every message send operation) introduced for DSC messages and messages sent using
+ * the groupHandle.
  */
 
 import com.sun.enterprise.ee.cms.core.*;
 import com.sun.enterprise.ee.cms.impl.client.*;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
-import com.sun.enterprise.ee.cms.impl.common.GMSContext;
+import org.glassfish.shoal.gms.common.GMSContextFactory;
+import org.glassfish.shoal.gms.common.GMSContext;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 
 import java.text.MessageFormat;
@@ -112,9 +112,9 @@ public class P2PMessageSendAndReceive implements CallBack {
         joinGMSGroup(group, gms);
 
         try {
-	    waitForShutdown();
-	} catch (InterruptedException e) {
-	    logger.log(Level.WARNING, e.getMessage());
+        waitForShutdown();
+    } catch (InterruptedException e) {
+        logger.log(Level.WARNING, e.getMessage());
         }
 
         //leave the group gracefully

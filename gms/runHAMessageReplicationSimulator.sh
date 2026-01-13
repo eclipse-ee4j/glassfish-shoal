@@ -99,8 +99,8 @@ analyzeLogs(){
     echo  "==============="
     grep -a "FAILED" ${LOGS_DIR}/instance*log
     echo  "==============="
-    echo  "The following are the time results for SENDING messages:" 
-    grep -a "Sending Messages Time data" ${LOGS_DIR}/instance*log 
+    echo  "The following are the time results for SENDING messages:"
+    grep -a "Sending Messages Time data" ${LOGS_DIR}/instance*log
     echo  "---------------"
     ${ECHO} "          Time Delta          MsgsPerSec  BytesPerSecond      KBytesPerSecond      Messagesize    NumOfObjects  MessagesPerObject    Signal Queue      Message Queue"
     #Delta
@@ -126,8 +126,8 @@ analyzeLogs(){
     ${ECHO} "send     ${DELTAMIN}-${DELTAMAX}     ${MPSMIN}-${MPSMAX}      ${BPSMIN}-${BPSMAX}     ${KBPSMIN}-${KBPSMAX}      ${MSGSIZE}         ${NUMOFOBJECTS}           ${MSGSPEROBJECT}                 ${SIGNALQUEUEWATERMARKMIN}-${SIGNALQUEUEWATERMARKMAX}         ${MESSAGEQUEUEWATERMARKMIN}-${MESSAGEQUEUEWATERMARKMAX}"
 
     echo  "==============="
-    echo  "The following are the time results for RECEIVING messages:" 
-    grep -a "Receiving Messages Time data" ${LOGS_DIR}/instance*log 
+    echo  "The following are the time results for RECEIVING messages:"
+    grep -a "Receiving Messages Time data" ${LOGS_DIR}/instance*log
     echo  "---------------"
     ${ECHO} "          Time Delta          MsgsPerSec  BytesPerSecond      KBytesPerSecond        Messagesize    NumOfObjects  MessagesPerObject"
     #Delta
@@ -410,7 +410,7 @@ if [ $DIST = false ]; then
         edtcp=`expr ${sdtcp} + 30`
         count=`expr ${count} + 1`
     done
-else 
+else
    # distributed environment startup
    ${ECHO} "Starting CORE members in the distributed environment"
 

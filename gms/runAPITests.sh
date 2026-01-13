@@ -178,7 +178,7 @@ $ECHO
 $ECHO  "Killing any outstanding test processes"
 PIDS=`ps -ef | grep "com.sun.enterprise.ee.cms.tests.core.GroupHandleTest" | grep "${groupName}" | grep -v grep | awk '{printf ("%d ", $2)}'`
 if [ ! -z "${PIDS}" ]; then
-   $ECHO  "The following pids were found [${PIDS}], killing them"  
+   $ECHO  "The following pids were found [${PIDS}], killing them"
    kill -9 $PIDS
 fi
 PIDS1=`ps -ef | grep killoutstandingtestprocesses.sh | grep -v grep | awk '{printf ("%d ", $2)}' `

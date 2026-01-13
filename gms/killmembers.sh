@@ -22,7 +22,7 @@ else
 fi
 if [ ! -z "$PID" ]; then
    echo "Killing instance PID(s) :|$PID|"
-   echo "Date:";date 
+   echo "Date:";date
    kill -9  $PID
    if [ -z "${1}" ] ;then
        jps -v | grep ApplicationServer

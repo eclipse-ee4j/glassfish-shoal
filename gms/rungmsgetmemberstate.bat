@@ -42,7 +42,7 @@ goto end
 goto end
 
 :usage
-echo Usage: %0 parameters... 
+echo Usage: %0 parameters...
 echo The required parameters are :
 echo instance_id_token groupname membertype{CORE--OR--SPECTATOR} Life-In-Milliseconds log-level memberstate_threshold memberstate_timeout
 echo Life in milliseconds should be at least 60000 to demo failure fencing.

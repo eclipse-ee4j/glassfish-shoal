@@ -224,6 +224,6 @@ done
 # give time for the instances to start
 sleep 3
 # monitor for the testing to begin
-${TMPDIR}/script3 ${numInstances} 
+${TMPDIR}/script3 ${numInstances}
 # monitor when the testing is complete
-${TMPDIR}/script2 ${numInstances} 
+${TMPDIR}/script2 ${numInstances}

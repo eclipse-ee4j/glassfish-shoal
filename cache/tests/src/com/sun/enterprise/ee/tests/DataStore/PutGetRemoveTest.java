@@ -17,28 +17,28 @@
 /* this program is run using the runSimplePutGetRemove.sh */
 package com.sun.enterprise.ee.tests.DataStore;
 
-import com.sun.enterprise.ee.cms.core.CallBack;
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.GMSFactory;
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.core.JoinNotificationSignal;
-import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationSignal;
-import com.sun.enterprise.ee.cms.core.MessageSignal;
-import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
-import com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys;
-import com.sun.enterprise.ee.cms.core.Signal;
-import com.sun.enterprise.ee.cms.impl.base.Utility;
-import com.sun.enterprise.ee.cms.impl.client.JoinNotificationActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.JoinedAndReadyNotificationActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.MessageActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.PlannedShutdownActionFactoryImpl;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import org.glassfish.shoal.gms.api.core.CallBack;
+import org.glassfish.shoal.gms.api.core.GMSConstants;
+import org.glassfish.shoal.gms.api.core.GMSException;
+import org.glassfish.shoal.gms.api.core.GMSFactory;
+import org.glassfish.shoal.gms.api.core.GroupManagementService;
+import org.glassfish.shoal.gms.api.core.JoinNotificationSignal;
+import org.glassfish.shoal.gms.api.core.JoinedAndReadyNotificationSignal;
+import org.glassfish.shoal.gms.api.core.MessageSignal;
+import org.glassfish.shoal.gms.api.core.PlannedShutdownSignal;
+import org.glassfish.shoal.gms.api.core.ServiceProviderConfigurationKeys;
+import org.glassfish.shoal.gms.api.core.Signal;
+import org.glassfish.shoal.gms.base.Utility;
+import org.glassfish.shoal.gms.client.JoinNotificationActionFactoryImpl;
+import org.glassfish.shoal.gms.client.JoinedAndReadyNotificationActionFactoryImpl;
+import org.glassfish.shoal.gms.client.MessageActionFactoryImpl;
+import org.glassfish.shoal.gms.client.PlannedShutdownActionFactoryImpl;
+import org.glassfish.shoal.gms.logging.GMSLogDomain;
 //import com.sun.enterprise.ee.cms.tests.GMSAdminConstants;
-import com.sun.enterprise.ee.cms.logging.NiceLogFormatter;
+import org.glassfish.shoal.gms.logging.NiceLogFormatter;
 import com.sun.enterprise.ee.cms.tests.GMSAdminAgent;
 import com.sun.enterprise.ee.cms.tests.GMSAdminConstants;
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyUtil;
+import org.glassfish.shoal.gms.mgmt.transport.grizzly.GrizzlyUtil;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -49,8 +49,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.ErrorManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.shoal.ha.cache.api.DataStore;
-import org.shoal.ha.cache.api.DataStoreFactory;
+import org.glassfish.shoal.ha.cache.api.DataStore;
+import org.glassfish.shoal.ha.cache.api.DataStoreFactory;
 
 public class PutGetRemoveTest implements CallBack {
 

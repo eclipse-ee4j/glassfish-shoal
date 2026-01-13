@@ -18,7 +18,7 @@ package com.sun.enterprise.ee.cms.tests;
 
 import com.sun.enterprise.ee.cms.core.*;
 import com.sun.enterprise.ee.cms.impl.client.*;
-import com.sun.enterprise.ee.cms.impl.common.GroupManagementServiceImpl;
+import org.glassfish.shoal.gms.common.GroupManagementServiceImpl;
 import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
 import com.sun.enterprise.ee.cms.logging.NiceLogFormatter;
 import java.util.ArrayList;

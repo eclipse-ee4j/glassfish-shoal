@@ -17,7 +17,7 @@
 
 -->
 
-<project name="Shoal Group Management Service Module" default="all" basedir=".">  
+<project name="Shoal Group Management Service Module" default="all" basedir=".">
 
     <!-- ========== Initialize Properties =================================== -->
 
@@ -172,7 +172,7 @@
         <property file="${basedir}/project.properties"/>
         <property name="version.num" value="${shoal.gms.version}"/>
 
-	<manifest file="MANIFEST.MF">
+  <manifest file="MANIFEST.MF">
           <attribute name="Implementation-Version" value="${version.num}"/>
           <attribute name="package" value="com.sun.enterprise.ee.cms"/>
           <attribute name="url" value="https://shoal.java.net"/>
@@ -252,12 +252,12 @@
             <zipfileset prefix="gms" dir="." includes="**/*.properties" />
             <zipfileset prefix="gms" dir="." includes="**/configs/**" excludes="**/*.properties" />
         </zip>
-	<zip zipfile="dist/shoal-gms-src.zip">
-	    <zipfileset prefix="gms" dir="." includes="**/*.java **/LogStrings.properties **/LocalStrings.properties"/>
-	</zip>
-	<zip zipfile="dist/shoal-gms-docs.zip">
-	    <zipfileset prefix="docs" dir="../www/docs" includes="**/*"/>
-	</zip>
+  <zip zipfile="dist/shoal-gms-src.zip">
+      <zipfileset prefix="gms" dir="." includes="**/*.java **/LogStrings.properties **/LocalStrings.properties"/>
+  </zip>
+  <zip zipfile="dist/shoal-gms-docs.zip">
+      <zipfileset prefix="docs" dir="../www/docs" includes="**/*"/>
+  </zip>
     </target>
 
 
@@ -282,7 +282,7 @@
 
             <link href="http://download.oracle.com/javase/6/docs/api" offline="true" packageListLoc="lib/javase6_docs_api_package-list"/>
 
-            <group title="Core Client Interfaces and Implementations" 
+            <group title="Core Client Interfaces and Implementations"
                    packages="com.sun.enterprise.ee.cms.core:com.sun.enterprise.ee.cms.core.*,
                    com.sun.enterprise.ee.cms.impl.client:com.sun.enterprise.ee.cms.impl.client.*"/>
 
@@ -462,7 +462,7 @@
         </junitreport>
     </target>
 
-    <target name="get-shoal-version"  description="get the org.shoal version value from pom file minus '-SNAPSHOT'">
+    <target name="get-shoal-version"  description="get the version value from pom file minus '-SNAPSHOT'">
         <get-ant_contrib-taskdef/>
 
         <xmlproperty prefix="shoalgms" file="${basedir}/pom.xml"/>

@@ -1,0 +1,2 @@
+org.glassfish.shoal.gms.mgmt.transport.grizzly.grizzly2.GrizzlyNetworkManager2
+org.glassfish.shoal.gms.mgmt.transport.jxta.JxtaNetworkManager

@@ -20,6 +20,10 @@ import static java.lang.Boolean.TRUE;
 
 import java.util.Properties;
 
+import org.glassfish.shoal.gms.api.core.GMSException;
+import org.glassfish.shoal.gms.api.core.GMSFactory;
+import org.glassfish.shoal.gms.api.core.GroupManagementService;
+
 import junit.framework.TestCase;
 
 public class GMSFactoryTest extends TestCase {

@@ -17,7 +17,7 @@
 
 -->
 
-<project name="Shoal" default="all" basedir=".">  
+<project name="Shoal" default="all" basedir=".">
 
     <target name="all" depends="clean, build"/>
     <target name="build" depends="maven-build, ant-build-tests, assembletestarchive"/>

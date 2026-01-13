@@ -618,6 +618,6 @@ else
       WORKSPACE_HOME=`echo $TMP | awk -F= '{print $2}' `
       echo "Collecting netstat results from ${INSTANCE_NAME}"
       echo "---------------------------------------------------"
-      ${EXECUTE_REMOTE_CONNECT} ${MACHINE_NAME} "cd ${WORKSPACE_HOME}; netstat.sh -u ${LOGS_DIR}/netstat_${INSTANCE_NAME}.log" 
+      ${EXECUTE_REMOTE_CONNECT} ${MACHINE_NAME} "cd ${WORKSPACE_HOME}; netstat.sh -u ${LOGS_DIR}/netstat_${INSTANCE_NAME}.log"
    done
 fi

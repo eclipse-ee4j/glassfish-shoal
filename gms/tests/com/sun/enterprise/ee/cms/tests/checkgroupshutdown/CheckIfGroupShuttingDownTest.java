@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import com.sun.enterprise.ee.cms.core.*;
 import com.sun.enterprise.ee.cms.impl.client.*;
-import com.sun.enterprise.ee.cms.impl.common.GMSContextFactory;
+import org.glassfish.shoal.gms.common.GMSContextFactory;
 import com.sun.enterprise.ee.cms.impl.base.Utility;
 
 /**
@@ -72,7 +72,7 @@ public class CheckIfGroupShuttingDownTest implements CallBack{
         registerForGroupEvents(gms);
         //join group
         joinGMSGroup(group, gms);
-        
+
         if (serverName.equals("C1"))
               logger.info("SHUTDOWN : Is the group shutting down ? : " + gms.isGroupBeingShutdown());
 
@@ -92,7 +92,7 @@ public class CheckIfGroupShuttingDownTest implements CallBack{
         } catch (InterruptedException e) {
             logger.log(Level.WARNING, e.getMessage());
         }
-        
+
         if (serverName.equals("C1"))
             logger.info("SHUTDOWN : Now is the group shutting down ? : " + gms.isGroupBeingShutdown());
 

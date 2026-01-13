@@ -16,32 +16,32 @@
 
 package com.sun.enterprise.ee.tests.BackingStore;
 
-import com.sun.enterprise.ee.cms.core.CallBack;
-import com.sun.enterprise.ee.cms.core.FailureNotificationSignal;
-import com.sun.enterprise.ee.cms.core.FailureSuspectedSignal;
-import com.sun.enterprise.ee.cms.core.GMSConstants;
-import com.sun.enterprise.ee.cms.core.GMSException;
-import com.sun.enterprise.ee.cms.core.GMSFactory;
-import com.sun.enterprise.ee.cms.core.GroupManagementService;
-import com.sun.enterprise.ee.cms.core.JoinNotificationSignal;
-import com.sun.enterprise.ee.cms.core.JoinedAndReadyNotificationSignal;
-import com.sun.enterprise.ee.cms.core.MessageSignal;
-import com.sun.enterprise.ee.cms.core.PlannedShutdownSignal;
-import com.sun.enterprise.ee.cms.core.ServiceProviderConfigurationKeys;
-import com.sun.enterprise.ee.cms.core.Signal;
-import com.sun.enterprise.ee.cms.impl.base.Utility;
-import com.sun.enterprise.ee.cms.impl.client.FailureNotificationActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.FailureSuspectedActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.JoinNotificationActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.JoinedAndReadyNotificationActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.MessageActionFactoryImpl;
-import com.sun.enterprise.ee.cms.impl.client.PlannedShutdownActionFactoryImpl;
-import com.sun.enterprise.ee.cms.logging.GMSLogDomain;
+import org.glassfish.shoal.gms.api.core.CallBack;
+import org.glassfish.shoal.gms.api.core.FailureNotificationSignal;
+import org.glassfish.shoal.gms.api.core.FailureSuspectedSignal;
+import org.glassfish.shoal.gms.api.core.GMSConstants;
+import org.glassfish.shoal.gms.api.core.GMSException;
+import org.glassfish.shoal.gms.api.core.GMSFactory;
+import org.glassfish.shoal.gms.api.core.GroupManagementService;
+import org.glassfish.shoal.gms.api.core.JoinNotificationSignal;
+import org.glassfish.shoal.gms.api.core.JoinedAndReadyNotificationSignal;
+import org.glassfish.shoal.gms.api.core.MessageSignal;
+import org.glassfish.shoal.gms.api.core.PlannedShutdownSignal;
+import org.glassfish.shoal.gms.api.core.ServiceProviderConfigurationKeys;
+import org.glassfish.shoal.gms.api.core.Signal;
+import org.glassfish.shoal.gms.base.Utility;
+import org.glassfish.shoal.gms.client.FailureNotificationActionFactoryImpl;
+import org.glassfish.shoal.gms.client.FailureSuspectedActionFactoryImpl;
+import org.glassfish.shoal.gms.client.JoinNotificationActionFactoryImpl;
+import org.glassfish.shoal.gms.client.JoinedAndReadyNotificationActionFactoryImpl;
+import org.glassfish.shoal.gms.client.MessageActionFactoryImpl;
+import org.glassfish.shoal.gms.client.PlannedShutdownActionFactoryImpl;
+import org.glassfish.shoal.gms.logging.GMSLogDomain;
 //import com.sun.enterprise.ee.cms.tests.GMSAdminConstants;
-import com.sun.enterprise.ee.cms.logging.NiceLogFormatter;
+import org.glassfish.shoal.gms.logging.NiceLogFormatter;
 import com.sun.enterprise.ee.cms.tests.GMSAdminAgent;
 import com.sun.enterprise.ee.cms.tests.GMSAdminConstants;
-import com.sun.enterprise.mgmt.transport.grizzly.GrizzlyUtil;
+import org.glassfish.shoal.gms.mgmt.transport.grizzly.GrizzlyUtil;
 import java.io.Serializable;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,7 +54,7 @@ import org.glassfish.ha.store.api.BackingStoreConfiguration;
 import org.glassfish.ha.store.api.BackingStore;
 import org.glassfish.ha.store.api.BackingStoreFactory;
 import org.glassfish.ha.store.spi.BackingStoreFactoryRegistry;
-import org.shoal.adapter.store.ReplicationBackingStoreFactory;
+import org.glassfish.shoal.adapter.store.ReplicationBackingStoreFactory;
 
 public class KillTest implements CallBack {
 

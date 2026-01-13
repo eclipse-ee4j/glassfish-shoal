@@ -32,37 +32,37 @@ import com.sun.enterprise.ee.cms.core.GroupManagementService.MemberType;
 
 public class GroupLeaderTest {
 
-	
-	/**
-	 * main
-	 * 
-	 * @param args command line args
-	 */
-	public static void main(String[] args) {
-		
-		
-		String serverToken = UUID.randomUUID().toString();
-		GroupManagementService gms = (GroupManagementService) GMSFactory.startGMSModule(serverToken, "DemoGroup", MemberType.CORE, null);
-		try {
-			gms.join();
-		} catch (GMSException e) {
-			e.printStackTrace();
-		}
-		
-		GroupHandle groupHandle = gms.getGroupHandle();
-		System.out.println(groupHandle.isGroupLeader());
-		System.out.println(groupHandle.getGroupLeader());
-		
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println(groupHandle.isGroupLeader());
-		System.out.println(groupHandle.getGroupLeader());
-		
-		
-	}
+
+    /**
+     * main
+     *
+     * @param args command line args
+     */
+    public static void main(String[] args) {
+
+
+        String serverToken = UUID.randomUUID().toString();
+        GroupManagementService gms = (GroupManagementService) GMSFactory.startGMSModule(serverToken, "DemoGroup", MemberType.CORE, null);
+        try {
+            gms.join();
+        } catch (GMSException e) {
+            e.printStackTrace();
+        }
+
+        GroupHandle groupHandle = gms.getGroupHandle();
+        System.out.println(groupHandle.isGroupLeader());
+        System.out.println(groupHandle.getGroupLeader());
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(groupHandle.isGroupLeader());
+        System.out.println(groupHandle.getGroupLeader());
+
+
+    }
 
 }
