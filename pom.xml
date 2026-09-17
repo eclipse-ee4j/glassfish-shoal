@@ -79,33 +79,6 @@
         </mailingList>
     </mailingLists>
 
-    <developers>
-        <developer>
-            <id>yaminikb</id>
-            <name>Yamini K B</name>
-            <organization>Oracle Corporation</organization>
-            <organizationUrl>http://www.oracle.com/</organizationUrl>
-        </developer>
-    </developers>
-
-    <contributors>
-        <contributor>
-            <name>Mahesh Kannan</name>
-            <organization>Oracle Corporation</organization>
-            <organizationUrl>http://www.oracle.com/</organizationUrl>
-        </contributor>
-        <contributor>
-            <name>Joe Fialli</name>
-            <organization>Oracle Corporation</organization>
-            <organizationUrl>http://www.oracle.com/</organizationUrl>
-        </contributor>
-        <contributor>
-            <name>Steve Millidge</name>
-            <organization>Payara</organization>
-            <organizationUrl>http://www.payara.fish/</organizationUrl>
-        </contributor>
-    </contributors>
-
     <licenses>
         <license>
             <name>EPL 2.0</name>
