@@ -23,7 +23,7 @@ pipeline {
     skipStagesAfterUnstable()
     // show timestamps in logs
     timestamps()
-    // global timeout, abort after 6 hours
+    // global timeout
     timeout(time: 20, unit: 'MINUTES')
   }
   stages {
