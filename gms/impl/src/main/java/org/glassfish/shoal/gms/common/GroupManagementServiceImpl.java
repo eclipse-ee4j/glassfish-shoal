@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020 Payara Services Ltd.
  *
@@ -80,6 +81,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
     public GroupManagementServiceImpl() {
     }
 
+    @Override
     public void initialize(final String serverToken, final String groupName, final GroupManagementService.MemberType membertype, final Properties properties) {
         if (initialized.compareAndSet(false, true)) {
             ctx = GMSContextFactory.produceGMSContext(serverToken, groupName, membertype, properties);
@@ -88,6 +90,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
         }
     }
 
+    @Override
     public void run() {
         startup();
     }
@@ -107,6 +110,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param failureNotificationActionFactory implementation of this interface
      */
+    @Override
     public void addActionFactory(final FailureNotificationActionFactory failureNotificationActionFactory) {
         router.addDestination(failureNotificationActionFactory);
     }
@@ -118,6 +122,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      * @param componentName name of component
      * @param failureRecoveryActionFactory implmentation of this interface
      */
+    @Override
     public void addActionFactory(final String componentName, final FailureRecoveryActionFactory failureRecoveryActionFactory) {
         router.addDestination(componentName, failureRecoveryActionFactory);
     }
@@ -129,6 +134,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      * JoinedAndReadyNotificationAction instance which consumes the member joined and ready notification signal.
      */
 
+    @Override
     public void addActionFactory(final JoinedAndReadyNotificationActionFactory joinedAndReadyNotificationActionFactory) {
         router.addDestination(joinedAndReadyNotificationActionFactory);
     }
@@ -138,6 +144,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param joinNotificationActionFactory implementation of this interface
      */
+    @Override
     public void addActionFactory(final JoinNotificationActionFactory joinNotificationActionFactory) {
         router.addDestination(joinNotificationActionFactory);
     }
@@ -148,6 +155,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param plannedShutdownActionFactory implementation of this interface
      */
+    @Override
     public void addActionFactory(final PlannedShutdownActionFactory plannedShutdownActionFactory) {
         router.addDestination(plannedShutdownActionFactory);
     }
@@ -158,14 +166,17 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      * @param messageActionFactory implementation of this interface
      * @param componentName name of component to identify target component for message delivery
      */
+    @Override
     public void addActionFactory(final MessageActionFactory messageActionFactory, final String componentName) {
         router.addDestination(messageActionFactory, componentName);
     }
 
+    @Override
     public void addActionFactory(final FailureSuspectedActionFactory failureSuspectedActionFactory) {
         router.addDestination(failureSuspectedActionFactory);
     }
 
+    @Override
     public void addActionFactory(GroupLeadershipNotificationActionFactory groupLeadershipNotificationActionFactory) {
         router.addDestination(groupLeadershipNotificationActionFactory);
     }
@@ -176,6 +187,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param failureNotificationActionFactory implementation of this interface
      */
+    @Override
     public void removeActionFactory(final FailureNotificationActionFactory failureNotificationActionFactory) {
         router.removeDestination(failureNotificationActionFactory);
     }
@@ -186,10 +198,12 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param componentName name of component
      */
+    @Override
     public void removeFailureRecoveryActionFactory(final String componentName) {
         router.removeFailureRecoveryAFDestination(componentName);
     }
 
+    @Override
     public void removeFailureSuspectedActionFactory(final FailureSuspectedActionFactory failureSuspectedActionFactory) {
         router.removeDestination(failureSuspectedActionFactory);
     }
@@ -200,6 +214,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param joinNotificationActionFactory implementation of this interface
      */
+    @Override
     public void removeActionFactory(final JoinNotificationActionFactory joinNotificationActionFactory) {
         router.removeDestination(joinNotificationActionFactory);
     }
@@ -210,6 +225,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param joinedAndReadyNotificationActionFactory implementation of this interface
      */
+    @Override
     public void removeActionFactory(final JoinedAndReadyNotificationActionFactory joinedAndReadyNotificationActionFactory) {
         router.removeDestination(joinedAndReadyNotificationActionFactory);
     }
@@ -220,6 +236,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param plannedShutdownActionFactory implementation of this interface
      */
+    @Override
     public void removeActionFactory(final PlannedShutdownActionFactory plannedShutdownActionFactory) {
         router.removeDestination(plannedShutdownActionFactory);
     }
@@ -229,10 +246,12 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param componentName name of component
      */
+    @Override
     public void removeMessageActionFactory(final String componentName) {
         router.removeMessageAFDestination(componentName);
     }
 
+    @Override
     public void removeActionFactory(GroupLeadershipNotificationActionFactory groupLeadershipNotificationActionFactory) {
         router.removeDestination(groupLeadershipNotificationActionFactory);
     }
@@ -242,6 +261,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @return com.sun.enterprise.ee.cms.GroupHandle
      */
+    @Override
     public GroupHandle getGroupHandle() {
         return ctx.getGroupHandle();
     }
@@ -250,10 +270,12 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      * Sends a shutdown command to the GMS indicating that the parent thread is about to be shutdown as part of a planned
      * shutdown operation
      */
+    @Override
     public void shutdown(final GMSConstants.shutdownType shutdownType) {
         leave(shutdownType);
     }
 
+    @Override
     public void updateMemberDetails(final String memberToken, final Serializable key, final Serializable value) throws GMSException {
         if (isWatchdog()) {
             return;
@@ -271,6 +293,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      * @return Map &lt;Serializable, Serializable&gt;
      */
 
+    @Override
     public Map<Serializable, Serializable> getMemberDetails(final String memberToken) {
         if (isWatchdog()) {
             final Map<Serializable, Serializable> retval = new HashMap<Serializable, Serializable>();
@@ -279,6 +302,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
         return ctx.getDistributedStateCache().getFromCacheForPattern(MEMBER_DETAILS, memberToken);
     }
 
+    @Override
     public Map<Serializable, Serializable> getAllMemberDetails(final Serializable key) {
 
         final Map<Serializable, Serializable> retval = new HashMap<Serializable, Serializable>();
@@ -296,6 +320,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
         return retval;
     }
 
+    @Override
     public String getGroupName() {
         if (isWatchdog()) {
             return "";
@@ -303,10 +328,12 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
         return ctx.getGroupName();
     }
 
+    @Override
     public GroupManagementService.MemberType getMemberType() {
         return ctx.getMemberType();
     }
 
+    @Override
     public String getInstanceName() {
         return ctx.getServerIdentityToken();
     }
@@ -328,6 +355,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
         }
     }
 
+    @Override
     public void join() throws GMSException {
         // ensure that only join the group once.
         if (hasJoinedGroup.compareAndSet(false, true)) {
@@ -367,6 +395,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      *
      * @param groupName name of group being shutdown.
      */
+    @Override
     public void announceGroupShutdown(final String groupName, final GMSConstants.shutdownState shutdownState) {
 
         final GMSContext gctx = GMSContextFactory.getGMSContext(groupName);
@@ -375,6 +404,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
 
     }
 
+    @Override
     public void announceGroupStartup(String groupName, GMSConstants.groupStartupState startupState, List<String> memberTokens) {
         final GMSContext gctx = GMSContextFactory.getGMSContext(groupName);
         final StringBuilder sb = new StringBuilder(120);
@@ -387,21 +417,8 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
         gctx.announceGroupStartup(groupName, startupState, memberTokens);
     }
 
-    /**
-     * <p>
-     * This API is provided for the parent application to report to the group its joined and ready state to begin processing
-     * its operations. The group member that this parent application represents is now ready to process its operations at
-     * the time of this announcement to the group. GMS clients in all other group members that are interested in knowing
-     * when another member is ready to start processing operations, can subscribe to the event JoinedAndReadyEvent and be
-     * notified of this JoinedAndReadyNotificationSignal.
-     * </p>
-     * <p>
-     * This api should be called only after group join operation has completed.
-     * </p>
-     *
-     * @param groupName name of the group
-     * @deprecated use reportJoinedAndReadyState()
-     */
+    @Deprecated
+    @Override
     public void reportJoinedAndReadyState(String groupName) {
         final GMSContext gctx = GMSContextFactory.getGMSContext(groupName);
         if (gctx != null) {
@@ -424,6 +441,7 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      * This api should be called only after group join operation has completed.
      * </p>
      */
+    @Override
     public void reportJoinedAndReadyState() {
         if (ctx != null) {
             logger.log(Level.INFO, "gms.ready", new Object[] { getGroupName() });
@@ -446,14 +464,18 @@ public class GroupManagementServiceImpl implements GroupManagementService, Runna
      * @return boolean
      * @deprecated
      */
+    @Deprecated
+    @Override
     public boolean isGroupBeingShutdown(String groupName) {
         return ctx.isGroupBeingShutdown(groupName);
     }
 
+    @Override
     public boolean isGroupBeingShutdown() {
         return ctx.isGroupBeingShutdown(this.getGroupName());
     }
 
+    @Override
     public void announceWatchdogObservedFailure(String serverToken) throws GMSException {
         if (!isWatchdog()) {
             throw new GMSException("illegal state: announceWatchdogObservedFailure operation is only valid for a WATCHDOG member.");

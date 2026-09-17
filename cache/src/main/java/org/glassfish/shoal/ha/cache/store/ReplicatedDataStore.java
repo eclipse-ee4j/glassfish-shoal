@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2024, 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -79,10 +79,6 @@ public class ReplicatedDataStore<K, V extends Serializable> implements DataStore
 
     private String storeName;
 
-    private String instanceName;
-
-    private String groupName;
-
     private GroupService gs;
 
     private CommandManager<K, V> cm;
@@ -106,8 +102,6 @@ public class ReplicatedDataStore<K, V extends Serializable> implements DataStore
         this.dsc = conf;
         this.storeName = conf.getStoreName();
         this.gs = gs;
-        this.instanceName = gs.getMemberName();
-        this.groupName = gs.getGroupName();
 
         initialize();
         postInitialization();
@@ -521,7 +515,7 @@ public class ReplicatedDataStore<K, V extends Serializable> implements DataStore
         CommandResponse resp = respMed.createCommandResponse();
         long tokenId = resp.getTokenId();
         Future<Integer> future = resp.getFuture();
-        resp.setTransientResult(new Integer(0));
+        resp.setTransientResult(Integer.valueOf(0));
 
         try {
             dsc.acquireReadLock();
@@ -544,7 +538,7 @@ public class ReplicatedDataStore<K, V extends Serializable> implements DataStore
             int localResult = replicaStore.removeExpired();
             synchronized (resp) {
                 Integer existingValue = (Integer) resp.getTransientResult();
-                Integer newResult = new Integer(existingValue.intValue() + localResult);
+                Integer newResult = Integer.valueOf(existingValue.intValue() + localResult);
                 resp.setTransientResult(newResult);
             }
 
@@ -581,11 +575,13 @@ public class ReplicatedDataStore<K, V extends Serializable> implements DataStore
         }
     }
 
+    @Deprecated
     @Override
     public void destroy() {
         close();
     }
 
+    @Override
     public int size() {
 
         int result = 0;
