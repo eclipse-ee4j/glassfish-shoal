@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -62,8 +63,7 @@ public class NiceLogFormatter extends Formatter {
 
     private long recordNumber = 0;
 
-    @SuppressWarnings("unchecked")
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     private static final String RECORD_BEGIN_MARKER = "[#|";
     private static final String RECORD_END_MARKER = "|#]" + LINE_SEPARATOR + LINE_SEPARATOR;
@@ -81,10 +81,12 @@ public class NiceLogFormatter extends Formatter {
         loggerResourceBundleTable = new HashMap<String, ResourceBundle>();
     }
 
+    @Override
     public String format(LogRecord record) {
         return uniformLogFormat(record);
     }
 
+    @Override
     public String formatMessage(LogRecord record) {
         return uniformLogFormat(record);
     }
@@ -108,7 +110,6 @@ public class NiceLogFormatter extends Formatter {
     private String uniformLogFormat(LogRecord record) {
 
         try {
-
             StringBuilder recordBuffer = new StringBuilder(RECORD_BEGIN_MARKER);
             // The following operations are to format the date and time in a
             // human readable format.
@@ -123,7 +124,7 @@ public class NiceLogFormatter extends Formatter {
             recordBuffer.append(record.getLoggerName()).append(FIELD_SEPARATOR);
 
             recordBuffer.append("_ThreadID").append(NV_SEPARATOR);
-            recordBuffer.append(record.getThreadID()).append(NVPAIR_SEPARATOR);
+            recordBuffer.append(record.getLongThreadID()).append(NVPAIR_SEPARATOR);
 
             recordBuffer.append("_ThreadName").append(NV_SEPARATOR);
             recordBuffer.append(Thread.currentThread().getName());

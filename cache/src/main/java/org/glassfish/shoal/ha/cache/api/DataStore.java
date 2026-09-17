@@ -72,6 +72,10 @@ public interface DataStore<K, V> {
      */
     void close();
 
+    /**
+     * @deprecated Use {@link #close()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "4.0.1")
     void destroy();
 
     int size();

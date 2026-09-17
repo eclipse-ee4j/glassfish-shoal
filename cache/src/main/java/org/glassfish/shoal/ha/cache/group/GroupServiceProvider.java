@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2022, 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2022 Contributors to the Eclipse Foundation. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -78,6 +78,7 @@ public class GroupServiceProvider implements GroupService, CallBack {
         init(myName, groupName, startGMS);
     }
 
+    @Override
     public void processNotification(Signal notification) {
         boolean isJoin = true;
         if ((notification instanceof JoinedAndReadyNotificationSignal) || (notification instanceof FailureNotificationSignal)
@@ -217,6 +218,7 @@ public class GroupServiceProvider implements GroupService, CallBack {
         }
     }
 
+    @Override
     public List<String> getCurrentCoreMembers() {
         return groupHandle.getCurrentCoreMembers();
     }
@@ -270,13 +272,13 @@ public class GroupServiceProvider implements GroupService, CallBack {
         final Long lastNotify = lastSendMsgFailNotification.get(targetMemberName);
         final long currentTime = System.currentTimeMillis();
         if (lastNotify == null || currentTime > lastNotify + SEND_FAILED_NOTIFICATION_PERIOD) {
-            lastSendMsgFailNotification.put(targetMemberName, new Long(currentTime));
+            lastSendMsgFailNotification.put(targetMemberName, Long.valueOf(currentTime));
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.WARNING, message, t);
             } else {
                 Throwable causeT = t.getCause();
                 String cause = causeT == null ? t.getMessage() : causeT.getMessage();
-                logger.log(Level.WARNING, message + " Cause:" + cause);
+                logger.log(Level.WARNING, message + " Cause: " + cause);
             }
         }
     }

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -223,7 +224,7 @@ public interface GroupManagementService {
      * pertaining to the member's details
      *
      * @param memberToken the member
-     * @return Map <Serializable, Serializable>
+     * @return {@code Map<Serializable, Serializable>}
      */
     Map<Serializable, Serializable> getMemberDetails(String memberToken);
 
@@ -234,7 +235,7 @@ public interface GroupManagementService {
      * details for the given key.
      *
      * @param key the map key
-     * @return Map <Serializable, Serializable>
+     * @return {@code Map<Serializable, Serializable>}
      */
     Map<Serializable, Serializable> getAllMemberDetails(Serializable key);
 
@@ -312,6 +313,7 @@ public interface GroupManagementService {
      * @param groupName name of the group
      * @deprecated use method that takes no parameters.
      */
+    @Deprecated(forRemoval = true, since = "4.0.1")
     void reportJoinedAndReadyState(String groupName);
 
     /**
@@ -334,6 +336,7 @@ public interface GroupManagementService {
      * @return boolean true if it is being shutdown
      * @deprecated use method with same name and no method parameters.
      */
+    @Deprecated
     boolean isGroupBeingShutdown(String groupName);
 
     /**

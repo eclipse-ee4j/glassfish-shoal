@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -30,7 +31,6 @@ import java.util.Map;
  * Each Signal is delivered on its own thread.
  *
  * @author Shreedhar Ganapathy Date: November 07, 2003
- * @version $Revision$
  */
 public interface Signal {
     /**
@@ -63,7 +63,7 @@ public interface Signal {
      * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
      * constituting data pertaining to the member's details
      *
-     * @return Map <Serializable, Serializable>
+     * @return {@code Map<Serializable, Serializable>}
      */
     Map<Serializable, Serializable> getMemberDetails();
 

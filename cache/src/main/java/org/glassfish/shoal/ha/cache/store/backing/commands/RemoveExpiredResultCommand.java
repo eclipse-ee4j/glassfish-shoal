@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -42,7 +43,7 @@ public class RemoveExpiredResultCommand<K, V> extends Command<String, V> {
 
     private long tokenId;
 
-    private int result = 0;
+    private int result;
 
     public RemoveExpiredResultCommand(String target, long tokenId, int result) {
         super(ReplicationCommandOpcode.REMOVE_EXPIRED_RESULT);
@@ -53,6 +54,7 @@ public class RemoveExpiredResultCommand<K, V> extends Command<String, V> {
         super.setKey("RemExpResp:" + tokenId);
     }
 
+    @Override
     public boolean beforeTransmit() {
         setTargetName(target);
         return target != null;
@@ -80,7 +82,7 @@ public class RemoveExpiredResultCommand<K, V> extends Command<String, V> {
             int pendingUpdates = 0;
             synchronized (resp) {
                 Integer existingValue = (Integer) resp.getTransientResult();
-                Integer newResult = new Integer(existingValue.intValue() + result);
+                Integer newResult = Integer.valueOf(existingValue.intValue() + result);
                 resp.setTransientResult(newResult);
                 pendingUpdates = resp.decrementAndGetExpectedUpdateCount();
             }
@@ -98,6 +100,7 @@ public class RemoveExpiredResultCommand<K, V> extends Command<String, V> {
         return true;
     }
 
+    @Override
     public String toString() {
         return getName() + "(result=" + result + ")";
     }

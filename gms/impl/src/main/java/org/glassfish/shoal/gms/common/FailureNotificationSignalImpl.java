@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -71,6 +72,7 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
      *
      * @throws org.glassfish.shoal.gms.api.core.SignalAcquireException the exception when signal is not acquired
      */
+    @Override
     public void acquire() throws SignalAcquireException {
         logger.log(Level.FINE, "FailureNotificationSignal Acquired...");
     }
@@ -80,6 +82,7 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
      *
      * @throws org.glassfish.shoal.gms.api.core.SignalReleaseException the exception when signal is not released
      */
+    @Override
     public void release() throws SignalReleaseException {
         failedMember = null;
         logger.log(Level.FINE, "FailureNotificationSignal Released...");
@@ -88,16 +91,13 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
     /**
      * returns the identity token of the failed member
      */
+    @Override
     public String getMemberToken() {
         return this.failedMember;
     }
 
-    /**
-     * returns the identity token of the failed member
-     *
-     * @return java.lang.String
-     * @deprecated
-     */
+    @Deprecated
+    @Override
     public String getFailedMemberToken() {
         return this.failedMember;
     }
@@ -106,8 +106,9 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
      * returns the details of the member who caused this Signal to be generated returns a Map containing key-value pairs
      * constituting data pertaining to the member's details
      *
-     * @return Map - &lt;Serializable, Serializable&gt;
+     * @return {@code Map<Serializable, Serializable>}
      */
+    @Override
     public Map<Serializable, Serializable> getMemberDetails() {
         return ctx.getDistributedStateCache().getFromCacheForPattern(MEMBER_DETAILS, failedMember);
     }
@@ -117,10 +118,12 @@ public class FailureNotificationSignalImpl implements FailureNotificationSignal 
      *
      * @return String
      */
+    @Override
     public String getGroupName() {
         return groupName;
     }
 
+    @Override
     public long getStartTime() {
         return startTime;
     }

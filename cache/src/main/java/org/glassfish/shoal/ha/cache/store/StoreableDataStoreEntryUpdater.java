@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -83,7 +84,7 @@ public class StoreableDataStoreEntryUpdater<K, V extends Storeable> extends Data
             }
             V v = null;
             try {
-                v = ctx.getValueClazz().newInstance();
+                v = ctx.getValueClazz().getConstructor().newInstance();
                 mergeIntoV(entry, v, saveCmd);
             } catch (Exception ex) {
                 throw new DataStoreException(ex);
