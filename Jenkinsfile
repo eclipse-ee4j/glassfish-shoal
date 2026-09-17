@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Contributors to the Eclipse Foundation. All rights reserved.
+ * Copyright (c) 2024, 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 2019-2022 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -18,8 +18,7 @@
 pipeline {
   agent any
   options {
-    // keep at most 50 builds
-    buildDiscarder(logRotator(numToKeepStr: '50'))
+    buildDiscarder(logRotator(numToKeepStr: '2', artifactNumToKeepStr: '2'))
     // abort pipeline if previous stage is unstable
     skipStagesAfterUnstable()
     // show timestamps in logs
@@ -36,10 +35,10 @@ pipeline {
       }
       steps {
         sh '''
-          mvn --batch-mode install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true --show-version -Pstaging
-          mvn --batch-mode verify -Dgpg.skip=true -Pstaging
+          mvn -V -B install -DskipTests=true
+          mvn -B verify
         '''
-        junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+        junit testResults: '**/target/*-reports/*.xml', allowEmptyResults: true, stdioRetention: 'FAILED', skipPublishingChecks: true
       }
     }
   }
