@@ -101,7 +101,7 @@
     <properties>
         <grizzly.version>5.0.2</grizzly.version>
         <junit.version>4.13.2</junit.version>
-        <ha.api.version>3.1.13</ha.api.version>
+        <ha.api.version>3.2.0</ha.api.version>
 
         <legal.doc.source>${maven.multiModuleProjectDirectory}/</legal.doc.source>
     </properties>
